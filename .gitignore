@@ -1,4 +1,8 @@
 
+# Environment
+
+.env
+
 # Editors, tools and OS's
 
 .buildpath
