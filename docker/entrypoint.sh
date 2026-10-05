@@ -137,7 +137,14 @@ if [ "${1:-}" = "apache2-foreground" ]; then
                 db_query "UPDATE $t SET $c = REPLACE($c, '$demo', '$BRAND_NAME') WHERE $c LIKE '%$demo%'"
             done
         done
+        # The homepage title is "<meta title> - <shop name>"; avoid saying the name twice
+        db_query "UPDATE qlo_meta_lang SET title='Hotels & Hospitality' WHERE title='$BRAND_NAME'"
         db_query "UPDATE qlo_category_lang SET link_rewrite='salisberg-hotels' WHERE link_rewrite='the-hotel-prime'"
         db_query "UPDATE qlo_configuration SET value='$BRAND_EMAIL' WHERE name IN ('PS_SHOP_EMAIL','WK_CUSTOMER_SUPPORT_EMAIL') AND value='hotelprime@htl.com'"
         db_query "UPDATE qlo_htl_branch_info SET email='$BRAND_EMAIL' WHERE email='hotelprime@htl.com'"
-        echo "$CONTENT_VERSION" > /data/.content-ve
+        echo "$CONTENT_VERSION" > /data/.content-version
+        echo "Content v$CONTENT_VERSION applied (demo identity replaced)"
+    fi
+fi
+
+exec docker-php-entrypoint "$@"

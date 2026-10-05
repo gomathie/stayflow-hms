@@ -32,7 +32,7 @@ RUN sed -i 's/\r$//' /usr/local/bin/salisberg-entrypoint \
 VOLUME ["/data", "/var/www/html/img", "/var/www/html/upload", "/var/www/html/download"]
 EXPOSE 80
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=300s --retries=5 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=900s --retries=5 \
     CMD curl -s -o /dev/null http://127.0.0.1/ || exit 1
 
 ENTRYPOINT ["salisberg-entrypoint"]
