@@ -406,6 +406,165 @@ header .header-top .ajax_cart_quantity {
 #index .htlTestemonial-owlCarousel .owl-dot span { background: #d9d0bd; }
 #index .htlTestemonial-owlCarousel .owl-dot.active span { background: var(--sb-gold); }
 
+/* ---------- Inner pages ---------- */
+
+/* Stock two-layer buttons (outer anchor + gradient span) flattened to brand */
+.button.btn-default,
+.btn.btn-default.button,
+.btn.button.exclusive,
+a.button.exclusive,
+button.button.exclusive {
+  background: var(--sb-green);
+  border: 1px solid var(--sb-green) !important;
+  border-radius: 10px;
+  color: #fff;
+  text-shadow: none;
+  transition: background .2s ease, border-color .2s ease;
+}
+.button.btn-default span,
+.btn.btn-default.button span,
+.btn.button span,
+.button.exclusive span {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  color: inherit;
+  text-shadow: none;
+  font-weight: 600;
+}
+.button.btn-default:hover,
+.btn.btn-default.button:hover,
+.btn.button.exclusive:hover,
+a.button.exclusive:hover,
+button.button.exclusive:hover {
+  background: var(--sb-gold);
+  border-color: var(--sb-gold) !important;
+  color: #fff;
+}
+
+.btn-success,
+.btn.btn-service-product.btn-success,
+#add_to_cart button.exclusive.book_now_submit {
+  background: var(--sb-green);
+  border-color: var(--sb-green) !important;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: .08em;
+  transition: background .2s ease, border-color .2s ease;
+}
+.btn-success:hover, .btn-success:focus,
+.btn.btn-service-product.btn-success:hover,
+#add_to_cart button.exclusive.book_now_submit:hover {
+  background: var(--sb-gold);
+  border-color: var(--sb-gold) !important;
+  color: #fff;
+}
+.btn-default:not(.button) { border-radius: 10px; }
+
+/* Accents */
+.theme-text-underline,
+hr.theme-text-underline { border-color: var(--sb-gold) !important; }
+.nav > li.active::after,
+.nav-tabs > li.active::after { background-color: var(--sb-gold) !important; }
+a.view_more,
+.rm_desc a,
+.num_reviews,
+.extra_demands_price_block,
+.add_new_occupancy_btn span,
+.add_new_occupancy_btn i::before { color: var(--sb-gold) !important; }
+.close_navbar { background-color: var(--sb-green) !important; }
+.layer_cart_product h2,
+.layer_cart_product h2 i::before { color: var(--sb-green-2) !important; }
+.ui-slider .ui-slider-range { background: var(--sb-gold) !important; }
+.ui-slider .ui-slider-handle { border-color: var(--sb-gold) !important; }
+
+.alert.alert-info {
+  background: var(--sb-cream);
+  border-color: var(--sb-line);
+  color: var(--sb-ink);
+  text-shadow: none;
+}
+.alert.alert-info::before { color: var(--sb-gold); }
+
+/* Date picker and occupancy pop-up */
+.date-picker-wrapper .day.toMonth.valid.checked,
+.date-picker-wrapper .day.first-date-selected,
+.date-picker-wrapper .day.last-date-selected {
+  background-color: var(--sb-green) !important;
+  color: #fff !important;
+}
+.date-picker-wrapper .day.toMonth.hovering { background-color: var(--sb-line) !important; }
+.date-picker-wrapper .day.real-today { background-color: var(--sb-cream) !important; }
+
+/* Headings */
+.page-heading,
+.page-subheading,
+.page-product-heading,
+.contact-header,
+.contact-header h1,
+.rm_heading,
+.room_info_heading,
+#product .pb-center-column h1,
+.hotel-header {
+  font-family: var(--sb-serif);
+  color: var(--sb-green);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.page-heading { font-size: 38px; font-weight: 600; line-height: 1.15; border-bottom-color: var(--sb-line); }
+.page-subheading { font-size: 24px; font-weight: 600; border-bottom-color: var(--sb-line); }
+.rm_heading { font-size: 32px; font-weight: 600; line-height: 1.15; }
+.rm_price_val { color: var(--sb-green); font-weight: 700; }
+.remain_rm_qty { color: #b4472c; font-weight: 600; }
+
+/* Search results: side panel and list */
+#left_column .header-rmsearch-wrapper,
+#header > .header-rmsearch-wrapper {
+  background-color: var(--sb-green) !important;
+  border-radius: var(--sb-radius);
+}
+#category .room_cont {
+  border-color: var(--sb-line);
+}
+#category .room-type-image { border-radius: 12px; }
+#category #center_column > div,
+#category .cat_cont { border-color: var(--sb-line); border-radius: var(--sb-radius); }
+#category .layered_filter_cont,
+#category #left_column .block,
+#category #filter_results .filter_cont { border-color: var(--sb-line); border-radius: 12px; }
+
+/* Room page and generic panels */
+#product .room_details_container,
+#product .booking-form,
+#product .card,
+.contact-form-box,
+.box {
+  border-radius: var(--sb-radius);
+  border-color: var(--sb-line);
+}
+#product #bigpic, #product #thumbs_list img { border-radius: 10px; }
+
+/* Forms */
+.form-control,
+.contact-form-box input.form-control,
+.contact-form-box textarea.form-control,
+.contact-form-box .selector,
+input.account_input, input.is_required {
+  border-color: #cfc8b8;
+  border-radius: 10px;
+  box-shadow: none;
+}
+.form-control:focus {
+  border-color: var(--sb-gold);
+  box-shadow: 0 0 0 3px rgba(185, 138, 47, .15);
+}
+.contact-form-box .btn.fileinput-button, .uploader span.action {
+  background: var(--sb-green) !important;
+  border-color: var(--sb-green) !important;
+  text-shadow: none;
+}
+
 /* ---------- Footer ---------- */
 
 .footer-container {

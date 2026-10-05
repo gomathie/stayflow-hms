@@ -10,6 +10,9 @@ ADMIN_DIR="${ADMIN_DIR:-admin-salisberg}"
 # Bump BRANDING_VERSION whenever a file in BRAND_FILES or BRAND_NAME changes.
 BRANDING_VERSION=1
 BRAND_NAME="Salisberg Hotels"
+# Bump CONTENT_VERSION to re-run the demo-content replacement below.
+CONTENT_VERSION=1
+BRAND_EMAIL="booking@salisberg.com"
 BRAND_FILES="logo.jpg logo_mail.jpg logo_invoice.jpg favicon.ico logo_stores.gif logo_stores.png qloapps@2x.png qloapps-login@2x.png qloapps-login-wink@2x.png prestashop-avatar.png"
 
 # Run one SQL statement through PDO, the same driver the app uses.
@@ -118,6 +121,23 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         echo "$BRANDING_VERSION" > /data/.branding-version
         echo "Branding v$BRANDING_VERSION applied ($BRAND_NAME)"
     fi
-fi
 
-exec docker-php-entrypoint "$@"
+    # Replace the installer's demo identity ("Hotel Prime", hotelprime@htl.com)
+    # with ours. Every statement only touches values that still hold the demo
+    # text, so anything already edited in the back office is left alone.
+    if [ -e "$SETTINGS" ] && [ "$(cat /data/.content-version 2>/dev/null)" != "$CONTENT_VERSION" ]; then
+        for demo in "The Hotel Prime" "Hotel Prime"; do
+            for target in \
+                "qlo_configuration:value" "qlo_configuration_lang:value" "qlo_meta_lang:title" \
+                "qlo_htl_branch_info_lang:hotel_name" "qlo_htl_branch_info_lang:short_description" \
+                "qlo_htl_branch_info_lang:description" "qlo_htl_branch_info_lang:policies" \
+                "qlo_cms_lang:content" "qlo_category_lang:name" \
+                "qlo_address:alias" "qlo_address:company" "qlo_address:lastname" "qlo_address:firstname"; do
+                t="${target%%:*}"; c="${target##*:}"
+                db_query "UPDATE $t SET $c = REPLACE($c, '$demo', '$BRAND_NAME') WHERE $c LIKE '%$demo%'"
+            done
+        done
+        db_query "UPDATE qlo_category_lang SET link_rewrite='salisberg-hotels' WHERE link_rewrite='the-hotel-prime'"
+        db_query "UPDATE qlo_configuration SET value='$BRAND_EMAIL' WHERE name IN ('PS_SHOP_EMAIL','WK_CUSTOMER_SUPPORT_EMAIL') AND value='hotelprime@htl.com'"
+        db_query "UPDATE qlo_htl_branch_info SET email='$BRAND_EMAIL' WHERE email='hotelprime@htl.com'"
+        echo "$CONTENT_VERSION" > /data/.content-ve
