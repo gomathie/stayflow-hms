@@ -2,6 +2,8 @@
 # Environment
 
 .env
+.env.*
+!.env.example
 
 # Editors, tools and OS's
 
