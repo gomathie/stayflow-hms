@@ -21,8 +21,10 @@ COPY --chown=www-data:www-data . /var/www/html
 
 # - strip CRLF in case the script was checked out on Windows
 # - keep a pristine copy of the volume-backed dirs so empty mounts can be seeded
+# - deployment files have no business in the web root
 RUN sed -i 's/\r$//' /usr/local/bin/salisberg-entrypoint \
     && chmod +x /usr/local/bin/salisberg-entrypoint \
+    && rm -rf docker docker-compose*.yml .env.example .gitattributes .travis.yml \
     && mkdir -p /data /usr/src/salisberg-seed \
     && cp -a img upload download /usr/src/salisberg-seed/ \
     && chown www-data:www-data /data

@@ -298,15 +298,6 @@
 				{/if}
 
 				<ul id="header_employee_box">
-					{if isset($upgrade_info->update_available) && $upgrade_info->update_available > 0}
-						<li class="hidden-md hidden-sm hidden-xs"><a href="{$upgrade_info->upgrade_url}">{l s='QloApps Update Availabe:'} {$upgrade_info->latest_availabe}</a></li>
-					{/if}
-					<li class="hidden-sm hidden-xs">
-						<a target="_blank" href="https://qloapps.com/addons/" class="toolbar_btn" title="{l s='Explore QloApps Addons'}">
-							<i class="icon-chain-broken"></i>
-							{l s='Explore QloApps Addons'}
-						</a>
-					</li>
 					{if {$base_url}}
 						<li>
 							<a href="{if isset($base_url_tc)}{$base_url_tc|escape:'html':'UTF-8'}{else}{$base_url|escape:'html':'UTF-8'}{/if}" id="header_foaccess" class="_blank" title="{l s='View my shop'}">
