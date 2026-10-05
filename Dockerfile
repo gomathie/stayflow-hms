@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY docker/php.ini /usr/local/etc/php/conf.d/zz-salisberg.ini
 COPY docker/apache.conf /etc/apache2/conf-enabled/zz-salisberg.conf
 COPY docker/entrypoint.sh /usr/local/bin/salisberg-entrypoint
+# Lets the mysql/mysqldump CLI talk to MySQL 8 (self-signed cert) on the private stack network
+RUN printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/salisberg-client.cnf
 
 WORKDIR /var/www/html
 COPY --chown=www-data:www-data . /var/www/html

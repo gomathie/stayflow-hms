@@ -7,6 +7,15 @@ PERSISTED=/data/settings.inc.php
 SEED=/usr/src/salisberg-seed
 ADMIN_DIR="${ADMIN_DIR:-admin-salisberg}"
 
+# Run one SQL statement through PDO, the same driver the app uses.
+# (The bundled MariaDB CLI rejects MySQL 8's self-signed certificate.)
+db_query() {
+    SQL="$1" php -r '
+        $pdo = new PDO("mysql:host=".getenv("DB_HOST").";dbname=".getenv("DB_NAME"), getenv("DB_USER"), getenv("DB_PASSWORD"),
+            array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 5));
+        $pdo->exec(getenv("SQL"));'
+}
+
 if [ "${1:-}" = "apache2-foreground" ]; then
     # Volumes may arrive empty or root-owned (see coollabsio/coolify#4058):
     # seed them from the image and hand them to Apache before anything else.
@@ -32,10 +41,16 @@ if [ "${1:-}" = "apache2-foreground" ]; then
     fi
 
     echo "Waiting for database at ${DB_HOST}..."
+    db_ready=0
     for i in $(seq 1 60); do
-        mysqladmin ping -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD" --silent 2>/dev/null && break
+        if db_query "SELECT 1" >/dev/null 2>&1; then db_ready=1; break; fi
         sleep 2
     done
+    if [ "$db_ready" != "1" ]; then
+        echo "Database not reachable at ${DB_HOST} after 120s:" >&2
+        db_query "SELECT 1" || true
+        exit 1
+    fi
 
     if [ ! -e "$SETTINGS" ] && [ "${AUTO_INSTALL:-1}" = "1" ]; then
         echo "First boot: running installer..."
@@ -52,8 +67,7 @@ if [ "${1:-}" = "apache2-foreground" ]; then
             exit 1
         fi
         if [ "${PUBLIC_URL#https://}" != "$PUBLIC_URL" ]; then
-            mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" -e \
-                "UPDATE qlo_configuration SET value='1' WHERE name IN ('PS_SSL_ENABLED','PS_SSL_ENABLED_EVERYWHERE');"
+            db_query "UPDATE qlo_configuration SET value='1' WHERE name IN ('PS_SSL_ENABLED','PS_SSL_ENABLED_EVERYWHERE')"
         fi
         # Persist generated settings in the data volume
         mv "$SETTINGS" "$PERSISTED"
