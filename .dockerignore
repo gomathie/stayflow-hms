@@ -1,0 +1,16 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+Dockerfile
+.dockerignore
+.travis.yml
+tests
+docs
+*.md
+cache/smarty/cache/*
+cache/smarty/compile/*
+log/*
+!log/index.php
+node_modules

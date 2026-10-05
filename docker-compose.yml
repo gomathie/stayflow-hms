@@ -1,22 +1,57 @@
+# Base stack. Coolify deploys this file as-is (its proxy handles the domain and TLS,
+# so no host ports are published here). For local use, docker-compose.override.yml
+# is picked up automatically and publishes the app on HTTP_PORT.
 services:
-  qloapps:
-    image: webkul/qloapps_docker:latest
-    container_name: qloapps
+  db:
+    image: mysql:8.0
     restart: unless-stopped
-    ports:
-      - "${HTTP_PORT:-80}:80"
-      - "${MYSQL_PORT:-3306}:3306"
-      - "${SSH_PORT:-2222}:22"
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-mode=
     environment:
-      USER_PASSWORD: ${USER_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-salisberg}
+      MYSQL_USER: ${MYSQL_USER:-salisberg}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?}
     volumes:
-      - qloapps_db:/var/lib/mysql
-      - qloapps_www:/home/qloapps/www
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PUBLIC_URL: ${PUBLIC_URL:-https://salisberg.com}
+      DB_HOST: db
+      DB_NAME: ${MYSQL_DATABASE:-salisberg}
+      DB_USER: ${MYSQL_USER:-salisberg}
+      DB_PASSWORD: ${MYSQL_PASSWORD:?}
+      AUTO_INSTALL: ${AUTO_INSTALL:-1}
+      ADMIN_DIR: ${ADMIN_DIR:-admin-salisberg}
+      SHOP_NAME: ${SHOP_NAME:-Salisberg}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?}
+      ADMIN_FIRSTNAME: ${ADMIN_FIRSTNAME:-Admin}
+      ADMIN_LASTNAME: ${ADMIN_LASTNAME:-Salisberg}
+      SHOP_COUNTRY: ${SHOP_COUNTRY:-us}
+      TIMEZONE: ${TIMEZONE:-UTC}
+    expose:
+      - "80"
+    volumes:
+      - app_data:/data
+      - app_img:/var/www/html/img
+      - app_upload:/var/www/html/upload
+      - app_download:/var/www/html/download
 
 volumes:
-  qloapps_db:
-    name: qloapps_db
-  qloapps_www:
-    name: qloapps_www
+  db_data:
+  app_data:
+  app_img:
+  app_upload:
+  app_download:
