@@ -34,6 +34,7 @@ services:
       DB_PASSWORD: ${MYSQL_PASSWORD:?}
       AUTO_INSTALL: ${AUTO_INSTALL:-1}
       ADMIN_DIR: ${ADMIN_DIR:-admin-salisberg}
+      SYNC_DOMAIN: ${SYNC_DOMAIN:-1}
       SHOP_NAME: ${SHOP_NAME:-Salisberg}
       ADMIN_EMAIL: ${ADMIN_EMAIL:?}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?}

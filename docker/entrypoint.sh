@@ -66,9 +66,6 @@ if [ "${1:-}" = "apache2-foreground" ]; then
             echo "Installer did not produce $SETTINGS" >&2
             exit 1
         fi
-        if [ "${PUBLIC_URL#https://}" != "$PUBLIC_URL" ]; then
-            db_query "UPDATE qlo_configuration SET value='1' WHERE name IN ('PS_SSL_ENABLED','PS_SSL_ENABLED_EVERYWHERE')"
-        fi
         # Persist generated settings in the data volume
         mv "$SETTINGS" "$PERSISTED"
         ln -s "$PERSISTED" "$SETTINGS"
@@ -78,6 +75,22 @@ if [ "${1:-}" = "apache2-foreground" ]; then
     # The installer must not be reachable once the app is installed
     if [ -e "$SETTINGS" ]; then
         rm -rf install
+    fi
+
+    # Keep the shop domain and SSL flags in step with PUBLIC_URL, so moving to
+    # a new domain is a variable change plus a redeploy.
+    if [ -e "$SETTINGS" ] && [ "${SYNC_DOMAIN:-1}" = "1" ]; then
+        HOST="${PUBLIC_URL#*://}"; HOST="${HOST%%/*}"
+        if ! printf '%s' "$HOST" | grep -Eq '^[A-Za-z0-9.-]+(:[0-9]+)?$'; then
+            echo "PUBLIC_URL has an invalid host: $PUBLIC_URL" >&2
+            exit 1
+        fi
+        SSL=0
+        if [ "${PUBLIC_URL#https://}" != "$PUBLIC_URL" ]; then SSL=1; fi
+        db_query "UPDATE qlo_shop_url SET domain='$HOST', domain_ssl='$HOST' WHERE main=1"
+        db_query "UPDATE qlo_configuration SET value='$HOST' WHERE name IN ('PS_SHOP_DOMAIN','PS_SHOP_DOMAIN_SSL')"
+        db_query "UPDATE qlo_configuration SET value='$SSL' WHERE name IN ('PS_SSL_ENABLED','PS_SSL_ENABLED_EVERYWHERE')"
+        echo "Shop domain set to $HOST (ssl=$SSL)"
     fi
 fi
 
