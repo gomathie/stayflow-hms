@@ -13,6 +13,13 @@ BRAND_NAME="Salisberg Hotels"
 # Bump CONTENT_VERSION to re-run the demo-content replacement below.
 CONTENT_VERSION=1
 BRAND_EMAIL="booking@salisberg.com"
+
+# Module folders that receive uploads (gallery, amenities, payment icons,
+# guest photos). Add any other module upload folder here.
+PERSIST_DIRS="modules/wkabouthotelblock/views/img/hotel_interior
+modules/wkhotelfeaturesblock/views/img/hotels_features_img
+modules/wkfooterpaymentblock/views/img/payment_img
+modules/wktestimonialblock/views/img/hotels_testimonials_img"
 BRAND_FILES="logo.jpg logo_mail.jpg logo_invoice.jpg favicon.ico logo_stores.gif logo_stores.png qloapps@2x.png qloapps-login@2x.png qloapps-login-wink@2x.png prestashop-avatar.png"
 
 # Run one SQL statement through PDO, the same driver the app uses.
@@ -33,6 +40,18 @@ if [ "${1:-}" = "apache2-foreground" ]; then
             cp -a "$SEED/$d/." "$d/"
         fi
     done
+    # Some modules keep uploaded pictures inside their own code folder, which
+    # is rebuilt from git on every deploy. Keep those folders in the data
+    # volume and leave a symlink in their place.
+    for p in $PERSIST_DIRS; do
+        if [ ! -L "$p" ]; then
+            mkdir -p "/data/persist/$p"
+            cp -an "$p/." "/data/persist/$p/" || true
+            rm -rf "$p"
+            ln -s "/data/persist/$p" "$p"
+        fi
+    done
+
     chown -R www-data:www-data /data img upload download cache log
     chmod -R u+rwX,go+rX /data img upload download cache log
 
@@ -120,6 +139,30 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         db_query "UPDATE qlo_configuration SET value=UNIX_TIMESTAMP() WHERE name='PS_IMG_UPDATE_TIME'"
         echo "$BRANDING_VERSION" > /data/.branding-version
         echo "Branding v$BRANDING_VERSION applied ($BRAND_NAME)"
+    fi
+
+    # One-off repair: installs made before PERSIST_DIRS existed lost the sample
+    # pictures on their first redeploy. Rebuild them from each module's
+    # dummy_img folder, the same source the installer uses. Folders that
+    # already hold pictures are not touched.
+    if [ -e "$SETTINGS" ] && [ ! -e /data/.sample-images-restored ]; then
+        for p in $PERSIST_DIRS; do
+            if ! ls "$p"/*.jpg >/dev/null 2>&1 && [ -d "$(dirname "$p")/dummy_img" ]; then
+                SRC="$(dirname "$p")/dummy_img" DST="$p" php -r '
+                    foreach (glob(getenv("SRC")."/*.{jpg,png}", GLOB_BRACE) as $f) {
+                        $im = @imagecreatefromstring(file_get_contents($f));
+                        if (!$im) { continue; }
+                        $w = imagesx($im); $h = imagesy($im);
+                        $out = imagecreatetruecolor($w, $h);
+                        imagefill($out, 0, 0, imagecolorallocate($out, 255, 255, 255));
+                        imagecopy($out, $im, 0, 0, 0, 0, $w, $h);
+                        imagejpeg($out, getenv("DST")."/".pathinfo($f, PATHINFO_FILENAME).".jpg", 90);
+                    }'
+                echo "Restored sample pictures in $p"
+            fi
+        done
+        chown -R www-data:www-data /data/persist
+        touch /data/.sample-images-restored
     fi
 
     # Replace the installer's demo identity ("Hotel Prime", hotelprime@htl.com)

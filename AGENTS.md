@@ -294,3 +294,34 @@ Set `SYNC_DOMAIN=0` only if the domain is to be managed by hand in the back offi
 **Not covered**
 
 - Completing a booking through payment, sending email, and the Coolify deployment of these last changes.
+
+### 2026-10-06 — Module pictures were lost on redeploy; now persisted and restored
+
+**Problem**
+
+- On the live site the interior gallery (12 pictures), amenities (4), footer payment icons (4) and guest photos (3) returned 404. The owner wants the sample pictures kept.
+- Cause: a flaw in the Docker design from 2026-10-05. Four modules store uploaded pictures inside their own code folders, not under `img/`. Code folders are rebuilt from git on every deploy, so the pictures created by the installer disappeared on the first redeploy. Pictures uploaded to those sections through the back office would have been lost the same way.
+
+**Fix** (`docker/entrypoint.sh`)
+
+- `PERSIST_DIRS` lists the four folders. On every start each one is moved to `/data/persist/<same path>` in the `app_data` volume and replaced by a symlink, before the installer runs.
+  - `modules/wkabouthotelblock/views/img/hotel_interior`
+  - `modules/wkhotelfeaturesblock/views/img/hotels_features_img`
+  - `modules/wkfooterpaymentblock/views/img/payment_img`
+  - `modules/wktestimonialblock/views/img/hotels_testimonials_img`
+- One-off repair, guarded by `/data/.sample-images-restored`: where one of those folders holds no pictures, they are rebuilt from the module's `dummy_img` folder, the same source the installer uses. It runs once, so pictures the owner later deletes on purpose stay deleted.
+
+**Rule added (extends rule 1)**
+
+- 20. **Anything written at runtime outside `img/`, `upload/`, `download/` and `/data` is lost on deploy.** When adding or enabling a module that accepts uploads, find where it writes and add that folder to `PERSIST_DIRS`. `docker diff <app container>` after using the feature shows what was written.
+
+**How it was found**
+
+- Fetched every image URL on the live homepage and checked the status codes, then ran `docker diff` on a freshly installed local container to list everything the installer writes outside the volumes. Also written there but safe to lose because they are regenerated or shipped in the repo: `config/xml` caches, module `config.xml` caches, language-pack copies under `mails/en` and `translations/en`.
+
+**Verification (local)**
+
+- Rebuilt on top of an install whose pictures had been wiped, the same state as production: the log showed `Restored sample pictures in …` for all four folders and every homepage image returned 200.
+- Recreated the container again: pictures still served, and the repair did not run a second time.
+- Full-page screenshot reviewed: gallery, amenities, room cards, guest photo and payment icons all display.
+- Not yet verified on the live server; uploading a new picture through the back office and redeploying was not tested either.
