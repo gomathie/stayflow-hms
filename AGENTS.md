@@ -636,3 +636,20 @@ To restore `/data`, decrypt the matching `salisberg-data-…` file the same way 
 - **Guide (rule 23):** Staff Guide, section 1 "Signing in and your account": new step describing the eye icon.
 - **Verification (local, real browser):** on the website sign-in page (desktop and phone width), the back office sign-in page and the new-employee form, the button sits inside the field; a click changes the field from hidden to visible and back; submitting the form resets it to hidden; no JavaScript errors. Screenshots reviewed for the website and back office sign-in pages.
 - **Not tested:** the account-creation, "my details" and checkout-registration forms individually (they use the same script), Safari and Firefox, and right-to-left languages.
+
+### 2026-10-06 — Back office: light layout modelled on the owner's reference
+
+- **What:** `admin/themes/default/css/overrides.css` rewritten. The owner showed the admin panel of another product they use (Krayin CRM) as the look to aim for; the earlier dark-green restyle from the same day is replaced by:
+  - a white top bar, 60px tall, with the colour logo, notification icons, Quick Access, "My site" and the employee name as a pill;
+  - a white side menu, 240px wide, with larger rows, outlined grey icons and a filled green pill on the active item; submenu items indented on a thin rule, the current one on a pale green chip; the search box as a rounded field at the top;
+  - a soft grey page background with white, rounded, bordered cards and no shadows; page title on the background without a white strip; action buttons outlined in green;
+  - Inter as the typeface; table headers small, grey and uppercase; rounded fields with a green focus ring; pill-shaped Yes/No switches;
+  - the stock bright blue replaced wherever a scan of rendered pages found it (dashboard figures, date switcher, availability buttons, info notes, hint labels);
+  - the vendor's "Recommendations" button still hidden; Guides keeps its icon.
+- **Sizes changed, deliberately:** the stock frame is a 36px bar and a 210px menu, fixed in several places. Top bar, menu width, page-head offset and content margin are all set from two variables at the top of the file (`--sb-top`, `--sb-side`) so they stay consistent.
+- **Collapse-to-icons removed:** the stock "collapse menu" mode has many size rules of its own that broke the new layout, so the control is hidden and the menu always shows in full from 768px up. A user who had collapsed it before sees the full menu.
+- **Below 768px** the stock compact layout (icon rail, 36px bar) is kept, with the desktop shapes undone so nothing overlaps.
+- **How:** CSS only, in the file upstream provides for this. No template, script or vendor stylesheet was edited. The logo in the top bar is the existing `img/qloapps@2x.png` colour lockup, referenced as `/img/…`, which assumes the site is served from the domain root.
+- **Verification (local, real browser screenshots):** sign-in page, dashboard, Orders, Customers, the room type form, the employee form, Book Now and the Staff Guide at 1440 wide; Orders at 1024 and 700 wide; and the previously-collapsed state forced on. No JavaScript errors. Menu names, buttons and tabs are where they were, so the guides are unchanged.
+- **Not checked:** the other back office pages one by one (79 menu entries), the "Top" menu orientation in employee preferences, right-to-left languages, Safari and Firefox, and pop-up dialogs.
+- **Limit worth restating:** this is appearance. The dashboard's coloured revenue blocks and charts are drawn by their own modules and were left as they are, and pages still reload on every action.
