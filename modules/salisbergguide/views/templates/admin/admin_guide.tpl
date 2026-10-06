@@ -222,7 +222,7 @@
 		<ul>
 			<li><span class="sb-path">Dashboard</span> &ndash; {l s='bookings, income and occupancy for a period you choose at the top.' mod='salisbergguide'}</li>
 			<li><span class="sb-path">Stats</span> &ndash; {l s='detailed reports: sales, best room types, visitors and more.' mod='salisbergguide'}</li>
-			<li><span class="sb-path">Orders &rsaquo; Orders</span> &ndash; {l s='filter the list, then export it to a spreadsheet with the export button at the top.' mod='salisbergguide'}</li>
+			<li><span class="sb-path">Bookings &rsaquo; Bookings</span> &ndash; {l s='filter the list, then export it to a spreadsheet with the export button at the top.' mod='salisbergguide'}</li>
 		</ul>
 	</section>
 </div>

@@ -40,6 +40,16 @@ class Salisbergguide extends Module
         'AdminSalisbergStaffGuide' => array(1, 0, 0, 0),
     );
 
+    /**
+     * Stock menu entries shown under a clearer name: class name => array(stock
+     * name, new name). An entry is renamed only while it still carries the
+     * stock name, so a name changed by hand in the back office is kept.
+     */
+    protected $menuLabels = array(
+        'AdminParentOrders' => array('Orders', 'Bookings'),
+        'AdminOrders' => array('Orders', 'Bookings'),
+    );
+
     public function __construct()
     {
         $this->name = 'salisbergguide';
@@ -61,7 +71,8 @@ class Salisbergguide extends Module
 
     /**
      * Creates whatever is missing: the three menu entries and the Hotel Staff
-     * profile. Safe to call on every deploy.
+     * profile, and applies the menu names in $menuLabels. Safe to call on
+     * every deploy.
      */
     public function ensureSetup()
     {
@@ -69,9 +80,26 @@ class Salisbergguide extends Module
             && $this->installTab('AdminSalisbergStaffGuide', 'Staff Guide', (int) Tab::getIdFromClassName('AdminSalisbergGuide'))
             && $this->installTab('AdminSalisbergAdminGuide', 'Admin Guide', (int) Tab::getIdFromClassName('AdminSalisbergGuide'))
             && $this->installStaffProfile()
+            && $this->renameMenuEntries()
             && $this->registerHook('header')
             && $this->registerHook('actionAdminControllerSetMedia')
             && $this->registerHook('actionAdminLoginControllerSetMedia');
+    }
+
+    protected function renameMenuEntries()
+    {
+        foreach ($this->menuLabels as $className => $names) {
+            $idTab = (int) Tab::getIdFromClassName($className);
+            if ($idTab) {
+                Db::getInstance()->update(
+                    'tab_lang',
+                    array('name' => pSQL($names[1])),
+                    'id_tab = '.$idTab.' AND name = \''.pSQL($names[0]).'\''
+                );
+            }
+        }
+
+        return true;
     }
 
     /**

@@ -33,6 +33,9 @@
   --sb-accent-soft: #e8f0ec;   /* pale chip behind the current submenu item */
   --sb-link: #1c4a3d;
   --sb-gold: #b98a2f;
+  --sb-success: #2f7d4f;       /* confirm / positive buttons */
+  --sb-danger: #c0392b;        /* delete / destructive buttons */
+  --sb-warning: #b7791f;       /* caution buttons */
   --sb-canvas: #f3f4f6;        /* page background */
   --sb-card: #ffffff;          /* cards, bars, menus, fields */
   --sb-subtle: #fafafa;        /* table headers, card footers */
@@ -58,6 +61,9 @@ html[data-sb-theme="dark"] {
   --sb-accent-soft: #1b2c26;
   --sb-link: #7fc7ad;
   --sb-gold: #d4a94e;
+  --sb-success: #3f9d6b;
+  --sb-danger: #d9584a;
+  --sb-warning: #c98f2e;
   --sb-canvas: #0e1412;
   --sb-card: #161e1b;
   --sb-subtle: #1b2521;
@@ -96,7 +102,7 @@ body.ps_back-office,
 .bootstrap #header_infos i { color: var(--sb-ink) !important; }
 .bootstrap #header_infos a:hover,
 .bootstrap #header_infos a:hover i,
-.bootstrap #header_infos .dropdown.open > a { color: var(--sb-link) !important; }
+.bootstrap #header_infos .dropdown.open > a { background-color: var(--sb-canvas) !important; color: var(--sb-link) !important; }
 /* the logo already carries the name; the version number is noise */
 #header_infos #header_shopname,
 #header_infos #shop_version { display: none; }
@@ -111,15 +117,67 @@ body.ps_back-office,
 .bootstrap #header_infos .notifs_badge span { background-color: var(--sb-gold) !important; color: #fff !important; }
 .bootstrap #header_infos .dropdown-menu a { color: var(--sb-ink) !important; }
 .bootstrap #header_infos .dropdown-menu a:hover { background-color: var(--sb-canvas); }
-/* employee name as an account chip */
-.bootstrap #header_employee_box #employee_infos > a {
+/* Quick Access and account menus as floating cards */
+.bootstrap #header_infos ul.dropdown-menu {
+  min-width: 220px;
+  margin-top: 8px;
+  padding: 6px;
   border: 1px solid var(--sb-line);
-  border-radius: 999px !important;
-  font-weight: 600;
+  border-radius: 12px;
+  background-color: var(--sb-card);
+  box-shadow: 0 16px 36px -16px rgba(0, 0, 0, .35);
 }
-/* light/dark switch, added by theme-toggle.js */
-#header_infos #sb-theme-toggle { cursor: pointer; }
-#header_infos #sb-theme-toggle svg { display: block; }
+.bootstrap #header_infos ul.dropdown-menu > li > a { padding: 9px 12px; border-radius: 8px; }
+.bootstrap #header_infos ul.dropdown-menu > li.active > a { background-color: var(--sb-accent-soft); color: var(--sb-link) !important; }
+.bootstrap #header_infos ul.dropdown-menu > li.divider { margin: 6px 0; background-color: var(--sb-line); }
+.bootstrap #header_infos #quick_select { border: 1px solid var(--sb-line); border-radius: 999px; font-weight: 500; }
+.bootstrap #header_infos #quick_select i { margin-left: 6px; }
+/* account: initials in a circle (header.tpl), then the name */
+#header_infos .sb-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background-color: var(--sb-accent);
+  color: var(--sb-accent-text);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.bootstrap #header_employee_box #employee_infos > a { font-weight: 600; }
+/* light/dark switch, added by theme-toggle.js: sun and moon with a sliding knob */
+#header_infos #sb-theme-toggle {
+  position: relative;
+  justify-content: space-between;
+  width: 60px;
+  height: 32px;
+  padding: 0 8px !important;
+  border: 1px solid var(--sb-line);
+  border-radius: 999px;
+  background-color: var(--sb-canvas);
+  cursor: pointer;
+}
+#header_infos #sb-theme-toggle::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 24px;
+  border-radius: 999px;
+  background-color: var(--sb-card);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+  transition: transform .2s ease;
+}
+#header_infos #sb-theme-toggle svg { position: relative; display: block; color: var(--sb-muted); }
+html[data-sb-theme="light"] #header_infos #sb-theme-toggle svg:first-child,
+html[data-sb-theme="dark"] #header_infos #sb-theme-toggle svg:last-child { color: var(--sb-ink); }
+html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: translateX(26px); }
 
 @media (min-width: 768px) {
   .bootstrap #header_infos { height: var(--sb-top) !important; min-height: var(--sb-top); }
@@ -153,7 +211,10 @@ body.ps_back-office,
   #header_infos .navbar-header > ul > li > a:hover { background-color: var(--sb-canvas); }
   #header_infos #header_notifs_icon_wrapper,
   #header_infos #header_quick { margin-left: 8px; }
-  #header_infos #header_employee_box { margin-left: auto !important; padding-right: 12px; }
+  #header_infos #header_employee_box { gap: 6px; margin-left: auto !important; padding-right: 16px; }
+  #header_infos #header_employee_box #header_foaccess { display: inline-flex; color: var(--sb-muted) !important; }
+  #header_infos #header_employee_box #employee_infos > a { height: 44px; padding: 0 10px 0 6px !important; border-radius: 999px; }
+  #header_infos #header_employee_box #employee_infos .caret { margin-left: 8px; }
   #header_infos .notifs_badge { position: relative; top: -8px; margin-left: -4px; }
 
   /* everything below the bar moves down with it */
@@ -205,6 +266,38 @@ body.ps_back-office,
 }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a:hover { background-color: var(--sb-canvas) !important; color: var(--sb-link) !important; }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft) !important; color: var(--sb-link) !important; font-weight: 600; }
+/* The open section lists its pages under it at any window height. Stock only
+   does that in windows taller than 850px and otherwise makes it a fly-out. */
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active ul.submenu,
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.hover ul.submenu { display: block; position: static; width: auto; }
+/* Every other section shows its pages in a card beside the row while the
+   pointer is on it. The card starts under the row's right edge (no gap), so
+   the pointer can move across without the card closing. */
+.bootstrap #nav-sidebar ul.menu li.maintab:not(.active).hover ul.submenu {
+  top: -6px;
+  left: calc(100% - 6px);
+  width: 230px;
+  margin: 0;
+  padding: 6px;
+  border: 1px solid var(--sb-line);
+  border-radius: 12px;
+  background-color: var(--sb-card) !important;
+  box-shadow: 0 16px 36px -16px rgba(0, 0, 0, .35);
+}
+.bootstrap #nav-sidebar ul.menu li.maintab:not(.active).hover ul.submenu li a { padding: 9px 12px; color: var(--sb-ink) !important; }
+/* An invisible wedge from the row to the full height of the card. The stock
+   script closes the card 50ms after the pointer touches another row, which is
+   what happens when moving diagonally towards a lower entry; the wedge belongs
+   to the card, so the pointer never leaves it on the way. */
+.bootstrap #nav-sidebar ul.menu li.maintab:not(.active).hover ul.submenu::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  width: 150px;
+  height: 100%;
+  clip-path: polygon(0 6px, 100% 0, 100% 100%, 0 46px);
+}
 
 /* search field at the top of the menu */
 .bootstrap #nav-sidebar li.searchtab { padding: 14px 0 10px; background-color: transparent !important; }
@@ -254,20 +347,22 @@ body.ps_back-office,
 .bootstrap .page-head .breadcrumb a,
 .bootstrap .page-head ul.page-breadcrumb li a { color: var(--sb-muted); background-color: transparent; }
 .bootstrap .page-head .page-bar { right: 24px; left: auto !important; }
-.bootstrap .page-head .toolbarBox .toolbar_btn {
+/* action buttons beside the page title: outlined, and the "Add new ..." one filled */
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn {
   margin-left: 8px;
-  border: 1px solid var(--sb-accent);
-  border-radius: 8px;
+  border: 1px solid var(--sb-field-line);
+  border-radius: 10px;
   background-color: var(--sb-card);
-  color: var(--sb-link);
+  color: var(--sb-ink);
+  font-size: 13px;
   font-weight: 600;
-  transition: background-color .15s ease, color .15s ease;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
-.bootstrap .page-head .toolbarBox .toolbar_btn i,
-.bootstrap .page-head .toolbarBox .toolbar_btn:before { color: var(--sb-link); }
-.bootstrap .page-head .toolbarBox .toolbar_btn:hover,
-.bootstrap .page-head .toolbarBox .toolbar_btn:hover i,
-.bootstrap .page-head .toolbarBox .toolbar_btn:hover:before { background-color: var(--sb-accent); color: var(--sb-accent-text); }
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn i,
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn:before { color: inherit; }
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn:hover { border-color: var(--sb-accent); background-color: var(--sb-card); color: var(--sb-link); }
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn[id*="-new_"] { border-color: var(--sb-accent); background-color: var(--sb-accent); color: var(--sb-accent-text); }
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn[id*="-new_"]:hover { border-color: var(--sb-accent-hover); background-color: var(--sb-accent-hover); color: var(--sb-accent-text); }
 .bootstrap .page-head .toolbarBox .toolbar_btn.navbar-toggle { border-color: var(--sb-line); }
 /* vendor's module promotions */
 .bootstrap .page-head .toolbarBox a[id$="-modules-list"],
@@ -310,6 +405,31 @@ body.ps_back-office,
 .bootstrap .panel-heading small { color: var(--sb-muted); font-weight: 400; text-transform: none; }
 .bootstrap .panel .panel-heading .badge { background-color: var(--sb-accent-soft); color: var(--sb-link); font-weight: 600; }
 .bootstrap .panel .panel-footer { border-radius: 0 0 var(--sb-radius) var(--sb-radius); background-color: var(--sb-subtle); border-top-color: var(--sb-line); }
+/* form footer buttons (Save, Save and stay, Cancel): stock stacks a large icon
+   over a small label; here the icon sits beside the label, Save is filled and
+   the others are outlined */
+.bootstrap .panel-footer .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--sb-line);
+  border-radius: 10px;
+  background-color: var(--sb-card);
+  color: var(--sb-ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: none;
+  box-shadow: none;
+}
+.bootstrap .panel-footer .btn.pull-right { margin-left: 8px; }
+.bootstrap .panel-footer .btn:hover { border-color: var(--sb-accent); color: var(--sb-link); }
+.bootstrap .panel-footer .btn i[class*="process-icon-"] { display: inline-block; width: auto; height: auto; margin: 0; color: inherit; font-size: 15px; line-height: 1; }
+.bootstrap .panel-footer .btn i[class*="process-icon-"]::before { font-size: 15px; }
+.bootstrap .panel-footer button.btn[type="submit"] { border-color: var(--sb-accent); background-color: var(--sb-accent); color: var(--sb-accent-text); }
+.bootstrap .panel-footer button.btn[type="submit"]:hover { border-color: var(--sb-accent-hover); background-color: var(--sb-accent-hover); color: var(--sb-accent-text); }
 .bootstrap .well { border-radius: 10px; border-color: var(--sb-line); background-color: var(--sb-subtle); box-shadow: none; }
 .bootstrap hr { border-top-color: var(--sb-line); }
 
@@ -334,7 +454,26 @@ body.ps_back-office,
 .bootstrap .table tbody > tr.highlighted > td { background-color: var(--sb-accent-soft); }
 
 /* buttons */
-.bootstrap .btn { border-radius: 8px; font-weight: 600; }
+/* Buttons. Sizes are left as stock so buttons still line up with the fields
+   beside them; shape, colour and states are set here.
+   Filled = the main action. Outlined = everything else. Colour = meaning. */
+.bootstrap .btn {
+  border-radius: 8px;
+  font-weight: 600;
+  text-shadow: none;
+  box-shadow: none;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.bootstrap .btn:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(47, 125, 100, .28); }
+.bootstrap .btn[disabled], .bootstrap .btn.disabled { opacity: .5; }
+.bootstrap .btn-success { border-color: var(--sb-success); background-color: var(--sb-success); color: #fff; }
+.bootstrap .btn-danger { border-color: var(--sb-danger); background-color: var(--sb-danger); color: #fff; }
+.bootstrap .btn-warning { border-color: var(--sb-warning); background-color: var(--sb-warning); color: #fff; }
+.bootstrap .btn-info { border-color: var(--sb-accent-soft); background-color: var(--sb-accent-soft); color: var(--sb-link); }
+.bootstrap .btn-success:hover, .bootstrap .btn-danger:hover, .bootstrap .btn-warning:hover,
+.bootstrap .btn-success:focus, .bootstrap .btn-danger:focus, .bootstrap .btn-warning:focus { filter: brightness(1.1); color: #fff; }
+.bootstrap .btn-info:hover, .bootstrap .btn-info:focus { border-color: var(--sb-accent); background-color: var(--sb-accent-soft); color: var(--sb-link); }
+.bootstrap .btn-success > i:before, .bootstrap .btn-danger > i:before, .bootstrap .btn-warning > i:before { color: inherit; }
 .bootstrap .btn-primary,
 .bootstrap .btn-primary:focus { background-color: var(--sb-accent); border-color: var(--sb-accent); color: var(--sb-accent-text); text-shadow: none; }
 .bootstrap .btn-primary:hover,
@@ -411,6 +550,28 @@ body.ps_back-office,
 .bootstrap .dropdown-menu > li > a:hover { background-color: var(--sb-canvas); color: var(--sb-link); }
 .bootstrap .modal-content { border: 0; border-radius: 14px; background-color: var(--sb-card); color: var(--sb-ink); }
 .bootstrap .modal-header, .bootstrap .modal-footer { border-color: var(--sb-line); }
+
+/* dashboard: the third column is empty (its vendor panels were removed in
+   view.tpl), so the other two share the full width from 1200px up */
+@media (min-width: 1200px) {
+  #dashboard #hookDashboardZoneOne { width: 30%; right: 70%; }
+  #dashboard #hookDashboardZoneTwo { width: 70%; left: 30%; }
+  #dashboard #hookDashboardZoneThree { width: 100%; clear: both; }
+}
+/* widget heading: title, then the buttons at the right, never on top of each other */
+.bootstrap .panel.widget > .panel-heading { display: flex; align-items: center; gap: 6px; height: auto; min-height: 32px; }
+.bootstrap .panel.widget > .panel-heading > span:not(.panel-heading-action) { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.bootstrap .panel.widget > .panel-heading > .panel-heading-action { position: static; flex: 0 0 auto; margin-left: auto; }
+/* figures and labels that were cut off or ran outside their box */
+#dashboard .avail-pie-value { font-size: 18px; }
+#dashboard svg { overflow: visible; }
+#dashboard .stat-box { padding: 16px; }
+#dashboard .stat-box .value-wrapper span { font-size: 16px; white-space: nowrap; }
+#dashboard .stats-list > li:has(> #dash_traffic_source) { flex-wrap: wrap; align-items: flex-start; }
+#dashboard .stats-list > li:has(> #dash_traffic_source) > .item-label { flex: 0 0 100%; margin-bottom: 8px; }
+#dashboard #dash_traffic_source,
+#dashboard #dash_traffic_chart2 { flex: 0 0 100%; }
+#content.bootstrap #dashboard #dashproducts nav { font-family: inherit; text-transform: none; }
 
 /* ---------- 8. Stock-blue replacements ----------
    The stock theme's #00aff0 family, found by scanning rendered pages. */
