@@ -86,8 +86,11 @@ if ($idPay && $idGhana) {
     }
 }
 
-// The hotel takes cash and Mobile Money only for now
-foreach (array('bankwire', 'cheque') as $name) {
+// Switched off on every deploy:
+//  - bankwire, cheque: the hotel takes cash and Mobile Money only for now
+//  - qlohotelreview: guest reviews are not in use; keeping it off also keeps its
+//    upload endpoint closed (CVE-2025-67325). Remove it from this list to use reviews.
+foreach (array('bankwire', 'cheque', 'qlohotelreview') as $name) {
     if (Module::isInstalled($name) && Module::isEnabled($name)) {
         Module::getInstanceByName($name)->disable();
         sb_log("$name disabled");

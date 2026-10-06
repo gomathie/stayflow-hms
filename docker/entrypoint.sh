@@ -16,14 +16,17 @@ BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
 CURRENCY_VERSION=2
 # Bump MODULES_VERSION whenever docker/setup-modules.php changes.
-MODULES_VERSION=2
+MODULES_VERSION=3
+# Bump SCHEMA_VERSION when a schema/settings step below is added or changed.
+SCHEMA_VERSION=1
 
 # Module folders that receive uploads (gallery, amenities, payment icons,
 # guest photos). Add any other module upload folder here.
 PERSIST_DIRS="modules/wkabouthotelblock/views/img/hotel_interior
 modules/wkhotelfeaturesblock/views/img/hotels_features_img
 modules/wkfooterpaymentblock/views/img/payment_img
-modules/wktestimonialblock/views/img/hotels_testimonials_img"
+modules/wktestimonialblock/views/img/hotels_testimonials_img
+modules/qlohotelreview/views/img/review"
 BRAND_FILES="logo.jpg logo_mail.jpg logo_invoice.jpg favicon.ico logo_stores.gif logo_stores.png qloapps@2x.png qloapps-login@2x.png qloapps-login-wink@2x.png prestashop-avatar.png"
 
 # Run one SQL statement through PDO, the same driver the app uses.
@@ -202,6 +205,23 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         db_query "UPDATE qlo_htl_branch_info SET email='$BRAND_EMAIL' WHERE email='hotelprime@htl.com'"
         echo "$CONTENT_VERSION" > /data/.content-version
         echo "Content v$CONTENT_VERSION applied (demo identity replaced)"
+    fi
+
+    # Schema and settings our security backports rely on. This must run before
+    # Apache starts: the bcrypt password hashes written by the patched code are
+    # 60 characters and would be truncated in the stock 32-character columns.
+    if [ -e "$SETTINGS" ] && [ "$(cat /data/.schema-version 2>/dev/null)" != "$SCHEMA_VERSION" ]; then
+        for t in qlo_customer qlo_employee qlo_referrer; do
+            len="$(db_query "SELECT CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '$t' AND COLUMN_NAME = 'passwd'")"
+            if [ -n "$len" ] && [ "$len" -lt 60 ]; then
+                db_query "ALTER TABLE $t MODIFY passwd varchar(60) NOT NULL"
+                echo "Widened $t.passwd from $len to 60"
+            fi
+        done
+        # Back office sessions: 12 hours instead of 20 days (only if still at the stock value)
+        db_query "UPDATE qlo_configuration SET value='12' WHERE name='PS_COOKIE_LIFETIME_BO' AND value='480'"
+        echo "$SCHEMA_VERSION" > /data/.schema-version
+        echo "Schema step v$SCHEMA_VERSION done"
     fi
 
     # Shop currency: Ghana cedi. The installer creates one default currency

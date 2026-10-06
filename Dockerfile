@@ -14,6 +14,7 @@ COPY docker/php.ini /usr/local/etc/php/conf.d/zz-salisberg.ini
 COPY docker/apache.conf /etc/apache2/conf-enabled/zz-salisberg.conf
 COPY docker/entrypoint.sh /usr/local/bin/salisberg-entrypoint
 COPY docker/setup-modules.php /usr/local/share/salisberg/setup-modules.php
+COPY docker/backup.sh /usr/local/bin/salisberg-backup
 # Lets the mysql/mysqldump CLI talk to MySQL 8 (self-signed cert) on the private stack network
 RUN printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/salisberg-client.cnf
 
@@ -23,8 +24,8 @@ COPY --chown=www-data:www-data . /var/www/html
 # - strip CRLF in case the script was checked out on Windows
 # - keep a pristine copy of the volume-backed dirs so empty mounts can be seeded
 # - deployment files have no business in the web root
-RUN sed -i 's/\r$//' /usr/local/bin/salisberg-entrypoint \
-    && chmod +x /usr/local/bin/salisberg-entrypoint \
+RUN sed -i 's/\r$//' /usr/local/bin/salisberg-entrypoint /usr/local/bin/salisberg-backup \
+    && chmod +x /usr/local/bin/salisberg-entrypoint /usr/local/bin/salisberg-backup \
     && rm -rf docker docker-compose*.yml .env.example .gitattributes .travis.yml CHANGELOG.txt composer.json \
     && mkdir -p /data /usr/src/salisberg-seed \
     && cp -a img upload download /usr/src/salisberg-seed/ \

@@ -17,6 +17,7 @@
 {else}
     <form action="{$link->getModuleLink('salisbergpay', 'validation', [], true)|escape:'html':'UTF-8'}" method="post">
         <input type="hidden" name="method" value="{$sbpay_method.code|escape:'html':'UTF-8'}" />
+        <input type="hidden" name="token" value="{$sbpay_token|escape:'html':'UTF-8'}" />
         <div class="box cheque-box">
             <h3 class="page-subheading">
                 {$sbpay_method.title|escape:'html':'UTF-8'}

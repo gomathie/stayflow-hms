@@ -291,17 +291,25 @@ class QhrHotelReview extends ObjectModel
     {
         $files = QhrHotelReviewHelper::fileAttachmentMultiple('images');
         if (is_array($files) && count($files)) {
-            foreach ($files as $key => $file) {
-                $ext = pathinfo($file['rename'], PATHINFO_EXTENSION);
+            $saved = 0;
+            foreach ($files as $file) {
+                // Salisberg security fix (CVE-2025-67325): the stored name and extension are
+                // chosen here, never taken from the upload, and only real images are kept.
+                if (!empty($file['error'])
+                    || !is_uploaded_file($file['tmp_name'])
+                    || $file['size'] > 5 * 1024 * 1024
+                    || !ImageManager::isRealImage($file['tmp_name'], $file['mime'])
+                    || !@getimagesize($file['tmp_name'])
+                ) {
+                    continue;
+                }
                 $dir = _PS_MODULE_DIR_.'qlohotelreview/views/img/review/'.Image::getImgFolderStatic($this->id);
                 QhrHotelReviewHelper::createDirectory($dir);
-                $useSameExt = false;
-                if ($useSameExt) {
-                    $imgPath = $dir.($key + 1).'.jpg';
-                } else {
-                    $imgPath = $dir.($key + 1).'.'.$ext;
+                // Re-encoded as JPEG, which also drops anything appended to the file
+                if (ImageManager::resize($file['tmp_name'], $dir.(++$saved).'.jpg', null, null, 'jpg', true)) {
+                    continue;
                 }
-                ImageManager::resize($file['tmp_name'], $imgPath);
+                $saved--;
             }
         }
     }

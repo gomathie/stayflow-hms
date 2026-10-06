@@ -61,6 +61,14 @@ class QloHotelReviewDefaultModuleFrontController extends ModuleFrontController
             $errors['general'][] = $objModule->l('Invalid order ID.', 'default');
         }
 
+        // Salisberg security fix (CVE-2025-67325): the module token is printed on public
+        // pages, so it proves nothing. Only the signed-in customer who made the order may review it.
+        if (!$this->context->customer->isLogged()
+            || (Validate::isLoadedObject($objOrder) && (int) $objOrder->id_customer !== (int) $this->context->customer->id)
+        ) {
+            $errors['general'][] = $objModule->l('Please sign in to review your stay.', 'default');
+        }
+
         if (!$subject) {
             $errors['by_key']['subject'] = $objModule->l('This field can not be empty.', 'default');
         } elseif(!Validate::isGenericName($subject)) {
