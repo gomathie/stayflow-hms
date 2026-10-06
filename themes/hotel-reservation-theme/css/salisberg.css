@@ -923,3 +923,50 @@ header .header-top .ajax_cart_total { color: var(--sb-green); font-weight: 600; 
   #menu_cont .wk-nav-style > li > a { border-color: rgba(255, 255, 255, .1) !important; }
   #menu_cont .wk-nav-style > li + li { margin-top: 0; }
 }
+
+/* ---------- Desktop navigation: minimal ----------
+   On wide screens the header shows only what a guest needs to book. The logo
+   is the Home link; the other pages stay reachable from the footer and from
+   the full menu on phones and tablets. To show an item again on desktop,
+   remove its selector from the list below. */
+@media (min-width: 1200px) {
+  #menu_cont .wk-nav-style > li > a[href$="/index.php"],
+  #menu_cont .wk-nav-style > li > a[href$="/"],
+  #menu_cont .wk-nav-style > li > a[href*="our-properties"],
+  #menu_cont .wk-nav-style > li > a[href*="#hotelInteriorBlock"],
+  #menu_cont .wk-nav-style > li > a[href*="#hotelTestimonialBlock"],
+  #menu_cont .wk-nav-style > li > a[href*="id_cms=2"],
+  #menu_cont .wk-nav-style > li > a[href*="legal-notice"] { display: none; }
+
+  #menu_cont .wk-nav-style:not(.visible-xs) { gap: 0; }
+  #menu_cont .wk-nav-style > li > a {
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+  #menu_cont .wk-nav-style > li > a::after { left: 18px; right: 18px; height: 1px; }
+  #menu_cont { margin-right: 10px; }
+
+  /* quieter header: thinner bar, outline account button */
+  header .row #header_logo { padding: 8px 0; }
+  header .header-top .header_user_info .header-top-link,
+  header .header-top #user_info_acc {
+    padding: 9px 20px;
+    border: 1px solid var(--sb-green);
+    background: transparent;
+  }
+  header .header-top .header_user_info .header-top-link,
+  header .header-top .header_user_info .header-top-link span,
+  header .header-top #user_info_acc .account_user_name { color: var(--sb-green) !important; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
+  header .header-top #user_info_acc .caret { border-top-color: var(--sb-green); }
+  header .header-top .header_user_info .header-top-link:hover,
+  header .header-top #user_info_acc:hover,
+  header .header-top .dropdown.open #user_info_acc { background: var(--sb-green); border-color: var(--sb-green); }
+  header .header-top .header_user_info .header-top-link:hover span,
+  header .header-top #user_info_acc:hover .account_user_name,
+  header .header-top .dropdown.open #user_info_acc .account_user_name { color: #fff !important; }
+  header .header-top #user_info_acc:hover .caret,
+  header .header-top .dropdown.open #user_info_acc .caret { border-top-color: #fff; }
+}

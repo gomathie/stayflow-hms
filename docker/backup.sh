@@ -41,6 +41,7 @@ run_backup() {
         # An empty database dump is a few hundred bytes; a real one is far larger
         if [ "$size" -lt 20000 ]; then
             log "ERROR: database dump is only $size bytes, treating it as failed"
+            rm -f -- "$db_file$suffix"
             return 1
         fi
         log "database dump written: $(basename "$db_file$suffix") ($size bytes)"

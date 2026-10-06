@@ -42,6 +42,7 @@ Guidance for any agent or developer working in this repository. Read it before c
 20. **Anything written at runtime outside `img/`, `upload/`, `download/` and `/data` is lost on deploy.** When adding or enabling a module that accepts uploads, add its folder to `PERSIST_DIRS` in `docker/entrypoint.sh`. (Background: change log, 2026-10-06.)
 21. **Sanitise input and escape output.** Take request input through `Tools::getValue()`, cast numbers, use `pSQL()` or `(int)` for anything placed in SQL, and escape template output with `|escape:'html':'UTF-8'`.
 22. **Deploy-time data steps must not assume production matches local.** Read the current state, act on it, and log what was actually changed.
+24. **Security changes to vendor files go in `PATCHES.md`, in the same change,** with the upstream commit they mirror, so they can be dropped when upstream ships the fix. Audit reports and lists of unpatched issues stay in the git-ignored `/audit/` folder: this repository is public.
 
 ### Guides
 
@@ -408,3 +409,85 @@ All of the following are driven from code and applied on deploy. Nothing here ne
 - **Verification:** run against a scratch copy of the currency tables set to euro: with no orders the result was a single active GHS currency as default; with one order present the step skipped and left the euro in place. Not yet verified on the live site.
 - **Also confirmed live after the previous deploy:** stylesheet `?v=6`, all 24 homepage pictures load (the gallery, amenities and payment icons are back), the four security headers are present, `CHANGELOG.txt` and `composer.json` return 404, script execution is blocked in `img/` and `upload/`, and the Salisberg Pay and Salisberg Guide modules are being served.
 - A scratch database named `sbtest` was left in the **local** MySQL container by this test. It is not part of the app; `docker compose down -v` removes it along with the rest of the local data.
+
+### 2026-10-06 — Security fixes from the audit, backups, and a restore test
+
+An audit of the codebase was carried out and the owner approved fixing its findings from the most to the least severe. The audit report and the fix plan are kept out of this public repository (`/audit/` is git-ignored and excluded from the Docker image).
+
+#### Upstream security fixes backported
+
+- **What:** five commits from upstream `develop` applied to the 1.7.0 tree, plus one fix of our own. All are listed in `PATCHES.md` with the upstream commit each mirrors.
+  - Passwords move from MD5 to bcrypt. Existing accounts keep working and are upgraded at their next successful login.
+  - SQL injection in back office address and customer-message handling.
+  - Booking-document upload validation, and escaping of list filter values.
+  - Path traversal in the email template preview.
+  - Cross-site scripting in hotel feature management.
+- **Why:** these are published CVEs affecting QloApps 1.7.0. Upstream has fixed them on its development branch but has not released a version containing them.
+- **How:** `git fetch <upstream> <commit>`, `git diff <commit>^1 <commit>`, `git apply`. All applied without conflicts.
+- **Schema step** (`SCHEMA_VERSION`, marker `/data/.schema-version`) in `docker/entrypoint.sh`: widens `passwd` to 60 characters in `qlo_customer`, `qlo_employee` and `qlo_referrer` before Apache starts, and sets the back office session lifetime to 12 hours if it is still at the stock 480.
+- **Rule 24:** any change to a vendor file for security reasons must be added to `PATCHES.md` in the same change.
+
+#### Hotel reviews: disabled and fixed
+
+- **What:** `docker/setup-modules.php` now disables `qlohotelreview` on every deploy (`MODULES_VERSION=3`). The upload code was also fixed: only the signed-in customer who made the order can post a review, and uploads must be real images, are re-encoded and are saved as `<n>.jpg`.
+- **Why:** CVE-2025-67325 (rated 9.8). The endpoint accepted uploads from anyone, protected only by a token that is printed on public pages, and kept the file extension sent by the browser. The owner chose to switch reviews off until they are needed.
+- The review image folder was added to `PERSIST_DIRS`, so review pictures will survive deploys once the feature is used.
+- **To enable reviews later:** remove `qlohotelreview` from the disable list in `docker/setup-modules.php`, bump `MODULES_VERSION`, and update the Admin Guide (rule 23).
+
+#### Payment confirmation token
+
+- `salisbergpay`: the cash / Mobile Money confirmation form now carries the customer token, and the validation controller only accepts a POST with a valid token. A request without it is sent back to the checkout and creates no booking.
+
+#### Backups
+
+- **What:** a `backup` service in `docker-compose.yml`, running `docker/backup.sh` from the app image. On first start, and then once a day at `BACKUP_HOUR_UTC` (default 02:00), it writes to the `db_backups` volume:
+  - `salisberg-db-<timestamp>.sql.gz.enc`: a full database dump;
+  - `salisberg-data-<timestamp>.tar.gz.enc`: `/data`, which holds the settings file with the encryption keys and the module pictures.
+- Files are encrypted with AES-256 using `BACKUP_PASSPHRASE`. Files older than `BACKUP_KEEP_DAYS` (default 14) are removed. A dump smaller than 20 KB is treated as a failure.
+- **Owner must:** set `BACKUP_PASSPHRASE` in Coolify to a long random value and keep a copy of it off the server. Without the passphrase the backups cannot be read. If it is left unset, backups are written unencrypted and a warning is logged every run.
+- **Not covered yet:** copying backups off the server (needs a storage provider chosen by the owner), and the `app_img` and `app_upload` volumes (room and hotel photographs). A backup kept only on the same server does not survive losing that server.
+
+**Restore procedure** (run inside the `backup` container; replace the file name):
+
+```bash
+export MYSQL_PWD="$DB_PASSWORD"
+f=/backups/salisberg-db-YYYYMMDD-HHMMSS.sql.gz.enc
+# check the file first
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:BACKUP_PASSPHRASE -in "$f" | gzip -t && echo OK
+# restore into the live database (this replaces its contents: stop the app service first)
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:BACKUP_PASSPHRASE -in "$f" | gunzip | mysql -h"$DB_HOST" -u"$DB_USER" "$DB_NAME"
+```
+
+To restore `/data`, decrypt the matching `salisberg-data-…` file the same way and extract it with `tar -xzf - -C /` in a container that has the `app_data` volume mounted read-write.
+
+**Rotating the database passwords.** `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD` are only read by MySQL when its data volume is first created. Changing them in Coolify alone locks the app out. Do both in one sitting:
+
+1. In the `db` container: `mysql -uroot -p` (current root password), then
+   `ALTER USER 'salisberg'@'%' IDENTIFIED BY '<new app password>'; ALTER USER 'root'@'%' IDENTIFIED BY '<new root password>'; ALTER USER 'root'@'localhost' IDENTIFIED BY '<new root password>'; FLUSH PRIVILEGES;`
+2. In the `app` container, edit `/data/settings.inc.php` and set `_DB_PASSWD_` to the new app password.
+3. In Coolify, set `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD` to the same new values, then redeploy.
+4. Check the site loads and the `backup` log shows a successful dump.
+
+#### Other
+
+- `Permissions-Policy` header added (camera, microphone, geolocation, payment and USB denied).
+- Admin Guide updated (rule 23): section 1 notes the 12-hour session, section 9 notes that Hotel Reviews is switched off, section 12 describes the automatic backups.
+
+#### Verification (local)
+
+- **Passwords:** before the change all four accounts held 32-character MD5 hashes. After deploying the patch: a wrong password was refused for both an employee and a customer; the administrator, a Hotel Staff employee and a customer each signed in with their existing password; their stored hashes became 60-character bcrypt; their sessions kept working; and a second sign-in against the upgraded hash succeeded. An account that did not sign in stayed on its old hash, as designed.
+- **Reviews:** an anonymous upload request carrying a valid module token returned 404 with the module disabled, and nothing was written to the review folder.
+- **Payment token:** POST without a token, POST with a wrong token, and a GET were each redirected to the checkout and created no order. A full browser booking through checkout with cash succeeded and the form carried the token.
+- **Backports:** fourteen back office pages in the patched areas and eight storefront pages returned 200 with no PHP, template or SQL errors. A script payload sent as an order-list filter was not reflected unescaped. A path-traversal request for the settings file through the email preview returned no credentials.
+- **Backups:** the service wrote an encrypted dump on first start. Restored into a scratch database: 300 of 300 tables, matching row counts on eight tables including orders, customers and configuration, and an identical table checksum. A wrong passphrase was rejected.
+- **Fresh install** with the patched installer: see the status line below.
+- **Not tested:** any of this on the live server; password reset by email; the review upload fix with the module enabled (it is disabled); restoring the `/data` archive; the three back office pages touched by the SQL-injection patch beyond loading them.
+
+### 2026-10-06 — Minimal desktop navigation
+
+- **What:** on screens 1200px and wider the header now shows four links (Amenities, Rooms, About Us, Contact Us), the cart and an outlined Sign in button. Home, Our Properties, Interior, Testimonials and Legal Notice are hidden on desktop only. Links are uppercase, lighter and more widely spaced. Stylesheet link bumped to `?v=7`.
+- **Why:** the owner asked for a more minimal desktop bar and said some items did not need to be there. The logo already links home; there is a single property; Legal Notice is in the footer; Interior and Testimonials are sections a visitor scrolls past.
+- **How:** CSS attribute selectors on each link's address in `salisberg.css` ("Desktop navigation: minimal"). The links themselves are untouched in the back office, so phones and tablets still get the full menu. To show an item on desktop again, remove its selector from that list.
+- **Caveat:** the selectors match link addresses. If friendly URLs are switched on, or a link is renamed in the back office, re-check which items show.
+- **Verification:** screenshots at 1440, 1280 and 1024 wide. Not checked signed-in at the new style, nor in Safari or Firefox.
+- No guide change needed: this is visual only and adds no feature for staff or administrators.
