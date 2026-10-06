@@ -185,6 +185,7 @@
 			<tr><td>{l s='Page titles and descriptions for search engines' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; SEO &amp; URLs</span></td></tr>
 			{/if}
 			<tr><td>{l s='Who receives messages from the Contact form' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Contacts</span></td></tr>
+			<tr><td>{l s='Whether guests can attach a file to a Contact form message (switched off: the form takes messages only)' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Customer Service</span>, {l s='Contact options, Allow file uploading' mod='salisbergguide'}</td></tr>
 		</table>
 		<p class="sb-tip">{l s='The Hotel Reviews feature (guests rating their stay after check-out) is switched off for now. Ask the developer to switch it on when you want to start collecting reviews; it cannot be enabled from the Modules page because it is switched off again at every update.' mod='salisbergguide'}</p>
 		<h4>{l s='Homepage guest reviews ("What our guests say")' mod='salisbergguide'}</h4>

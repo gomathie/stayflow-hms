@@ -857,3 +857,48 @@ Both live in the existing `modules/salisbergguide` module (rule 25). `MODULES_VE
 - Screenshots reviewed: light dashboard with the softer palette, dark Performance tiles (titles readable), Configuration Information, and the new guide section.
 - **Not tested:** the softer light palette on pages other than the dashboard, Configuration Information and the guide; the CSV import, SQL Manager and webservice steps were written from what the pages show and were not carried out; nothing on the live server.
 - **Follow-up, 2026-10-07:** the stock "working" spinner, which appeared as a grey square over the top-left corner of the logo while a page loaded data, now sits as a small icon at the right end of the top bar. Checked by screenshot in both themes.
+
+### 2026-10-07 — Vendor name removed from on-screen text
+
+The owner asked for every "QloApps" reference that can be removed without risk of breaking anything.
+
+#### What was done
+
+- **One override instead of 38 file edits:** `override/classes/Translate.php`. A search found the vendor name in 67 pieces of on-screen text across 38 vendor files (back office templates, admin controllers and module descriptions). All of that text passes through three functions of the platform's `Translate` class, so the override replaces the name with "Salisberg" in their output. No vendor file was edited (rule 11), and the change is undone by deleting the one file.
+  - Examples: "Enable Salisberg's webservice", "Salisberg version:", "Disable non Salisberg modules", "Some Salisberg files are missing from your server."
+  - A name that is part of a web address (`qloapps.com/…`) is left alone, so links keep working.
+- **Vendor store page hidden:** Modules and Services › Modules Catalog loads the vendor's marketplace from their website (136 mentions on that one page). `hideVendorMenus()` in `modules/salisbergguide/salisbergguide.php` takes it out of the menu on every deploy (`$vendorMenus`; `MODULES_VERSION=8`).
+- **Sample guest retired:** the installer's sample customer `pub@qloapps.com` ("John Doe") has a publicly known address and password. The content step in `docker/entrypoint.sh` (`CONTENT_VERSION=2`) marks it deleted and inactive, using the platform's own flags, unless it has a booking. The step logs how many accounts it retired (rule 22).
+
+#### Deliberately left, because changing them can break things or is not ours to change
+
+| Where | Why it stays |
+|---|---|
+| Licence headers and copyright notices in about 900 files | Required by the OSL-3.0 licence (rule 14) |
+| Class, file and folder names (`AdminQloappsChannelManagerConnector`, `modules/qlo*`, `qloapps@2x.png`), the `qlo_` table prefix | Code finds these by name (rule 12). They appear in web addresses and page source, not in text people read |
+| JavaScript event names such as `QloApps:updateRoomOccupancy` | The booking form on the website depends on them |
+| Links to `qloapps.com` (search page shortcuts, module store links) | They are addresses; the override leaves them so they still work |
+| "QLOAPPS.COM" in the dashboard's Traffic Sources | Sample figures shown only while the dashboard's Demo mode is on |
+| `PATCHES.md`, `README.md`, this file | They record where the code and the security fixes came from |
+
+#### Honest caveat
+
+- The replacement is by word, so a few vendor sentences now read oddly or say something that was written about the vendor: for example the backup page's disclaimer ("Salisberg is not responsible for your database…") and the module pages' references to "Salisberg Addons", a store that does not exist. These are on SuperAdmin-only pages. If any of them matters, reword that sentence in its template.
+
+#### Verification (local, image rebuilt, real browser)
+
+- Scanned the visible text, tooltips and image descriptions of 26 back office pages for the vendor name. Before the Modules Catalog was hidden and the pattern corrected: 139 mentions (136 on the catalog page). After: **one**, the demo-mode traffic source. Every page loaded without errors.
+- A first version of the pattern skipped a name followed by a full stop ("…inside QloApps."), mistaking it for a web address. Found by the scan and corrected; the pattern was then checked against seven sample strings.
+- Entrypoint log: `Content v2 applied (… sample guest accounts retired: 1)`; the account is inactive and marked deleted and no longer appears under Customers. The Modules Catalog entry is inactive.
+- The website homepage has no visible mention (unchanged from before).
+- **Not tested:** PDFs (invoices) and every module's own configuration page; the pages of modules that are disabled; anything on the live server. On the live site the sample guest is only retired if it has no bookings.
+
+### 2026-10-07 — Contact form no longer takes file uploads
+
+- **What:** the "Attach File" field is gone from the website's Contact page; the form takes messages only. The owner said it is not needed.
+- **How:**
+  - The platform already has a switch for this (Customers › Customer Service, Contact options, "Allow file uploading"). The content step in `docker/entrypoint.sh` sets it to No on the next deploy and logs whether it changed anything. `CONTENT_VERSION=3` (2 was never deployed).
+  - `override/controllers/front/ContactController.php`: with the switch off, the stock controller only hides the field and would still store a file posted to it directly. The override drops any such file first. An override, not a core edit (rule 11).
+- **Guide (rule 23):** Admin Guide, section 9 "Website content": new row saying the form takes messages only and where the switch is.
+- **Verification (local, image rebuilt):** log showed `contact form file upload switched off: 1`; the Contact page has no file field (screenshot and field list); a message posted directly with a file attached was accepted as a message, stored with no file name, and nothing was written to the upload folder.
+- **Not tested:** switching the option back on; the live server. Staff replies from the back office can still attach files; that is a separate, staff-only feature and was left alone.

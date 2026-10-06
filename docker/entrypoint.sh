@@ -11,12 +11,12 @@ ADMIN_DIR="${ADMIN_DIR:-admin-salisberg}"
 BRANDING_VERSION=1
 BRAND_NAME="Salisberg Hotels"
 # Bump CONTENT_VERSION to re-run the demo-content replacement below.
-CONTENT_VERSION=1
+CONTENT_VERSION=3
 BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
 CURRENCY_VERSION=2
 # Bump MODULES_VERSION whenever docker/setup-modules.php changes.
-MODULES_VERSION=7
+MODULES_VERSION=8
 # Bump SCHEMA_VERSION when a schema/settings step below is added or changed.
 SCHEMA_VERSION=1
 
@@ -203,8 +203,16 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         db_query "UPDATE qlo_category_lang SET link_rewrite='salisberg-hotels' WHERE link_rewrite='the-hotel-prime'"
         db_query "UPDATE qlo_configuration SET value='$BRAND_EMAIL' WHERE name IN ('PS_SHOP_EMAIL','WK_CUSTOMER_SUPPORT_EMAIL') AND value='hotelprime@htl.com'"
         db_query "UPDATE qlo_htl_branch_info SET email='$BRAND_EMAIL' WHERE email='hotelprime@htl.com'"
+        # The installer's sample guest has a publicly known address and password.
+        # Retire it (the platform's own "deleted" flag) unless it has a booking.
+        DEMO_GUEST="email='pub@qloapps.com' AND deleted=0 AND id_customer NOT IN (SELECT id_customer FROM qlo_orders)"
+        demo_guests=$(db_query "SELECT COUNT(*) FROM qlo_customer WHERE $DEMO_GUEST")
+        db_query "UPDATE qlo_customer SET active=0, deleted=1 WHERE $DEMO_GUEST"
+        # The contact form takes messages only, no attached files
+        uploads_on=$(db_query "SELECT COUNT(*) FROM qlo_configuration WHERE name='PS_CUSTOMER_SERVICE_FILE_UPLOAD' AND value='1'")
+        db_query "UPDATE qlo_configuration SET value='0' WHERE name='PS_CUSTOMER_SERVICE_FILE_UPLOAD'"
         echo "$CONTENT_VERSION" > /data/.content-version
-        echo "Content v$CONTENT_VERSION applied (demo identity replaced)"
+        echo "Content v$CONTENT_VERSION applied (demo identity replaced; sample guest accounts retired: ${demo_guests:-0}; contact form file upload switched off: ${uploads_on:-0})"
     fi
 
     # Schema and settings our security backports rely on. This must run before

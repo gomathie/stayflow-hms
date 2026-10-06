@@ -122,6 +122,9 @@ class Salisbergguide extends Module
         'AdminOrders' => array('Orders', 'Bookings'),
     );
 
+    /** The vendor's own store pages, kept out of the menu: class names */
+    public static $vendorMenus = array('AdminModulesCatalog');
+
     public function __construct()
     {
         $this->name = 'salisbergguide';
@@ -154,6 +157,7 @@ class Salisbergguide extends Module
             && $this->installProfile(self::STAFF_PROFILE, self::$staffAccess)
             && $this->installProfile(self::MANAGER_PROFILE, self::$managerAccess)
             && $this->renameMenuEntries()
+            && $this->hideVendorMenus()
             && $this->registerHook('header')
             && $this->registerHook('actionAdminControllerSetMedia')
             && $this->registerHook('actionAdminLoginControllerSetMedia');
@@ -169,6 +173,18 @@ class Salisbergguide extends Module
                     array('name' => pSQL($names[1])),
                     'id_tab = '.$idTab.' AND name = \''.pSQL($names[0]).'\''
                 );
+            }
+        }
+
+        return true;
+    }
+
+    protected function hideVendorMenus()
+    {
+        foreach (self::$vendorMenus as $className) {
+            $idTab = (int) Tab::getIdFromClassName($className);
+            if ($idTab) {
+                Db::getInstance()->update('tab', array('active' => 0), 'id_tab = '.$idTab);
             }
         }
 
