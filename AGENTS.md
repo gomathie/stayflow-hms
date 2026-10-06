@@ -491,3 +491,42 @@ To restore `/data`, decrypt the matching `salisberg-data-…` file the same way 
 - **Caveat:** the selectors match link addresses. If friendly URLs are switched on, or a link is renamed in the back office, re-check which items show.
 - **Verification:** screenshots at 1440, 1280 and 1024 wide. Not checked signed-in at the new style, nor in Safari or Firefox.
 - No guide change needed: this is visual only and adds no feature for staff or administrators.
+
+### 2026-10-06 — Remaining back office XSS fixes; file manager SVG; token CVE assessed
+
+**What**
+
+- Backported two more upstream commits (both listed in `PATCHES.md`):
+  - `1d06fd3` (pull request #1884), CVE-2026-103587: the back office Book Now search now validates its date parameters.
+  - `7ed467d` (pull request #1899), CVE-2026-103588, -103589, -103590: escaping in the "Transplant a module" form, the room type editor (room number, floor, status, comment) and the length-of-stay fields.
+- `admin/filemanager/config/config.php`: `svg` removed from the allowed upload types (CVE-2026-25558: script embedded in an SVG runs when someone opens the file).
+- **CVE-2025-10759 assessed, no code change.** The published report is about the customer logout link: its token sits in the URL and can be reused, so someone who obtains it can log that customer out. It does not give access to an account. The `Referrer-Policy` header already set stops the token leaking to other sites, and the token changes whenever the customer's password hash changes. Accepted as low risk.
+
+**How**
+
+- `1d06fd3` applied cleanly with `git apply`. `7ed467d` applied except for one file, `admin/themes/default/template/controllers/products/configuration.tpl`, whose surrounding lines differ from upstream's development branch; its five one-line changes were made by hand to match the upstream diff exactly.
+
+**Verification**
+
+- Docker was not running on the development machine for this session, so **none of this was run in the application**. What was checked instead:
+  - PHP syntax (`php -l`, PHP 8.3) on all 33 PHP files changed since the deployed branch: no errors.
+  - Smarty syntax: the nine changed or new templates were compiled standalone with the bundled Smarty 4 and unknown plugins stubbed: all compiled. The same check was confirmed to fail on a deliberately broken template.
+  - `bash -n` on both shell scripts; both stored with LF endings.
+- **Still to do before relying on it:** load the Book Now page, the room type editor (Rooms and Length of Stay tabs), Modules → Positions → Transplant a module, and the file manager in a running stack, and confirm they behave as before.
+
+**Deployment note**
+
+- At the time of writing, the security work sits on the local branch `develop`, pushed to `origin/production`. The live site is built from `salisberg-production`, which does not contain it. Nothing from the security fixes is live until `develop` is pushed to `salisberg-production`.
+- `/audit/` was also added to `.git/info/exclude` on the development machine, so the private audit files are ignored on every branch, including older ones whose `.gitignore` predates the rule.
+
+**Follow-up, same day: run in the application.** Docker was started and the changes above were exercised in a local stack before deployment:
+
+- Back office Book Now: loads, lists rooms for valid dates, and a script payload in `date_to` and `id_room_type` is not reflected.
+- Room type editor: the page and its Rooms, Length of Stay and Information tabs load without errors.
+- Modules → Positions and the "Transplant a module" form: load; a script payload in `exceptions[…]` is not reflected. A request sending `exceptions` as plain text instead of a list returns a 500; that is existing upstream behaviour (the same code is in stock 1.7.0), reachable only by a signed-in administrator, and shows no error detail.
+- File manager dialog loads; `svg` is no longer in its allowed list.
+- Dashboard, Orders, Customers, Modules, and the storefront home, room and checkout pages: 200, no PHP, template or SQL errors.
+
+**Deployed:** `develop` was pushed to `salisberg-production` on 2026-10-06 at the owner's instruction, in two pushes: first the work tested the previous day, then these changes once tested.
+
+**Commit messages carry no AI attribution**, at the owner's instruction.

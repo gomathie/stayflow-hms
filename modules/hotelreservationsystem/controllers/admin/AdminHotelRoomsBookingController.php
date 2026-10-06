@@ -110,8 +110,8 @@ class AdminHotelRoomsBookingController extends ModuleAdminController
         $hotelBranchesInfo = HotelBranchInformation::filterDataByHotelAccess($hotelBranchesInfo, $this->context->employee->id_profile, 'id');
 
         if ($hotelBranchesInfo) {
-            if (Tools::getValue('date_from')) {
-                $date_from = Tools::getValue('date_from');
+            if (Tools::getValue('date_from') && Validate::isDate(Tools::getValue('date_from'))) {
+                $date_from = date('Y-m-d', strtotime(Tools::getValue('date_from')));
             } else {
                 $date_from = date('Y-m-d');
             }
@@ -125,17 +125,20 @@ class AdminHotelRoomsBookingController extends ModuleAdminController
                     $date_from = date('Y-m-d');
                 }
             }
-            if (Tools::getValue('date_to')) {
-                $date_to = Tools::getValue('date_to');
-            } else {
+            if (!Validate::isDate($date_from)) {
+                $date_from = date('Y-m-d');
+            }
+            $date_to = Tools::getValue('date_to');
+            if (!$date_to || !Validate::isDate($date_to)) {
                 $date_to = date('Y-m-d');
-                if (strtotime($date_from) >= strtotime($date_to)) {
-                    $date_to = date('Y-m-d', strtotime('+1 day', strtotime($date_to)));
-                }
+            }
+            // Check-out date must always be after check-in date
+            if (strtotime($date_from) >= strtotime($date_to)) {
+                $date_to = date('Y-m-d', strtotime('+1 day', strtotime($date_from)));
             }
 
             if (Tools::getValue('id_hotel')) {
-                $id_hotel = Tools::getValue('id_hotel');
+                $id_hotel = (int) Tools::getValue('id_hotel');
             } else {
                 if ($htl_info = $objHotelBranchInformation->hotelBranchesInfo(false, 1)) {
                     // filter hotels as per accessed hotels
@@ -151,7 +154,7 @@ class AdminHotelRoomsBookingController extends ModuleAdminController
             }
 
             if (Tools::getValue('id_room_type')) {
-                $id_room_type = Tools::getValue('id_room_type');
+                $id_room_type = (int) Tools::getValue('id_room_type');
             } else {
                 $id_room_type = 0;
             }
