@@ -71,7 +71,7 @@ header .header-top {
   box-shadow: 0 1px 0 var(--sb-line), 0 10px 30px -22px rgba(12, 36, 30, .5);
 }
 header .row #header_logo { padding: 10px 0; }
-header .row #header_logo img { max-height: 72px; width: auto; }
+header .row #header_logo img { max-height: 54px; width: auto; }
 
 header .header-top .header-top-link,
 header .header-top .header-top-link span,
@@ -614,7 +614,7 @@ input.account_input, input.is_required {
 }
 
 @media (max-width: 767px) {
-  header .row #header_logo img { max-height: 48px; }
+  header .row #header_logo img { max-height: 42px; }
   #index .header-desc-primary { padding-bottom: 0; }
   #index #xs_room_search {
     padding: 14px 34px;

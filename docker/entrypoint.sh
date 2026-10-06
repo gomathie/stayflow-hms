@@ -13,6 +13,8 @@ BRAND_NAME="Salisberg Hotels"
 # Bump CONTENT_VERSION to re-run the demo-content replacement below.
 CONTENT_VERSION=1
 BRAND_EMAIL="booking@salisberg.com"
+# Bump CURRENCY_VERSION to re-run the currency step below.
+CURRENCY_VERSION=1
 
 # Module folders that receive uploads (gallery, amenities, payment icons,
 # guest photos). Add any other module upload folder here.
@@ -26,9 +28,10 @@ BRAND_FILES="logo.jpg logo_mail.jpg logo_invoice.jpg favicon.ico logo_stores.gif
 # (The bundled MariaDB CLI rejects MySQL 8's self-signed certificate.)
 db_query() {
     SQL="$1" php -r '
-        $pdo = new PDO("mysql:host=".getenv("DB_HOST").";dbname=".getenv("DB_NAME"), getenv("DB_USER"), getenv("DB_PASSWORD"),
+        $pdo = new PDO("mysql:host=".getenv("DB_HOST").";dbname=".getenv("DB_NAME").";charset=utf8mb4", getenv("DB_USER"), getenv("DB_PASSWORD"),
             array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 5));
-        $pdo->exec(getenv("SQL"));'
+        $st = $pdo->query(getenv("SQL"));
+        if ($st && $st->columnCount()) { echo $st->fetchColumn(); }'
 }
 
 if [ "${1:-}" = "apache2-foreground" ]; then
@@ -187,6 +190,17 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         db_query "UPDATE qlo_htl_branch_info SET email='$BRAND_EMAIL' WHERE email='hotelprime@htl.com'"
         echo "$CONTENT_VERSION" > /data/.content-version
         echo "Content v$CONTENT_VERSION applied (demo identity replaced)"
+    fi
+
+    # Shop currency: Ghana cedi. The installer creates a single currency (US
+    # dollar); relabel that row instead of adding a second one, so carts,
+    # payment-module permissions and the default-currency setting keep
+    # pointing at it and no exchange rate is involved. Skipped once any order
+    # exists, because that would relabel money already charged.
+    if [ -e "$SETTINGS" ] && [ "$(cat /data/.currency-version 2>/dev/null)" != "$CURRENCY_VERSION" ]; then
+        db_query "UPDATE qlo_currency SET name='Ghana Cedi', iso_code='GHS', iso_code_num='936', sign='GH₵', blank=0, format=1, decimals=1 WHERE iso_code='USD' AND (SELECT COUNT(*) FROM qlo_orders) = 0"
+        echo "$CURRENCY_VERSION" > /data/.currency-version
+        echo "Currency step v$CURRENCY_VERSION done; default currency is now: $(db_query "SELECT c.iso_code FROM qlo_currency c JOIN qlo_configuration k ON k.name='PS_CURRENCY_DEFAULT' AND k.value=c.id_currency")"
     fi
 fi
 
