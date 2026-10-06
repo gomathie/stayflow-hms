@@ -623,3 +623,16 @@ To restore `/data`, decrypt the matching `salisberg-data-…` file the same way 
 - **Limits:** this changes appearance, not behaviour. Pages still reload on every action and forms are as dense as before. Not checked: every one of the 79 menu pages, the "Top" menu orientation, right-to-left languages, and screens narrower than a laptop.
 - **Guides:** no change needed; nothing a user does has moved or been renamed.
 - **Considered and not done:** replacing the back office with a Filament (Laravel) admin. Filament cannot be embedded in this application; it would be a second application writing to the same database, bypassing the booking, pricing and availability rules that live in the PHP classes, or re-implementing them. That is a rewrite of the back office, not a restyle. See the audit's recommendation (modernize incrementally).
+
+### 2026-10-06 — Show/hide button on password fields
+
+- **What:** every password field, on the website and in the back office, now has an eye icon at its right edge. Clicking it shows what was typed; clicking again hides it.
+- **Where:** `modules/salisbergguide/views/js/password-toggle.js` and `views/css/password-toggle.css`, added to pages by the Salisberg Guide module through three hooks registered in `ensureSetup()`: `header` (website), `actionAdminControllerSetMedia` (back office) and `actionAdminLoginControllerSetMedia` (back office sign-in). `MODULES_VERSION=5` so the hooks are registered on the next deploy.
+- **Why this way:** one script for all password fields instead of editing each form template. The button is positioned over the field, not wrapped around it, so no existing form layout changes. No vendor file is touched.
+- **Behaviour:**
+  - Fields that appear later (checkout sign-in, "Change password…" in the back office) get the button too.
+  - A field is switched back to hidden when its form is submitted, so a password is never sent or left on screen as plain text by accident.
+  - The button is a real `<button>` with a label that changes between "Show password" and "Hide password", reachable by keyboard.
+- **Guide (rule 23):** Staff Guide, section 1 "Signing in and your account": new step describing the eye icon.
+- **Verification (local, real browser):** on the website sign-in page (desktop and phone width), the back office sign-in page and the new-employee form, the button sits inside the field; a click changes the field from hidden to visible and back; submitting the form resets it to hidden; no JavaScript errors. Screenshots reviewed for the website and back office sign-in pages.
+- **Not tested:** the account-creation, "my details" and checkout-registration forms individually (they use the same script), Safari and Firefox, and right-to-left languages.
