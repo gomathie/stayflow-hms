@@ -15,6 +15,7 @@ COPY docker/apache.conf /etc/apache2/conf-enabled/zz-salisberg.conf
 COPY docker/entrypoint.sh /usr/local/bin/salisberg-entrypoint
 COPY docker/setup-modules.php /usr/local/share/salisberg/setup-modules.php
 COPY docker/backup.sh /usr/local/bin/salisberg-backup
+COPY docker/ratelimit.php /usr/local/share/salisberg/ratelimit.php
 # Lets the mysql/mysqldump CLI talk to MySQL 8 (self-signed cert) on the private stack network
 RUN printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/salisberg-client.cnf
 

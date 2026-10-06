@@ -530,3 +530,53 @@ To restore `/data`, decrypt the matching `salisberg-data-…` file the same way 
 **Deployed:** `develop` was pushed to `salisberg-production` on 2026-10-06 at the owner's instruction, in two pushes: first the work tested the previous day, then these changes once tested.
 
 **Commit messages carry no AI attribution**, at the owner's instruction.
+
+### 2026-10-06 — Rate limiting on sign-in and forms; Content-Security-Policy
+
+#### Request limiter
+
+- **What:** `docker/ratelimit.php`, loaded before every web request through `auto_prepend_file` in `docker/php.ini` (copied to `/usr/local/share/salisberg/` by the Dockerfile, outside the web root). It counts POSTs per visitor address and refuses further ones once a limit is reached:
+
+  | Form | Limit per address |
+  |---|---|
+  | Back office sign-in | 10 in 10 minutes |
+  | Back office "forgot password" | 5 an hour |
+  | Guest sign-in | 10 in 10 minutes |
+  | New guest account | 10 an hour |
+  | Password reset request | 5 an hour |
+  | Contact form | 6 an hour |
+  | Newsletter sign-up | 10 an hour |
+
+- **Why:** the audit found no limit on password guessing against guest accounts, and none on the forms that send email. The stock back office has its own attempt setting; the storefront has nothing.
+- **How it behaves:** a blocked visitor gets a short "Too many attempts. Please wait N minutes" page with status 429 and a `Retry-After` header. The back office sign-in form only displays messages that arrive as a normal JSON reply, so for that form the same message is returned with status 200 in the shape the form expects. Every block is written to the PHP error log as `[salisberg-ratelimit] blocked <rule> from <address>`.
+- **Design choices:**
+  - No application file is modified; the limiter can be removed by deleting one line from `php.ini`.
+  - Counters are small files under the system temp folder, cleared on redeploy. No database, no extra service.
+  - If the limiter cannot create or open its file, the request is allowed. It must never be the reason the site is down.
+  - The visitor address is `REMOTE_ADDR`, which Apache's `mod_remoteip` has already set from the proxy's `X-Forwarded-For`.
+  - Only the listed forms are counted. Browsing, searching, adding to the cart and checking out are not limited.
+- **Limits live in** the `$rules` array at the top of `docker/ratelimit.php`.
+- **Known trade-off:** everyone at the hotel shares one internet address, so the back office limit is shared between staff. Ten wrong passwords in ten minutes locks all of them out of signing in for up to ten minutes. People already signed in are not affected.
+
+#### Content-Security-Policy
+
+- **What** (`docker/apache.conf`): `object-src 'none'; base-uri 'self'; frame-ancestors 'self'`, plus `upgrade-insecure-requests` when the request arrived over HTTPS. Any SVG served from an upload folder is sent with a sandboxing policy and as a download, so script inside it cannot run.
+- **Why only these rules:** they block plugins, `<base>` hijacking and framing by other sites, and nothing in the platform trips them. A `script-src` rule would break the theme and the back office, which rely on inline scripts; it needs a report-only trial with somewhere to collect the reports first.
+- `upgrade-insecure-requests` is tied to HTTPS so local development over plain HTTP keeps working.
+
+#### Guides (rule 23)
+
+- Staff Guide, section 11 "When something goes wrong": new first entry explaining the "Too many attempts" message.
+- Admin Guide, section 1 "Staff accounts and what they can see": new "Sign-in and form limits" subsection with the limits table and the shared-connection note.
+
+#### Verification (local, running stack)
+
+- `apachectl -t` reports "Syntax OK"; the container starts and reports healthy; `php -i` shows the prepend file is active; no PHP fatal errors in the log.
+- Guest sign-in with wrong passwords from one address: attempts 1–10 answered normally, 11 and 12 returned 429 with `Retry-After`. A different address at the same moment was not affected, and the blocked address could still browse pages.
+- Back office sign-in through `ajax-tab.php` (the address the page really posts to): attempt 11 returned the "Too many attempts" message. In a real browser the sign-in page showed that message in its normal error box.
+- Contact form blocked on the 7th post in an hour; password reset on the 6th. Twenty cart requests in a row were all served.
+- A correct administrator sign-in from an address that had not been blocked worked.
+- Content-Security-Policy present once per response, with `upgrade-insecure-requests` only when HTTPS was signalled. A browser run over seven pages (home, room, search, checkout, contact, sign-in, back office sign-in) recorded no policy violations and no JavaScript errors.
+- Dashboard, Orders, Room types, Modules and both guide pages load without errors; the new guide text is displayed.
+- **Not tested:** behaviour behind Coolify's real proxy (the visitor address there comes from the proxy's header; if every visitor appeared as one address, the limits would be shared by everyone); newsletter and account-creation limits; the SVG sandbox header with a real SVG file.
+- **After deploying, check on the live site** that two different networks (for example Wi-Fi and mobile data) are limited separately. If they are not, remove the `auto_prepend_file` line and redeploy.

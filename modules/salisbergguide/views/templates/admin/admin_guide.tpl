@@ -45,6 +45,17 @@
 		<h4>{l s='Change what a profile can do' mod='salisbergguide'}</h4>
 		<p>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Permissions</span>, {l s='pick the profile on the left, and tick View, Add, Edit or Delete for each page. To create another role (for example Housekeeping), add it in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Profiles</span> {l s='first.' mod='salisbergguide'}</p>
 		<p class="sb-tip">{l s='Back office sessions end after 12 hours, so everyone signs in again each working day.' mod='salisbergguide'}</p>
+		<h4>{l s='Sign-in and form limits' mod='salisbergguide'}</h4>
+		<p>{l s='To slow down password guessing and spam, the site limits how often the same internet connection can use certain forms. When a limit is reached the person sees "Too many attempts" and the time to wait.' mod='salisbergguide'}</p>
+		<table>
+			<tr><th>{l s='Form' mod='salisbergguide'}</th><th>{l s='Limit per connection' mod='salisbergguide'}</th></tr>
+			<tr><td>{l s='Back office sign-in' mod='salisbergguide'}</td><td>{l s='10 tries in 10 minutes' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Guest sign-in on the website' mod='salisbergguide'}</td><td>{l s='10 tries in 10 minutes' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Password reset requests' mod='salisbergguide'}</td><td>{l s='5 an hour' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='New guest accounts' mod='salisbergguide'}</td><td>{l s='10 an hour' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Contact form messages' mod='salisbergguide'}</td><td>{l s='6 an hour' mod='salisbergguide'}</td></tr>
+		</table>
+		<p>{l s='Everyone at the hotel usually shares one internet connection, so several staff mistyping passwords at once can reach the limit together. It clears by itself; nobody needs to be unblocked. The limits are changed by the developer.' mod='salisbergguide'}</p>
 		<p class="sb-warn">{l s='Keep the number of SuperAdmin accounts small, and never share one login between people. A SuperAdmin can change prices, payment details and every other setting.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminEmployees|escape:'html':'UTF-8'}">{l s='Open Employees' mod='salisbergguide'} &rarr;</a>
 	</section>
