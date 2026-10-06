@@ -14,7 +14,7 @@ BRAND_NAME="Salisberg Hotels"
 CONTENT_VERSION=1
 BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
-CURRENCY_VERSION=1
+CURRENCY_VERSION=2
 # Bump MODULES_VERSION whenever docker/setup-modules.php changes.
 MODULES_VERSION=2
 
@@ -204,13 +204,31 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         echo "Content v$CONTENT_VERSION applied (demo identity replaced)"
     fi
 
-    # Shop currency: Ghana cedi. The installer creates a single currency (US
-    # dollar); relabel that row instead of adding a second one, so carts,
-    # payment-module permissions and the default-currency setting keep
-    # pointing at it and no exchange rate is involved. Skipped once any order
-    # exists, because that would relabel money already charged.
+    # Shop currency: Ghana cedi. The installer creates one default currency
+    # (US dollar or euro, depending on which localisation pack it found).
+    # Relabel that row instead of adding a second one, so carts, payment-module
+    # permissions and the default-currency setting keep pointing at it and no
+    # exchange rate is involved. Skipped once any order exists, because that
+    # would relabel money already charged.
     if [ -e "$SETTINGS" ] && [ "$(cat /data/.currency-version 2>/dev/null)" != "$CURRENCY_VERSION" ]; then
-        db_query "UPDATE qlo_currency SET name='Ghana Cedi', iso_code='GHS', iso_code_num='936', sign='GH₵', blank=0, format=1, decimals=1 WHERE iso_code='USD' AND (SELECT COUNT(*) FROM qlo_orders) = 0"
+        if [ "$(db_query "SELECT COUNT(*) FROM qlo_orders")" != "0" ]; then
+            echo "Currency step skipped: orders already exist"
+        else
+            ghs_id="$(db_query "SELECT id_currency FROM qlo_currency WHERE iso_code='GHS' AND deleted=0 ORDER BY id_currency LIMIT 1")"
+            if [ -z "$ghs_id" ]; then
+                ghs_id="$(db_query "SELECT value FROM qlo_configuration WHERE name='PS_CURRENCY_DEFAULT'")"
+            fi
+            if printf '%s' "$ghs_id" | grep -Eq '^[0-9]+$'; then
+                db_query "UPDATE qlo_currency SET name='Ghana Cedi', iso_code='GHS', iso_code_num='936', sign='GH₵', blank=0, format=1, decimals=1, conversion_rate=1, active=1, deleted=0 WHERE id_currency=$ghs_id"
+                db_query "UPDATE qlo_currency_shop SET conversion_rate=1 WHERE id_currency=$ghs_id"
+                db_query "UPDATE qlo_configuration SET value='$ghs_id' WHERE name='PS_CURRENCY_DEFAULT'"
+                # One currency only: a second one would need a maintained exchange rate
+                db_query "UPDATE qlo_currency SET active=0 WHERE id_currency<>$ghs_id"
+                # Payment modules must be allowed to take it
+                db_query "INSERT IGNORE INTO qlo_module_currency (id_module, id_shop, id_currency) SELECT DISTINCT id_module, id_shop, $ghs_id FROM qlo_module_currency"
+                db_query "UPDATE qlo_cart SET id_currency=$ghs_id"
+            fi
+        fi
         echo "$CURRENCY_VERSION" > /data/.currency-version
         echo "Currency step v$CURRENCY_VERSION done; default currency is now: $(db_query "SELECT c.iso_code FROM qlo_currency c JOIN qlo_configuration k ON k.name='PS_CURRENCY_DEFAULT' AND k.value=c.id_currency")"
     fi
