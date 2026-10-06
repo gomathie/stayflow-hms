@@ -68,7 +68,39 @@ class Salisbergguide extends Module
         return $this->installTab('AdminSalisbergGuide', 'Guides', 0)
             && $this->installTab('AdminSalisbergStaffGuide', 'Staff Guide', (int) Tab::getIdFromClassName('AdminSalisbergGuide'))
             && $this->installTab('AdminSalisbergAdminGuide', 'Admin Guide', (int) Tab::getIdFromClassName('AdminSalisbergGuide'))
-            && $this->installStaffProfile();
+            && $this->installStaffProfile()
+            && $this->registerHook('header')
+            && $this->registerHook('actionAdminControllerSetMedia')
+            && $this->registerHook('actionAdminLoginControllerSetMedia');
+    }
+
+    /**
+     * Small interface helpers shared by the website and the back office.
+     * Currently: the show/hide (eye) button on password fields.
+     */
+    protected function addInterfaceAssets()
+    {
+        $controller = $this->context->controller;
+        if (!$controller) {
+            return;
+        }
+        $controller->addCSS($this->_path.'views/css/password-toggle.css', 'all');
+        $controller->addJS($this->_path.'views/js/password-toggle.js');
+    }
+
+    public function hookHeader()
+    {
+        $this->addInterfaceAssets();
+    }
+
+    public function hookActionAdminControllerSetMedia()
+    {
+        $this->addInterfaceAssets();
+    }
+
+    public function hookActionAdminLoginControllerSetMedia()
+    {
+        $this->addInterfaceAssets();
     }
 
     public function uninstall()

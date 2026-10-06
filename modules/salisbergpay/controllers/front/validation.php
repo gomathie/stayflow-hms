@@ -11,6 +11,12 @@ class SalisbergpayValidationModuleFrontController extends ModuleFrontController
             Tools::redirect('index.php?controller=order&step=1');
         }
 
+        // A booking may only be confirmed from our own summary page, by POST, with
+        // the customer's token: another site must not be able to trigger it.
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !$this->isTokenValid()) {
+            Tools::redirect('index.php?controller=order-opc');
+        }
+
         // The option may have been withdrawn (address or settings changed) since the guest chose it
         $authorized = false;
         foreach (Module::getPaymentModules() as $module) {

@@ -86,11 +86,35 @@ if ($idPay && $idGhana) {
     }
 }
 
-// The hotel takes cash and Mobile Money only for now
-foreach (array('bankwire', 'cheque') as $name) {
+// Switched off on every deploy:
+//  - bankwire, cheque: the hotel takes cash and Mobile Money only for now
+//  - qlohotelreview: guest reviews are not in use; keeping it off also keeps its
+//    upload endpoint closed (CVE-2025-67325). Remove it from this list to use reviews.
+foreach (array('bankwire', 'cheque', 'qlohotelreview') as $name) {
     if (Module::isInstalled($name) && Module::isEnabled($name)) {
         Module::getInstanceByName($name)->disable();
         sb_log("$name disabled");
+    }
+}
+
+// Switched off ONCE, then left to the owner: the homepage "What our guests say"
+// block ships with invented sample reviews. It is hidden until real ones are
+// entered; an administrator can enable the module and its menu link again in the
+// back office, and later deploys will not undo that.
+$testimonialsFlag = '/data/.testimonials-hidden';
+if (!file_exists($testimonialsFlag)) {
+    if (Module::isInstalled('wktestimonialblock') && Module::isEnabled('wktestimonialblock')) {
+        Module::getInstanceByName('wktestimonialblock')->disable();
+        sb_log('wktestimonialblock disabled (sample reviews hidden)');
+    }
+    // The menu link that scrolls to the block would now lead nowhere
+    Db::getInstance()->execute(
+        'UPDATE `'._DB_PREFIX_.'htl_custom_navigation_link` SET `active` = 0
+        WHERE `link` LIKE \'%#hotelTestimonialBlock\''
+    );
+    if (@file_put_contents($testimonialsFlag, date('c')) === false) {
+        sb_log('ERROR: could not record that the testimonials block was hidden');
+        $failed = true;
     }
 }
 

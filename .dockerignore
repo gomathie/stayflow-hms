@@ -14,3 +14,4 @@ cache/smarty/compile/*
 log/*
 !log/index.php
 node_modules
+audit

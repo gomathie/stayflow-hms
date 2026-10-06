@@ -26,6 +26,7 @@
 		<h3>1. {l s='Signing in and your account' mod='salisbergguide'}</h3>
 		<ol>
 			<li>{l s='Open the back office address your administrator gave you and sign in with your work email and password.' mod='salisbergguide'}</li>
+			<li>{l s='Every password box has an eye icon at its right edge. Click it to see what you typed, and click again to hide it. Check that nobody is looking at your screen first.' mod='salisbergguide'}</li>
 			<li>{l s='To change your password, click your name at the top right of the screen and choose' mod='salisbergguide'} <span class="sb-btn">My preferences</span>.</li>
 			<li>{l s='When you finish your shift, click your name at the top right and choose' mod='salisbergguide'} <span class="sb-btn">Sign out</span>.</li>
 		</ol>
@@ -167,6 +168,7 @@
 	<section id="sb-s11">
 		<h3>11. {l s='When something goes wrong' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='"Too many attempts. Please wait…" when signing in:' mod='salisbergguide'}</strong> {l s='the wrong password was entered too many times from your connection (10 tries in 10 minutes). Wait the time shown, then try again carefully. If you have forgotten your password, ask an administrator to reset it.' mod='salisbergguide'}</li>
 			<li><strong>{l s='"Access denied" on a page:' mod='salisbergguide'}</strong> {l s='your role does not include it. Ask an administrator if you need it for your job.' mod='salisbergguide'}</li>
 			<li><strong>{l s='A room shows as unavailable but is empty:' mod='salisbergguide'}</strong> {l s='another booking may hold it. Search Orders for those dates before promising it to a guest.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Guest says they paid by Mobile Money but nothing arrived:' mod='salisbergguide'}</strong> {l s='ask for the transaction ID and check the hotel account. Do not mark the booking as paid until the money is there.' mod='salisbergguide'}</li>

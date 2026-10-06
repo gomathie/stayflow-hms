@@ -50,7 +50,31 @@ services:
       - app_upload:/var/www/html/upload
       - app_download:/var/www/html/download
 
+  # Nightly encrypted database + settings backup into the db_backups volume.
+  # Uses the app image, which already has the MySQL client and openssl.
+  backup:
+    build: .
+    restart: unless-stopped
+    entrypoint: ["salisberg-backup"]
+    healthcheck:
+      disable: true
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NAME: ${MYSQL_DATABASE:-salisberg}
+      DB_USER: ${MYSQL_USER:-salisberg}
+      DB_PASSWORD: ${MYSQL_PASSWORD:?}
+      BACKUP_PASSPHRASE: ${BACKUP_PASSPHRASE:-}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+      BACKUP_HOUR_UTC: ${BACKUP_HOUR_UTC:-2}
+    volumes:
+      - db_backups:/backups
+      - app_data:/data:ro
+
 volumes:
+  db_backups:
   db_data:
   app_data:
   app_img:

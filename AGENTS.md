@@ -42,6 +42,7 @@ Guidance for any agent or developer working in this repository. Read it before c
 20. **Anything written at runtime outside `img/`, `upload/`, `download/` and `/data` is lost on deploy.** When adding or enabling a module that accepts uploads, add its folder to `PERSIST_DIRS` in `docker/entrypoint.sh`. (Background: change log, 2026-10-06.)
 21. **Sanitise input and escape output.** Take request input through `Tools::getValue()`, cast numbers, use `pSQL()` or `(int)` for anything placed in SQL, and escape template output with `|escape:'html':'UTF-8'`.
 22. **Deploy-time data steps must not assume production matches local.** Read the current state, act on it, and log what was actually changed.
+24. **Security changes to vendor files go in `PATCHES.md`, in the same change,** with the upstream commit they mirror, so they can be dropped when upstream ships the fix. Audit reports and lists of unpatched issues stay in the git-ignored `/audit/` folder: this repository is public.
 
 ### Guides
 
@@ -408,3 +409,247 @@ All of the following are driven from code and applied on deploy. Nothing here ne
 - **Verification:** run against a scratch copy of the currency tables set to euro: with no orders the result was a single active GHS currency as default; with one order present the step skipped and left the euro in place. Not yet verified on the live site.
 - **Also confirmed live after the previous deploy:** stylesheet `?v=6`, all 24 homepage pictures load (the gallery, amenities and payment icons are back), the four security headers are present, `CHANGELOG.txt` and `composer.json` return 404, script execution is blocked in `img/` and `upload/`, and the Salisberg Pay and Salisberg Guide modules are being served.
 - A scratch database named `sbtest` was left in the **local** MySQL container by this test. It is not part of the app; `docker compose down -v` removes it along with the rest of the local data.
+
+### 2026-10-06 — Security fixes from the audit, backups, and a restore test
+
+An audit of the codebase was carried out and the owner approved fixing its findings from the most to the least severe. The audit report and the fix plan are kept out of this public repository (`/audit/` is git-ignored and excluded from the Docker image).
+
+#### Upstream security fixes backported
+
+- **What:** five commits from upstream `develop` applied to the 1.7.0 tree, plus one fix of our own. All are listed in `PATCHES.md` with the upstream commit each mirrors.
+  - Passwords move from MD5 to bcrypt. Existing accounts keep working and are upgraded at their next successful login.
+  - SQL injection in back office address and customer-message handling.
+  - Booking-document upload validation, and escaping of list filter values.
+  - Path traversal in the email template preview.
+  - Cross-site scripting in hotel feature management.
+- **Why:** these are published CVEs affecting QloApps 1.7.0. Upstream has fixed them on its development branch but has not released a version containing them.
+- **How:** `git fetch <upstream> <commit>`, `git diff <commit>^1 <commit>`, `git apply`. All applied without conflicts.
+- **Schema step** (`SCHEMA_VERSION`, marker `/data/.schema-version`) in `docker/entrypoint.sh`: widens `passwd` to 60 characters in `qlo_customer`, `qlo_employee` and `qlo_referrer` before Apache starts, and sets the back office session lifetime to 12 hours if it is still at the stock 480.
+- **Rule 24:** any change to a vendor file for security reasons must be added to `PATCHES.md` in the same change.
+
+#### Hotel reviews: disabled and fixed
+
+- **What:** `docker/setup-modules.php` now disables `qlohotelreview` on every deploy (`MODULES_VERSION=3`). The upload code was also fixed: only the signed-in customer who made the order can post a review, and uploads must be real images, are re-encoded and are saved as `<n>.jpg`.
+- **Why:** CVE-2025-67325 (rated 9.8). The endpoint accepted uploads from anyone, protected only by a token that is printed on public pages, and kept the file extension sent by the browser. The owner chose to switch reviews off until they are needed.
+- The review image folder was added to `PERSIST_DIRS`, so review pictures will survive deploys once the feature is used.
+- **To enable reviews later:** remove `qlohotelreview` from the disable list in `docker/setup-modules.php`, bump `MODULES_VERSION`, and update the Admin Guide (rule 23).
+
+#### Payment confirmation token
+
+- `salisbergpay`: the cash / Mobile Money confirmation form now carries the customer token, and the validation controller only accepts a POST with a valid token. A request without it is sent back to the checkout and creates no booking.
+
+#### Backups
+
+- **What:** a `backup` service in `docker-compose.yml`, running `docker/backup.sh` from the app image. On first start, and then once a day at `BACKUP_HOUR_UTC` (default 02:00), it writes to the `db_backups` volume:
+  - `salisberg-db-<timestamp>.sql.gz.enc`: a full database dump;
+  - `salisberg-data-<timestamp>.tar.gz.enc`: `/data`, which holds the settings file with the encryption keys and the module pictures.
+- Files are encrypted with AES-256 using `BACKUP_PASSPHRASE`. Files older than `BACKUP_KEEP_DAYS` (default 14) are removed. A dump smaller than 20 KB is treated as a failure.
+- **Owner must:** set `BACKUP_PASSPHRASE` in Coolify to a long random value and keep a copy of it off the server. Without the passphrase the backups cannot be read. If it is left unset, backups are written unencrypted and a warning is logged every run.
+- **Not covered yet:** copying backups off the server (needs a storage provider chosen by the owner), and the `app_img` and `app_upload` volumes (room and hotel photographs). A backup kept only on the same server does not survive losing that server.
+
+**Restore procedure** (run inside the `backup` container; replace the file name):
+
+```bash
+export MYSQL_PWD="$DB_PASSWORD"
+f=/backups/salisberg-db-YYYYMMDD-HHMMSS.sql.gz.enc
+# check the file first
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:BACKUP_PASSPHRASE -in "$f" | gzip -t && echo OK
+# restore into the live database (this replaces its contents: stop the app service first)
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:BACKUP_PASSPHRASE -in "$f" | gunzip | mysql -h"$DB_HOST" -u"$DB_USER" "$DB_NAME"
+```
+
+To restore `/data`, decrypt the matching `salisberg-data-…` file the same way and extract it with `tar -xzf - -C /` in a container that has the `app_data` volume mounted read-write.
+
+**Rotating the database passwords.** `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD` are only read by MySQL when its data volume is first created. Changing them in Coolify alone locks the app out. Do both in one sitting:
+
+1. In the `db` container: `mysql -uroot -p` (current root password), then
+   `ALTER USER 'salisberg'@'%' IDENTIFIED BY '<new app password>'; ALTER USER 'root'@'%' IDENTIFIED BY '<new root password>'; ALTER USER 'root'@'localhost' IDENTIFIED BY '<new root password>'; FLUSH PRIVILEGES;`
+2. In the `app` container, edit `/data/settings.inc.php` and set `_DB_PASSWD_` to the new app password.
+3. In Coolify, set `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD` to the same new values, then redeploy.
+4. Check the site loads and the `backup` log shows a successful dump.
+
+#### Other
+
+- `Permissions-Policy` header added (camera, microphone, geolocation, payment and USB denied).
+- Admin Guide updated (rule 23): section 1 notes the 12-hour session, section 9 notes that Hotel Reviews is switched off, section 12 describes the automatic backups.
+
+#### Verification (local)
+
+- **Passwords:** before the change all four accounts held 32-character MD5 hashes. After deploying the patch: a wrong password was refused for both an employee and a customer; the administrator, a Hotel Staff employee and a customer each signed in with their existing password; their stored hashes became 60-character bcrypt; their sessions kept working; and a second sign-in against the upgraded hash succeeded. An account that did not sign in stayed on its old hash, as designed.
+- **Reviews:** an anonymous upload request carrying a valid module token returned 404 with the module disabled, and nothing was written to the review folder.
+- **Payment token:** POST without a token, POST with a wrong token, and a GET were each redirected to the checkout and created no order. A full browser booking through checkout with cash succeeded and the form carried the token.
+- **Backports:** fourteen back office pages in the patched areas and eight storefront pages returned 200 with no PHP, template or SQL errors. A script payload sent as an order-list filter was not reflected unescaped. A path-traversal request for the settings file through the email preview returned no credentials.
+- **Backups:** the service wrote an encrypted dump on first start. Restored into a scratch database: 300 of 300 tables, matching row counts on eight tables including orders, customers and configuration, and an identical table checksum. A wrong passphrase was rejected.
+- **Fresh install** with the patched installer: see the status line below.
+- **Not tested:** any of this on the live server; password reset by email; the review upload fix with the module enabled (it is disabled); restoring the `/data` archive; the three back office pages touched by the SQL-injection patch beyond loading them.
+
+### 2026-10-06 — Minimal desktop navigation
+
+- **What:** on screens 1200px and wider the header now shows four links (Amenities, Rooms, About Us, Contact Us), the cart and an outlined Sign in button. Home, Our Properties, Interior, Testimonials and Legal Notice are hidden on desktop only. Links are uppercase, lighter and more widely spaced. Stylesheet link bumped to `?v=7`.
+- **Why:** the owner asked for a more minimal desktop bar and said some items did not need to be there. The logo already links home; there is a single property; Legal Notice is in the footer; Interior and Testimonials are sections a visitor scrolls past.
+- **How:** CSS attribute selectors on each link's address in `salisberg.css` ("Desktop navigation: minimal"). The links themselves are untouched in the back office, so phones and tablets still get the full menu. To show an item on desktop again, remove its selector from that list.
+- **Caveat:** the selectors match link addresses. If friendly URLs are switched on, or a link is renamed in the back office, re-check which items show.
+- **Verification:** screenshots at 1440, 1280 and 1024 wide. Not checked signed-in at the new style, nor in Safari or Firefox.
+- No guide change needed: this is visual only and adds no feature for staff or administrators.
+
+### 2026-10-06 — Remaining back office XSS fixes; file manager SVG; token CVE assessed
+
+**What**
+
+- Backported two more upstream commits (both listed in `PATCHES.md`):
+  - `1d06fd3` (pull request #1884), CVE-2026-103587: the back office Book Now search now validates its date parameters.
+  - `7ed467d` (pull request #1899), CVE-2026-103588, -103589, -103590: escaping in the "Transplant a module" form, the room type editor (room number, floor, status, comment) and the length-of-stay fields.
+- `admin/filemanager/config/config.php`: `svg` removed from the allowed upload types (CVE-2026-25558: script embedded in an SVG runs when someone opens the file).
+- **CVE-2025-10759 assessed, no code change.** The published report is about the customer logout link: its token sits in the URL and can be reused, so someone who obtains it can log that customer out. It does not give access to an account. The `Referrer-Policy` header already set stops the token leaking to other sites, and the token changes whenever the customer's password hash changes. Accepted as low risk.
+
+**How**
+
+- `1d06fd3` applied cleanly with `git apply`. `7ed467d` applied except for one file, `admin/themes/default/template/controllers/products/configuration.tpl`, whose surrounding lines differ from upstream's development branch; its five one-line changes were made by hand to match the upstream diff exactly.
+
+**Verification**
+
+- Docker was not running on the development machine for this session, so **none of this was run in the application**. What was checked instead:
+  - PHP syntax (`php -l`, PHP 8.3) on all 33 PHP files changed since the deployed branch: no errors.
+  - Smarty syntax: the nine changed or new templates were compiled standalone with the bundled Smarty 4 and unknown plugins stubbed: all compiled. The same check was confirmed to fail on a deliberately broken template.
+  - `bash -n` on both shell scripts; both stored with LF endings.
+- **Still to do before relying on it:** load the Book Now page, the room type editor (Rooms and Length of Stay tabs), Modules → Positions → Transplant a module, and the file manager in a running stack, and confirm they behave as before.
+
+**Deployment note**
+
+- At the time of writing, the security work sits on the local branch `develop`, pushed to `origin/production`. The live site is built from `salisberg-production`, which does not contain it. Nothing from the security fixes is live until `develop` is pushed to `salisberg-production`.
+- `/audit/` was also added to `.git/info/exclude` on the development machine, so the private audit files are ignored on every branch, including older ones whose `.gitignore` predates the rule.
+
+**Follow-up, same day: run in the application.** Docker was started and the changes above were exercised in a local stack before deployment:
+
+- Back office Book Now: loads, lists rooms for valid dates, and a script payload in `date_to` and `id_room_type` is not reflected.
+- Room type editor: the page and its Rooms, Length of Stay and Information tabs load without errors.
+- Modules → Positions and the "Transplant a module" form: load; a script payload in `exceptions[…]` is not reflected. A request sending `exceptions` as plain text instead of a list returns a 500; that is existing upstream behaviour (the same code is in stock 1.7.0), reachable only by a signed-in administrator, and shows no error detail.
+- File manager dialog loads; `svg` is no longer in its allowed list.
+- Dashboard, Orders, Customers, Modules, and the storefront home, room and checkout pages: 200, no PHP, template or SQL errors.
+
+**Deployed:** `develop` was pushed to `salisberg-production` on 2026-10-06 at the owner's instruction, in two pushes: first the work tested the previous day, then these changes once tested.
+
+**Commit messages carry no AI attribution**, at the owner's instruction.
+
+### 2026-10-06 — Rate limiting on sign-in and forms; Content-Security-Policy
+
+#### Request limiter
+
+- **What:** `docker/ratelimit.php`, loaded before every web request through `auto_prepend_file` in `docker/php.ini` (copied to `/usr/local/share/salisberg/` by the Dockerfile, outside the web root). It counts POSTs per visitor address and refuses further ones once a limit is reached:
+
+  | Form | Limit per address |
+  |---|---|
+  | Back office sign-in | 10 in 10 minutes |
+  | Back office "forgot password" | 5 an hour |
+  | Guest sign-in | 10 in 10 minutes |
+  | New guest account | 10 an hour |
+  | Password reset request | 5 an hour |
+  | Contact form | 6 an hour |
+  | Newsletter sign-up | 10 an hour |
+
+- **Why:** the audit found no limit on password guessing against guest accounts, and none on the forms that send email. The stock back office has its own attempt setting; the storefront has nothing.
+- **How it behaves:** a blocked visitor gets a short "Too many attempts. Please wait N minutes" page with status 429 and a `Retry-After` header. The back office sign-in form only displays messages that arrive as a normal JSON reply, so for that form the same message is returned with status 200 in the shape the form expects. Every block is written to the PHP error log as `[salisberg-ratelimit] blocked <rule> from <address>`.
+- **Design choices:**
+  - No application file is modified; the limiter can be removed by deleting one line from `php.ini`.
+  - Counters are small files under the system temp folder, cleared on redeploy. No database, no extra service.
+  - If the limiter cannot create or open its file, the request is allowed. It must never be the reason the site is down.
+  - The visitor address is `REMOTE_ADDR`, which Apache's `mod_remoteip` has already set from the proxy's `X-Forwarded-For`.
+  - Only the listed forms are counted. Browsing, searching, adding to the cart and checking out are not limited.
+- **Limits live in** the `$rules` array at the top of `docker/ratelimit.php`.
+- **Known trade-off:** everyone at the hotel shares one internet address, so the back office limit is shared between staff. Ten wrong passwords in ten minutes locks all of them out of signing in for up to ten minutes. People already signed in are not affected.
+
+#### Content-Security-Policy
+
+- **What** (`docker/apache.conf`): `object-src 'none'; base-uri 'self'; frame-ancestors 'self'`, plus `upgrade-insecure-requests` when the request arrived over HTTPS. Any SVG served from an upload folder is sent with a sandboxing policy and as a download, so script inside it cannot run.
+- **Why only these rules:** they block plugins, `<base>` hijacking and framing by other sites, and nothing in the platform trips them. A `script-src` rule would break the theme and the back office, which rely on inline scripts; it needs a report-only trial with somewhere to collect the reports first.
+- `upgrade-insecure-requests` is tied to HTTPS so local development over plain HTTP keeps working.
+
+#### Guides (rule 23)
+
+- Staff Guide, section 11 "When something goes wrong": new first entry explaining the "Too many attempts" message.
+- Admin Guide, section 1 "Staff accounts and what they can see": new "Sign-in and form limits" subsection with the limits table and the shared-connection note.
+
+#### Verification (local, running stack)
+
+- `apachectl -t` reports "Syntax OK"; the container starts and reports healthy; `php -i` shows the prepend file is active; no PHP fatal errors in the log.
+- Guest sign-in with wrong passwords from one address: attempts 1–10 answered normally, 11 and 12 returned 429 with `Retry-After`. A different address at the same moment was not affected, and the blocked address could still browse pages.
+- Back office sign-in through `ajax-tab.php` (the address the page really posts to): attempt 11 returned the "Too many attempts" message. In a real browser the sign-in page showed that message in its normal error box.
+- Contact form blocked on the 7th post in an hour; password reset on the 6th. Twenty cart requests in a row were all served.
+- A correct administrator sign-in from an address that had not been blocked worked.
+- Content-Security-Policy present once per response, with `upgrade-insecure-requests` only when HTTPS was signalled. A browser run over seven pages (home, room, search, checkout, contact, sign-in, back office sign-in) recorded no policy violations and no JavaScript errors.
+- Dashboard, Orders, Room types, Modules and both guide pages load without errors; the new guide text is displayed.
+- **Not tested:** behaviour behind Coolify's real proxy (the visitor address there comes from the proxy's header; if every visitor appeared as one address, the limits would be shared by everyone); newsletter and account-creation limits; the SVG sandbox header with a real SVG file.
+- **After deploying, check on the live site** that two different networks (for example Wi-Fi and mobile data) are limited separately. If they are not, remove the `auto_prepend_file` line and redeploy.
+
+### 2026-10-06 — Sample homepage reviews hidden; owner decisions on open items
+
+#### Homepage "What our guests say" hidden
+
+- **What:** `docker/setup-modules.php` (`MODULES_VERSION=4`) disables the `wktestimonialblock` module and deactivates the menu link that scrolls to it. It does this **once**, recorded by `/data/.testimonials-hidden`.
+- **Why:** the block showed three invented reviews praising "Hotel Prime". The owner chose to hide the section until real reviews exist.
+- **Why once, unlike bank wire, cheque and hotel reviews:** the owner will switch this one back on from the back office when real reviews are ready, and a later deploy must not undo that.
+- **Guide (rule 23):** Admin Guide, section 9 "Website content", new subsection 'Homepage guest reviews ("What our guests say")' explaining how to enable the block and replace the samples.
+- **Verification (local):** the log showed the block disabled; the homepage returned 200 with no errors, no testimonial section, no testimonial menu link and no remaining "Hotel Prime" text, while the gallery, amenities and rooms sections were still present. A second start did not repeat the step. The Admin Guide page rendered all 14 sections with the new text.
+- **Caught before commit:** an unescaped apostrophe in the new guide text was a Smarty syntax error that would have broken the Admin Guide page. The standalone template compile check found it. Avoid apostrophes inside `{l s='…'}` strings, or escape them, and run the template check on every guide edit.
+
+#### Owner decisions (2026-10-06)
+
+| Item | Decision |
+|---|---|
+| Administrator password | Owner changes it in the back office |
+| Mobile Money number | Owner enters it in Salisberg Pay settings |
+| Backup passphrase | Generated into the owner's private `.env.coolify`; owner adds it in Coolify |
+| Off-server backup copies | Decide later |
+| Coolify "Build Variable" boxes | Owner unticks them |
+| Database passwords | Leave for now; revisit once a staging copy exists |
+| Staging application | Later, before opening to guests |
+| Hotel phone and address | Owner enters them in Manage Hotel |
+| Room types, photos, prices | Owner enters them in Manage Room Types |
+| Email | Zoho Mail for `@salisberg.com`; DNS records and SMTP settings still to be set up |
+| Repository visibility | Stays public |
+
+### 2026-10-06 — Back office restyled
+
+- **What:** `admin/themes/default/css/overrides.css`, the file upstream provides (empty) for back office customisation and loads last on every admin page including sign-in. It now carries the Salisberg look:
+  - deep green top bar and side menu with a gold marker on the active item; branded submenu and footer;
+  - DM Sans in place of Open Sans and the condensed capitals; slightly larger text; calmer panel headings and table headers;
+  - rounded panels, buttons, fields, dropdowns and modals; gold focus ring on fields; green primary buttons; green/gold links, tabs, pagination, badges and Yes/No switches;
+  - the logo in the top bar sized so it is no longer cropped, and the version number beside it hidden;
+  - an icon for the Guides menu entry;
+  - the vendor's "Recommendations" toolbar button and module-promotion panel hidden on every page;
+  - the sign-in page in the same palette.
+- **Why:** the owner asked for the admin panel's look to be refined; it was still the stock grey-and-blue PrestaShop 1.6 theme.
+- **How:** CSS only, in the one file meant for it. No vendor stylesheet, template or script was edited, and no element was moved, so the screens still match the guides. Checked by screenshot before and after on the sign-in page, dashboard, Orders list, Customers list, the room type form and the employee form.
+- **Limits:** this changes appearance, not behaviour. Pages still reload on every action and forms are as dense as before. Not checked: every one of the 79 menu pages, the "Top" menu orientation, right-to-left languages, and screens narrower than a laptop.
+- **Guides:** no change needed; nothing a user does has moved or been renamed.
+- **Considered and not done:** replacing the back office with a Filament (Laravel) admin. Filament cannot be embedded in this application; it would be a second application writing to the same database, bypassing the booking, pricing and availability rules that live in the PHP classes, or re-implementing them. That is a rewrite of the back office, not a restyle. See the audit's recommendation (modernize incrementally).
+
+### 2026-10-06 — Show/hide button on password fields
+
+- **What:** every password field, on the website and in the back office, now has an eye icon at its right edge. Clicking it shows what was typed; clicking again hides it.
+- **Where:** `modules/salisbergguide/views/js/password-toggle.js` and `views/css/password-toggle.css`, added to pages by the Salisberg Guide module through three hooks registered in `ensureSetup()`: `header` (website), `actionAdminControllerSetMedia` (back office) and `actionAdminLoginControllerSetMedia` (back office sign-in). `MODULES_VERSION=5` so the hooks are registered on the next deploy.
+- **Why this way:** one script for all password fields instead of editing each form template. The button is positioned over the field, not wrapped around it, so no existing form layout changes. No vendor file is touched.
+- **Behaviour:**
+  - Fields that appear later (checkout sign-in, "Change password…" in the back office) get the button too.
+  - A field is switched back to hidden when its form is submitted, so a password is never sent or left on screen as plain text by accident.
+  - The button is a real `<button>` with a label that changes between "Show password" and "Hide password", reachable by keyboard.
+- **Guide (rule 23):** Staff Guide, section 1 "Signing in and your account": new step describing the eye icon.
+- **Verification (local, real browser):** on the website sign-in page (desktop and phone width), the back office sign-in page and the new-employee form, the button sits inside the field; a click changes the field from hidden to visible and back; submitting the form resets it to hidden; no JavaScript errors. Screenshots reviewed for the website and back office sign-in pages.
+- **Not tested:** the account-creation, "my details" and checkout-registration forms individually (they use the same script), Safari and Firefox, and right-to-left languages.
+
+### 2026-10-06 — Back office: light layout modelled on the owner's reference
+
+- **What:** `admin/themes/default/css/overrides.css` rewritten. The owner showed the admin panel of another product they use (Krayin CRM) as the look to aim for; the earlier dark-green restyle from the same day is replaced by:
+  - a white top bar, 60px tall, with the colour logo, notification icons, Quick Access, "My site" and the employee name as a pill;
+  - a white side menu, 240px wide, with larger rows, outlined grey icons and a filled green pill on the active item; submenu items indented on a thin rule, the current one on a pale green chip; the search box as a rounded field at the top;
+  - a soft grey page background with white, rounded, bordered cards and no shadows; page title on the background without a white strip; action buttons outlined in green;
+  - Inter as the typeface; table headers small, grey and uppercase; rounded fields with a green focus ring; pill-shaped Yes/No switches;
+  - the stock bright blue replaced wherever a scan of rendered pages found it (dashboard figures, date switcher, availability buttons, info notes, hint labels);
+  - the vendor's "Recommendations" button still hidden; Guides keeps its icon.
+- **Sizes changed, deliberately:** the stock frame is a 36px bar and a 210px menu, fixed in several places. Top bar, menu width, page-head offset and content margin are all set from two variables at the top of the file (`--sb-top`, `--sb-side`) so they stay consistent.
+- **Collapse-to-icons removed:** the stock "collapse menu" mode has many size rules of its own that broke the new layout, so the control is hidden and the menu always shows in full from 768px up. A user who had collapsed it before sees the full menu.
+- **Below 768px** the stock compact layout (icon rail, 36px bar) is kept, with the desktop shapes undone so nothing overlaps.
+- **How:** CSS only, in the file upstream provides for this. No template, script or vendor stylesheet was edited. The logo in the top bar is the existing `img/qloapps@2x.png` colour lockup, referenced as `/img/…`, which assumes the site is served from the domain root.
+- **Verification (local, real browser screenshots):** sign-in page, dashboard, Orders, Customers, the room type form, the employee form, Book Now and the Staff Guide at 1440 wide; Orders at 1024 and 700 wide; and the previously-collapsed state forced on. No JavaScript errors. Menu names, buttons and tabs are where they were, so the guides are unchanged.
+- **Not checked:** the other back office pages one by one (79 menu entries), the "Top" menu orientation in employee preferences, right-to-left languages, Safari and Firefox, and pop-up dialogs.
+- **Limit worth restating:** this is appearance. The dashboard's coloured revenue blocks and charts are drawn by their own modules and were left as they are, and pages still reload on every action.

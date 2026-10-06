@@ -44,6 +44,18 @@
 		<p>{l s='Open their record in Employees and switch Active to No the same day. Do not delete the account: their name stays on the bookings they handled.' mod='salisbergguide'}</p>
 		<h4>{l s='Change what a profile can do' mod='salisbergguide'}</h4>
 		<p>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Permissions</span>, {l s='pick the profile on the left, and tick View, Add, Edit or Delete for each page. To create another role (for example Housekeeping), add it in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Profiles</span> {l s='first.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='Back office sessions end after 12 hours, so everyone signs in again each working day.' mod='salisbergguide'}</p>
+		<h4>{l s='Sign-in and form limits' mod='salisbergguide'}</h4>
+		<p>{l s='To slow down password guessing and spam, the site limits how often the same internet connection can use certain forms. When a limit is reached the person sees "Too many attempts" and the time to wait.' mod='salisbergguide'}</p>
+		<table>
+			<tr><th>{l s='Form' mod='salisbergguide'}</th><th>{l s='Limit per connection' mod='salisbergguide'}</th></tr>
+			<tr><td>{l s='Back office sign-in' mod='salisbergguide'}</td><td>{l s='10 tries in 10 minutes' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Guest sign-in on the website' mod='salisbergguide'}</td><td>{l s='10 tries in 10 minutes' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Password reset requests' mod='salisbergguide'}</td><td>{l s='5 an hour' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='New guest accounts' mod='salisbergguide'}</td><td>{l s='10 an hour' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Contact form messages' mod='salisbergguide'}</td><td>{l s='6 an hour' mod='salisbergguide'}</td></tr>
+		</table>
+		<p>{l s='Everyone at the hotel usually shares one internet connection, so several staff mistyping passwords at once can reach the limit together. It clears by itself; nobody needs to be unblocked. The limits are changed by the developer.' mod='salisbergguide'}</p>
 		<p class="sb-warn">{l s='Keep the number of SuperAdmin accounts small, and never share one login between people. A SuperAdmin can change prices, payment details and every other setting.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminEmployees|escape:'html':'UTF-8'}">{l s='Open Employees' mod='salisbergguide'} &rarr;</a>
 	</section>
@@ -155,7 +167,15 @@
 			<tr><td>{l s='Page titles and descriptions for search engines' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; SEO &amp; URLs</span></td></tr>
 			<tr><td>{l s='Who receives messages from the Contact form' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Contacts</span></td></tr>
 		</table>
-		<p class="sb-warn">{l s='The guest reviews on the homepage must be real. Replace the samples that came with the system with reviews from actual guests, or switch the block off until you have some.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='The Hotel Reviews feature (guests rating their stay after check-out) is switched off for now. Ask the developer to switch it on when you want to start collecting reviews; it cannot be enabled from the Modules page because it is switched off again at every update.' mod='salisbergguide'}</p>
+		<h4>{l s='Homepage guest reviews ("What our guests say")' mod='salisbergguide'}</h4>
+		<p>{l s='This section is switched off, because the system came with invented sample reviews. To show real ones:' mod='salisbergguide'}</p>
+		<ol>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Modules and Services &rsaquo; Manage Modules</span>, {l s='search for Testimonial, and click Enable on the testimonial block.' mod='salisbergguide'}</li>
+			<li>{l s='Click Configure on it. Delete the three samples and add your own: what the guest said, their name, and a photo only if they agreed to it.' mod='salisbergguide'}</li>
+			<li>{l s='To put the Testimonials link back in the website menu, ask the developer.' mod='salisbergguide'}</li>
+		</ol>
+		<p class="sb-warn">{l s='Only publish reviews from real guests who agreed to be quoted. Do not re-enable the block while the samples are still in it.' mod='salisbergguide'}</p>
 		<p class="sb-tip">{l s='The logo, colours, fonts and page layout are part of the site design and are changed by the developer, not here.' mod='salisbergguide'}</p>
 	</section>
 
@@ -178,7 +198,8 @@
 	<section id="sb-a12">
 		<h3>12. {l s='Backups' mod='salisbergguide'}</h3>
 		<ul>
-			<li>{l s='The reliable backup is the scheduled database backup on the hosting server. Ask the developer to confirm it is switched on and where the copies are kept.' mod='salisbergguide'}</li>
+			<li>{l s='The database and the settings file are backed up automatically every night, encrypted, and the last 14 days are kept on the hosting server. Ask the developer to confirm copies are also sent somewhere off the server.' mod='salisbergguide'}</li>
+			<li>{l s='Restoring a backup is done by the developer. Tell them the date and roughly the time you want to go back to.' mod='salisbergguide'}</li>
 			<li>{l s='You can also make one by hand in' mod='salisbergguide'} <span class="sb-path">Advanced Parameters &rsaquo; DB Backup</span>. {l s='Download the file to your computer straight away: backups left on the server are removed whenever the site is updated.' mod='salisbergguide'}</li>
 		</ul>
 		<p class="sb-warn">{l s='A backup contains every guest\'s personal details. Store it somewhere private and never send it by email or chat.' mod='salisbergguide'}</p>

@@ -47,6 +47,7 @@ class SalisbergpayPaymentModuleFrontController extends ModuleFrontController
             'total' => $total,
             'sbpay_method' => $methods[$method],
             'sbpay_momo' => $this->module->getMomoDetails(),
+            'sbpay_token' => Tools::getToken(false),
             'restrict_order' => $restrict_order,
         ));
 

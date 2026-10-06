@@ -262,3 +262,5 @@ admin/themes/default/css/screen.css
 
 **sitemap.xml
 robots.txt
+# Private audit reports: this repository is public, never commit these
+/audit/
