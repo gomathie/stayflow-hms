@@ -819,3 +819,41 @@ Both live in the existing `modules/salisbergguide` module (rule 25). `MODULES_VE
 - **As SuperAdmin:** the switches appear; hiding both removed both menu sections and the Modules page still opened by link; showing both restored them. A request posted with a wrong token changed nothing.
 - **Not tested:** every action a manager can reach (for example saving a price rule or deleting a booking as manager); the homepage content block pages as manager; Hotel Staff after this change beyond the module's own setup run; any of this on the live server.
 - A test employee `manager.test@example.com` exists only in the local database.
+
+### 2026-10-06 — Dark dashboard contrast, softer light theme, Advanced Parameters documented, a config check fixed
+
+#### Look (`admin/themes/default/css/overrides.css`)
+
+- **Dark mode:** the titles on the pastel Performance tiles (Average Daily Rate and the other seven) were light text on a light tile and could not be read. They are dark in both themes now, since the tiles are pastel in both.
+- **Light mode was too bright.** The light tokens were toned down: cards, bars, menus and fields from pure white to an off-white (`--sb-card: #f7f7f5`), the page background a step darker (`--sb-canvas: #e8eaed`), and borders slightly stronger so cards still read as cards. Change them in section 1 of the file. The guide pages now take their card colour from the same token in both themes (the dark-only rule was generalised, not duplicated).
+- The seven figure tiles at the top of the dashboard now use the card colour in both themes (follow-up, 2026-10-07: the dark-only rule was generalised).
+
+#### Wording
+
+- Top bar: "My site" is now **Go to Website** (`admin/themes/default/template/header.tpl`).
+- Advanced Parameters › Configuration Information: the vendor line about "our bug tracker or forum" now says what the page is and to send it to the developer team, and points to the guide (`admin/themes/default/template/controllers/information/helpers/view/view.tpl`). Both are admin theme templates, which cannot be overridden (the accepted exception to rule 11).
+
+#### Bug found and fixed: "Some QloApps files are missing from your server"
+
+- Configuration Information › Check your configuration showed **Required parameters: Please fix the following error(s) … (/cache/smarty/compile/index.php)**.
+- **Cause:** `.dockerignore` excluded everything under `cache/smarty/compile/` and `cache/smarty/cache/`, including the two placeholder `index.php` files the platform's self-check expects. They were never in the image, so this has been showing on the live site since the first deploy.
+- **Fix:** `.dockerignore` keeps those two files. Harmless otherwise: the folders worked without them.
+
+#### Admin Guide, new section 16 "Advanced Parameters, page by page" (rule 23)
+
+- For SuperAdmins; a Hotel Manager sees the standard developer-team note.
+- A table of the eight pages (Configuration Information, Performance, E-mail, CSV Import, DB Backup, SQL Manager, Logs, Webservice) with what each is for and what to do there, then four subsections:
+  - **Configuration Information:** what each box means; that "PHP mail()" means email is not set up; that both checks should say OK; and that **List of changed files is always long on this site and is not a fault**, because the site is a customised version.
+  - **Performance:** which settings to keep and why (Debug mode switches would turn off the Salisberg modules and fixes; CCC is untested with this design); Clear cache is always safe.
+  - **CSV Import:** back up first, use the sample files, try two or three rows first; an existing ID is replaced.
+  - **Webservice:** what it is (access for other programs by key, with no sign-in), why it stays off, and how to issue a narrowly scoped key if an integration is ever added.
+- Page, button and box names were read from the rendered pages before writing.
+
+#### Verification (local, image rebuilt, real browser)
+
+- Configuration Information after the rebuild: **Required parameters: OK, Optional parameters: OK**; the new intro line is shown.
+- Top bar reads "Go to Website".
+- Admin Guide section 16 renders with its table and four subsections, no template errors.
+- Screenshots reviewed: light dashboard with the softer palette, dark Performance tiles (titles readable), Configuration Information, and the new guide section.
+- **Not tested:** the softer light palette on pages other than the dashboard, Configuration Information and the guide; the CSV import, SQL Manager and webservice steps were written from what the pages show and were not carried out; nothing on the live server.
+- **Follow-up, 2026-10-07:** the stock "working" spinner, which appeared as a grey square over the top-left corner of the logo while a page loaded data, now sits as a small icon at the right end of the top bar. Checked by screenshot in both themes.

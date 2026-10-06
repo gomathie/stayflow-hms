@@ -23,6 +23,7 @@
 			<li><a href="#sb-a13">{l s='Things that must be done by the developer' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a14">{l s='Reports' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a15">{l s='Showing or hiding menu sections' mod='salisbergguide'}</a></li>
+			<li><a href="#sb-a16">{l s='Advanced Parameters, page by page' mod='salisbergguide'}</a></li>
 		</ol>
 	</div>
 
@@ -284,6 +285,56 @@
 			<button type="submit" name="submitSbMenu" class="btn btn-primary">{l s='Save' mod='salisbergguide'}</button>
 		</form>
 		<p class="sb-tip">{l s='Each profile already sees only the sections it has permission for. Hotel Staff and Hotel Manager never see Modules and Services or Channel Manager, whatever is chosen here.' mod='salisbergguide'}</p>
+		{else}
+		<p class="sb-tip">{l s='This is looked after by the developer team. Ask them when it needs to change.' mod='salisbergguide'}</p>
+		{/if}
+	</section>
+
+	<section id="sb-a16">
+		<h3>16. {l s='Advanced Parameters, page by page' mod='salisbergguide'}</h3>
+		{if $sb_is_admin}
+		<p>{l s='The technical pages. Most are for looking, not changing. This table says what each one is for and what to do there.' mod='salisbergguide'}</p>
+		<table>
+			<tr><th>{l s='Page' mod='salisbergguide'}</th><th>{l s='What it is for' mod='salisbergguide'}</th><th>{l s='What to do' mod='salisbergguide'}</th></tr>
+			<tr><td><span class="sb-path">Configuration Information</span></td><td>{l s='A read-only summary of the server, database, website and mail setup, plus two checks.' mod='salisbergguide'}</td><td>{l s='Look here first when something is wrong, and copy it into any problem report. See below.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Performance</span></td><td>{l s='How pages are prepared and cached.' mod='salisbergguide'}</td><td>{l s='If a page looks out of date or broken after a change, click Clear cache at the top right. Leave the other settings as described below.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">E-mail</span></td><td>{l s='How the site sends email.' mod='salisbergguide'}</td><td>{l s='See section 10.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">CSV Import</span></td><td>{l s='Loads many records at once from a spreadsheet file: Hotels, Room Types, Rooms, Categories, Service Products, Bookings or Customers.' mod='salisbergguide'}</td><td>{l s='Useful when moving from another system. See below before using it.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">DB Backup</span></td><td>{l s='Makes a copy of the database by hand.' mod='salisbergguide'}</td><td>{l s='See section 12. The nightly automatic backup is the one to rely on.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">SQL Manager</span></td><td>{l s='Saved database questions whose answers can be exported to a spreadsheet, for reports the other pages do not offer.' mod='salisbergguide'}</td><td>{l s='Click Add new SQL query, give it a name and the query, and Save. Only SELECT queries are accepted, so nothing can be changed or deleted from here.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Logs</span></td><td>{l s='A record of back office sign-ins and of errors, with a severity from 1 (informative) to 4 (major issue).' mod='salisbergguide'}</td><td>{l s='Check it when a sign-in looks suspicious or something failed. Logs by email at the bottom can send serious entries to the shop email.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Webservice</span></td><td>{l s='Lets other software read or change bookings, guests and rooms with an access key, without anyone signing in.' mod='salisbergguide'}</td><td>{l s='Leave it switched off. See below.' mod='salisbergguide'}</td></tr>
+		</table>
+
+		<h4>{l s='Configuration Information' mod='salisbergguide'}</h4>
+		<ul>
+			<li><strong>Server information</strong>, <strong>Database information</strong>, <strong>Website information</strong> &ndash; {l s='versions and addresses. Nothing to change; they come from how the site is hosted.' mod='salisbergguide'}</li>
+			<li><strong>Mail configuration</strong> &ndash; {l s='shows how email is sent. If it says "You are using the PHP mail() function", email has not been set up yet: do section 10.' mod='salisbergguide'}</li>
+			<li><strong>Check your configuration</strong> &ndash; {l s='Required parameters and Optional parameters should both say OK. Anything else is a fault in the installation: send the message shown to the developer team.' mod='salisbergguide'}</li>
+			<li><strong>List of changed files</strong> &ndash; {l s='compares the site with the original software. It always lists files here, because this site is a customised version: the design, the security fixes and the Salisberg features are all changes. A long list is expected and is not a fault.' mod='salisbergguide'}</li>
+		</ul>
+		<a class="sb-go" href="{$sb_links.AdminInformation|escape:'html':'UTF-8'}">{l s='Open Configuration Information' mod='salisbergguide'} &rarr;</a>
+
+		<h4>{l s='Performance: settings to keep' mod='salisbergguide'}</h4>
+		<ul>
+			<li><strong>Smarty</strong> &ndash; {l s='Template compilation: Recompile templates if the files have been updated. Cache: Yes.' mod='salisbergguide'}</li>
+			<li><strong>Debug mode</strong> &ndash; {l s='both switches on No. They switch off the Salisberg modules and fixes.' mod='salisbergguide'}</li>
+			<li><strong>CCC (Combine, Compress and Cache)</strong> {l s='and' mod='salisbergguide'} <strong>Media servers</strong> &ndash; {l s='leave as they are. Turning them on changes how every page loads and has not been tested with this design.' mod='salisbergguide'}</li>
+		</ul>
+		<p class="sb-tip">{l s='Clear cache is always safe. It only makes the next few page loads a little slower.' mod='salisbergguide'}</p>
+
+		<h4>{l s='CSV Import' mod='salisbergguide'}</h4>
+		<ol>
+			<li>{l s='Make a backup first (section 12). An import cannot be undone.' mod='salisbergguide'}</li>
+			<li>{l s='Choose what to import, then download the matching file under Download sample csv files and fill it in the same layout. The Available fields box lists every column; those marked * are required.' mod='salisbergguide'}</li>
+			<li>{l s='Upload the file, match the columns on the next screen, and import a file with two or three rows first to check the result before loading the rest.' mod='salisbergguide'}</li>
+		</ol>
+		<p class="sb-warn">{l s='Importing with the same ID as an existing record replaces that record. Leave the ID column empty to add new ones.' mod='salisbergguide'}</p>
+
+		<h4>{l s='Webservice' mod='salisbergguide'}</h4>
+		<p>{l s='The webservice is a door for other programs, not for people. With it on, a program holding a key can read and change data directly: a channel manager, an accounting package or a mobile app would use it. Nothing at the hotel needs it today, so it is off, and an unused door is best kept shut.' mod='salisbergguide'}</p>
+		<p>{l s='If an integration is added later: set the first switch under Configuration to Yes, click Add new webservice key, tick only the resources and actions that program needs, and give the key to nobody else. Delete the key when the integration stops being used.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='A webservice key is as powerful as a login with the permissions ticked on it, and it has no password prompt and no sign-in limit. Never tick everything, and never send a key by email or chat.' mod='salisbergguide'}</p>
 		{else}
 		<p class="sb-tip">{l s='This is looked after by the developer team. Ask them when it needs to change.' mod='salisbergguide'}</p>
 		{/if}

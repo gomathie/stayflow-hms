@@ -9,6 +9,10 @@ docs
 *.md
 cache/smarty/cache/*
 cache/smarty/compile/*
+# ...but keep the two placeholder files: Configuration Information reports
+# "files are missing" without them
+!cache/smarty/cache/index.php
+!cache/smarty/compile/index.php
 log/*
 !log/index.php
 node_modules

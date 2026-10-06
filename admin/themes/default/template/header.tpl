@@ -301,8 +301,8 @@
 					{if {$base_url}}
 						<li>
 							<a href="{if isset($base_url_tc)}{$base_url_tc|escape:'html':'UTF-8'}{else}{$base_url|escape:'html':'UTF-8'}{/if}" id="header_foaccess" class="_blank" title="{l s='View my shop'}">
-								<span class="string-long">{l s='My site'}</span>
-								<span class="string-short">{l s='Site'}</span>
+								<span class="string-long">{l s='Go to Website'}</span>
+								<span class="string-short">{l s='Website'}</span>
 							</a>
 							{if isset($maintenance_mode) && $maintenance_mode == true}
 								<span class="maintenance-mode">
