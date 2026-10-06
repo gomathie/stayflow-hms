@@ -168,7 +168,14 @@
 			<tr><td>{l s='Who receives messages from the Contact form' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Contacts</span></td></tr>
 		</table>
 		<p class="sb-tip">{l s='The Hotel Reviews feature (guests rating their stay after check-out) is switched off for now. Ask the developer to switch it on when you want to start collecting reviews; it cannot be enabled from the Modules page because it is switched off again at every update.' mod='salisbergguide'}</p>
-		<p class="sb-warn">{l s='The guest reviews on the homepage must be real. Replace the samples that came with the system with reviews from actual guests, or switch the block off until you have some.' mod='salisbergguide'}</p>
+		<h4>{l s='Homepage guest reviews ("What our guests say")' mod='salisbergguide'}</h4>
+		<p>{l s='This section is switched off, because the system came with invented sample reviews. To show real ones:' mod='salisbergguide'}</p>
+		<ol>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Modules and Services &rsaquo; Manage Modules</span>, {l s='search for Testimonial, and click Enable on the testimonial block.' mod='salisbergguide'}</li>
+			<li>{l s='Click Configure on it. Delete the three samples and add your own: what the guest said, their name, and a photo only if they agreed to it.' mod='salisbergguide'}</li>
+			<li>{l s='To put the Testimonials link back in the website menu, ask the developer.' mod='salisbergguide'}</li>
+		</ol>
+		<p class="sb-warn">{l s='Only publish reviews from real guests who agreed to be quoted. Do not re-enable the block while the samples are still in it.' mod='salisbergguide'}</p>
 		<p class="sb-tip">{l s='The logo, colours, fonts and page layout are part of the site design and are changed by the developer, not here.' mod='salisbergguide'}</p>
 	</section>
 

@@ -97,4 +97,25 @@ foreach (array('bankwire', 'cheque', 'qlohotelreview') as $name) {
     }
 }
 
+// Switched off ONCE, then left to the owner: the homepage "What our guests say"
+// block ships with invented sample reviews. It is hidden until real ones are
+// entered; an administrator can enable the module and its menu link again in the
+// back office, and later deploys will not undo that.
+$testimonialsFlag = '/data/.testimonials-hidden';
+if (!file_exists($testimonialsFlag)) {
+    if (Module::isInstalled('wktestimonialblock') && Module::isEnabled('wktestimonialblock')) {
+        Module::getInstanceByName('wktestimonialblock')->disable();
+        sb_log('wktestimonialblock disabled (sample reviews hidden)');
+    }
+    // The menu link that scrolls to the block would now lead nowhere
+    Db::getInstance()->execute(
+        'UPDATE `'._DB_PREFIX_.'htl_custom_navigation_link` SET `active` = 0
+        WHERE `link` LIKE \'%#hotelTestimonialBlock\''
+    );
+    if (@file_put_contents($testimonialsFlag, date('c')) === false) {
+        sb_log('ERROR: could not record that the testimonials block was hidden');
+        $failed = true;
+    }
+}
+
 exit($failed ? 1 : 0);

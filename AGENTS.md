@@ -580,3 +580,30 @@ To restore `/data`, decrypt the matching `salisberg-data-…` file the same way 
 - Dashboard, Orders, Room types, Modules and both guide pages load without errors; the new guide text is displayed.
 - **Not tested:** behaviour behind Coolify's real proxy (the visitor address there comes from the proxy's header; if every visitor appeared as one address, the limits would be shared by everyone); newsletter and account-creation limits; the SVG sandbox header with a real SVG file.
 - **After deploying, check on the live site** that two different networks (for example Wi-Fi and mobile data) are limited separately. If they are not, remove the `auto_prepend_file` line and redeploy.
+
+### 2026-10-06 — Sample homepage reviews hidden; owner decisions on open items
+
+#### Homepage "What our guests say" hidden
+
+- **What:** `docker/setup-modules.php` (`MODULES_VERSION=4`) disables the `wktestimonialblock` module and deactivates the menu link that scrolls to it. It does this **once**, recorded by `/data/.testimonials-hidden`.
+- **Why:** the block showed three invented reviews praising "Hotel Prime". The owner chose to hide the section until real reviews exist.
+- **Why once, unlike bank wire, cheque and hotel reviews:** the owner will switch this one back on from the back office when real reviews are ready, and a later deploy must not undo that.
+- **Guide (rule 23):** Admin Guide, section 9 "Website content", new subsection 'Homepage guest reviews ("What our guests say")' explaining how to enable the block and replace the samples.
+- **Verification (local):** the log showed the block disabled; the homepage returned 200 with no errors, no testimonial section, no testimonial menu link and no remaining "Hotel Prime" text, while the gallery, amenities and rooms sections were still present. A second start did not repeat the step. The Admin Guide page rendered all 14 sections with the new text.
+- **Caught before commit:** an unescaped apostrophe in the new guide text was a Smarty syntax error that would have broken the Admin Guide page. The standalone template compile check found it. Avoid apostrophes inside `{l s='…'}` strings, or escape them, and run the template check on every guide edit.
+
+#### Owner decisions (2026-10-06)
+
+| Item | Decision |
+|---|---|
+| Administrator password | Owner changes it in the back office |
+| Mobile Money number | Owner enters it in Salisberg Pay settings |
+| Backup passphrase | Generated into the owner's private `.env.coolify`; owner adds it in Coolify |
+| Off-server backup copies | Decide later |
+| Coolify "Build Variable" boxes | Owner unticks them |
+| Database passwords | Leave for now; revisit once a staging copy exists |
+| Staging application | Later, before opening to guests |
+| Hotel phone and address | Owner enters them in Manage Hotel |
+| Room types, photos, prices | Owner enters them in Manage Room Types |
+| Email | Zoho Mail for `@salisberg.com`; DNS records and SMTP settings still to be set up |
+| Repository visibility | Stays public |
