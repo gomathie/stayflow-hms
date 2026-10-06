@@ -50,5 +50,5 @@ imagepng(fit($src, $LOGO, 369, 196, null, 0), '/w/img/qloapps@2x.png');         
 imagepng(fit($src, $ICON, 272, 272, null, 6), '/w/img/qloapps-login@2x.png');           // back office login, badge
 imagepng(fit($src, $ICON, 272, 272, null, 6), '/w/img/qloapps-login-wink@2x.png');
 imagepng(fit($src, $ICON, 250, 250, $W, 20), '/w/img/prestashop-avatar.png');           // default employee avatar
-imagepng(fit($src, $LOGO, 448, 118, null, 2, 'left', true), '/w/admin/themes/default/img/qloapps-back-office-header.png'); // dark bar
+imagepng(fit($src, $LOGO, 448, 118, null, 16, 'left', true), '/w/admin/themes/default/img/qloapps-back-office-header.png'); // dark bar
 foreach (['img/logo.jpg','img/logo_mail.jpg','img/favicon.ico','img/logo_stores.png','img/qloapps@2x.png','img/qloapps-login@2x.png','img/prestashop-avatar.png','admin/themes/default/img/qloapps-back-office-header.png'] as $f) { $s = getimagesize("/w/$f"); echo "$f {$s[0]}x{$s[1]} {$s['mime']} ".filesize("/w/$f")."b\n"; }
