@@ -75,10 +75,14 @@ class Salisbergguide extends Module
     }
 
     /**
-     * Small interface helpers shared by the website and the back office.
-     * Currently: the show/hide (eye) button on password fields.
+     * Small interface helpers. Add new ones here rather than in a new module.
+     *  - everywhere: the show/hide (eye) button on password fields
+     *  - back office only: the light/dark switch (its colours live in
+     *    admin/themes/default/css/overrides.css)
+     *
+     * @param bool $backOffice true when called for a back office page
      */
-    protected function addInterfaceAssets()
+    protected function addInterfaceAssets($backOffice = false)
     {
         $controller = $this->context->controller;
         if (!$controller) {
@@ -86,6 +90,9 @@ class Salisbergguide extends Module
         }
         $controller->addCSS($this->_path.'views/css/password-toggle.css', 'all');
         $controller->addJS($this->_path.'views/js/password-toggle.js');
+        if ($backOffice) {
+            $controller->addJS($this->_path.'views/js/theme-toggle.js');
+        }
     }
 
     public function hookHeader()
@@ -95,12 +102,12 @@ class Salisbergguide extends Module
 
     public function hookActionAdminControllerSetMedia()
     {
-        $this->addInterfaceAssets();
+        $this->addInterfaceAssets(true);
     }
 
     public function hookActionAdminLoginControllerSetMedia()
     {
-        $this->addInterfaceAssets();
+        $this->addInterfaceAssets(true);
     }
 
     public function uninstall()
