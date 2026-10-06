@@ -16,7 +16,7 @@ BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
 CURRENCY_VERSION=1
 # Bump MODULES_VERSION whenever docker/setup-modules.php changes.
-MODULES_VERSION=1
+MODULES_VERSION=2
 
 # Module folders that receive uploads (gallery, amenities, payment icons,
 # guest photos). Add any other module upload folder here.

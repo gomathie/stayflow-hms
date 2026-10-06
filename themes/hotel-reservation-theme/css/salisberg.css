@@ -654,3 +654,272 @@ p.payment_module a.salisbergpay:hover {
 }
 p.payment_module a.salisbergpay span { display: block; margin-top: 4px; font-size: 14px; font-weight: 400; color: var(--sb-muted); }
 p.payment_module a.salisbergpay::after { color: var(--sb-gold); }
+
+/* ---------- Desktop navigation bar ----------
+   The stock theme hides the menu behind a hamburger at every width. From
+   1200px up, show the same links inline in the header; below that the
+   slide-in panel is kept (restyled). */
+
+#menu_cont {
+  background-color: var(--sb-green-ink);
+  box-shadow: -20px 0 40px -20px rgba(0, 0, 0, .5);
+}
+#menu_cont .close_navbar {
+  background-color: transparent !important;
+  color: var(--sb-gold-2);
+}
+#menu_cont .wk-nav-style { border-bottom-color: rgba(255, 255, 255, .12); }
+#menu_cont .wk-nav-style > li > a {
+  color: rgba(255, 255, 255, .88);
+  font-family: var(--sb-sans);
+  font-size: 16px;
+  border-radius: 8px;
+}
+#menu_cont .wk-nav-style > li > a:hover,
+#menu_cont .wk-nav-style > li > a:focus {
+  background: rgba(255, 255, 255, .08);
+  color: var(--sb-gold-2);
+}
+
+@media (min-width: 1200px) {
+  header .header-top .header-top-menu { align-items: center; }
+  header .header-top .nav_toggle,
+  header .header-top .header-top-item:has(> .nav_toggle),
+  #menu_cont .close_navbar { display: none !important; }
+
+  #menu_cont,
+  #menu_cont.menu_cont_right,
+  #menu_cont.menu_cont_left {
+    position: static;
+    order: 10;
+    width: auto;
+    margin-right: 18px;
+    padding: 0;
+    overflow: visible;
+    transform: none;
+    transition: none;
+    background: transparent;
+    box-shadow: none;
+  }
+  #menu_cont .row, #menu_cont [class*="col-"] { margin: 0; padding: 0; float: none; width: auto; }
+  #menu_cont .row::before, #menu_cont .row::after { display: none; }
+  #menu_cont .wk-nav-style:not(.visible-xs) {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  #menu_cont .wk-nav-style > li { float: none; margin: 0; }
+  #menu_cont .wk-nav-style > li > a {
+    position: relative;
+    padding: 10px 12px;
+    background: transparent !important;
+    color: var(--sb-green);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    white-space: nowrap;
+  }
+  #menu_cont .wk-nav-style > li > a::after {
+    content: "";
+    position: absolute;
+    left: 12px; right: 12px; bottom: 4px;
+    height: 2px;
+    background: var(--sb-gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .25s ease;
+  }
+  #menu_cont .wk-nav-style > li > a:hover,
+  #menu_cont .wk-nav-style > li > a:focus { color: var(--sb-gold); }
+  #menu_cont .wk-nav-style > li > a:hover::after,
+  #menu_cont .wk-nav-style > li > a:focus::after { transform: scaleX(1); }
+
+  /* Sign in as a button at the far right */
+  header .header-top .header_user_info { order: -1; margin-left: 6px; }
+  header .header-top .header_user_info .header-top-link {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: var(--sb-green);
+    transition: background .2s ease;
+  }
+  header .header-top .header_user_info .header-top-link,
+  header .header-top .header_user_info .header-top-link span { color: #fff !important; }
+  header .header-top .header_user_info .header-top-link:hover { background: var(--sb-gold); }
+  header .header-top .header_user_info .header-top-link:hover span { color: #fff !important; }
+}
+
+/* ---------- Forms ---------- */
+
+label { color: var(--sb-ink); font-weight: 600; font-size: 14px; }
+.form-group { margin-bottom: 18px; }
+
+input.form-control,
+select.form-control,
+textarea.form-control,
+input[type="text"]:not(.header-rmsearch-input),
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+textarea {
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 1px solid #cfc8b8;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: none;
+  color: var(--sb-ink);
+  font-family: var(--sb-sans);
+  font-size: 15px;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+textarea, textarea.form-control { min-height: 120px; }
+input.form-control:focus,
+select.form-control:focus,
+textarea.form-control:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+  border-color: var(--sb-gold);
+  box-shadow: 0 0 0 3px rgba(185, 138, 47, .16);
+  outline: 0;
+}
+::placeholder { color: #9a9486; }
+
+/* Validation states */
+.form-group.form-error input, .form-group.form-error textarea { border-color: #c0492f; background-color: #fff; }
+.form-group.form-ok input, .form-group.form-ok textarea { border-color: #3d8a5f; background-color: #fff; }
+
+/* uniform.js wrappers around selects, checkboxes and radios */
+div.selector {
+  height: 46px;
+  border: 1px solid #cfc8b8;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+div.selector span { height: 44px; line-height: 44px; padding-left: 14px; background-color: transparent; color: var(--sb-ink); }
+div.selector select { height: 46px; }
+div.selector.focus, div.selector.hover { border-color: var(--sb-gold); }
+div.checker span, div.radio span { border-color: #b9b1a0; }
+div.checker span.checked, div.radio span.checked { border-color: var(--sb-green); }
+div.checker span.checked::before, div.radio span.checked::before { color: var(--sb-green); }
+
+/* Panels that hold forms */
+#authentication #center_column form.box,
+#password #center_column .box,
+#contact .contact-form-box,
+#identity .box, #address .box, #my-account .box {
+  padding: 30px;
+  background: #fff;
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius);
+  box-shadow: var(--sb-shadow);
+}
+.required sup, sup.required, label sup { color: #c0492f; }
+.alert { border-radius: 12px; text-shadow: none; }
+.alert.alert-success { background: #2f6b4f; border-color: #2f6b4f; color: #fff; }
+.alert.alert-danger { background: #a53f29; border-color: #a53f29; color: #fff; }
+.alert.alert-warning { background: #b98a2f; border-color: #b98a2f; color: #fff; }
+
+/* ---------- Checkout ---------- */
+
+#order-opc .button-medium,
+#order-opc .opc-btn-primary,
+#order-opc a.btn.btn-default.button,
+#order-opc button.btn.btn-default.button,
+#order-opc .btn.button.button-medium {
+  background-color: var(--sb-green) !important;
+  border: 1px solid var(--sb-green) !important;
+  border-radius: 10px;
+  box-shadow: none;
+  color: #fff;
+}
+#order-opc .button-medium:hover,
+#order-opc .opc-btn-primary:hover,
+#order-opc a.btn.btn-default.button:hover,
+#order-opc button.btn.btn-default.button:hover {
+  background-color: var(--sb-gold) !important;
+  border-color: var(--sb-gold) !important;
+}
+#order-opc .opc-btn-default {
+  border-color: var(--sb-green);
+  border-radius: 10px;
+  color: var(--sb-green);
+}
+#order-opc .footer-container .btn.button.newsletter-btn {
+  background-color: var(--sb-gold) !important;
+  border-color: var(--sb-gold) !important;
+}
+#order-opc .cart_total_detail_block .cart_final_total_block > .cart_total_values { color: var(--sb-green); font-weight: 700; }
+#order-opc .cart_total_detail_block .total_discount_block,
+#order-opc .cart_voucher_detail_block span.voucher_apply_state { color: var(--sb-green-2); }
+#order-opc .cart_voucher_detail_block span.cart_discount_name { color: var(--sb-green-2); border-color: var(--sb-gold); }
+.open_rooms_extra_services_panel,
+#order-opc .step-edit > a,
+#order-opc .already_registered_block #openLoginFormBlock,
+#order-opc #login_form_content #idAccountChoice,
+#order-opc .avail_vouchers_block .avail_voucher_name > .voucher_name { color: var(--sb-gold) !important; }
+#order-opc .room_duration_block,
+#order-opc .product-detail .room_duration_block { background-color: var(--sb-cream); border-radius: 10px; }
+#order-opc .order_step_heading,
+#order-opc .opc-main-block h3,
+#order-opc .accordion-section-title { font-family: var(--sb-serif); color: var(--sb-green); }
+#order-opc .card, #order-opc .opc-main-block > div, #order-opc .col-md-4 .card { border-radius: var(--sb-radius); }
+.history_state span.label,
+.label.label-info { background-color: var(--sb-green-2) !important; border-color: var(--sb-green-2) !important; }
+
+/* Full-width fields inside the sign-in and account boxes */
+#authentication .box .form-control,
+#password .box .form-control,
+#order-opc #login_form .form-control { width: 100%; max-width: none; }
+.order-detail-content .room_duration_block { background-color: var(--sb-cream); border-radius: 10px; }
+
+/* ---------- Signed-in account menu ---------- */
+header .header-top .header_user_info .navbar-nav { margin: 0; padding: 0; list-style: none; float: none; }
+header .header-top #user_info_acc {
+  padding: 10px 18px;
+  border: 1px solid var(--sb-green);
+  border-radius: 10px;
+  background: var(--sb-green);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: none;
+  transition: background .2s ease, border-color .2s ease;
+}
+header .header-top #user_info_acc .account_user_name,
+header .header-top #user_info_acc .caret { color: #fff; }
+header .header-top #user_info_acc .caret { border-top-color: #fff; margin-left: 6px; }
+header .header-top #user_info_acc:hover,
+header .header-top .dropdown.open #user_info_acc { background: var(--sb-gold); border-color: var(--sb-gold); }
+header .header-top .header_user_info .dropdown-menu {
+  right: 0; left: auto;
+  min-width: 190px;
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid var(--sb-line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--sb-shadow);
+}
+header .header-top .header_user_info .dropdown-menu > li > a {
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--sb-green);
+  font-weight: 500;
+}
+header .header-top .header_user_info .dropdown-menu > li > a:hover { background: var(--sb-cream); color: var(--sb-gold); }
+header .header-top .ajax_cart_total { color: var(--sb-green); font-weight: 600; }
+
+@media (max-width: 1199px) {
+  #menu_cont .wk-nav-style > li,
+  #menu_cont .wk-nav-style > li > a { border-color: rgba(255, 255, 255, .1) !important; }
+  #menu_cont .wk-nav-style > li + li { margin-top: 0; }
+}

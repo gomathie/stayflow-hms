@@ -15,6 +15,15 @@ require '/var/www/html/config/config.inc.php';
 
 $failed = false;
 
+// Creating menu entries records permissions against the acting employee, so
+// act as the first administrator.
+$idAdmin = (int) Db::getInstance()->getValue(
+    'SELECT `id_employee` FROM `'._DB_PREFIX_.'employee` WHERE `id_profile` = '.(int) _PS_ADMIN_PROFILE_.' ORDER BY `id_employee`'
+);
+if ($idAdmin) {
+    Context::getContext()->employee = new Employee($idAdmin);
+}
+
 function sb_log($message)
 {
     echo '[setup-modules] '.$message."\n";
@@ -32,7 +41,7 @@ if ($idGhana) {
     }
 }
 
-foreach (array('salisbergpay') as $name) {
+foreach (array('salisbergpay', 'salisbergguide') as $name) {
     $module = Module::getInstanceByName($name);
     if (!$module) {
         sb_log("ERROR: module $name not found");
@@ -52,6 +61,17 @@ foreach (array('salisbergpay') as $name) {
         sb_log("$name enabled");
     } else {
         sb_log("$name already installed");
+    }
+}
+
+// Menu entries and the Hotel Staff profile: created if missing, on every run
+$guide = Module::getInstanceByName('salisbergguide');
+if ($guide && Module::isInstalled('salisbergguide')) {
+    if ($guide->ensureSetup()) {
+        sb_log('guide menus and Hotel Staff profile in place');
+    } else {
+        sb_log('ERROR: guide menus or Hotel Staff profile could not be created');
+        $failed = true;
     }
 }
 

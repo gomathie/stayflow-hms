@@ -1,0 +1,27 @@
+/* Salisberg Guide: back office help pages */
+.sb-guide { max-width: 980px; font-size: 14px; line-height: 1.65; color: #2b3531; }
+.sb-guide .sb-intro { padding: 22px 26px; margin-bottom: 18px; border-radius: 10px; background: #12352c; color: #fff; }
+.sb-guide .sb-intro h2 { margin: 0 0 6px; font-size: 24px; font-weight: 600; color: #fff; }
+.sb-guide .sb-intro p { margin: 0; color: rgba(255, 255, 255, .85); }
+.sb-guide .sb-toc { padding: 16px 22px; margin-bottom: 18px; border: 1px solid #e7e1d4; border-radius: 10px; background: #f8f5ee; }
+.sb-guide .sb-toc strong { display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .12em; font-size: 11px; color: #8a6a22; }
+.sb-guide .sb-toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 36px; }
+.sb-guide .sb-toc a { color: #12352c; font-weight: 600; }
+.sb-guide section { padding: 22px 26px; margin-bottom: 14px; border: 1px solid #e3e3e3; border-radius: 10px; background: #fff; }
+.sb-guide section h3 { margin: 0 0 12px; padding-bottom: 10px; border-bottom: 2px solid #b98a2f; font-size: 19px; font-weight: 600; color: #12352c; }
+.sb-guide section h4 { margin: 18px 0 6px; font-size: 15px; font-weight: 700; color: #12352c; }
+.sb-guide ol, .sb-guide ul { padding-left: 22px; }
+.sb-guide li { margin-bottom: 5px; }
+.sb-guide .sb-path { display: inline-block; padding: 1px 8px; border-radius: 5px; background: #eef2f0; color: #12352c; font-weight: 600; white-space: nowrap; }
+.sb-guide .sb-btn { display: inline-block; padding: 0 7px; border: 1px solid #c9c9c9; border-radius: 4px; background: #fafafa; font-weight: 600; font-size: 13px; white-space: nowrap; }
+.sb-guide .sb-tip, .sb-guide .sb-warn { padding: 10px 14px; margin: 12px 0 0; border-left: 4px solid #b98a2f; border-radius: 4px; background: #f8f5ee; }
+.sb-guide .sb-warn { border-left-color: #a53f29; background: #fbefec; }
+.sb-guide .sb-go { display: inline-block; margin-top: 4px; font-weight: 600; color: #8a6a22; }
+.sb-guide table { width: 100%; margin-top: 8px; border-collapse: collapse; }
+.sb-guide th, .sb-guide td { padding: 8px 10px; border-bottom: 1px solid #ececec; text-align: left; vertical-align: top; }
+.sb-guide th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #6b7672; }
+.sb-guide .sb-cards { display: flex; flex-wrap: wrap; gap: 14px; }
+.sb-guide .sb-card { flex: 1 1 280px; padding: 22px 24px; border: 1px solid #e3e3e3; border-radius: 10px; background: #fff; }
+.sb-guide .sb-card h3 { margin: 0 0 8px; font-size: 18px; color: #12352c; }
+.sb-guide .sb-card .btn { margin-top: 10px; }
+@media (max-width: 767px) { .sb-guide .sb-toc ol { columns: 1; } }
