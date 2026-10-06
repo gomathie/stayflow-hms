@@ -15,6 +15,8 @@ CONTENT_VERSION=1
 BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
 CURRENCY_VERSION=1
+# Bump MODULES_VERSION whenever docker/setup-modules.php changes.
+MODULES_VERSION=1
 
 # Module folders that receive uploads (gallery, amenities, payment icons,
 # guest photos). Add any other module upload folder here.
@@ -85,6 +87,16 @@ if [ "${1:-}" = "apache2-foreground" ]; then
     if [ ! -e "$SETTINGS" ] && [ "${AUTO_INSTALL:-1}" = "1" ]; then
         echo "First boot: running installer..."
         HOST="${PUBLIC_URL#*://}"; HOST="${HOST%%/*}"
+        # These values are placed inside a quoted shell command below; a quote,
+        # backslash or backtick in one of them would break out of it.
+        for v in TIMEZONE HOST DB_HOST DB_NAME DB_USER DB_PASSWORD SHOP_NAME SHOP_COUNTRY \
+                 ADMIN_FIRSTNAME ADMIN_LASTNAME ADMIN_PASSWORD ADMIN_EMAIL; do
+            case "${!v:-}" in
+                *\'*|*\"*|*\\*|*\`*|*\$*)
+                    echo "$v contains a quote, backslash, backtick or dollar sign; use letters, digits and simple punctuation" >&2
+                    exit 1 ;;
+            esac
+        done
         su -s /bin/bash www-data -c "php install/index_cli.php \
             --language=en --timezone='${TIMEZONE:-UTC}' --domain='$HOST' \
             --db_server='$DB_HOST' --db_name='$DB_NAME' --db_user='$DB_USER' --db_password='$DB_PASSWORD' \
@@ -201,6 +213,18 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         db_query "UPDATE qlo_currency SET name='Ghana Cedi', iso_code='GHS', iso_code_num='936', sign='GH₵', blank=0, format=1, decimals=1 WHERE iso_code='USD' AND (SELECT COUNT(*) FROM qlo_orders) = 0"
         echo "$CURRENCY_VERSION" > /data/.currency-version
         echo "Currency step v$CURRENCY_VERSION done; default currency is now: $(db_query "SELECT c.iso_code FROM qlo_currency c JOIN qlo_configuration k ON k.name='PS_CURRENCY_DEFAULT' AND k.value=c.id_currency")"
+    fi
+
+    # Install/enable our own modules and switch off unused payment methods.
+    # A failure is reported but does not stop the site from starting; the
+    # step is retried on the next start until it succeeds.
+    if [ -e "$SETTINGS" ] && [ "$(cat /data/.modules-version 2>/dev/null)" != "$MODULES_VERSION" ]; then
+        if su -s /bin/bash www-data -c "php /usr/local/share/salisberg/setup-modules.php"; then
+            echo "$MODULES_VERSION" > /data/.modules-version
+            echo "Modules step v$MODULES_VERSION done"
+        else
+            echo "WARNING: modules step failed; will retry on next start" >&2
+        fi
     fi
 fi
 

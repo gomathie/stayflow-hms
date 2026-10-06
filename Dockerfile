@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY docker/php.ini /usr/local/etc/php/conf.d/zz-salisberg.ini
 COPY docker/apache.conf /etc/apache2/conf-enabled/zz-salisberg.conf
 COPY docker/entrypoint.sh /usr/local/bin/salisberg-entrypoint
+COPY docker/setup-modules.php /usr/local/share/salisberg/setup-modules.php
 # Lets the mysql/mysqldump CLI talk to MySQL 8 (self-signed cert) on the private stack network
 RUN printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/salisberg-client.cnf
 
@@ -24,7 +25,7 @@ COPY --chown=www-data:www-data . /var/www/html
 # - deployment files have no business in the web root
 RUN sed -i 's/\r$//' /usr/local/bin/salisberg-entrypoint \
     && chmod +x /usr/local/bin/salisberg-entrypoint \
-    && rm -rf docker docker-compose*.yml .env.example .gitattributes .travis.yml \
+    && rm -rf docker docker-compose*.yml .env.example .gitattributes .travis.yml CHANGELOG.txt composer.json \
     && mkdir -p /data /usr/src/salisberg-seed \
     && cp -a img upload download /usr/src/salisberg-seed/ \
     && chown www-data:www-data /data

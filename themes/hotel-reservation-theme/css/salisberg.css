@@ -635,3 +635,22 @@ input.account_input, input.is_required {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ---------- Checkout: payment options ---------- */
+p.payment_module a.salisbergpay {
+  padding: 26px 30px;
+  background: #fff;
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius);
+  color: var(--sb-green);
+  font-size: 18px;
+  font-weight: 600;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+p.payment_module a.salisbergpay:hover {
+  border-color: var(--sb-gold);
+  background: var(--sb-cream);
+  box-shadow: var(--sb-shadow);
+}
+p.payment_module a.salisbergpay span { display: block; margin-top: 4px; font-size: 14px; font-weight: 400; color: var(--sb-muted); }
+p.payment_module a.salisbergpay::after { color: var(--sb-gold); }
