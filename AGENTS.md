@@ -607,3 +607,19 @@ To restore `/data`, decrypt the matching `salisberg-data-…` file the same way 
 | Room types, photos, prices | Owner enters them in Manage Room Types |
 | Email | Zoho Mail for `@salisberg.com`; DNS records and SMTP settings still to be set up |
 | Repository visibility | Stays public |
+
+### 2026-10-06 — Back office restyled
+
+- **What:** `admin/themes/default/css/overrides.css`, the file upstream provides (empty) for back office customisation and loads last on every admin page including sign-in. It now carries the Salisberg look:
+  - deep green top bar and side menu with a gold marker on the active item; branded submenu and footer;
+  - DM Sans in place of Open Sans and the condensed capitals; slightly larger text; calmer panel headings and table headers;
+  - rounded panels, buttons, fields, dropdowns and modals; gold focus ring on fields; green primary buttons; green/gold links, tabs, pagination, badges and Yes/No switches;
+  - the logo in the top bar sized so it is no longer cropped, and the version number beside it hidden;
+  - an icon for the Guides menu entry;
+  - the vendor's "Recommendations" toolbar button and module-promotion panel hidden on every page;
+  - the sign-in page in the same palette.
+- **Why:** the owner asked for the admin panel's look to be refined; it was still the stock grey-and-blue PrestaShop 1.6 theme.
+- **How:** CSS only, in the one file meant for it. No vendor stylesheet, template or script was edited, and no element was moved, so the screens still match the guides. Checked by screenshot before and after on the sign-in page, dashboard, Orders list, Customers list, the room type form and the employee form.
+- **Limits:** this changes appearance, not behaviour. Pages still reload on every action and forms are as dense as before. Not checked: every one of the 79 menu pages, the "Top" menu orientation, right-to-left languages, and screens narrower than a laptop.
+- **Guides:** no change needed; nothing a user does has moved or been renamed.
+- **Considered and not done:** replacing the back office with a Filament (Laravel) admin. Filament cannot be embedded in this application; it would be a second application writing to the same database, bypassing the booking, pricing and availability rules that live in the PHP classes, or re-implementing them. That is a rewrite of the back office, not a restyle. See the audit's recommendation (modernize incrementally).
