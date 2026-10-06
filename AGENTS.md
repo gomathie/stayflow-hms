@@ -74,7 +74,7 @@ Guidance for any agent or developer working in this repository. Read it before c
 ### Guides
 
 23. **Every feature must be documented in its guide, in the same change.** The back office guides live in `modules/salisbergguide/views/templates/admin/`. A feature is not finished until the guide is updated.
-    - **Who uses it decides where it goes.** Something front desk staff do goes in `staff_guide.tpl`. Something only an administrator can do or configure goes in `admin_guide.tpl`. A feature with both sides (for example a payment method: staff record payments, admins configure it) is covered in both, each from its own side.
+    - **Who uses it decides where it goes.** There are three roles: Hotel Staff (front desk), Hotel Manager (runs the hotel) and SuperAdmin (the developer team). Something front desk staff do goes in `staff_guide.tpl`. Something a manager or the developer team does goes in `admin_guide.tpl`; inside that file, anything only a SuperAdmin can do is wrapped in `{if $sb_is_admin}` with the standard "looked after by the developer team" note as the `{else}`, so a manager is never shown steps they cannot follow. A new page a manager needs is also added to `$managerAccess` in `salisbergguide.php`. A feature with both sides (for example a payment method: staff record payments, admins configure it) is covered in both, each from its own side.
     - **Never put admin-only instructions in the Staff Guide.** Staff must not be shown how to do things their role cannot do. If the feature adds a page staff need, also grant it to the Hotel Staff profile (`$staffAccess` in `salisbergguide.php`) and list it in the guide's menu table.
     - **Write what is on the screen.** Use the exact menu path, button and tab names as rendered, and check them against the running back office before writing. Add the section to the guide's table of contents.
     - **Changes and removals count too.** If a feature is changed, renamed, moved or removed, update or delete its guide text in the same change.
@@ -781,3 +781,41 @@ All styling is in `admin/themes/default/css/overrides.css`, edited in place (rul
 - "Book Now" appears in the homepage HTML and "Make Booking" no longer does.
 - **Not tested:** the buttons on every back office page (four pages surveyed), danger and success buttons in real use (no page visited showed one), pop-up dialogs, the fly-out near the bottom of a short window where the stock script moves the box upwards, widths under 1200px for the new dashboard columns, Safari and Firefox.
 - **Mistake made and undone during this work:** `overrides.css` was stashed by accident mid-session and restored at once with `git stash pop`; nothing was lost.
+
+### 2026-10-06 — Hotel Manager role; show or hide menu sections
+
+Both live in the existing `modules/salisbergguide` module (rule 25). `MODULES_VERSION=7`.
+
+#### Three roles
+
+| Profile | Who | Can do |
+|---|---|---|
+| SuperAdmin | The developer team | Everything |
+| Hotel Manager (new) | The person who runs the hotel | Everything about the hotel; nothing about how the system is installed or built |
+| Hotel Staff | Front desk and reservations | Bookings, payments, guests; no deleting, no setup |
+
+- **Hotel Manager can:** bookings including deleting, invoices and credit slips, Book Now, guests, addresses, messages and contact-form recipients; room types, service products, categories, features, bed types; cart rules, catalog price rules and Advanced Price Rules; hotel details and General Settings, the homepage content blocks; refund rules and requests; website pages (Preferences › CMS); staff accounts (Administration › Employees); Stats; both guides.
+- **Hotel Manager cannot:** Modules and Services, Payment, Localization (currency, taxes), Preferences other than CMS, Advanced Parameters (email, backups, SQL), Profiles, Permissions, Channel Manager.
+- **Why staff accounts are safe to hand over:** the platform itself stops anyone but a SuperAdmin from creating, editing or deleting a SuperAdmin, and only offers a non-SuperAdmin the other profiles. A manager has no access to Profiles or Permissions, so cannot widen their own rights.
+- **How:** `$managerAccess` in `salisbergguide.php`. `installStaffProfile()` became `installProfile($name, $access)` and is called for both profiles (one function, not a copy). As before, an existing profile is never reset, so permissions adjusted by hand survive deploys.
+- **Owner must:** in Administration › Employees, set the manager's account to Hotel Manager and keep SuperAdmin for the developer team's accounts only. Existing SuperAdmin accounts are not changed by this deploy.
+
+#### Admin Guide is now for managers too
+
+- A Hotel Manager can open the Admin Guide (`canReadAdminGuide()`; the controller still checks this itself and does not trust the menu permission).
+- Sections a manager cannot act on (6 payment methods, 7 currency and taxes, 10 email, 11 maintenance, 12 backups, 15 menu sections, and the permissions, modules and SEO parts of 1 and 9) show a manager one line: "This is looked after by the developer team." A SuperAdmin sees the full text. Section numbers are the same for both.
+- Section 1 now describes the three profiles. Rule 23 updated to match.
+
+#### Show or hide menu sections (Admin Guide, new section 15)
+
+- **What:** two Show/Hide switches, for **Channel Manager** and **Modules and Services**, visible to SuperAdmins only. Hiding removes the section from the left menu for everyone; nothing is uninstalled or disabled, and the pages still open by link for those with permission (the guide's own links keep working).
+- **Why in the guide page and not the module's Configure page:** that page is reached through Modules and Services, which is one of the things being hidden.
+- **How:** `$menuToggles`, `getMenuToggles()` and `setMenuVisible()` in `salisbergguide.php` set the menu entry's `active` flag; the form posts to `AdminSalisbergAdminGuideController::postProcess()`, which acts only for a SuperAdmin and only on the listed entries. The choice is stored in the database and survives deploys. Default: both shown, as before.
+- **About the Channel Manager:** the bundled module only connects to a separate, paid channel manager service that syncs rooms and prices with booking sites. It does nothing until that service is bought and set up.
+
+#### Verification (local, real browser)
+
+- **As a test Hotel Manager:** the menu shows Dashboard, Catalog, Bookings, Customers, Manage Discounts, Hotel Reservation System, Preferences, Administration, Stats, Guides. Eleven permitted pages opened. Twelve others (Modules, Payment, Preferences, Maintenance, Currencies, E-mail, DB Backup, Profiles, Permissions, Channel Manager, Themes, SQL Manager) were refused when requested directly with a valid token. Opening the SuperAdmin's employee record showed no form; deleting it was refused ("You cannot disable or delete the administrator account"); a new employee could only be given Hotel Staff or Hotel Manager. The Admin Guide opened with six developer-team notes, no switches and no Permissions instructions.
+- **As SuperAdmin:** the switches appear; hiding both removed both menu sections and the Modules page still opened by link; showing both restored them. A request posted with a wrong token changed nothing.
+- **Not tested:** every action a manager can reach (for example saving a price rule or deleting a booking as manager); the homepage content block pages as manager; Hotel Staff after this change beyond the module's own setup run; any of this on the live server.
+- A test employee `manager.test@example.com` exists only in the local database.

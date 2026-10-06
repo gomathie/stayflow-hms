@@ -477,8 +477,10 @@ body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.hover ul.s
 .bootstrap .btn-info:hover, .bootstrap .btn-info:focus { border-color: var(--sb-accent); background-color: var(--sb-accent-soft); color: var(--sb-link); }
 .bootstrap .btn-success > i:before, .bootstrap .btn-danger > i:before, .bootstrap .btn-warning > i:before { color: inherit; }
 .bootstrap .btn-primary,
-.bootstrap .btn-primary:focus { background-color: var(--sb-accent); border-color: var(--sb-accent); color: var(--sb-accent-text); text-shadow: none; }
+.bootstrap .btn.btn-primary,
+.bootstrap .btn-primary:focus { background-color: var(--sb-accent); border-color: var(--sb-accent); color: var(--sb-accent-text); text-shadow: none; text-transform: none; }
 .bootstrap .btn-primary:hover,
+.bootstrap .btn.btn-primary:hover,
 .bootstrap .btn-primary:active,
 .bootstrap .open > .btn-primary.dropdown-toggle { background-color: var(--sb-accent-hover); border-color: var(--sb-accent-hover); color: var(--sb-accent-text); }
 .bootstrap .btn-default { border-color: var(--sb-line); background-color: var(--sb-card); color: var(--sb-ink); }
