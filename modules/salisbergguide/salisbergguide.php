@@ -200,8 +200,9 @@ class Salisbergguide extends Module
     /**
      * Small interface helpers. Add new ones here rather than in a new module.
      *  - everywhere: the show/hide (eye) button on password fields
-     *  - back office only: the light/dark switch (its colours live in
-     *    admin/themes/default/css/overrides.css)
+     *  - everywhere: the light/dark switch. Its colours live in
+     *    admin/themes/default/css/overrides.css (back office) and
+     *    themes/hotel-reservation-theme/css/salisberg.css (website)
      *
      * @param bool $backOffice true when called for a back office page
      */
@@ -213,9 +214,11 @@ class Salisbergguide extends Module
         }
         $controller->addCSS($this->_path.'views/css/password-toggle.css', 'all');
         $controller->addJS($this->_path.'views/js/password-toggle.js');
-        if ($backOffice) {
-            $controller->addJS($this->_path.'views/js/theme-toggle.js');
+        if (!$backOffice) {
+            // tells theme-toggle.js it is on the website (its own saved choice, light by default)
+            Media::addJsDef(array('sbThemeScope' => 'site'));
         }
+        $controller->addJS($this->_path.'views/js/theme-toggle.js');
     }
 
     public function hookHeader()

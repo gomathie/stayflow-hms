@@ -14,10 +14,32 @@
   --sb-line: #e7e1d4;
   --sb-ink: #1d2623;
   --sb-muted: #5d6b66;
+  --sb-page: #ffffff;          /* page background */
+  --sb-surface: #ffffff;       /* cards, panels, fields, the header bar */
+  --sb-heading: var(--sb-green); /* headings and strong text on the page */
   --sb-radius: 16px;
   --sb-shadow: 0 18px 40px -18px rgba(12, 36, 30, 0.35);
   --sb-serif: "Cormorant Garamond", "Playfair Display", Georgia, serif;
   --sb-sans: "DM Sans", "Oxygen", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Dark mode: the same tokens with dark values. Chosen by the visitor with the
+   switch in the header (theme-toggle.js); light is the default. Rules that
+   tokens cannot reach are in the "Dark mode" section at the end of the file. */
+html[data-sb-theme="dark"] {
+  --sb-green: #2f7d64;
+  --sb-green-2: #38937a;
+  --sb-gold: #cfa24a;
+  --sb-gold-2: #e0b964;
+  --sb-cream: #121c18;
+  --sb-line: #27362f;
+  --sb-ink: #e4e9e6;
+  --sb-muted: #9daaa4;
+  --sb-page: #0d1512;
+  --sb-surface: #15201c;
+  --sb-heading: #eef2ef;
+  --sb-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
+  color-scheme: dark;
 }
 
 /* ---------- Base ---------- */
@@ -67,7 +89,7 @@ header #nav-main a:hover { color: var(--sb-gold-2); }
 header .header-top {
   position: relative;
   z-index: 20;
-  background: #fff;
+  background: var(--sb-surface);
   box-shadow: 0 1px 0 var(--sb-line), 0 10px 30px -22px rgba(12, 36, 30, .5);
 }
 header .row #header_logo { padding: 10px 0; }
@@ -77,12 +99,12 @@ header .header-top .header-top-link,
 header .header-top .header-top-link span,
 header .header-top .our_properties_link,
 header .header-top .shopping_cart > a:first-child {
-  color: var(--sb-green) !important;
+  color: var(--sb-heading) !important;
   font-weight: 600;
 }
 header .header-top .header-top-link:hover span { color: var(--sb-gold) !important; }
 
-header .header-top .shopping_cart > a:first-child:before { color: var(--sb-green); }
+header .header-top .shopping_cart > a:first-child:before { color: var(--sb-heading); }
 
 header .header-top .nav_toggle {
   background: var(--sb-green);
@@ -176,7 +198,7 @@ header .header-top .ajax_cart_quantity {
 #search_hotel_block_form .header-rmsearch-input:focus,
 #search_hotel_block_form .form-control:focus {
   border-color: var(--sb-gold);
-  background-color: #fff;
+  background-color: var(--sb-surface);
 }
 #search_hotel_block_form #search_room_submit {
   width: 100%;
@@ -198,7 +220,7 @@ header .header-top .ajax_cart_quantity {
 
 /* ---------- Home sections ---------- */
 
-#index .columns-container { background: #fff; }
+#index .columns-container { background: var(--sb-surface); }
 #index #columns { padding-top: 0; padding-bottom: 0; }
 
 #index .home_block_container {
@@ -231,7 +253,7 @@ header .header-top .ajax_cart_quantity {
   font-weight: 500;
   line-height: 1.1;
   letter-spacing: -.01em;
-  color: var(--sb-green);
+  color: var(--sb-heading);
   text-transform: none;
   margin-bottom: 18px;
 }
@@ -272,8 +294,8 @@ header .header-top .ajax_cart_quantity {
   margin: 0 14px;
   border-radius: 50%;
   opacity: 1;
-  background: #fff;
-  color: var(--sb-green);
+  background: var(--sb-surface);
+  color: var(--sb-heading);
   box-shadow: var(--sb-shadow);
   line-height: 1;
 }
@@ -286,7 +308,7 @@ header .header-top .ajax_cart_quantity {
 #index .amenity_content {
   display: flex;
   height: 100%;
-  background: #fff;
+  background: var(--sb-surface);
   border-radius: var(--sb-radius);
   overflow: hidden;
   box-shadow: var(--sb-shadow);
@@ -302,7 +324,7 @@ header .header-top .ajax_cart_quantity {
   font-size: 28px;
   font-weight: 600;
   line-height: 1.15;
-  color: var(--sb-green);
+  color: var(--sb-heading);
   text-transform: none;
   margin-bottom: 12px;
 }
@@ -340,7 +362,7 @@ header .header-top .ajax_cart_quantity {
   flex: 1;
   margin: 0;
   padding: 24px 26px 26px;
-  background: #fff;
+  background: var(--sb-surface);
   border: 1px solid var(--sb-line);
   border-top: 0;
   border-radius: 0 0 var(--sb-radius) var(--sb-radius);
@@ -351,7 +373,7 @@ header .header-top .ajax_cart_quantity {
   font-size: 28px;
   font-weight: 600;
   line-height: 1.15;
-  color: var(--sb-green);
+  color: var(--sb-heading);
   margin-bottom: 10px;
 }
 #index .hotelRoomDescContainer > .row:first-child { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
@@ -400,7 +422,7 @@ header .header-top .ajax_cart_quantity {
   color: var(--sb-ink);
 }
 #index .testimonialPersonImg { width: 64px !important; border-radius: 50%; }
-#index .testimonialPersonName { font-size: 16px; font-weight: 700; color: var(--sb-green); margin-top: 14px; }
+#index .testimonialPersonName { font-size: 16px; font-weight: 700; color: var(--sb-heading); margin-top: 14px; }
 #index .testimonialPersonDesig { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--sb-muted); }
 #index .htlTestemonial-owlCarousel .owl-dots { margin-top: 28px; text-align: center; }
 #index .htlTestemonial-owlCarousel .owl-dot span { background: #d9d0bd; }
@@ -508,14 +530,14 @@ a.view_more,
 #product .pb-center-column h1,
 .hotel-header {
   font-family: var(--sb-serif);
-  color: var(--sb-green);
+  color: var(--sb-heading);
   text-transform: none;
   letter-spacing: 0;
 }
 .page-heading { font-size: 38px; font-weight: 600; line-height: 1.15; border-bottom-color: var(--sb-line); }
 .page-subheading { font-size: 24px; font-weight: 600; border-bottom-color: var(--sb-line); }
 .rm_heading { font-size: 32px; font-weight: 600; line-height: 1.15; }
-.rm_price_val { color: var(--sb-green); font-weight: 700; }
+.rm_price_val { color: var(--sb-heading); font-weight: 700; }
 .remain_rm_qty { color: #b4472c; font-weight: 600; }
 
 /* Search results: side panel and list */
@@ -696,17 +718,17 @@ header .header-top .header_user_info .dropdown-menu {
   padding: 8px;
   border: 1px solid var(--sb-line);
   border-radius: 12px;
-  background: #fff;
+  background: var(--sb-surface);
   box-shadow: var(--sb-shadow);
 }
 header .header-top .header_user_info .dropdown-menu > li > a {
   padding: 10px 12px;
   border-radius: 8px;
-  color: var(--sb-green);
+  color: var(--sb-heading);
   font-weight: 500;
 }
 header .header-top .header_user_info .dropdown-menu > li > a:hover { background: var(--sb-cream); color: var(--sb-gold); }
-header .header-top .ajax_cart_total { color: var(--sb-green); font-weight: 600; }
+header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600; }
 
 @media (max-width: 1199px) {
   #menu_cont .wk-nav-style > li,
@@ -762,7 +784,7 @@ header .header-top .ajax_cart_total { color: var(--sb-green); font-weight: 600; 
     position: relative;
     padding: 10px 18px;
     background: transparent !important;
-    color: var(--sb-green);
+    color: var(--sb-heading);
     font-size: 13px;
     font-weight: 500;
     letter-spacing: .14em;
@@ -799,7 +821,7 @@ header .header-top .ajax_cart_total { color: var(--sb-green); font-weight: 600; 
   }
   header .header-top .header_user_info .header-top-link,
   header .header-top .header_user_info .header-top-link span,
-  header .header-top #user_info_acc .account_user_name { color: var(--sb-green) !important; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
+  header .header-top #user_info_acc .account_user_name { color: var(--sb-heading) !important; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
   header .header-top #user_info_acc .caret { border-top-color: var(--sb-green); }
   header .header-top .header_user_info .header-top-link:hover,
   header .header-top #user_info_acc:hover,
@@ -829,7 +851,7 @@ textarea {
   padding: 10px 14px;
   border: 1px solid #cfc8b8;
   border-radius: 10px;
-  background-color: #fff;
+  background-color: var(--sb-surface);
   box-shadow: none;
   color: var(--sb-ink);
   font-family: var(--sb-sans);
@@ -853,15 +875,15 @@ textarea:focus {
 ::placeholder { color: #9a9486; }
 
 /* Validation states */
-.form-group.form-error input, .form-group.form-error textarea { border-color: #c0492f; background-color: #fff; }
-.form-group.form-ok input, .form-group.form-ok textarea { border-color: #3d8a5f; background-color: #fff; }
+.form-group.form-error input, .form-group.form-error textarea { border-color: #c0492f; background-color: var(--sb-surface); }
+.form-group.form-ok input, .form-group.form-ok textarea { border-color: #3d8a5f; background-color: var(--sb-surface); }
 
 /* uniform.js wrappers around selects, checkboxes and radios */
 div.selector {
   height: 46px;
   border: 1px solid #cfc8b8;
   border-radius: 10px;
-  background: #fff;
+  background: var(--sb-surface);
   overflow: hidden;
 }
 div.selector span { height: 44px; line-height: 44px; padding-left: 14px; background-color: transparent; color: var(--sb-ink); }
@@ -869,7 +891,7 @@ div.selector select { height: 46px; }
 div.selector.focus, div.selector.hover { border-color: var(--sb-gold); }
 div.checker span, div.radio span { border-color: #b9b1a0; }
 div.checker span.checked, div.radio span.checked { border-color: var(--sb-green); }
-div.checker span.checked::before, div.radio span.checked::before { color: var(--sb-green); }
+div.checker span.checked::before, div.radio span.checked::before { color: var(--sb-heading); }
 
 /* Panels that hold forms */
 #authentication #center_column form.box,
@@ -877,7 +899,7 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 #contact .contact-form-box,
 #identity .box, #address .box, #my-account .box {
   padding: 30px;
-  background: #fff;
+  background: var(--sb-surface);
   border: 1px solid var(--sb-line);
   border-radius: var(--sb-radius);
   box-shadow: var(--sb-shadow);
@@ -911,13 +933,13 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 #order-opc .opc-btn-default {
   border-color: var(--sb-green);
   border-radius: 10px;
-  color: var(--sb-green);
+  color: var(--sb-heading);
 }
 #order-opc .footer-container .btn.button.newsletter-btn {
   background-color: var(--sb-gold) !important;
   border-color: var(--sb-gold) !important;
 }
-#order-opc .cart_total_detail_block .cart_final_total_block > .cart_total_values { color: var(--sb-green); font-weight: 700; }
+#order-opc .cart_total_detail_block .cart_final_total_block > .cart_total_values { color: var(--sb-heading); font-weight: 700; }
 #order-opc .cart_total_detail_block .total_discount_block,
 #order-opc .cart_voucher_detail_block span.voucher_apply_state { color: var(--sb-green-2); }
 #order-opc .cart_voucher_detail_block span.cart_discount_name { color: var(--sb-green-2); border-color: var(--sb-gold); }
@@ -930,7 +952,7 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 #order-opc .product-detail .room_duration_block { background-color: var(--sb-cream); border-radius: 10px; }
 #order-opc .order_step_heading,
 #order-opc .opc-main-block h3,
-#order-opc .accordion-section-title { font-family: var(--sb-serif); color: var(--sb-green); }
+#order-opc .accordion-section-title { font-family: var(--sb-serif); color: var(--sb-heading); }
 #order-opc .card, #order-opc .opc-main-block > div, #order-opc .col-md-4 .card { border-radius: var(--sb-radius); }
 .history_state span.label,
 .label.label-info { background-color: var(--sb-green-2) !important; border-color: var(--sb-green-2) !important; }
@@ -944,10 +966,10 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 /* payment options */
 p.payment_module a.salisbergpay {
   padding: 26px 30px;
-  background: #fff;
+  background: var(--sb-surface);
   border: 1px solid var(--sb-line);
   border-radius: var(--sb-radius);
-  color: var(--sb-green);
+  color: var(--sb-heading);
   font-size: 18px;
   font-weight: 600;
   transition: border-color .2s ease, box-shadow .2s ease;
@@ -959,3 +981,49 @@ p.payment_module a.salisbergpay:hover {
 }
 p.payment_module a.salisbergpay span { display: block; margin-top: 4px; font-size: 14px; font-weight: 400; color: var(--sb-muted); }
 p.payment_module a.salisbergpay::after { color: var(--sb-gold); }
+
+/* ---------- Light/dark switch (added to the header by theme-toggle.js) ---------- */
+header .header-top .sb-theme-item { display: flex; align-items: center; margin-right: 14px; }
+#sb-theme-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 60px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--sb-line);
+  border-radius: 999px;
+  background-color: var(--sb-cream);
+  cursor: pointer;
+}
+#sb-theme-toggle::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 24px;
+  border-radius: 999px;
+  background-color: var(--sb-surface);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+  transition: transform .2s ease;
+}
+#sb-theme-toggle svg { position: relative; display: block; color: var(--sb-muted); }
+html:not([data-sb-theme="dark"]) #sb-theme-toggle svg:first-child,
+html[data-sb-theme="dark"] #sb-theme-toggle svg:last-child { color: var(--sb-heading); }
+html[data-sb-theme="dark"] #sb-theme-toggle::before { transform: translateX(26px); background-color: #2a3a33; }
+
+/* ---------- Dark mode ----------
+   What the tokens cannot reach: colours written into the stock theme's own
+   stylesheets. Kept to backgrounds, text and borders. */
+html[data-sb-theme="dark"] body,
+html[data-sb-theme="dark"] #page,
+html[data-sb-theme="dark"] .columns-container { background-color: var(--sb-page); color: var(--sb-ink); }
+html[data-sb-theme="dark"] .header-container,
+html[data-sb-theme="dark"] header#header { background-color: var(--sb-page); }
+/* the logo file has a white background: invert it and let the black drop out */
+html[data-sb-theme="dark"] header .row #header_logo img { filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
+html[data-sb-theme="dark"] .header-rmsearch-inner-wrapper { background-color: var(--sb-surface); }
+html[data-sb-theme="dark"] .chosen-container .chosen-drop,
+html[data-sb-theme="dark"] .chosen-container .chosen-search { background-color: var(--sb-surface); color: var(--sb-ink); }

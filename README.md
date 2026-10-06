@@ -78,4 +78,10 @@ Please do not report security problems in public issues. See [`SECURITY.md`](SEC
 
 ## Licence and credit
 
-Salisberg is a modified version of QloApps, © Webkul, which is licensed under the [Open Software License 3.0](https://opensource.org/licenses/OSL-3.0); bundled modules carry their own licences (OSL-3.0 or [AFL-3.0](https://opensource.org/licenses/AFL-3.0)) in their folders. The changes in this repository are released under the same licence. Licence and copyright notices in the source files are kept as required.
+License and Credit
+
+Salisberg is a modified version of QloApps, © Webkul. QloApps and bundled modules may carry their own respective licenses in their folders.
+
+The changes made by Salisberg in this repository are released under the MIT License. License and copyright notices in the source files are preserved as required.
+
+Third-party code and modules remain subject to their respective original licenses.
