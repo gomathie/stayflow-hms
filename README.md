@@ -1,76 +1,81 @@
-<div align="center">
-	<p>
-		<b>StayFlow - An open source and free platform to launch your own hotel booking website</b>
-	</p>
-</div>
+# Salisberg Hotels
 
-<p align="center">
-	<a href="/LICENSE.md"><img src="https://img.shields.io/badge/License-OSL%20V3-green" alt="License"></a>
-</p>
+The booking website and back office for **Salisberg Hotels**: <https://salisberg.com>
 
-## Topics
-- [Topics](#topics)
-	- [Introduction](#introduction)
-	- [Requirements](#requirements)
-		- [Hosted Server Configurations](#hosted-server-configurations)
-		- [Local Server Configurations](#local-server-configurations)
-	- [Installation and Configuration](#installation-and-configuration)
-	- [License](#license)
-	- [Security Vulnerabilities](#security-vulnerabilities)
-	- [Contribute](#contribute)
+Guests search for rooms, book, and choose to pay by cash at the hotel or by Mobile Money. Staff take and manage bookings, record payments, and check guests in and out from the back office.
 
+Salisberg is built on [QloApps](https://github.com/Qloapps/QloApps) 1.7.0, an open-source hotel booking engine by Webkul (itself based on PrestaShop 1.6). This repository is that code plus Salisberg's design, features, security fixes and deployment setup.
 
-### Introduction
+## What is in this repository
 
-StayFlow is a true open-source hotel reservation system and a booking engine. The system is dedicated to channeling the power of the open-source community to serve the hospitality industry.
+| Part | Where |
+|---|---|
+| Website design | `themes/hotel-reservation-theme/css/salisberg.css` |
+| Back office design, light and dark | `admin/themes/default/css/overrides.css` |
+| Cash and Mobile Money payments | `modules/salisbergpay` |
+| Back office guides, What's New page, staff roles | `modules/salisbergguide` |
+| Docker image, startup steps, backups, request limits | `Dockerfile`, `docker-compose.yml`, `docker/` |
+| Security fixes applied ahead of the vendor | `PATCHES.md` |
 
-From small independent hotels to big hotel chains, StayFlow is a one-stop solution for all your hotel business needs.
+## Documents
 
-You will be able to launch your hotel website, showcase your property and take and manage bookings.
+| File | What it is for |
+|---|---|
+| [`CHANGELOG.md`](CHANGELOG.md) | Every change, newest first, in plain words |
+| [`AGENTS.md`](AGENTS.md) | The rules for working on this code, how the setup works, and the detailed record of each change: what, why, how, and how it was tested. **Read it before changing anything.** |
+| [`PATCHES.md`](PATCHES.md) | Security fixes made to vendor files, with the upstream change each one mirrors |
+| [`SECURITY.md`](SECURITY.md) | How to report a security problem |
+| [`LICENSE.md`](LICENSE.md) | The licence |
 
-### Requirements
+Inside the running back office, **Guides** holds a Staff Guide, an Admin Guide and a What's New page.
 
-In order to install StayFlow you will need the following server configurations for hosted and local servers.
-The system compatibility will also be checked by the system with installation and if the server is not compatible then the installation will not move ahead.
+## Stack
 
-#### Hosted Server Configurations
+- PHP 8.1 with Apache, MySQL 8.0, Smarty templates
+- No Composer or Node build step
+- Docker, deployed with [Coolify](https://coolify.io)
 
-* **Web server**: Apache 1.3, Apache 2.x, Nginx or Microsoft IIS
-* **PHP  version**: PHP 8.1+ to PHP 8.4
-* **MySQL version**:  5.7+ to 8.4 installed with a database created
-* SSH or FTP access (ask your hosting service for your credentials)
-* In the PHP configuration ask your provider to set memory_limit to "128M", upload_max_filesize to "16M" ,    max_execution_time to "500" and allow_url_fopen "on"
-* SSL certificate if you plan to process payments internally (not using PayPal for instance)
-* **Required PHP extensions**: PDO_MySQL, cURL, OpenSSL, SOAP, GD, SimpleXML, DOM, Zip, Phar
+## Run it locally
 
-#### Local Server Configurations
+You need Docker.
 
-* **Supported operating system**: Windows, Mac, and Linux
-* **A prepared package**: WampServer (for Windows), Xampp (for Windows and Mac) or EasyPHP (for Windows)
-* **Web server**: Apache 1.3, Apache 2.x, Nginx or Microsoft IIS
-* **PHP**: PHP 8.1+ to PHP 8.4
-* **MySQL** 5.7+ to 8.4 installed with a database created
-* In the PHP configuration, set memory_limit to "128M", upload_max_filesize to "16M" and max_execution_time to "500"
-* **Required PHP extensions**: PDO_MySQL, cURL, OpenSSL, SOAP, GD, SimpleXML, DOM, Zip, Phar
+```bash
+cp .env.example .env        # then set real passwords in .env
+docker compose up -d --build
+docker compose logs -f app  # the first start installs the site; allow a few minutes
+```
 
-### Installation and Configuration
+- Website: <http://localhost:8080>
+- Back office: <http://localhost:8080/admin-salisberg>, signing in with `ADMIN_EMAIL` and `ADMIN_PASSWORD` from `.env`
+- Stop it: `docker compose stop`
+- Start again from nothing, **deleting all local data**: `docker compose down -v`
 
-Follow the standard installation steps for your server environment to set up StayFlow's database and configuration files.
+## Deploy
 
-### License
+Production runs on a server with Coolify, built from the `salisberg-production` branch using `docker-compose.yml`. Settings and passwords are entered in Coolify's Environment Variables; none are stored in this repository. `.env.example` lists every variable.
 
-StayFlow Core is licensed under OSL-3.0 and modules have their applicable license, LICENSE.md, kept inside their root directories, while other modules are licensed under AFL-3.0.
+The full steps, and what must never be done on the production server, are in `AGENTS.md`, sections 2 and 5.
 
-The online copy of OSL-3.0 can be found at [https://opensource.org/licenses/OSL-3.0](https://opensource.org/licenses/OSL-3.0).
+## Who can do what in the back office
 
-The online copy of AFL-3.0 can be found at [https://opensource.org/licenses/AFL-3.0](https://opensource.org/licenses/AFL-3.0).
+| Role | For | Can do |
+|---|---|---|
+| SuperAdmin | The developer team | Everything |
+| Hotel Manager | The person who runs the hotel | Rooms, prices, bookings, guests, website pages, staff accounts, reports |
+| Hotel Staff | Front desk and reservations | Bookings, payments, check-in and check-out, guest records |
 
-### Security Vulnerabilities
+## Working on the code
 
-Please don't disclose security vulnerabilities publicly.
+- Work on a branch, not on `main`.
+- Extend what exists before adding something new; `AGENTS.md` rule 25 lists where each kind of change belongs.
+- Do not edit vendor files when an override or a module will do, and never move or rename one.
+- Every change is recorded in `CHANGELOG.md` and `AGENTS.md`, and in the guides or the What's New page when users will notice it.
+- New versions of QloApps are adopted by tagged release only.
 
-### Contribute
+## Security
 
-As a PHP developer who has command on PHP and MySQL and also knows how to use Git or GitHub efficiently, can contribute to code enhancements via pull requests.<br>
-For more information about the contribution process please check **[Contribute to StayFlow](/CONTRIBUTING.md)**
-</content>
+Please do not report security problems in public issues. See [`SECURITY.md`](SECURITY.md).
+
+## Licence and credit
+
+Salisberg is a modified version of QloApps, © Webkul, which is licensed under the [Open Software License 3.0](https://opensource.org/licenses/OSL-3.0); bundled modules carry their own licences (OSL-3.0 or [AFL-3.0](https://opensource.org/licenses/AFL-3.0)) in their folders. The changes in this repository are released under the same licence. Licence and copyright notices in the source files are kept as required.

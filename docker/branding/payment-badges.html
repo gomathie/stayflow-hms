@@ -1,0 +1,38 @@
+<!doctype html>
+<!--
+  Source of the two "payment accepted" badges in the website footer:
+  pay-cash.jpg and pay-momo.jpg in this folder.
+
+  To change them: edit this file, open it in a browser at 100% zoom, and
+  capture each .badge at 3x (384x240 pixels) as a JPEG. Then bump
+  CONTENT_VERSION in docker/entrypoint.sh so the new files are copied over
+  the old ones on the next deploy.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Payment badges</title>
+<style>
+  body { margin: 0; background: #0c241e; font-family: "Segoe UI", Arial, Helvetica, sans-serif; }
+  .badge {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    width: 128px; height: 80px; box-sizing: border-box;
+    background: #f7f3ea; color: #12352c;
+    font-weight: 700; font-size: 17px; line-height: 1.12; letter-spacing: .08em; text-transform: uppercase;
+  }
+  .badge svg { flex: 0 0 auto; width: 40px; height: 40px; fill: none; stroke: #b98a2f; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .badge.two-lines { font-size: 13.5px; gap: 9px; }
+  .badge.two-lines svg { width: 34px; height: 34px; }
+</style>
+</head>
+<body>
+  <div class="badge" id="cash">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/></svg>
+    <span>Cash</span>
+  </div>
+  <div class="badge two-lines" id="momo">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2" width="11" height="20" rx="2.4"/><path d="M10.5 18.5h3"/><path d="M12 7v6M9.8 9.2 12 7l2.2 2.2"/></svg>
+    <span>Mobile<br>Money</span>
+  </div>
+</body>
+</html>

@@ -47,6 +47,7 @@
 			<tr><td><span class="sb-path">Customers &rsaquo; Customer Service</span></td><td>{l s='Messages guests send through the website.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Hotel Reservation System &rsaquo; Manage Order Refund Requests</span></td><td>{l s='Cancellation and refund requests from guests.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Guides</span></td><td>{l s='This guide.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Guides &rsaquo; What's New</span></td><td>{l s='Recent changes to the system, newest first. Look here when something looks different.' mod='salisbergguide'}</td></tr>
 		</table>
 		<p class="sb-tip">{l s='In any list you can type in the boxes under the column headings and press Enter (or click Search) to filter. Click Reset to clear the filter.' mod='salisbergguide'}</p>
 	</section>

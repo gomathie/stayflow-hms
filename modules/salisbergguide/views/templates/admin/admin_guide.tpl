@@ -48,6 +48,7 @@
 		<h4>{l s='Change what a profile can do' mod='salisbergguide'}</h4>
 		{if $sb_is_admin}
 		<p>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Permissions</span>, {l s='pick the profile on the left, and tick View, Add, Edit or Delete for each page. To create another role (for example Housekeeping), add it in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Profiles</span> {l s='first.' mod='salisbergguide'}</p>
+		<p>{l s='The What is New page under Guides is one of those pages: tick or untick View on its row to decide which profiles can read it. Hotel Staff and Hotel Manager have it to begin with.' mod='salisbergguide'}</p>
 		{else}
 		<p>{l s='What each profile may open is set by the developer team. Tell them if a member of staff needs a page they cannot see, or should lose one.' mod='salisbergguide'}</p>
 		{/if}

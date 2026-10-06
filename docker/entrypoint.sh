@@ -11,12 +11,12 @@ ADMIN_DIR="${ADMIN_DIR:-admin-salisberg}"
 BRANDING_VERSION=1
 BRAND_NAME="Salisberg Hotels"
 # Bump CONTENT_VERSION to re-run the demo-content replacement below.
-CONTENT_VERSION=3
+CONTENT_VERSION=4
 BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
 CURRENCY_VERSION=2
 # Bump MODULES_VERSION whenever docker/setup-modules.php changes.
-MODULES_VERSION=8
+MODULES_VERSION=9
 # Bump SCHEMA_VERSION when a schema/settings step below is added or changed.
 SCHEMA_VERSION=1
 
@@ -208,11 +208,35 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         DEMO_GUEST="email='pub@qloapps.com' AND deleted=0 AND id_customer NOT IN (SELECT id_customer FROM qlo_orders)"
         demo_guests=$(db_query "SELECT COUNT(*) FROM qlo_customer WHERE $DEMO_GUEST")
         db_query "UPDATE qlo_customer SET active=0, deleted=1 WHERE $DEMO_GUEST"
+        # Website footer. Each change applies only where the installer's sample
+        # value is still in place, so anything edited in the back office is kept.
+        #  - "payment accepted" showed card and PayPal logos; the hotel takes
+        #    cash and Mobile Money
+        PAY_DIR=/var/www/html/modules/wkfooterpaymentblock/views/img/payment_img
+        PAY_SRC=/usr/local/share/salisberg
+        sample_logos=$(db_query "SELECT COUNT(*) FROM qlo_htl_footer_payment_block_info WHERE (id_payment_block=1 AND name='Visa') OR (id_payment_block=2 AND name='American Express')")
+        if [ "$sample_logos" = "2" ] && [ -d "$PAY_DIR" ]; then
+            cp "$PAY_SRC/pay-cash.jpg" "$PAY_DIR/1.jpg"
+            cp "$PAY_SRC/pay-momo.jpg" "$PAY_DIR/2.jpg"
+            chown www-data:www-data "$PAY_DIR/1.jpg" "$PAY_DIR/2.jpg"
+            db_query "UPDATE qlo_htl_footer_payment_block_info SET name='Cash' WHERE id_payment_block=1"
+            db_query "UPDATE qlo_htl_footer_payment_block_info SET name='Mobile Money' WHERE id_payment_block=2"
+            db_query "UPDATE qlo_htl_footer_payment_block_info SET active=0 WHERE name IN ('MasterCard','Paypal')"
+            footer_note="payment badges replaced"
+        else
+            footer_note="payment badges left as they are"
+        fi
+        #  - links that are no longer in the desktop menu bar go in the footer
+        footer_links=$(db_query "SELECT COUNT(*) FROM qlo_htl_custom_navigation_link l JOIN qlo_htl_custom_navigation_link_lang n USING (id_navigation_link) WHERE l.show_at_footer=0 AND l.active=1 AND n.name IN ('Home','Our Properties','Interior','Contact Us')")
+        db_query "UPDATE qlo_htl_custom_navigation_link l JOIN qlo_htl_custom_navigation_link_lang n USING (id_navigation_link) SET l.show_at_footer=1 WHERE l.active=1 AND n.name IN ('Home','Our Properties','Interior','Contact Us')"
+        #  - "(c) 2010-<year>": 2010 is the sample founding year. Cleared, so only
+        #    the name shows until the real year is entered in General Settings
+        db_query "UPDATE qlo_configuration SET value='' WHERE name='WK_HTL_ESTABLISHMENT_YEAR' AND value='2010'"
         # The contact form takes messages only, no attached files
         uploads_on=$(db_query "SELECT COUNT(*) FROM qlo_configuration WHERE name='PS_CUSTOMER_SERVICE_FILE_UPLOAD' AND value='1'")
         db_query "UPDATE qlo_configuration SET value='0' WHERE name='PS_CUSTOMER_SERVICE_FILE_UPLOAD'"
         echo "$CONTENT_VERSION" > /data/.content-version
-        echo "Content v$CONTENT_VERSION applied (demo identity replaced; sample guest accounts retired: ${demo_guests:-0}; contact form file upload switched off: ${uploads_on:-0})"
+        echo "Content v$CONTENT_VERSION applied (demo identity replaced; sample guest accounts retired: ${demo_guests:-0}; contact form file upload switched off: ${uploads_on:-0}; footer: ${footer_note}, links added: ${footer_links:-0})"
     fi
 
     # Schema and settings our security backports rely on. This must run before

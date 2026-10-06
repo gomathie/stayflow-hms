@@ -242,7 +242,7 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   border-radius: 8px;
   background-color: transparent;
   color: var(--sb-ink);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   transition: background-color .15s ease, color .15s ease;
 }
@@ -265,7 +265,7 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   border-radius: 6px;
   background-color: transparent !important;
   color: var(--sb-muted) !important;
-  font-size: 13px;
+  font-size: 14px;
 }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a:hover { background-color: var(--sb-canvas) !important; color: var(--sb-link) !important; }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft) !important; color: var(--sb-link) !important; font-weight: 600; }
@@ -454,7 +454,7 @@ body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.hover ul.s
   letter-spacing: .03em;
   text-transform: uppercase;
 }
-.bootstrap .table tbody > tr > td { padding-top: 11px; padding-bottom: 11px; border-top-color: var(--sb-line); background-color: transparent; color: var(--sb-ink); font-size: 13px; }
+.bootstrap .table tbody > tr > td { padding-top: 11px; padding-bottom: 11px; border-top-color: var(--sb-line); border-bottom-color: var(--sb-line); background-color: transparent; color: var(--sb-ink); font-size: 13px; }
 .bootstrap .table tbody > tr:hover > td { background-color: var(--sb-hover); }
 .bootstrap .table tbody > tr.highlighted > td { background-color: var(--sb-accent-soft); }
 
@@ -705,9 +705,12 @@ html[data-sb-theme="dark"] #login #logo { padding: 8px 12px; border-radius: 10px
 #content.bootstrap .prestashop-switch input:checked + label { color: var(--sb-accent-text); }
 #content.bootstrap .list-group-item { background-color: var(--sb-card); color: var(--sb-ink); }
 #content.bootstrap .list-group-item.active { background-color: var(--sb-accent); color: var(--sb-accent-text); }
-#content.bootstrap td.list-empty,
-#content.bootstrap .list-empty { background-color: transparent; }
-#content.bootstrap .list-empty .list-empty-msg { color: var(--sb-muted); }
+#content.bootstrap .table td.list-empty,
+#content.bootstrap .list-empty { background-color: transparent !important; }
+#content.bootstrap .list-empty .list-empty-msg { color: var(--sb-muted); font-family: inherit; }
+/* the row of search boxes under a list's column titles (stock: pale blue) */
+#content.bootstrap .table thead > tr.filter > th,
+#content.bootstrap .table thead > tr.filter > td { background-color: var(--sb-subtle) !important; border-color: var(--sb-line); }
 #content.bootstrap .box-stats .title, #content.bootstrap .box-stats .title span { color: var(--sb-muted); }
 #content.bootstrap .box-stats .value, #content.bootstrap .box-stats .value span { color: var(--sb-heading); }
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn span,

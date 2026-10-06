@@ -587,7 +587,15 @@ input.account_input, input.is_required {
 }
 .footer-container #footer a { color: rgba(255, 255, 255, .78); }
 .footer-container #footer a:hover { color: var(--sb-gold-2); }
-.footer-container .footer-payment-block img { border-radius: 6px; margin: 0 6px 6px 0; }
+.footer-container .footer-payment-block img { width: auto; height: 48px; border-radius: 8px; margin: 0 8px 8px 0; }
+/* columns share the row evenly, whichever of them are present */
+.footer-container #footer > .row { display: flex; flex-wrap: wrap; }
+.footer-container #footer > .row > [class*="col-"] { flex: 1 1 220px; width: auto; float: none; }
+/* "Follow us on" with no social links set: nothing to show */
+.footer-container #footer > .row > [class*="col-"]:has(#social_block):not(:has(#social_block li)) { display: none; }
+/* Explore: two columns of links */
+.footer-container .footer-navigation-section { column-count: 2; column-gap: 24px; }
+.footer-container .footer-navigation-section li { break-inside: avoid; }
 .footer-container .newsletter-input {
   height: 46px;
   border: 1px solid rgba(255, 255, 255, .18);

@@ -17,5 +17,12 @@
 			<a class="btn btn-primary" href="{$sb_links.AdminSalisbergAdminGuide|escape:'html':'UTF-8'}">{l s='Open the Admin Guide' mod='salisbergguide'}</a>
 		</div>
 		{/if}
+		{if $sb_can_read_whats_new}
+		<div class="sb-card">
+			<h3>{l s='What is New' mod='salisbergguide'}</h3>
+			<p>{l s='Recent changes to the system, newest first.' mod='salisbergguide'}</p>
+			<a class="btn btn-primary" href="{$sb_links.AdminSalisbergWhatsNew|escape:'html':'UTF-8'}">{l s='See what is new' mod='salisbergguide'}</a>
+		</div>
+		{/if}
 	</div>
 </div>

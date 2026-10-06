@@ -5,9 +5,7 @@
  * Adds a "Guides" menu with a Staff Guide (every profile that is granted it)
  * and an Admin Guide (SuperAdmin only), and creates a restricted "Hotel Staff"
  * profile for front desk employees.
- *
- * @license https://opensource.org/license/osl-3-0-php Open Software License version 3.0
- */
+ **/
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -38,6 +36,7 @@ class Salisbergguide extends Module
         // look, do not change
         'AdminProducts' => array(1, 0, 0, 0),
         'AdminSalisbergStaffGuide' => array(1, 0, 0, 0),
+        'AdminSalisbergWhatsNew' => array(1, 0, 0, 0),
     );
 
     const MANAGER_PROFILE = 'Hotel Manager';
@@ -104,6 +103,7 @@ class Salisbergguide extends Module
         // both guides
         'AdminSalisbergStaffGuide' => array(1, 0, 0, 0),
         'AdminSalisbergAdminGuide' => array(1, 0, 0, 0),
+        'AdminSalisbergWhatsNew' => array(1, 0, 0, 0),
     );
 
     /** Menu sections a SuperAdmin can show or hide from the Admin Guide page: class name => name */
@@ -145,17 +145,23 @@ class Salisbergguide extends Module
     }
 
     /**
-     * Creates whatever is missing: the three menu entries and the Hotel Staff
-     * and Hotel Manager profiles, and applies the menu names in $menuLabels. Safe to call on
-     * every deploy.
+     * Creates whatever is missing: the menu entries and the Hotel Staff and
+     * Hotel Manager profiles, and applies the menu names in $menuLabels. Safe
+     * to call on every deploy.
      */
     public function ensureSetup()
     {
+        // The What's New right is given to existing profiles once, when the
+        // page first appears, so that taking it away later is not undone
+        $whatsNewIsNew = !Tab::getIdFromClassName('AdminSalisbergWhatsNew');
+
         return $this->installTab('AdminSalisbergGuide', 'Guides', 0)
             && $this->installTab('AdminSalisbergStaffGuide', 'Staff Guide', (int) Tab::getIdFromClassName('AdminSalisbergGuide'))
             && $this->installTab('AdminSalisbergAdminGuide', 'Admin Guide', (int) Tab::getIdFromClassName('AdminSalisbergGuide'))
+            && $this->installTab('AdminSalisbergWhatsNew', 'What\'s New', (int) Tab::getIdFromClassName('AdminSalisbergGuide'))
             && $this->installProfile(self::STAFF_PROFILE, self::$staffAccess)
             && $this->installProfile(self::MANAGER_PROFILE, self::$managerAccess)
+            && (!$whatsNewIsNew || $this->grantWhatsNew())
             && $this->renameMenuEntries()
             && $this->hideVendorMenus()
             && $this->registerHook('header')
@@ -229,7 +235,7 @@ class Salisbergguide extends Module
 
     public function uninstall()
     {
-        foreach (array('AdminSalisbergAdminGuide', 'AdminSalisbergStaffGuide', 'AdminSalisbergGuide') as $className) {
+        foreach (array('AdminSalisbergWhatsNew', 'AdminSalisbergAdminGuide', 'AdminSalisbergStaffGuide', 'AdminSalisbergGuide') as $className) {
             $idTab = (int) Tab::getIdFromClassName($className);
             if ($idTab) {
                 $tab = new Tab($idTab);
@@ -300,6 +306,33 @@ class Salisbergguide extends Module
         );
 
         return $this->grant((int) $profile->id, $access);
+    }
+
+    protected function grantWhatsNew()
+    {
+        $ok = true;
+        foreach (array(self::STAFF_PROFILE => self::$staffAccess, self::MANAGER_PROFILE => self::$managerAccess) as $name => $access) {
+            $idProfile = $this->getProfileId($name);
+            if ($idProfile) {
+                $ok = $this->grant($idProfile, array('AdminSalisbergWhatsNew' => $access['AdminSalisbergWhatsNew'])) && $ok;
+            }
+        }
+
+        return $ok;
+    }
+
+    /**
+     * Whether the signed-in employee holds the View right for a back office page.
+     */
+    public function employeeCanView($className)
+    {
+        $employee = $this->context->employee;
+        if (!$employee || !$employee->id) {
+            return false;
+        }
+        $access = Profile::getProfileAccess($employee->id_profile, (int) Tab::getIdFromClassName($className));
+
+        return !empty($access['view']);
     }
 
     protected function getProfileId($name)
@@ -390,7 +423,7 @@ class Salisbergguide extends Module
             'AdminCartRules', 'AdminModules', 'AdminPayment', 'AdminCurrencies', 'AdminTaxes', 'AdminTaxRulesGroup',
             'AdminPreferences', 'AdminThemes', 'AdminMeta', 'AdminCmsContent', 'AdminMaintenance', 'AdminEmails',
             'AdminBackup', 'AdminInformation', 'AdminEmployees', 'AdminProfiles', 'AdminAccess', 'AdminContacts', 'AdminStats',
-            'AdminSalisbergGuide', 'AdminSalisbergStaffGuide', 'AdminSalisbergAdminGuide',
+            'AdminSalisbergGuide', 'AdminSalisbergStaffGuide', 'AdminSalisbergAdminGuide', 'AdminSalisbergWhatsNew',
         );
         $links = array();
         foreach ($pages as $page) {
@@ -401,6 +434,7 @@ class Salisbergguide extends Module
             'sb_links' => $links,
             'sb_is_admin' => $employee && $employee->isSuperAdmin(),
             'sb_can_read_admin_guide' => $this->canReadAdminGuide(),
+            'sb_can_read_whats_new' => $this->employeeCanView('AdminSalisbergWhatsNew'),
             'sb_menu_toggles' => $this->getMenuToggles(),
             'sb_shop_name' => Configuration::get('PS_SHOP_NAME'),
             'sb_shop_email' => Configuration::get('PS_SHOP_EMAIL'),
