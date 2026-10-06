@@ -27,7 +27,7 @@ COPY --chown=www-data:www-data . /var/www/html
 # - deployment files have no business in the web root
 RUN sed -i 's/\r$//' /usr/local/bin/salisberg-entrypoint /usr/local/bin/salisberg-backup \
     && chmod +x /usr/local/bin/salisberg-entrypoint /usr/local/bin/salisberg-backup \
-    && rm -rf docker docker-compose*.yml .env.example .gitattributes .travis.yml CHANGELOG.txt composer.json \
+    && rm -rf docker docker-compose*.yml .env.example .gitattributes CHANGELOG.txt composer.json \
     && mkdir -p /data /usr/src/salisberg-seed \
     && cp -a img upload download /usr/src/salisberg-seed/ \
     && chown www-data:www-data /data

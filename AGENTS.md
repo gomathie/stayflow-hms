@@ -44,6 +44,33 @@ Guidance for any agent or developer working in this repository. Read it before c
 22. **Deploy-time data steps must not assume production matches local.** Read the current state, act on it, and log what was actually changed.
 24. **Security changes to vendor files go in `PATCHES.md`, in the same change,** with the upstream commit they mirror, so they can be dropped when upstream ships the fix. Audit reports and lists of unpatched issues stay in the git-ignored `/audit/` folder: this repository is public.
 
+### Consistency and maintenance
+
+25. **Extend what exists before adding something new.** Before creating a file, module, stylesheet, script or deploy step, look for the one that already does that job and add to it. A new one is justified only when nothing existing fits, and the change log must say why. The places that already exist:
+
+    | Concern | Where it lives |
+    |---|---|
+    | Website look | `themes/hotel-reservation-theme/css/salisberg.css` |
+    | Back office look, light and dark | `admin/themes/default/css/overrides.css` (colours only through its tokens) |
+    | Small interface scripts (password eye, theme switch) | `modules/salisbergguide/views/js/`, loaded by `addInterfaceAssets()` |
+    | Back office guides, Hotel Staff role | `modules/salisbergguide` |
+    | Payment methods | `modules/salisbergpay` |
+    | Installing, enabling or disabling modules | `docker/setup-modules.php` |
+    | One-off data or schema changes on deploy | versioned steps in `docker/entrypoint.sh` |
+    | Web server headers and access rules | `docker/apache.conf` |
+    | Request limits | `docker/ratelimit.php` |
+    | Brand images | `docker/branding/make.php` |
+
+26. **One way of doing each thing.** Follow the pattern already used in the file being edited: the same naming (`sb-`/`--sb-` prefixes, `SBPAY_` settings, `*_VERSION` step markers), the same structure, the same comment style. Do not introduce a second approach beside an existing one; if the existing approach is wrong, replace it everywhere in the same change.
+27. **Leave no layered fixes.** When a rule or function is superseded, change or delete the original instead of adding an override after it. Sections titled "corrections" or "fix" appended to a file are not acceptable in a finished change.
+28. **Remove dead code, with proof.** Code that nothing uses is deleted, not commented out or kept "just in case"; git keeps the history.
+    - **Proof first:** search the whole tree for every reference (class name, file path, function name, selectors for CSS) and confirm none remain outside the file itself. Check `classes/ConfigurationTest.php` too: it lists files the installer expects to exist.
+    - **Then verify:** rebuild, load the storefront and back office, and confirm no errors in the log.
+    - **Our own code** (anything from rule 25's table): remove freely once proven unused.
+    - **Vendor code:** remove only whole files or folders that are provably unreferenced. Never trim inside a vendor file, and never move one: the platform loads files by fixed path. Each removal makes the next upstream merge slightly harder, so record it in the change log with the evidence.
+    - **Not dead:** features that are switched off but may be switched on (reviews, testimonials, bank wire), and anything loaded by path, by a hook name or through the class index.
+29. **Never move or rename a vendor file.** The back office, the installer and the autoloader locate files by path. (Background: change log, 2026-10-06, `admin/functions.php`.)
+
 ### Guides
 
 23. **Every feature must be documented in its guide, in the same change.** The back office guides live in `modules/salisbergguide/views/templates/admin/`. A feature is not finished until the guide is updated.
@@ -653,3 +680,42 @@ To restore `/data`, decrypt the matching `salisberg-data-…` file the same way 
 - **Verification (local, real browser screenshots):** sign-in page, dashboard, Orders, Customers, the room type form, the employee form, Book Now and the Staff Guide at 1440 wide; Orders at 1024 and 700 wide; and the previously-collapsed state forced on. No JavaScript errors. Menu names, buttons and tabs are where they were, so the guides are unchanged.
 - **Not checked:** the other back office pages one by one (79 menu entries), the "Top" menu orientation in employee preferences, right-to-left languages, Safari and Firefox, and pop-up dialogs.
 - **Limit worth restating:** this is appearance. The dashboard's coloured revenue blocks and charts are drawn by their own modules and were left as they are, and pages still reload on every action.
+
+### 2026-10-06 — Dark mode, stylesheet consolidated, first dead-code removal, a broken move repaired
+
+#### Back office dark mode
+
+- **What:** a sun/moon button at the top right of the back office switches between a light and a dark look. The choice is remembered per browser; with no saved choice it follows the device's own setting. The sign-in page follows the same choice.
+- **Where (extending existing code, rule 25):**
+  - colours: `admin/themes/default/css/overrides.css`. Every colour in that file now comes from tokens (section 1, light); section 2 redefines the same tokens for dark. Section 9 covers the few things tokens cannot reach.
+  - switch: `modules/salisbergguide/views/js/theme-toggle.js`, loaded for back office pages by the module's existing `addInterfaceAssets()`. No new module, hook or template.
+- **Guide (rule 23):** Staff Guide, section 1: new step about the sun/moon icon.
+- **Known gaps in dark mode:** the rich-text editor stays white (it is a separate embedded document), the dashboard's coloured revenue blocks keep their own colours, and pages drawn by modules not yet visited may show light areas. Add fixes to section 9 as they are found.
+
+#### `overrides.css` consolidated (rule 27)
+
+- The file had grown to 586 lines through five rounds of appended corrections, with early rules overridden by later ones. It was rewritten as one set of rules in numbered sections, with no superseded rules left. A final section, "Specificity catch-up", holds selectors that need `#content` in front to beat stock rules; that is a real need, not a leftover.
+- The owner confirmed the layout is the point of the Krayin reference, not its colours, so the brand palette stays.
+
+#### Dead code removed (rule 28)
+
+| Removed | Evidence it was unused |
+|---|---|
+| `classes/Blowfish.php` | No reference anywhere in `classes`, `controllers`, `modules`, `override`, `admin`, `config`, `install`, `Core`, `Adapter` or the class index. Cookie encryption uses `PhpEncryption`. Not listed in `ConfigurationTest.php`. |
+| `.travis.yml` | Travis CI is not used; nothing references the file. |
+| `tests/` (7 files) | A PHPUnit scaffold whose config pointed at a `Unit` folder that does not exist; it contained no tests. |
+| Mentions of the two above in `.dockerignore` and `Dockerfile` | They referred to files that no longer exist. |
+
+- **Checked and kept, because they are in use:** `classes/AdminTab.php` (used by `admin/init.php`, `classes/functions.php` and `AdminSearchController`), `tools/pear` (listed in `ConfigurationTest.php`), `tools/random_compat` (required by `config/autoload.php`), and the other `tools/` libraries (each referenced once or more).
+- **Next candidates, not yet examined:** superseded rules in `themes/hotel-reservation-theme/css/salisberg.css` (the navigation was styled twice), unused images under `img/`, and inherited shop features a hotel does not use (stock, warehouses, suppliers), which need a decision from the owner before anything is removed.
+
+#### Repaired: `admin/functions.php` had been moved
+
+- Commit `c6499de6` moved `admin/functions.php` to `classes/functions.php`. `admin/index.php` loads that file by path, so every back office page failed with a fatal error. The commit had been pushed to `salisberg-production`; the live site was not affected only because deployments were not completing at the time.
+- The file was moved back unchanged (verified identical to the original). Rule 29 added.
+
+#### Verification (local)
+
+- Fresh build with the removals: back office sign-in works; dashboard, Orders, Room types, Customers, Book Now, Modules, Employees, Preferences and the Staff Guide return 200 with no errors; storefront home, room, sign-in and checkout return 200; a guest sign-in attempt (which exercises cookie encryption) works; no fatal errors and no mention of Blowfish in the log.
+- Dark mode in a real browser: the button is added, a click switches the theme, the choice is saved and kept on the next page, no JavaScript errors. Screenshots reviewed in dark for the sign-in page, Orders, dashboard, the room type form, Book Now, Customers and the Staff Guide; and in light for Customers after the consolidation. A scan of six dark pages for leftover light backgrounds and dark text found three minor items, since fixed.
+- **Not tested:** the remaining back office pages in dark mode, pop-up dialogs, Safari and Firefox, and the light theme page by page after the rewrite. Three light pages were re-checked by screenshot (Customers, dashboard, the room type form); that found the "YES" label on on/off switches unreadable, which was fixed and re-checked.

@@ -5,8 +5,6 @@
 !.env.example
 Dockerfile
 .dockerignore
-.travis.yml
-tests
 docs
 *.md
 cache/smarty/cache/*
