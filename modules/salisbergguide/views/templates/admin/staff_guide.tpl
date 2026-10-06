@@ -26,6 +26,7 @@
 		<h3>1. {l s='Signing in and your account' mod='salisbergguide'}</h3>
 		<ol>
 			<li>{l s='Open the back office address your administrator gave you and sign in with your work email and password.' mod='salisbergguide'}</li>
+			<li>{l s='Every password box has an eye icon at its right edge. Click it to see what you typed, and click again to hide it. Check that nobody is looking at your screen first.' mod='salisbergguide'}</li>
 			<li>{l s='To change your password, click your name at the top right of the screen and choose' mod='salisbergguide'} <span class="sb-btn">My preferences</span>.</li>
 			<li>{l s='When you finish your shift, click your name at the top right and choose' mod='salisbergguide'} <span class="sb-btn">Sign out</span>.</li>
 		</ol>
