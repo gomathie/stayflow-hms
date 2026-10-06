@@ -37,7 +37,7 @@
 	<section id="sb-s2">
 		<h3>2. {l s='Finding your way around' mod='salisbergguide'}</h3>
 		<p>{l s='The menu is on the left. You will only see the pages your role is allowed to use.' mod='salisbergguide'}</p>
-		<p>{l s='The section you are in lists its pages underneath it. For any other section, rest the pointer on its name and its pages appear in a box beside it; move across and click the one you want.' mod='salisbergguide'}</p>
+		<p>{l s='The section you are in lists its pages underneath it. For any other section, click the small arrow at the right of its name to list its pages, and click the arrow again to fold them away. Clicking the name itself opens the first page of that section.' mod='salisbergguide'}</p>
 		<table>
 			<tr><th>{l s='Menu' mod='salisbergguide'}</th><th>{l s='What it is for' mod='salisbergguide'}</th></tr>
 			<tr><td><span class="sb-path">Dashboard</span></td><td>{l s='Today at a glance: recent bookings and activity.' mod='salisbergguide'}</td></tr>

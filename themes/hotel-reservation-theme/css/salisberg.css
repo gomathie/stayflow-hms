@@ -886,7 +886,10 @@ div.selector {
   background: var(--sb-surface);
   overflow: hidden;
 }
-div.selector span { height: 44px; line-height: 44px; padding-left: 14px; background-color: transparent; color: var(--sb-ink); }
+/* the stock picture of a box and arrow is replaced by a drawn arrow */
+div.selector { position: relative; }
+div.selector span { height: 44px; line-height: 44px; padding: 0 34px 0 14px; background: transparent none; color: var(--sb-ink); }
+div.selector::after { content: ""; position: absolute; top: 50%; right: 14px; width: 8px; height: 8px; margin-top: -6px; border-right: 2px solid var(--sb-muted); border-bottom: 2px solid var(--sb-muted); transform: rotate(45deg); pointer-events: none; }
 div.selector select { height: 46px; }
 div.selector.focus, div.selector.hover { border-color: var(--sb-gold); }
 div.checker span, div.radio span { border-color: #b9b1a0; }
@@ -981,6 +984,9 @@ p.payment_module a.salisbergpay:hover {
 }
 p.payment_module a.salisbergpay span { display: block; margin-top: 4px; font-size: 14px; font-weight: 400; color: var(--sb-muted); }
 p.payment_module a.salisbergpay::after { color: var(--sb-gold); }
+
+.submit_occupancy_btn.btn { border-color: var(--sb-green); border-radius: 10px; background-color: var(--sb-green); color: #fff; }
+.submit_occupancy_btn.btn:hover { border-color: var(--sb-gold); background-color: var(--sb-gold); }
 
 /* ---------- Light/dark switch (added to the header by theme-toggle.js) ---------- */
 header .header-top .sb-theme-item { display: flex; align-items: center; margin-right: 14px; }
@@ -1091,3 +1097,24 @@ html[data-sb-theme="dark"] .header-rmsearch-details-wrapper,
 html[data-sb-theme="dark"] .header-rmsearch-details-wrapper p,
 html[data-sb-theme="dark"] .header-rmsearch-details-wrapper div,
 html[data-sb-theme="dark"] .header-rmsearch-details-wrapper span { color: var(--sb-ink); }
+html[data-sb-theme="dark"] .breadcrumb,
+html[data-sb-theme="dark"] .breadcrumb a,
+html[data-sb-theme="dark"] .breadcrumb a::before,
+html[data-sb-theme="dark"] .breadcrumb a::after { background: var(--sb-surface); border-color: var(--sb-line); color: var(--sb-ink); }
+html[data-sb-theme="dark"] .breadcrumb .navigation_page,
+html[data-sb-theme="dark"] .breadcrumb .navigation-pipe { color: var(--sb-muted); }
+/* date picker */
+html[data-sb-theme="dark"] .date-picker-wrapper,
+html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper,
+html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table { background-color: var(--sb-surface); border-color: var(--sb-line); color: var(--sb-ink); }
+html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.toMonth.valid { color: var(--sb-ink); }
+html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.invalid,
+html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.lastMonth,
+html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.nextMonth { color: #55625c; }
+html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.checked { background-color: #1f3a31; }
+html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .caption th,
+html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .week-name th { color: var(--sb-muted); }
+/* checkout */
+html[data-sb-theme="dark"] #order-opc .product-name a { color: var(--sb-heading) !important; }
+html[data-sb-theme="dark"] .room-type-features .room-type-feature,
+html[data-sb-theme="dark"] #order-opc .total_price_block { background-color: var(--sb-cream); border-color: var(--sb-line); color: var(--sb-ink); }

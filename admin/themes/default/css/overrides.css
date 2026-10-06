@@ -273,38 +273,46 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
 }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a:hover { background-color: var(--sb-canvas) !important; color: var(--sb-link) !important; }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft) !important; color: var(--sb-link) !important; font-weight: 600; }
-/* The open section lists its pages under it at any window height. Stock only
-   does that in windows taller than 850px and otherwise makes it a fly-out. */
-body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active ul.submenu,
-body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.hover ul.submenu { display: block; position: static; width: auto; }
-/* Every other section shows its pages in a card beside the row while the
-   pointer is on it. The card starts under the row's right edge (no gap), so
-   the pointer can move across without the card closing. */
-.bootstrap #nav-sidebar ul.menu li.maintab:not(.active).hover ul.submenu {
-  top: -6px;
-  left: calc(100% - 6px);
-  width: 230px;
-  margin: 0;
-  padding: 6px;
-  border: 1px solid var(--sb-line);
-  border-radius: 12px;
-  background-color: var(--sb-card) !important;
-  box-shadow: 0 16px 36px -16px rgba(0, 0, 0, .35);
+/* Sections fold and unfold with the small arrow added by side-menu.js. The
+   section you are in starts open. The stock behaviour, a box of pages that
+   appeared beside the menu while the pointer rested on a section, is off. */
+.bootstrap #nav-sidebar ul.menu > li.maintab { position: relative; }
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab ul.submenu,
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.hover ul.submenu,
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.hover ul.submenu,
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.sb-closed ul.submenu { display: none; position: static; width: auto; }
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active:not(.sb-closed) ul.submenu,
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.sb-open ul.submenu { display: block; }
+.bootstrap #nav-sidebar ul.menu > li.maintab.has_submenu > a.title { padding-right: 40px; }
+.bootstrap #nav-sidebar .sb-menu-arrow {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background-color: transparent;
+  cursor: pointer;
 }
-.bootstrap #nav-sidebar ul.menu li.maintab:not(.active).hover ul.submenu li a { padding: 9px 12px; color: var(--sb-ink) !important; }
-/* An invisible wedge from the row to the full height of the card. The stock
-   script closes the card 50ms after the pointer touches another row, which is
-   what happens when moving diagonally towards a lower entry; the wedge belongs
-   to the card, so the pointer never leaves it on the way. */
-.bootstrap #nav-sidebar ul.menu li.maintab:not(.active).hover ul.submenu::before {
+.bootstrap #nav-sidebar .sb-menu-arrow::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: -150px;
-  width: 150px;
-  height: 100%;
-  clip-path: polygon(0 6px, 100% 0, 100% 100%, 0 46px);
+  top: 10px;
+  left: 9px;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--sb-muted);
+  border-bottom: 2px solid var(--sb-muted);
+  transform: rotate(-45deg);
+  transition: transform .15s ease;
 }
+.bootstrap #nav-sidebar li.sb-open > .sb-menu-arrow::before { top: 8px; left: 10px; transform: rotate(45deg); }
+.bootstrap #nav-sidebar .sb-menu-arrow:hover { background-color: var(--sb-canvas); }
+.bootstrap #nav-sidebar .sb-menu-arrow:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(47, 125, 100, .28); }
+.bootstrap #nav-sidebar li.maintab.active > .sb-menu-arrow::before { border-color: var(--sb-accent-text); }
+.bootstrap #nav-sidebar li.maintab.active > .sb-menu-arrow:hover { background-color: rgba(255, 255, 255, .16); }
 
 /* search field at the top of the menu */
 .bootstrap #nav-sidebar li.searchtab { padding: 14px 0 10px; background-color: transparent !important; }

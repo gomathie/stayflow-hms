@@ -23,6 +23,7 @@
 		<ul>
 			<li><strong>{l s='This page.' mod='salisbergguide'}</strong> {l s='Changes are now listed here as they are made.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Dark mode.' mod='salisbergguide'}</strong> {l s='Lists and forms that still showed white or pale blue areas in dark mode have been corrected.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Menu arrows.' mod='salisbergguide'}</strong> {l s='Each menu section with pages under it has a small arrow. Click it to list the pages and click again to fold them away. Pages no longer pop out beside the menu when the pointer passes over.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Sign-in page.' mod='salisbergguide'}</strong> {l s='The back office sign-in page is simpler: the logo and one form.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Tips and pop-ups.' mod='salisbergguide'}</strong> {l s='The small explanations that appear when you point at something, and pop-up windows, are tidier and easier to read in both light and dark.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Larger menu text.' mod='salisbergguide'}</strong> {l s='The menu on the left is a little bigger and easier to read.' mod='salisbergguide'}</li>
