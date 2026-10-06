@@ -994,3 +994,39 @@ The owner asked for every "QloApps" reference that can be removed without risk o
 - Footer screenshots at 1440 and 390 wide: two badges, three columns, nine Explore links in two columns, no "Follow us on", copyright line without a year.
 - **Not tested:** the badge height was raised from 40px to 48px after the screenshots and not re-captured; the larger side menu text was not re-captured either (a two-value change); the footer with social links entered; the live server, where the step will act only if the sample entries are still in place.
 - **Left for the owner:** the Explore list still includes the installer's "Secure Payment" page, whose text is the vendor's sample wording. Rewrite or unpublish it in Preferences › CMS.
+
+### 2026-10-07 — Website dark mode; back office sign-in page, tooltips and pop-ups; upgrade plan
+
+#### Website: light/dark switch
+
+- **What:** a sun/moon switch in the website header (before the cart, on computers and phones). The site starts **light**; a visitor who chooses dark keeps it on that device. The website and the back office remember their choices separately.
+- **Where (rule 25, existing files):**
+  - `modules/salisbergguide/views/js/theme-toggle.js`: the same script now serves both. On the website the module sets `sbThemeScope = 'site'` (`addInterfaceAssets()`), which gives it its own saved choice, a light default, and a place in the website header.
+  - `themes/hotel-reservation-theme/header.tpl`: one inline line applies a saved "dark" before the page is drawn, so there is no flash of the light page.
+  - `themes/hotel-reservation-theme/css/salisberg.css` (`?v=10`): three new tokens (`--sb-page`, `--sb-surface`, `--sb-heading`) replaced 13 hard-coded white backgrounds and 18 uses of the brand green as text colour; a dark set of token values follows the light set; a "Dark mode" section at the end covers colours written into the stock theme's own stylesheets.
+- **Logo:** the logo file is dark ink on white. In dark mode it is inverted and blended so the white drops out, instead of sitting in a white box. No second image file.
+- **How it was built:** a script listed, page by page, every large light background and every piece of text too close in brightness to what is behind it; rules were added until the list was empty.
+- **Guide (rule 23):** nothing for staff to do. Listed on the What's New page for managers.
+
+#### Back office sign-in page
+
+- The owner asked for it to be fixed. It showed the logo, a version number, a second round logo overlapping the form, the shop name again, and an outer shadowed column; in dark mode the logo sat on a white plate and the round logo's dark parts vanished.
+- Now: the logo, then one card with the form, centred on the page, at any width. Section 10 of `overrides.css` was rewritten, not added to (rule 27). The dark-mode logo uses the same invert-and-blend as the website.
+
+#### Tooltips and pop-up windows (back office)
+
+- **Tooltips** were a square grey box with 20px of padding, an arrow of a different colour in dark mode, and could slide under the top bar and side menu. Now: one dark rounded bubble in both themes, arrow matching, drawn above everything. Two tokens, `--sb-tip` and `--sb-tip-line`.
+- **Pop-up windows:** bordered card with a shadow, titled header, tinted footer, and a close "x" that is visible in dark mode (it was black on dark).
+- The earlier dark-only tooltip rule was removed, not left underneath.
+- **Side menu:** the text size increase earlier today cut off three long names ("Modules and Servi…"). The menu is 264px wide instead of 240px (`--sb-side`), and all names fit.
+
+#### Upgrade plan
+
+- The owner asked for a plan to upgrade language and stack versions and styles. Written to `audit/upgrade-plan.md` (private). Summary: PHP 8.1 and MySQL 8.0 are both past end of support and are the priority (targets 8.3 then 8.4, and 8.4 LTS, both within what the platform supports); then drop-in updates of the bundled libraries (TinyMCE, Bootstrap scripts, jQuery 1.x, Smarty); then style tidy-up. A staging copy and off-server backups come first. **Nothing has been upgraded yet.**
+
+#### Verification (local, real browser)
+
+- **Website dark mode:** home, a room page, search results, contact, sign-in, About Us, the empty cart and Our Properties scanned in dark: no large light areas or unreadable text left. Screenshots of home, room, search and contact reviewed. Light mode re-checked by screenshot (home, room): unchanged. The switch was clicked: the theme changed, was saved, was still dark on the next page, and switched back. Phone width: switch present and working.
+- **Sign-in page:** screenshots in light and dark at 1440 and 390 wide. A first version hid the logo by mistake (the selector for the version number also matched the logo's heading); caught on the screenshot and corrected.
+- **Tooltips and pop-ups:** hovered a real tooltip on the dashboard and opened a real pop-up on the Modules page, in both themes; colours read back from the page and screenshots reviewed.
+- **Not tested:** website dark mode on signed-in guest pages (My account, bookings), checkout with a room in the cart, the booking and cart pop-ups, the date picker and the phone menu panel; Safari and Firefox, including the logo blend; pop-ups other than the one opened; the live server.

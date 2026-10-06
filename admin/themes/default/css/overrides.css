@@ -48,7 +48,9 @@
   --sb-shadow: 0 16px 34px -16px rgba(17, 24, 39, .3);
   --sb-logo: url("/img/qloapps@2x.png");                          /* colour lockup */
   --sb-top: 60px;              /* top bar height */
-  --sb-side: 240px;            /* side menu width */
+  --sb-side: 264px;            /* side menu width */
+  --sb-tip: #1f2937;           /* tooltip bubble */
+  --sb-tip-line: #1f2937;
   --sb-radius: 12px;
   --sb-font: "Inter", "Open Sans", Helvetica, Arial, sans-serif;
 }
@@ -75,6 +77,8 @@ html[data-sb-theme="dark"] {
   --sb-muted: #93a19b;
   --sb-shadow: 0 16px 34px -16px rgba(0, 0, 0, .7);
   --sb-logo: url("../img/qloapps-back-office-header.png");        /* white lockup */
+  --sb-tip: #2b3a34;
+  --sb-tip-line: #3b4d45;
   color-scheme: dark;
 }
 
@@ -555,8 +559,43 @@ body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.hover ul.s
 .bootstrap .dropdown-menu { border-radius: 10px; border-color: var(--sb-line); background-color: var(--sb-card); box-shadow: var(--sb-shadow); }
 .bootstrap .dropdown-menu > li > a { color: var(--sb-ink); }
 .bootstrap .dropdown-menu > li > a:hover { background-color: var(--sb-canvas); color: var(--sb-link); }
-.bootstrap .modal-content { border: 0; border-radius: 14px; background-color: var(--sb-card); color: var(--sb-ink); }
-.bootstrap .modal-header, .bootstrap .modal-footer { border-color: var(--sb-line); }
+/* pop-up windows */
+.bootstrap .modal-content { border: 1px solid var(--sb-line); border-radius: 14px; background-color: var(--sb-card); box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .55); color: var(--sb-ink); overflow: hidden; }
+.bootstrap .modal-header { padding: 18px 22px; border-color: var(--sb-line); }
+.bootstrap .modal-header .modal-title,
+.bootstrap .modal-header h3, .bootstrap .modal-header h4 { margin: 0; color: var(--sb-heading); font-size: 16px; font-weight: 600; text-transform: none; }
+.bootstrap .modal-body { padding: 20px 22px; }
+.bootstrap .modal-footer { padding: 14px 22px; border-color: var(--sb-line); background-color: var(--sb-subtle); }
+.bootstrap .modal .close, .bootstrap .alert .close { color: var(--sb-ink); opacity: .55; text-shadow: none; }
+.bootstrap .modal .close:hover, .bootstrap .alert .close:hover { opacity: 1; }
+.modal-backdrop.in { opacity: .55; }
+/* tooltips: one dark, rounded bubble in both themes, with an arrow of the same
+   colour, drawn above the top bar and the side menu */
+.tooltip { z-index: 2100; }
+.tooltip.in { opacity: 1; }
+.bootstrap .tooltip .tooltip-inner,
+.tooltip .tooltip-inner {
+  max-width: 280px;
+  padding: 8px 12px;
+  border: 1px solid var(--sb-tip-line);
+  border-radius: 8px;
+  background-color: var(--sb-tip);
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, .5);
+  color: #f3f4f6;
+  font-family: var(--sb-font);
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: left;
+  text-transform: none;
+}
+.tooltip .tooltip-inner p { margin: 0; color: inherit; }
+.tooltip.top .tooltip-arrow, .tooltip.top-left .tooltip-arrow, .tooltip.top-right .tooltip-arrow { border-top-color: var(--sb-tip) !important; }
+.tooltip.bottom .tooltip-arrow, .tooltip.bottom-left .tooltip-arrow, .tooltip.bottom-right .tooltip-arrow { border-bottom-color: var(--sb-tip) !important; }
+.tooltip.left .tooltip-arrow { border-left-color: var(--sb-tip) !important; }
+.tooltip.right .tooltip-arrow { border-right-color: var(--sb-tip) !important; }
+.bootstrap .popover { border: 1px solid var(--sb-line); border-radius: 12px; background-color: var(--sb-card); box-shadow: var(--sb-shadow); color: var(--sb-ink); }
+.bootstrap .popover-title { border-color: var(--sb-line); border-radius: 12px 12px 0 0; background-color: var(--sb-subtle); color: var(--sb-heading); }
 
 /* dashboard: the third column is empty (its vendor panels were removed in
    view.tpl), so the other two share the full width from 1200px up */
@@ -621,8 +660,6 @@ html[data-sb-theme="dark"] .bootstrap .chosen-container .chosen-drop,
 html[data-sb-theme="dark"] .bootstrap .chosen-container .chosen-results li { background: var(--sb-card); border-color: var(--sb-field-line); color: var(--sb-ink); }
 html[data-sb-theme="dark"] .bootstrap .chosen-container .chosen-results li.highlighted { background: var(--sb-accent); color: var(--sb-accent-text); }
 html[data-sb-theme="dark"] .bootstrap .datepicker,
-html[data-sb-theme="dark"] .bootstrap .popover,
-html[data-sb-theme="dark"] .bootstrap .tooltip-inner { background-color: var(--sb-card); border-color: var(--sb-line); color: var(--sb-ink); }
 html[data-sb-theme="dark"] .bootstrap .alert.alert-warning { background-color: #3a3018; border-color: #5c4a1c; color: #f1dca1; }
 html[data-sb-theme="dark"] .bootstrap .alert.alert-danger { background-color: #3b1d1b; border-color: #5e2b27; color: #f3c0bb; }
 html[data-sb-theme="dark"] .bootstrap .alert.alert-success { background-color: #183226; border-color: #25503b; color: #bfe5d1; }
@@ -648,27 +685,49 @@ html[data-sb-theme="dark"] .sb-guide .sb-path,
 html[data-sb-theme="dark"] .sb-guide .sb-btn { background: var(--sb-subtle); border-color: var(--sb-line); color: var(--sb-ink); }
 html[data-sb-theme="dark"] .sb-guide th, html[data-sb-theme="dark"] .sb-guide td { border-bottom-color: var(--sb-line); }
 
-/* ---------- 10. Sign-in page ---------- */
+/* ---------- 10. Sign-in page ----------
+   Stock: a shadowed column holding the logo, a version number, a second
+   round logo overlapping the form, and the shop name. Here: the logo, then
+   one card with the form, centred on the page. */
 body#login, #login { background-color: var(--sb-canvas); }
-#login #login-panel { border-radius: 16px; box-shadow: var(--sb-shadow); }
+#login { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px 16px; box-sizing: border-box; }
+#login #content { width: 100%; max-width: 440px; margin: 0; padding: 0; }
+#login #login-panel { width: auto; margin: 0; padding: 0; border-radius: 0; background: transparent; box-shadow: none; }
+#login #login-header { height: auto; margin: 0; padding: 0 0 28px; }
+#login #login-header h1 { margin: 0; }
+#login #logo { width: auto; height: 88px; }
+/* the version number, the second logo and the repeated shop name */
+#login #login-header > div.text-center:not(#error),
+#login #shop-img,
+#login #shop_name { display: none; }
+#login #login-panel .flip-container { margin-top: 0; }
 #login #login-panel .flip-container .front,
-#login #login-panel .flip-container .back { border: 1px solid var(--sb-line); border-radius: 16px; background-color: var(--sb-card); color: var(--sb-ink); }
-#login #login-panel h4, #login #login-panel label, #login #shop_name { color: var(--sb-ink); }
-#login .form-control { background-color: var(--sb-card); border-color: var(--sb-field-line); color: var(--sb-ink); }
+#login #login-panel .flip-container .back {
+  padding: 32px 32px 28px;
+  border: 1px solid var(--sb-line);
+  border-radius: 16px;
+  background-color: var(--sb-card);
+  box-shadow: var(--sb-shadow);
+  color: var(--sb-ink);
+}
+#login #login-panel h4, #login #login-panel label { color: var(--sb-ink); }
+#login .form-control { height: 44px; background-color: var(--sb-card); border-color: var(--sb-field-line); color: var(--sb-ink); }
 #login .form-control:focus { border-color: var(--sb-accent); box-shadow: 0 0 0 3px rgba(47, 125, 100, .18); }
 #login button[name="submitLogin"], #login button[name="submitForgot"], #login .btn-primary {
+  height: 46px;
   background-color: var(--sb-accent);
   border-color: var(--sb-accent);
   border-radius: 10px;
   color: var(--sb-accent-text);
-  letter-spacing: .06em;
+  letter-spacing: .04em;
 }
 #login button[name="submitLogin"]:hover, #login .btn-primary:hover { background-color: var(--sb-accent-hover); border-color: var(--sb-accent-hover); }
 #login a { color: var(--sb-link); }
 #login a:hover { color: var(--sb-gold); }
+#login #login-footer { margin-top: 22px; }
 #login #login-footer, #login #login-footer p { color: var(--sb-muted); }
-/* the sign-in logo is a dark-ink image; on the dark theme show it on a light plate */
-html[data-sb-theme="dark"] #login #logo { padding: 8px 12px; border-radius: 10px; background-color: #fff; }
+/* the logo is dark ink on white: on the dark theme invert it and let the black drop out */
+html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
 
 /* ---------- 11. Narrow windows ----------
    Below 768px the stock theme switches to an icon rail and a 36px bar; the

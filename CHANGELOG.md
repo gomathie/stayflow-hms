@@ -11,6 +11,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Added
 
+- **Dark mode on the website.** A sun/moon switch in the header, on computers and phones. The site starts light; a visitor's choice is remembered on their device.
 - **What's New page** in the back office (Guides › What's New). Which profiles can open it is set in Administration › Permissions. Hotel Staff and Hotel Manager have it to begin with.
 - This file.
 
@@ -18,7 +19,9 @@ Every change to Salisberg, newest first, in plain words.
 
 - The vendor's product name no longer appears in back office text; it reads "Salisberg" instead.
 - **Website footer:** "Payment accepted" shows Cash and Mobile Money badges in place of Visa, American Express, MasterCard and PayPal logos, which the hotel does not take. Home, Our Properties, Interior and Contact Us are listed under Explore, in two columns. The empty "Follow us on" column is hidden until social links are entered. The sample founding year "2010" is gone from the copyright line.
-- Back office side menu text is slightly larger.
+- Back office side menu text is slightly larger, and the menu is a little wider so long names are not cut off.
+- **Back office sign-in page** simplified to the logo and one form; the version number and second logo are gone.
+- **Tooltips and pop-up windows** in the back office restyled: rounded, readable in light and dark, and no longer hidden behind the top bar or menu.
 - `README.md` rewritten for Salisberg.
 - The top-of-dashboard figure tiles use the same off-white as other cards in light mode.
 - The "working" spinner sits at the right end of the top bar instead of over the logo.

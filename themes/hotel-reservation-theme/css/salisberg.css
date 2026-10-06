@@ -1027,3 +1027,67 @@ html[data-sb-theme="dark"] header .row #header_logo img { filter: invert(1) hue-
 html[data-sb-theme="dark"] .header-rmsearch-inner-wrapper { background-color: var(--sb-surface); }
 html[data-sb-theme="dark"] .chosen-container .chosen-drop,
 html[data-sb-theme="dark"] .chosen-container .chosen-search { background-color: var(--sb-surface); color: var(--sb-ink); }
+html[data-sb-theme="dark"] #index .header-rmsearch-inner-wrapper,
+html[data-sb-theme="dark"] .header-rmsearch-details-wrapper { background: var(--sb-surface); }
+/* text the stock theme writes in black or dark grey */
+html[data-sb-theme="dark"] #columns,
+html[data-sb-theme="dark"] #columns p,
+html[data-sb-theme="dark"] #columns li,
+html[data-sb-theme="dark"] #columns label,
+html[data-sb-theme="dark"] #columns td,
+html[data-sb-theme="dark"] #columns th,
+html[data-sb-theme="dark"] #columns dt,
+html[data-sb-theme="dark"] #columns dd,
+html[data-sb-theme="dark"] #columns strong,
+html[data-sb-theme="dark"] #columns .dark,
+html[data-sb-theme="dark"] #columns span:not(.price):not(.label):not(.badge) { color: var(--sb-ink); }
+html[data-sb-theme="dark"] #columns h1,
+html[data-sb-theme="dark"] #columns h2,
+html[data-sb-theme="dark"] #columns h3,
+html[data-sb-theme="dark"] #columns h4,
+html[data-sb-theme="dark"] #columns h5,
+html[data-sb-theme="dark"] #columns .page-heading,
+html[data-sb-theme="dark"] #columns .page-subheading { color: var(--sb-heading); border-color: var(--sb-line); }
+html[data-sb-theme="dark"] #columns .nav-tabs > li > a,
+html[data-sb-theme="dark"] #columns a.idTabHrefShort { color: var(--sb-ink); }
+/* white panels, cards, tables, menus and fields */
+html[data-sb-theme="dark"] .card,
+html[data-sb-theme="dark"] .box,
+html[data-sb-theme="dark"] .panel,
+html[data-sb-theme="dark"] .well,
+html[data-sb-theme="dark"] .tab-content > .tab-pane,
+html[data-sb-theme="dark"] .dropdown-menu,
+html[data-sb-theme="dark"] .modal-content,
+html[data-sb-theme="dark"] .fancybox-skin,
+html[data-sb-theme="dark"] #layer_cart .layer_cart_product,
+html[data-sb-theme="dark"] #layer_cart .layer_cart_cart,
+html[data-sb-theme="dark"] #image-block,
+html[data-sb-theme="dark"] .table,
+html[data-sb-theme="dark"] .table > thead > tr > th,
+html[data-sb-theme="dark"] .table > tbody > tr > td { background-color: var(--sb-surface); border-color: var(--sb-line); color: var(--sb-ink); }
+html[data-sb-theme="dark"] .form-control,
+html[data-sb-theme="dark"] button.form-control,
+html[data-sb-theme="dark"] .btn.btn-default:not(.button),
+html[data-sb-theme="dark"] div.selector,
+html[data-sb-theme="dark"] input[type="text"],
+html[data-sb-theme="dark"] input[type="email"],
+html[data-sb-theme="dark"] input[type="password"],
+html[data-sb-theme="dark"] input[type="tel"],
+html[data-sb-theme="dark"] input[type="number"],
+html[data-sb-theme="dark"] textarea { background-color: var(--sb-page); border-color: var(--sb-line); color: var(--sb-ink); }
+html[data-sb-theme="dark"] .dropdown-menu > li > a { color: var(--sb-ink); }
+html[data-sb-theme="dark"] .dropdown-menu > li > a:hover { background-color: var(--sb-cream); color: var(--sb-gold-2); }
+html[data-sb-theme="dark"] #bigpic,
+html[data-sb-theme="dark"] #thumbs_list a { background-color: transparent; }
+html[data-sb-theme="dark"] hr { border-color: var(--sb-line); }
+html[data-sb-theme="dark"] #columns div:not([class*="alert"]) { color: var(--sb-ink); }
+html[data-sb-theme="dark"] #columns .nav-tabs > li > a.idTabHrefShort { color: var(--sb-ink) !important; }
+/* search results: filter panel and room rows */
+html[data-sb-theme="dark"] .layered_filter_cont,
+html[data-sb-theme="dark"] #center_column .cat_cont,
+html[data-sb-theme="dark"] #center_column .room_cont { background-color: var(--sb-surface); border-color: var(--sb-line); }
+html[data-sb-theme="dark"] #filter_price_silder.ui-slider { background-color: var(--sb-line); border-color: var(--sb-line); }
+html[data-sb-theme="dark"] .header-rmsearch-details-wrapper,
+html[data-sb-theme="dark"] .header-rmsearch-details-wrapper p,
+html[data-sb-theme="dark"] .header-rmsearch-details-wrapper div,
+html[data-sb-theme="dark"] .header-rmsearch-details-wrapper span { color: var(--sb-ink); }

@@ -23,6 +23,8 @@
 		<ul>
 			<li><strong>{l s='This page.' mod='salisbergguide'}</strong> {l s='Changes are now listed here as they are made.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Dark mode.' mod='salisbergguide'}</strong> {l s='Lists and forms that still showed white or pale blue areas in dark mode have been corrected.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Sign-in page.' mod='salisbergguide'}</strong> {l s='The back office sign-in page is simpler: the logo and one form.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Tips and pop-ups.' mod='salisbergguide'}</strong> {l s='The small explanations that appear when you point at something, and pop-up windows, are tidier and easier to read in both light and dark.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Larger menu text.' mod='salisbergguide'}</strong> {l s='The menu on the left is a little bigger and easier to read.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Contact form.' mod='salisbergguide'}</strong> {l s='Guests can no longer attach a file to a message sent from the website. Messages arrive as before under Customers, Customer Service.' mod='salisbergguide'}</li>
 		</ul>
@@ -30,6 +32,7 @@
 		<h4>{l s='For the hotel manager' mod='salisbergguide'}</h4>
 		<ul>
 			<li>{l s='The sample guest account that came with the system (John Doe) has been retired.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Dark mode on the website.' mod='salisbergguide'}</strong> {l s='Visitors can switch the website between light and dark with the sun and moon switch in the header. It starts light and remembers each visitor’s choice on their device.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Website footer.' mod='salisbergguide'}</strong> {l s='Payment accepted now shows Cash and Mobile Money in place of the card logos. Home, Our Properties, Interior and Contact Us are listed under Explore. The empty Follow us on heading is hidden until social links are entered, and the sample founding year 2010 is gone from the copyright line.' mod='salisbergguide'}</li>
 		</ul>
 		{/if}
