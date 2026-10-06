@@ -361,12 +361,14 @@ body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.hover ul.s
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn i,
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn:before { color: inherit; }
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn:hover { border-color: var(--sb-accent); background-color: var(--sb-card); color: var(--sb-link); }
-.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn[id*="-new_"] { border-color: var(--sb-accent); background-color: var(--sb-accent); color: var(--sb-accent-text); }
-.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn[id*="-new_"]:hover { border-color: var(--sb-accent-hover); background-color: var(--sb-accent-hover); color: var(--sb-accent-text); }
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn[id*="-new"] { border-color: var(--sb-accent); background-color: var(--sb-accent); color: var(--sb-accent-text); }
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn[id*="-new"]:hover { border-color: var(--sb-accent-hover); background-color: var(--sb-accent-hover); color: var(--sb-accent-text); }
 .bootstrap .page-head .toolbarBox .toolbar_btn.navbar-toggle { border-color: var(--sb-line); }
 /* vendor's module promotions */
 .bootstrap .page-head .toolbarBox a[id$="-modules-list"],
 .bootstrap .page-head .toolbarBox li:has(> a[id$="-modules-list"]),
+.bootstrap .page-head .toolbarBox li:has(> a#desc-module-catalog),
+.bootstrap .alert:has(> .modules-addons-info),
 #modules_list_container { display: none !important; }
 
 #footer.bootstrap {
@@ -701,7 +703,9 @@ html[data-sb-theme="dark"] #login #logo { padding: 8px 12px; border-radius: 10px
 #content.bootstrap .list-empty .list-empty-msg { color: var(--sb-muted); }
 #content.bootstrap .box-stats .title, #content.bootstrap .box-stats .title span { color: var(--sb-muted); }
 #content.bootstrap .box-stats .value, #content.bootstrap .box-stats .value span { color: var(--sb-heading); }
-.bootstrap .page-head .toolbarBox .toolbar_btn > span { color: inherit; }
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn span,
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn div { color: inherit; font-weight: inherit; }
+#dashboard .avail-pie-label-container p { color: #fff; }
 .bootstrap .avail-bar-btn, .bootstrap .avail-bar-date { background-color: var(--sb-card); }
 .bootstrap .hasDatepicker.form-control { background-color: var(--sb-card); color: var(--sb-ink); }
 

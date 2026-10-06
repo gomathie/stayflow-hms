@@ -26,7 +26,7 @@
 		<h3>1. {l s='Signing in and your account' mod='salisbergguide'}</h3>
 		<ol>
 			<li>{l s='Open the back office address your administrator gave you and sign in with your work email and password.' mod='salisbergguide'}</li>
-			<li>{l s='The sun or moon icon at the top right switches the back office between a light and a dark look. Pick whichever is easier on your eyes; it is remembered on that computer and changes nothing for anyone else.' mod='salisbergguide'}</li>
+			<li>{l s='The small switch with a sun and a moon at the top right changes the back office between a light and a dark look. Pick whichever is easier on your eyes; it is remembered on that computer and changes nothing for anyone else.' mod='salisbergguide'}</li>
 			<li>{l s='Every password box has an eye icon at its right edge. Click it to see what you typed, and click again to hide it. Check that nobody is looking at your screen first.' mod='salisbergguide'}</li>
 			<li>{l s='To change your password, click your name at the top right of the screen and choose' mod='salisbergguide'} <span class="sb-btn">My preferences</span>.</li>
 			<li>{l s='When you finish your shift, click your name at the top right and choose' mod='salisbergguide'} <span class="sb-btn">Sign out</span>.</li>
@@ -37,6 +37,7 @@
 	<section id="sb-s2">
 		<h3>2. {l s='Finding your way around' mod='salisbergguide'}</h3>
 		<p>{l s='The menu is on the left. You will only see the pages your role is allowed to use.' mod='salisbergguide'}</p>
+		<p>{l s='The section you are in lists its pages underneath it. For any other section, rest the pointer on its name and its pages appear in a box beside it; move across and click the one you want.' mod='salisbergguide'}</p>
 		<table>
 			<tr><th>{l s='Menu' mod='salisbergguide'}</th><th>{l s='What it is for' mod='salisbergguide'}</th></tr>
 			<tr><td><span class="sb-path">Dashboard</span></td><td>{l s='Today at a glance: recent bookings and activity.' mod='salisbergguide'}</td></tr>

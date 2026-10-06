@@ -24,12 +24,27 @@ class AdminSalisbergAdminGuideController extends ModuleAdminController
     }
 
     /**
-     * The admin guide describes pages only administrators may use, so the
-     * menu permission alone is not trusted.
+     * The admin guide describes pages only managers and administrators may
+     * use, so the menu permission alone is not trusted.
      */
     public function viewAccess($disable = false)
     {
-        return $this->context->employee->isSuperAdmin();
+        return $this->module->canReadAdminGuide();
+    }
+
+    /**
+     * Section 15 of the guide: a SuperAdmin shows or hides menu sections.
+     */
+    public function postProcess()
+    {
+        if (Tools::isSubmit('submitSbMenu') && $this->context->employee->isSuperAdmin()) {
+            foreach (array_keys(Salisbergguide::$menuToggles) as $className) {
+                $this->module->setMenuVisible($className, (int) Tools::getValue('sb_menu_'.$className) === 1);
+            }
+            Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergAdminGuide').'&conf=6#sb-a15');
+        }
+
+        return parent::postProcess();
     }
 
     public function initContent()

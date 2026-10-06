@@ -727,3 +727,57 @@ To restore `/data`, decrypt the matching `salisberg-data-…` file the same way 
 - **Verification (local, real browser):** computed styles of every element in the header and menu were dumped before and after at 1440, 1100 and 390 wide and compared. All properties matched; the only differences were text widths of a few pixels on the first page loaded, which is the web font arriving at a different moment. Screenshot of the header at 1440 reviewed.
 - **Not tested:** the signed-in header. The test guest account no longer exists in the local database, so the sign-in step of the comparison did not take effect and both runs measured the signed-out header.
 - No guide change: nothing a guest, staff member or administrator does has changed.
+
+### 2026-10-06 — Back office round 3: dashboard, top bar, menu fly-outs, buttons; "Bookings" menu; "Book Now"
+
+All styling is in `admin/themes/default/css/overrides.css`, edited in place (rules 25 and 27). No new stylesheet or module.
+
+#### Dashboard
+
+- **Columns:** the third dashboard column has been empty since its vendor panels were removed, leaving a blank strip at the right. From 1200px wide the other two now share the full width (30% / 70%).
+- **Things that ran outside their box, fixed:** the Occupancy figures (for example `381/71`), the info icon and refresh button sitting on top of the Occupancy title, chart axis labels cut off at the left edge, the Traffic Sources list overlapping its chart, and long amounts in the Performance tiles. The Sales tabs no longer use the old condensed capitals.
+- Widget headings are now a row (title, then buttons at the right) so a long title is shortened with "…" and can no longer be covered.
+
+#### Top bar
+
+- **Account:** a circle with the employee's initials, then the name. The platform has no employee photo upload (`Employee::getImage()` returns the shop logo), so initials are used. This is one added `<span class="sb-avatar">` in `admin/themes/default/template/header.tpl`, a file already edited for branding.
+- **Light/dark switch:** now a small switch showing a sun and a moon with a sliding knob (`modules/salisbergguide/views/js/theme-toggle.js`, same file as before).
+- **Quick Access** is an outlined pill beside the notification icons; its menu and the account menu are rounded cards. An open menu no longer turns its button black.
+- "My site" is aligned with the other items.
+
+#### Side menu fly-outs
+
+- **Problem reported by the owner:** the box of sub-pages that appears beside a menu section closed before it could be clicked.
+- **Causes found by reproducing it with real pointer movement:**
+  1. there was a 17px gap between the row and the box (an indent meant for the open section's list was also applied to the box);
+  2. the stock script closes the box 50ms after the pointer touches another row, which happens whenever the pointer moves diagonally towards a lower entry;
+  3. in windows shorter than 850px the stock theme does not list the open section's pages under it at all, so even the current section needed the fly-out.
+- **Fix:** the box now starts under the row's right edge; an invisible wedge from the row to the full height of the box belongs to the box, so a diagonal move never leaves it; and the open section always lists its pages under it, at any window height. The box is a rounded card.
+- No script was changed. Trade-off of the wedge: while a box is open, moving straight down along the right-hand part of the menu keeps that box open for a row or two before the next one takes over.
+
+#### Buttons
+
+- **Save / Save and stay / Cancel** at the bottom of forms: the stock large icon stacked over a small label is replaced by normal buttons with the icon beside the label. Save buttons are filled; Cancel is outlined.
+- **Buttons beside the page title:** outlined, with the "Add new …" button filled. A stock rule had been keeping their bright blue border.
+- **All other buttons:** one rounded shape, no shadows, a visible keyboard focus ring, and consistent colours by meaning through three new tokens (`--sb-success`, `--sb-danger`, `--sb-warning`). Sizes were deliberately left as stock so buttons still line up with the fields next to them.
+- The vendor's "Recommendations" button and "Explore all QloApps addons" banner on the modules page are hidden (the earlier hide rule did not match this page's button).
+
+#### "Orders" menu renamed "Bookings"
+
+- **What:** the side menu section **Orders** and its first page **Orders** are now **Bookings** and **Bookings**.
+- **How:** `renameMenuEntries()` in `modules/salisbergguide/salisbergguide.php`, called from the existing `ensureSetup()`; names are listed in `$menuLabels`. `MODULES_VERSION=6` so it runs on the next deploy. An entry is renamed only while it still has its stock name, so a name changed by hand in the back office is kept (rule 22).
+- **Not renamed:** the page heading on that page still reads "Orders", as do "Order Messages", Preferences › Orders, and the word "order" inside pages and dashboard tiles. Those are text inside vendor controllers and templates.
+- **Guides (rule 23):** Staff Guide sections 2, 4 and 11 and Admin Guide section 14 now say `Bookings › Bookings`; Staff Guide section 2 also explains the fly-out boxes; section 1 describes the new light/dark switch.
+
+#### Website: "Make Booking" is now "Book Now"
+
+- The button on the phone homepage. Done with a theme translation file, `themes/hotel-reservation-theme/modules/wkroomsearchblock/translations/en.php`, so the module's template is untouched (rule 11). **This path is git-ignored by upstream; the file must be added with `git add -f` (rule 19).**
+
+#### Verification (local, real browser, light and dark)
+
+- Screenshots reviewed: dashboard top to bottom, Quick Access and account menus open, the fly-out, the Orders and Modules pages, and the room type form footer. No PHP, template or JavaScript errors on any page visited.
+- Fly-out: a scripted pointer moved in 30 small steps from a menu row diagonally to the fourth entry of its box. Before the fix the box was hidden for 25 of the 30 steps; after it, for none, at window heights of 720 and 900.
+- Menu rename: ran `setup-modules.php`; the two entries changed and "Order Messages" and Preferences › Orders did not. The Staff Guide page showed the new text. Templates passed the Smarty syntax check.
+- "Book Now" appears in the homepage HTML and "Make Booking" no longer does.
+- **Not tested:** the buttons on every back office page (four pages surveyed), danger and success buttons in real use (no page visited showed one), pop-up dialogs, the fly-out near the bottom of a short window where the stock script moves the box upwards, widths under 1200px for the new dashboard columns, Safari and Firefox.
+- **Mistake made and undone during this work:** `overrides.css` was stashed by accident mid-session and restored at once with `git stash pop`; nothing was lost.

@@ -40,6 +40,78 @@ class Salisbergguide extends Module
         'AdminSalisbergStaffGuide' => array(1, 0, 0, 0),
     );
 
+    const MANAGER_PROFILE = 'Hotel Manager';
+
+    /**
+     * Pages the person running the hotel works in. Everything about the hotel
+     * itself; nothing about how the system is installed or built (modules,
+     * localization, preferences, advanced parameters, profiles, permissions),
+     * which stays with the SuperAdmin accounts of the developer team.
+     */
+    public static $managerAccess = array(
+        'AdminDashboard' => array(1, 0, 0, 0),
+        'AdminStats' => array(1, 0, 0, 0),
+        // menu parents
+        'AdminCatalog' => array(1, 0, 0, 0),
+        'AdminParentOrders' => array(1, 0, 0, 0),
+        'AdminParentCustomer' => array(1, 0, 0, 0),
+        'AdminPriceRule' => array(1, 0, 0, 0),
+        'AdminHotelReservationSystemManagement' => array(1, 0, 0, 0),
+        'AdminParentPreferences' => array(1, 0, 0, 0),
+        'AdminAdmin' => array(1, 0, 0, 0),
+        'AdminSalisbergGuide' => array(1, 0, 0, 0),
+        // rooms, services and prices
+        'AdminProducts' => array(1, 1, 1, 1),
+        'AdminNormalProducts' => array(1, 1, 1, 1),
+        'AdminCategories' => array(1, 1, 1, 1),
+        'AdminFeatures' => array(1, 1, 1, 1),
+        'AdminHotelBedTypes' => array(1, 1, 1, 1),
+        'AdminCartRules' => array(1, 1, 1, 1),
+        'AdminSpecificPriceRule' => array(1, 1, 1, 1),
+        'AdminHotelFeaturePricesSettings' => array(1, 1, 1, 1),
+        'AdminRoomTypeGlobalDemand' => array(1, 1, 1, 1),
+        // bookings and money
+        'AdminHotelRoomsBooking' => array(1, 1, 1, 1),
+        'AdminOrders' => array(1, 1, 1, 1),
+        'AdminInvoices' => array(1, 1, 1, 0),
+        'AdminSlip' => array(1, 1, 1, 0),
+        'AdminOrderMessage' => array(1, 1, 1, 1),
+        'AdminBookingDocument' => array(1, 1, 1, 1),
+        'AdminOrderRefundRules' => array(1, 1, 1, 1),
+        'AdminOrderRefundRequests' => array(1, 1, 1, 0),
+        // guests
+        'AdminCustomers' => array(1, 1, 1, 1),
+        'AdminAddresses' => array(1, 1, 1, 1),
+        'AdminCarts' => array(1, 0, 0, 0),
+        'AdminCustomerThreads' => array(1, 1, 1, 1),
+        'AdminContacts' => array(1, 1, 1, 1),
+        // the hotel and what the website says about it
+        'AdminAddHotel' => array(1, 1, 1, 0),
+        'AdminHotelFeatures' => array(1, 1, 1, 1),
+        'AdminHotelConfigurationSetting' => array(1, 0, 1, 0),
+        'AdminHotelGeneralSettings' => array(1, 0, 1, 0),
+        'AdminAboutHotelBlockSetting' => array(1, 1, 1, 1),
+        'AdminFeaturesModuleSetting' => array(1, 1, 1, 1),
+        'AdminHotelRoomModuleSetting' => array(1, 1, 1, 1),
+        'AdminTestimonialsModuleSetting' => array(1, 1, 1, 1),
+        'AdminFooterPaymentBlockSetting' => array(1, 1, 1, 1),
+        'AdminCmsContent' => array(1, 1, 1, 1),
+        'AdminCms' => array(1, 1, 1, 1),
+        'AdminCmsCategories' => array(1, 1, 1, 1),
+        // staff accounts (the platform itself stops anyone but a SuperAdmin
+        // from creating, editing or deleting a SuperAdmin)
+        'AdminEmployees' => array(1, 1, 1, 1),
+        // both guides
+        'AdminSalisbergStaffGuide' => array(1, 0, 0, 0),
+        'AdminSalisbergAdminGuide' => array(1, 0, 0, 0),
+    );
+
+    /** Menu sections a SuperAdmin can show or hide from the Admin Guide page: class name => name */
+    public static $menuToggles = array(
+        'AdminQloappsChannelManagerConnector' => 'Channel Manager',
+        'AdminParentModules' => 'Modules and Services',
+    );
+
     /**
      * Stock menu entries shown under a clearer name: class name => array(stock
      * name, new name). An entry is renamed only while it still carries the
@@ -71,7 +143,7 @@ class Salisbergguide extends Module
 
     /**
      * Creates whatever is missing: the three menu entries and the Hotel Staff
-     * profile, and applies the menu names in $menuLabels. Safe to call on
+     * and Hotel Manager profiles, and applies the menu names in $menuLabels. Safe to call on
      * every deploy.
      */
     public function ensureSetup()
@@ -79,7 +151,8 @@ class Salisbergguide extends Module
         return $this->installTab('AdminSalisbergGuide', 'Guides', 0)
             && $this->installTab('AdminSalisbergStaffGuide', 'Staff Guide', (int) Tab::getIdFromClassName('AdminSalisbergGuide'))
             && $this->installTab('AdminSalisbergAdminGuide', 'Admin Guide', (int) Tab::getIdFromClassName('AdminSalisbergGuide'))
-            && $this->installStaffProfile()
+            && $this->installProfile(self::STAFF_PROFILE, self::$staffAccess)
+            && $this->installProfile(self::MANAGER_PROFILE, self::$managerAccess)
             && $this->renameMenuEntries()
             && $this->registerHook('header')
             && $this->registerHook('actionAdminControllerSetMedia')
@@ -174,28 +247,31 @@ class Salisbergguide extends Module
     }
 
     /**
-     * Creates the Hotel Staff profile once and grants it the pages in $staffAccess.
-     * An existing profile of that name is left untouched, so permissions an
-     * administrator has adjusted by hand are never reset.
+     * Creates a profile once and grants it the pages in $access. An existing
+     * profile of that name is left untouched, so permissions an administrator
+     * has adjusted by hand are never reset.
+     *
+     * @param string $name   profile name, as shown in Administration > Profiles
+     * @param array  $access class name => array(view, add, edit, delete)
      */
-    public function installStaffProfile()
+    public function installProfile($name, array $access)
     {
-        $idLang = (int) Configuration::get('PS_LANG_DEFAULT');
-        $exists = (int) Db::getInstance()->getValue(
-            'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
-            WHERE `name` = \''.pSQL(self::STAFF_PROFILE).'\' AND `id_lang` = '.$idLang
-        );
+        $exists = $this->getProfileId($name);
         if ($exists) {
-            // Still make sure the profile can open the staff guide and its menu
-            return $this->grant($exists, array(
-                'AdminSalisbergGuide' => self::$staffAccess['AdminSalisbergGuide'],
-                'AdminSalisbergStaffGuide' => self::$staffAccess['AdminSalisbergStaffGuide'],
-            ));
+            // Still make sure the profile can open its guides and their menu
+            $guides = array();
+            foreach (array('AdminSalisbergGuide', 'AdminSalisbergStaffGuide', 'AdminSalisbergAdminGuide') as $className) {
+                if (isset($access[$className])) {
+                    $guides[$className] = $access[$className];
+                }
+            }
+
+            return $this->grant($exists, $guides);
         }
 
         $profile = new Profile();
         foreach (Language::getLanguages(false) as $lang) {
-            $profile->name[(int) $lang['id_lang']] = self::STAFF_PROFILE;
+            $profile->name[(int) $lang['id_lang']] = $name;
         }
         if (!$profile->add()) {
             return false;
@@ -207,7 +283,65 @@ class Salisbergguide extends Module
             SELECT '.(int) $profile->id.', `id_tab`, 0, 0, 0, 0 FROM `'._DB_PREFIX_.'tab`'
         );
 
-        return $this->grant((int) $profile->id, self::$staffAccess);
+        return $this->grant((int) $profile->id, $access);
+    }
+
+    protected function getProfileId($name)
+    {
+        return (int) Db::getInstance()->getValue(
+            'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+            WHERE `name` = \''.pSQL($name).'\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+        );
+    }
+
+    /**
+     * Who may read the Admin Guide: SuperAdmins and Hotel Managers.
+     */
+    public function canReadAdminGuide()
+    {
+        $employee = $this->context->employee;
+        if (!$employee || !$employee->id) {
+            return false;
+        }
+
+        return $employee->isSuperAdmin() || (int) $employee->id_profile === $this->getProfileId(self::MANAGER_PROFILE);
+    }
+
+    /**
+     * Shows or hides one of the menu sections in $menuToggles for everyone.
+     * A hidden section is only removed from the menu; its pages still open
+     * for those with permission, for example from the links in the guides.
+     */
+    public function setMenuVisible($className, $visible)
+    {
+        if (!isset(self::$menuToggles[$className])) {
+            return false;
+        }
+        $idTab = (int) Tab::getIdFromClassName($className);
+        if (!$idTab) {
+            return false;
+        }
+
+        return Db::getInstance()->update('tab', array('active' => (int) (bool) $visible), 'id_tab = '.$idTab);
+    }
+
+    /**
+     * @return array class name => array('name' => ..., 'visible' => bool), for the sections that exist
+     */
+    public function getMenuToggles()
+    {
+        $toggles = array();
+        foreach (self::$menuToggles as $className => $name) {
+            $idTab = (int) Tab::getIdFromClassName($className);
+            if ($idTab) {
+                $toggles[$className] = array(
+                    'name' => $name,
+                    'visible' => (bool) Db::getInstance()->getValue('SELECT `active` FROM `'._DB_PREFIX_.'tab` WHERE `id_tab` = '.$idTab),
+                );
+            }
+        }
+
+        return $toggles;
     }
 
     protected function grant($idProfile, array $access)
@@ -250,6 +384,8 @@ class Salisbergguide extends Module
         $this->context->smarty->assign(array(
             'sb_links' => $links,
             'sb_is_admin' => $employee && $employee->isSuperAdmin(),
+            'sb_can_read_admin_guide' => $this->canReadAdminGuide(),
+            'sb_menu_toggles' => $this->getMenuToggles(),
             'sb_shop_name' => Configuration::get('PS_SHOP_NAME'),
             'sb_shop_email' => Configuration::get('PS_SHOP_EMAIL'),
             'sb_css' => $this->_path.'views/css/guide.css',

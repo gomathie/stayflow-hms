@@ -10,10 +10,10 @@
 			<p>{l s='For front desk and reservations staff: taking bookings, confirming cash and Mobile Money payments, check-in and check-out, guests and refunds.' mod='salisbergguide'}</p>
 			<a class="btn btn-primary" href="{$sb_links.AdminSalisbergStaffGuide|escape:'html':'UTF-8'}">{l s='Open the Staff Guide' mod='salisbergguide'}</a>
 		</div>
-		{if $sb_is_admin}
+		{if $sb_can_read_admin_guide}
 		<div class="sb-card">
 			<h3>{l s='Admin Guide' mod='salisbergguide'}</h3>
-			<p>{l s='For administrators: hotel details, room types and prices, payment settings, staff accounts and permissions, website content, backups.' mod='salisbergguide'}</p>
+			<p>{l s='For the hotel manager and the developer team: hotel details, room types and prices, staff accounts, website content, reports and system settings.' mod='salisbergguide'}</p>
 			<a class="btn btn-primary" href="{$sb_links.AdminSalisbergAdminGuide|escape:'html':'UTF-8'}">{l s='Open the Admin Guide' mod='salisbergguide'}</a>
 		</div>
 		{/if}
