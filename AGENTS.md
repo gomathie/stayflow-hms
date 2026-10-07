@@ -1209,3 +1209,49 @@ Each moved to the last release of the line it was already on, which are fixes ra
 - **Branch `staging`** created from `develop` at the owner's request. Section 5's production steps are now given in full in `COOLIFY.md`; the restore procedure in the 2026-10-06 entry is repeated and extended in `BACKUP.md`.
 - **Checked:** every variable, default, log line and file name in the guides was read from `.env.example`, `docker-compose.yml`, `docker/entrypoint.sh`, `docker/backup.sh` and `docker/smoke-test.sh`. The one-line command that rewrites `_DB_PASSWD_` in a restored settings file was run against a sample settings file (PHP 8.3) and the result passed `php -l`.
 - **Not tested:** nothing in these guides was carried out on a Coolify server in this session. In particular: the Coolify screen and button names (written for v4; they vary by version), the staging restore from a production backup, the off-server script `salisberg-offsite.sh` (written, never run), and the full recovery on a new server. `BACKUP.md` says so beside the script. The first real run of each should be treated as the test, on staging.
+
+### 2026-10-07 — Independent of QloApps; stylesheets tidied, `!important` halved
+
+#### Direction
+
+- **Owner, 2026-10-07:** "the goal of this project is not to depend on qloapps updates anymore." Recorded in section 1. Rules reworded to match: **11** (fix things where they are defined, instead of "do not edit core files"), **18** (upstream is a source of security fixes, not releases) and **28** (inherited code may be trimmed inside a file, with the same proof). Rule 29 (never move or rename) and rule 14 (licence headers) are unchanged.
+- The owner also considered Tailwind and decided against it for this codebase: the markup comes from several hundred inherited templates written for Bootstrap 3, the scripts depend on Bootstrap's class names, and it would add a build step.
+
+#### What was done
+
+| Stylesheet | `!important` before | After |
+|---|---|---|
+| `themes/hotel-reservation-theme/css/salisberg.css` | 45 | 23 |
+| `admin/themes/default/css/overrides.css` | 64 | 33 |
+
+- **Step 1, flags that did nothing (41 removed):** each flag was removed on its own in a real browser and the computed style of every element its rule matches was compared. A flag was dropped only where nothing changed on any tested page, width and theme.
+- **Step 2, flags that only existed to out-rank an inherited rule:** the inherited rule was changed instead (rule 11), and our flag, or our whole duplicate rule, removed.
+
+  | Inherited file | Change |
+  |---|---|
+  | `themes/hotel-reservation-theme/css/daterangepicker.css` | Selected days, hovered days and "today" take the brand colours here. The four date picker rules in `salisberg.css` are deleted. One `!important` stays in this file because the date picker library's own stylesheet uses one. |
+  | `modules/wkhotelfilterblock/views/css/wkhotelfilterblock.css` | Price slider bar and handle in gold. Our two slider rules are deleted. |
+  | `themes/hotel-reservation-theme/css/modules/blockcart/blockcart.css` | Cart pop-up heading colour. |
+  | `themes/hotel-reservation-theme/css/order-opc.css` | "Extra services" links in gold instead of pure blue (three places); `!important` removed from the room name colour. |
+  | `themes/hotel-reservation-theme/css/global.css` | Heading underline and the extra-services link in gold. |
+  | `themes/hotel-reservation-theme/css/product.css` | Extra-services price in gold. |
+  | `admin/themes/default/css/admin-theme.css` | `!important` removed from the float of Quick Access and the account menu, and from the background of an empty list. |
+
+- Inherited website stylesheets now use the `--sb-` colour tokens defined in `salisberg.css`. That file is loaded on every website page, so the tokens are always there; it also means those rules follow dark mode by themselves.
+- `salisberg.css` link bumped to `?v=12`.
+
+#### What is left, and why
+
+- **Website (23):** the flattened two-layer buttons, which out-rank about a dozen inherited button rules spread over `global.css` and module stylesheets (6); hover and focus states of those buttons and of the menus (7); colours set by inline `style` attributes, which only `!important` can beat: booking status labels and the amenities block height (3); the reduced-motion rule, where `!important` is the point (1); rules for things not on screen in the test data, left alone: testimonials and the file upload button (3); the phone menu's close button (1); an accent rule that also has to beat our own broad dark-mode text rules (1); and a dark-mode tab colour that fights an inherited `!important` (1).
+- **Back office (33):** top bar and side menu rules (about 20), which sit against a dense set of inherited `#header_infos` and `#nav-sidebar` rules; tooltip arrows and the calendar's selected day, which are only in the page while open (7); the rest are one-offs.
+- **Next step if wanted:** the website buttons. Rewriting the inherited button rules in `global.css` so there is one layer, not an anchor and a span each with its own gradient, would remove a dozen flags at once.
+
+#### Method and verification (local, real browser)
+
+- Three small tools written for this, kept outside the repository: one removes each flag in turn and reports whether anything changed; one lists which other rule takes over when a flag is removed; one records the computed look of every element on a set of pages (71 properties each, plus `::before` and `::after`), and of interactive elements with `:hover` and `:focus` forced on, so a "before" and an "after" run can be compared. Two "before" runs are taken, so anything that differs between them (a carousel, a calendar still drawing) is treated as noise.
+- **Website:** 14 pages (home, room, search results, contact, sign in, About Us, checkout with a room in the cart, password, 404, Our Properties, and as a signed-in guest: account, bookings, personal information, addresses), at 1440 and 390 wide, light and dark: 72 runs. After the changes: no differences beyond the noise.
+- **Back office:** step 1 on 23 pages at three widths, light, dark and with the menu's old collapsed state forced: 165 runs, no differences. Step 2 on 17 pages at two widths, light, dark and collapsed: 89 runs, no differences beyond the noise on 15 of the pages. The dashboard and the room type form could not be compared element by element in step 2, because their element lists differ from one load to the next (charts, generated ids); the three step 2 back office changes concern the top bar and empty lists, which are the same on the other 15 pages.
+- **Caught by the checks and corrected before finishing:** three flags that step 1 had judged unnecessary were needed only on hover or focus (desktop menu links, the Book Now button border, links in the top bar's drop-down menus) and were put back. In step 2, two flags turned out to be needed after all (the account menu's position in the top bar, and an accent colour that our own dark-mode rules would otherwise override) and were put back, with the inherited rule for the first restored too; and two dark-mode differences were fixed by adjusting our own dark rules.
+- **Commit note:** the owner committed twice part-way (`ecb26e63`, `aca2148e`). The first predates the flags that were put back, so neither should be deployed without the changes that follow them (back office step 2, the `?v=12` bump and these records).
+- **Not tested:** pages outside the sets above (a flag proven unnecessary on 23 back office pages could still matter on one of the other 56); right-to-left; Safari and Firefox; the testimonials block and the 1-Click pages, which are switched off; the live server. After deploying, returning visitors may for a few hours mix a cached old inherited stylesheet with the new `salisberg.css`, and see the stock blue on the date picker or slider until their browser refetches.
+- No guide or What's New entry: nothing a guest, staff member or manager does or sees has changed.

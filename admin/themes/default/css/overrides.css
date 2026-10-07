@@ -195,7 +195,7 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   }
   #header_infos .navbar-header > a#header_shopversion,
   #header_infos .navbar-header > ul {
-    float: none !important;
+    float: none;
     flex: 0 0 auto;
     margin-top: 0;
     margin-bottom: 0;
@@ -789,7 +789,7 @@ html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); 
 #content.bootstrap .list-group-item { background-color: var(--sb-card); color: var(--sb-ink); }
 #content.bootstrap .list-group-item.active { background-color: var(--sb-accent); color: var(--sb-accent-text); }
 #content.bootstrap .table td.list-empty,
-#content.bootstrap .list-empty { background-color: transparent !important; }
+#content.bootstrap .list-empty { background-color: transparent; }
 #content.bootstrap .list-empty .list-empty-msg { color: var(--sb-muted); font-family: inherit; }
 /* the row of search boxes under a list's column titles (stock: pale blue) */
 #content.bootstrap .table thead > tr.filter > th,
