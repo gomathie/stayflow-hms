@@ -33,19 +33,24 @@
   --sb-accent-soft: #e8f0ec;   /* pale chip behind the current submenu item */
   --sb-link: #1c4a3d;
   --sb-gold: #b98a2f;
-  --sb-canvas: #f3f4f6;        /* page background */
-  --sb-card: #ffffff;          /* cards, bars, menus, fields */
-  --sb-subtle: #fafafa;        /* table headers, card footers */
-  --sb-hover: #f9fafb;
-  --sb-line: #e5e7eb;
-  --sb-field-line: #d1d5db;
+  --sb-success: #2f7d4f;       /* confirm / positive buttons */
+  --sb-danger: #c0392b;        /* delete / destructive buttons */
+  --sb-warning: #b7791f;       /* caution buttons */
+  --sb-canvas: #e8eaed;        /* page background */
+  --sb-card: #f7f7f5;          /* cards, bars, menus, fields: off-white, easier on the eyes than pure white */
+  --sb-subtle: #f0f1ef;        /* table headers, card footers */
+  --sb-hover: #eeefed;
+  --sb-line: #dadde1;
+  --sb-field-line: #c6cbd1;
   --sb-heading: #111827;
   --sb-ink: #1f2937;
   --sb-muted: #6b7280;
   --sb-shadow: 0 16px 34px -16px rgba(17, 24, 39, .3);
   --sb-logo: url("/img/qloapps@2x.png");                          /* colour lockup */
   --sb-top: 60px;              /* top bar height */
-  --sb-side: 240px;            /* side menu width */
+  --sb-side: 304px;            /* side menu width */
+  --sb-tip: #1f2937;           /* tooltip bubble */
+  --sb-tip-line: #1f2937;
   --sb-radius: 12px;
   --sb-font: "Inter", "Open Sans", Helvetica, Arial, sans-serif;
 }
@@ -58,6 +63,9 @@ html[data-sb-theme="dark"] {
   --sb-accent-soft: #1b2c26;
   --sb-link: #7fc7ad;
   --sb-gold: #d4a94e;
+  --sb-success: #3f9d6b;
+  --sb-danger: #d9584a;
+  --sb-warning: #c98f2e;
   --sb-canvas: #0e1412;
   --sb-card: #161e1b;
   --sb-subtle: #1b2521;
@@ -69,6 +77,8 @@ html[data-sb-theme="dark"] {
   --sb-muted: #93a19b;
   --sb-shadow: 0 16px 34px -16px rgba(0, 0, 0, .7);
   --sb-logo: url("../img/qloapps-back-office-header.png");        /* white lockup */
+  --sb-tip: #2b3a34;
+  --sb-tip-line: #3b4d45;
   color-scheme: dark;
 }
 
@@ -96,7 +106,7 @@ body.ps_back-office,
 .bootstrap #header_infos i { color: var(--sb-ink) !important; }
 .bootstrap #header_infos a:hover,
 .bootstrap #header_infos a:hover i,
-.bootstrap #header_infos .dropdown.open > a { color: var(--sb-link) !important; }
+.bootstrap #header_infos .dropdown.open > a { background-color: var(--sb-canvas) !important; color: var(--sb-link) !important; }
 /* the logo already carries the name; the version number is noise */
 #header_infos #header_shopname,
 #header_infos #shop_version { display: none; }
@@ -111,15 +121,67 @@ body.ps_back-office,
 .bootstrap #header_infos .notifs_badge span { background-color: var(--sb-gold) !important; color: #fff !important; }
 .bootstrap #header_infos .dropdown-menu a { color: var(--sb-ink) !important; }
 .bootstrap #header_infos .dropdown-menu a:hover { background-color: var(--sb-canvas); }
-/* employee name as an account chip */
-.bootstrap #header_employee_box #employee_infos > a {
+/* Quick Access and account menus as floating cards */
+.bootstrap #header_infos ul.dropdown-menu {
+  min-width: 220px;
+  margin-top: 8px;
+  padding: 6px;
   border: 1px solid var(--sb-line);
-  border-radius: 999px !important;
-  font-weight: 600;
+  border-radius: 12px;
+  background-color: var(--sb-card);
+  box-shadow: 0 16px 36px -16px rgba(0, 0, 0, .35);
 }
-/* light/dark switch, added by theme-toggle.js */
-#header_infos #sb-theme-toggle { cursor: pointer; }
-#header_infos #sb-theme-toggle svg { display: block; }
+.bootstrap #header_infos ul.dropdown-menu > li > a { padding: 9px 12px; border-radius: 8px; }
+.bootstrap #header_infos ul.dropdown-menu > li.active > a { background-color: var(--sb-accent-soft); color: var(--sb-link) !important; }
+.bootstrap #header_infos ul.dropdown-menu > li.divider { margin: 6px 0; background-color: var(--sb-line); }
+.bootstrap #header_infos #quick_select { border: 1px solid var(--sb-line); border-radius: 999px; font-weight: 500; }
+.bootstrap #header_infos #quick_select i { margin-left: 6px; }
+/* account: initials in a circle (header.tpl), then the name */
+#header_infos .sb-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background-color: var(--sb-accent);
+  color: var(--sb-accent-text);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.bootstrap #header_employee_box #employee_infos > a { font-weight: 600; }
+/* light/dark switch, added by theme-toggle.js: sun and moon with a sliding knob */
+#header_infos #sb-theme-toggle {
+  position: relative;
+  justify-content: space-between;
+  width: 60px;
+  height: 32px;
+  padding: 0 8px !important;
+  border: 1px solid var(--sb-line);
+  border-radius: 999px;
+  background-color: var(--sb-canvas);
+  cursor: pointer;
+}
+#header_infos #sb-theme-toggle::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 24px;
+  border-radius: 999px;
+  background-color: var(--sb-card);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+  transition: transform .2s ease;
+}
+#header_infos #sb-theme-toggle svg { position: relative; display: block; color: var(--sb-muted); }
+html[data-sb-theme="light"] #header_infos #sb-theme-toggle svg:first-child,
+html[data-sb-theme="dark"] #header_infos #sb-theme-toggle svg:last-child { color: var(--sb-ink); }
+html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: translateX(26px); }
 
 @media (min-width: 768px) {
   .bootstrap #header_infos { height: var(--sb-top) !important; min-height: var(--sb-top); }
@@ -153,7 +215,13 @@ body.ps_back-office,
   #header_infos .navbar-header > ul > li > a:hover { background-color: var(--sb-canvas); }
   #header_infos #header_notifs_icon_wrapper,
   #header_infos #header_quick { margin-left: 8px; }
-  #header_infos #header_employee_box { margin-left: auto !important; padding-right: 12px; }
+  #header_infos #header_employee_box { gap: 6px; margin-left: auto !important; padding-right: 16px; }
+  #header_infos #header_employee_box #header_foaccess { display: inline-flex; color: var(--sb-muted) !important; }
+  #header_infos #header_employee_box #employee_infos > a { height: 44px; padding: 0 10px 0 6px !important; border-radius: 999px; }
+  #header_infos #header_employee_box #employee_infos .caret { margin-left: 8px; }
+  /* the "working" spinner: stock puts it in a grey square over the logo */
+  #header_infos #ajax_running { position: static; flex: 0 0 auto; width: auto; height: auto; margin: 0 14px 0 -6px; background-color: transparent; }
+  #header_infos #ajax_running i { color: var(--sb-muted) !important; font-size: 16px; line-height: 1; }
   #header_infos .notifs_badge { position: relative; top: -8px; margin-left: -4px; }
 
   /* everything below the bar moves down with it */
@@ -178,7 +246,7 @@ body.ps_back-office,
   border-radius: 8px;
   background-color: transparent;
   color: var(--sb-ink);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   transition: background-color .15s ease, color .15s ease;
 }
@@ -201,10 +269,59 @@ body.ps_back-office,
   border-radius: 6px;
   background-color: transparent !important;
   color: var(--sb-muted) !important;
-  font-size: 13px;
+  font-size: 15px;
 }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a:hover { background-color: var(--sb-canvas) !important; color: var(--sb-link) !important; }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft) !important; color: var(--sb-link) !important; font-weight: 600; }
+/* Sections fold and unfold with the small arrow added by side-menu.js. The
+   section you are in starts open. The stock behaviour, a box of pages that
+   appeared beside the menu while the pointer rested on a section, is off. */
+.bootstrap #nav-sidebar ul.menu > li.maintab { position: relative; }
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab ul.submenu,
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.hover ul.submenu,
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.hover ul.submenu,
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.sb-closed ul.submenu { display: none; position: static; width: auto; }
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active:not(.sb-closed) ul.submenu,
+body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.sb-open ul.submenu { display: block; }
+.bootstrap #nav-sidebar ul.menu > li.maintab.has_submenu > a.title { padding-right: 40px; }
+/* In windows shorter than 850px the stock theme shrinks the rows to 28px and
+   12px text, squeezes the page lists, and draws a pointer for its hover box.
+   The menu keeps one size at every height and scrolls when it is too long. */
+body.page-sidebar #nav-sidebar ul.menu li.maintab > a.title { height: 42px; line-height: 42px; font-size: 16px; }
+body.page-sidebar #nav-sidebar ul.menu li.maintab > a.title i { width: 20px; font-size: 16px; text-align: center; vertical-align: middle; }
+body.page-sidebar #nav-sidebar ul.menu li.maintab ul.submenu { padding: 0 0 0 10px; }
+body.page-sidebar #nav-sidebar ul.menu li.maintab ul.submenu li { height: auto; line-height: 1.4; }
+body.page-sidebar #nav-sidebar ul.menu li.maintab ul.submenu li a { height: auto; padding: 7px 10px; line-height: 1.4; }
+body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
+.bootstrap #nav-sidebar .sb-menu-arrow {
+  position: absolute;
+  top: 7px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background-color: transparent;
+  cursor: pointer;
+}
+.bootstrap #nav-sidebar .sb-menu-arrow::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 9px;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--sb-muted);
+  border-bottom: 2px solid var(--sb-muted);
+  transform: rotate(-45deg);
+  transition: transform .15s ease;
+}
+.bootstrap #nav-sidebar li.sb-open > .sb-menu-arrow::before { top: 8px; left: 10px; transform: rotate(45deg); }
+.bootstrap #nav-sidebar .sb-menu-arrow:hover { background-color: var(--sb-canvas); }
+.bootstrap #nav-sidebar .sb-menu-arrow:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(47, 125, 100, .28); }
+.bootstrap #nav-sidebar li.maintab.active > .sb-menu-arrow::before { border-color: var(--sb-accent-text); }
+.bootstrap #nav-sidebar li.maintab.active > .sb-menu-arrow:hover { background-color: rgba(255, 255, 255, .16); }
 
 /* search field at the top of the menu */
 .bootstrap #nav-sidebar li.searchtab { padding: 14px 0 10px; background-color: transparent !important; }
@@ -235,7 +352,7 @@ body.ps_back-office,
 
 @media (min-width: 768px) {
   .bootstrap #nav-sidebar .menu-collapse { display: none !important; }
-  body.page-sidebar #nav-sidebar { width: var(--sb-side); }
+  body.page-sidebar #nav-sidebar { width: var(--sb-side); bottom: 0; height: auto; overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
   body.page-sidebar #content.bootstrap { margin-left: var(--sb-side); padding-left: 24px !important; padding-right: 24px !important; }
   body.page-sidebar .page-head .page-title { padding-left: calc(var(--sb-side) + 24px); }
   body.page-sidebar .page-head .breadcrumb,
@@ -254,24 +371,28 @@ body.ps_back-office,
 .bootstrap .page-head .breadcrumb a,
 .bootstrap .page-head ul.page-breadcrumb li a { color: var(--sb-muted); background-color: transparent; }
 .bootstrap .page-head .page-bar { right: 24px; left: auto !important; }
-.bootstrap .page-head .toolbarBox .toolbar_btn {
+/* action buttons beside the page title: outlined, and the "Add new ..." one filled */
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn {
   margin-left: 8px;
-  border: 1px solid var(--sb-accent);
-  border-radius: 8px;
+  border: 1px solid var(--sb-field-line);
+  border-radius: 10px;
   background-color: var(--sb-card);
-  color: var(--sb-link);
+  color: var(--sb-ink);
+  font-size: 13px;
   font-weight: 600;
-  transition: background-color .15s ease, color .15s ease;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
-.bootstrap .page-head .toolbarBox .toolbar_btn i,
-.bootstrap .page-head .toolbarBox .toolbar_btn:before { color: var(--sb-link); }
-.bootstrap .page-head .toolbarBox .toolbar_btn:hover,
-.bootstrap .page-head .toolbarBox .toolbar_btn:hover i,
-.bootstrap .page-head .toolbarBox .toolbar_btn:hover:before { background-color: var(--sb-accent); color: var(--sb-accent-text); }
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn i,
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn:before { color: inherit; }
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn:hover { border-color: var(--sb-accent); background-color: var(--sb-card); color: var(--sb-link); }
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn[id*="-new"] { border-color: var(--sb-accent); background-color: var(--sb-accent); color: var(--sb-accent-text); }
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn[id*="-new"]:hover { border-color: var(--sb-accent-hover); background-color: var(--sb-accent-hover); color: var(--sb-accent-text); }
 .bootstrap .page-head .toolbarBox .toolbar_btn.navbar-toggle { border-color: var(--sb-line); }
 /* vendor's module promotions */
 .bootstrap .page-head .toolbarBox a[id$="-modules-list"],
 .bootstrap .page-head .toolbarBox li:has(> a[id$="-modules-list"]),
+.bootstrap .page-head .toolbarBox li:has(> a#desc-module-catalog),
+.bootstrap .alert:has(> .modules-addons-info),
 #modules_list_container { display: none !important; }
 
 #footer.bootstrap {
@@ -310,6 +431,31 @@ body.ps_back-office,
 .bootstrap .panel-heading small { color: var(--sb-muted); font-weight: 400; text-transform: none; }
 .bootstrap .panel .panel-heading .badge { background-color: var(--sb-accent-soft); color: var(--sb-link); font-weight: 600; }
 .bootstrap .panel .panel-footer { border-radius: 0 0 var(--sb-radius) var(--sb-radius); background-color: var(--sb-subtle); border-top-color: var(--sb-line); }
+/* form footer buttons (Save, Save and stay, Cancel): stock stacks a large icon
+   over a small label; here the icon sits beside the label, Save is filled and
+   the others are outlined */
+.bootstrap .panel-footer .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--sb-line);
+  border-radius: 10px;
+  background-color: var(--sb-card);
+  color: var(--sb-ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: none;
+  box-shadow: none;
+}
+.bootstrap .panel-footer .btn.pull-right { margin-left: 8px; }
+.bootstrap .panel-footer .btn:hover { border-color: var(--sb-accent); color: var(--sb-link); }
+.bootstrap .panel-footer .btn i[class*="process-icon-"] { display: inline-block; width: auto; height: auto; margin: 0; color: inherit; font-size: 15px; line-height: 1; }
+.bootstrap .panel-footer .btn i[class*="process-icon-"]::before { font-size: 15px; }
+.bootstrap .panel-footer button.btn[type="submit"] { border-color: var(--sb-accent); background-color: var(--sb-accent); color: var(--sb-accent-text); }
+.bootstrap .panel-footer button.btn[type="submit"]:hover { border-color: var(--sb-accent-hover); background-color: var(--sb-accent-hover); color: var(--sb-accent-text); }
 .bootstrap .well { border-radius: 10px; border-color: var(--sb-line); background-color: var(--sb-subtle); box-shadow: none; }
 .bootstrap hr { border-top-color: var(--sb-line); }
 
@@ -329,15 +475,36 @@ body.ps_back-office,
   letter-spacing: .03em;
   text-transform: uppercase;
 }
-.bootstrap .table tbody > tr > td { padding-top: 11px; padding-bottom: 11px; border-top-color: var(--sb-line); background-color: transparent; color: var(--sb-ink); font-size: 13px; }
+.bootstrap .table tbody > tr > td { padding-top: 11px; padding-bottom: 11px; border-top-color: var(--sb-line); border-bottom-color: var(--sb-line); background-color: transparent; color: var(--sb-ink); font-size: 13px; }
 .bootstrap .table tbody > tr:hover > td { background-color: var(--sb-hover); }
 .bootstrap .table tbody > tr.highlighted > td { background-color: var(--sb-accent-soft); }
 
 /* buttons */
-.bootstrap .btn { border-radius: 8px; font-weight: 600; }
+/* Buttons. Sizes are left as stock so buttons still line up with the fields
+   beside them; shape, colour and states are set here.
+   Filled = the main action. Outlined = everything else. Colour = meaning. */
+.bootstrap .btn {
+  border-radius: 8px;
+  font-weight: 600;
+  text-shadow: none;
+  box-shadow: none;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.bootstrap .btn:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(47, 125, 100, .28); }
+.bootstrap .btn[disabled], .bootstrap .btn.disabled { opacity: .5; }
+.bootstrap .btn-success { border-color: var(--sb-success); background-color: var(--sb-success); color: #fff; }
+.bootstrap .btn-danger { border-color: var(--sb-danger); background-color: var(--sb-danger); color: #fff; }
+.bootstrap .btn-warning { border-color: var(--sb-warning); background-color: var(--sb-warning); color: #fff; }
+.bootstrap .btn-info { border-color: var(--sb-accent-soft); background-color: var(--sb-accent-soft); color: var(--sb-link); }
+.bootstrap .btn-success:hover, .bootstrap .btn-danger:hover, .bootstrap .btn-warning:hover,
+.bootstrap .btn-success:focus, .bootstrap .btn-danger:focus, .bootstrap .btn-warning:focus { filter: brightness(1.1); color: #fff; }
+.bootstrap .btn-info:hover, .bootstrap .btn-info:focus { border-color: var(--sb-accent); background-color: var(--sb-accent-soft); color: var(--sb-link); }
+.bootstrap .btn-success > i:before, .bootstrap .btn-danger > i:before, .bootstrap .btn-warning > i:before { color: inherit; }
 .bootstrap .btn-primary,
-.bootstrap .btn-primary:focus { background-color: var(--sb-accent); border-color: var(--sb-accent); color: var(--sb-accent-text); text-shadow: none; }
+.bootstrap .btn.btn-primary,
+.bootstrap .btn-primary:focus { background-color: var(--sb-accent); border-color: var(--sb-accent); color: var(--sb-accent-text); text-shadow: none; text-transform: none; }
 .bootstrap .btn-primary:hover,
+.bootstrap .btn.btn-primary:hover,
 .bootstrap .btn-primary:active,
 .bootstrap .open > .btn-primary.dropdown-toggle { background-color: var(--sb-accent-hover); border-color: var(--sb-accent-hover); color: var(--sb-accent-text); }
 .bootstrap .btn-default { border-color: var(--sb-line); background-color: var(--sb-card); color: var(--sb-ink); }
@@ -409,8 +576,66 @@ body.ps_back-office,
 .bootstrap .dropdown-menu { border-radius: 10px; border-color: var(--sb-line); background-color: var(--sb-card); box-shadow: var(--sb-shadow); }
 .bootstrap .dropdown-menu > li > a { color: var(--sb-ink); }
 .bootstrap .dropdown-menu > li > a:hover { background-color: var(--sb-canvas); color: var(--sb-link); }
-.bootstrap .modal-content { border: 0; border-radius: 14px; background-color: var(--sb-card); color: var(--sb-ink); }
-.bootstrap .modal-header, .bootstrap .modal-footer { border-color: var(--sb-line); }
+/* pop-up windows */
+.bootstrap .modal-content { border: 1px solid var(--sb-line); border-radius: 14px; background-color: var(--sb-card); box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .55); color: var(--sb-ink); overflow: hidden; }
+.bootstrap .modal-header { padding: 18px 22px; border-color: var(--sb-line); }
+.bootstrap .modal-header .modal-title,
+.bootstrap .modal-header h3, .bootstrap .modal-header h4 { margin: 0; color: var(--sb-heading); font-size: 16px; font-weight: 600; text-transform: none; }
+.bootstrap .modal-body { padding: 20px 22px; }
+.bootstrap .modal-footer { padding: 14px 22px; border-color: var(--sb-line); background-color: var(--sb-subtle); }
+.bootstrap .modal .close, .bootstrap .alert .close { color: var(--sb-ink); opacity: .55; text-shadow: none; }
+.bootstrap .modal .close:hover, .bootstrap .alert .close:hover { opacity: 1; }
+.modal-backdrop.in { opacity: .55; }
+/* tooltips: one dark, rounded bubble in both themes, with an arrow of the same
+   colour, drawn above the top bar and the side menu */
+.tooltip { z-index: 2100; }
+.tooltip.in { opacity: 1; }
+.bootstrap .tooltip .tooltip-inner,
+.tooltip .tooltip-inner {
+  max-width: 280px;
+  padding: 8px 12px;
+  border: 1px solid var(--sb-tip-line);
+  border-radius: 8px;
+  background-color: var(--sb-tip);
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, .5);
+  color: #f3f4f6;
+  font-family: var(--sb-font);
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: left;
+  text-transform: none;
+}
+.tooltip .tooltip-inner p { margin: 0; color: inherit; }
+.tooltip.top .tooltip-arrow, .tooltip.top-left .tooltip-arrow, .tooltip.top-right .tooltip-arrow { border-top-color: var(--sb-tip) !important; }
+.tooltip.bottom .tooltip-arrow, .tooltip.bottom-left .tooltip-arrow, .tooltip.bottom-right .tooltip-arrow { border-bottom-color: var(--sb-tip) !important; }
+.tooltip.left .tooltip-arrow { border-left-color: var(--sb-tip) !important; }
+.tooltip.right .tooltip-arrow { border-right-color: var(--sb-tip) !important; }
+.bootstrap .popover { border: 1px solid var(--sb-line); border-radius: 12px; background-color: var(--sb-card); box-shadow: var(--sb-shadow); color: var(--sb-ink); }
+.bootstrap .popover-title { border-color: var(--sb-line); border-radius: 12px 12px 0 0; background-color: var(--sb-subtle); color: var(--sb-heading); }
+
+/* dashboard: the third column is empty (its vendor panels were removed in
+   view.tpl), so the other two share the full width from 1200px up */
+@media (min-width: 1200px) {
+  #dashboard #hookDashboardZoneOne { width: 30%; right: 70%; }
+  #dashboard #hookDashboardZoneTwo { width: 70%; left: 30%; }
+  #dashboard #hookDashboardZoneThree { width: 100%; clear: both; }
+}
+/* widget heading: title, then the buttons at the right, never on top of each other */
+.bootstrap .panel.widget > .panel-heading { display: flex; align-items: center; gap: 6px; height: auto; min-height: 32px; }
+.bootstrap .panel.widget > .panel-heading > span:not(.panel-heading-action) { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.bootstrap .panel.widget > .panel-heading > .panel-heading-action { position: static; flex: 0 0 auto; margin-left: auto; }
+/* figures and labels that were cut off or ran outside their box */
+#dashboard .avail-pie-value { font-size: 18px; }
+#dashboard svg { overflow: visible; }
+#dashboard .stat-box { padding: 16px; }
+#dashboard .stat-box .value-wrapper span { font-size: 16px; white-space: nowrap; }
+#dashboard .stat-box .title-wrapper p { color: #1f2937; }   /* the tiles are pastel in both themes */
+#dashboard .stats-list > li:has(> #dash_traffic_source) { flex-wrap: wrap; align-items: flex-start; }
+#dashboard .stats-list > li:has(> #dash_traffic_source) > .item-label { flex: 0 0 100%; margin-bottom: 8px; }
+#dashboard #dash_traffic_source,
+#dashboard #dash_traffic_chart2 { flex: 0 0 100%; }
+#content.bootstrap #dashboard #dashproducts nav { font-family: inherit; text-transform: none; }
 
 /* ---------- 8. Stock-blue replacements ----------
    The stock theme's #00aff0 family, found by scanning rendered pages. */
@@ -452,8 +677,6 @@ html[data-sb-theme="dark"] .bootstrap .chosen-container .chosen-drop,
 html[data-sb-theme="dark"] .bootstrap .chosen-container .chosen-results li { background: var(--sb-card); border-color: var(--sb-field-line); color: var(--sb-ink); }
 html[data-sb-theme="dark"] .bootstrap .chosen-container .chosen-results li.highlighted { background: var(--sb-accent); color: var(--sb-accent-text); }
 html[data-sb-theme="dark"] .bootstrap .datepicker,
-html[data-sb-theme="dark"] .bootstrap .popover,
-html[data-sb-theme="dark"] .bootstrap .tooltip-inner { background-color: var(--sb-card); border-color: var(--sb-line); color: var(--sb-ink); }
 html[data-sb-theme="dark"] .bootstrap .alert.alert-warning { background-color: #3a3018; border-color: #5c4a1c; color: #f1dca1; }
 html[data-sb-theme="dark"] .bootstrap .alert.alert-danger { background-color: #3b1d1b; border-color: #5e2b27; color: #f3c0bb; }
 html[data-sb-theme="dark"] .bootstrap .alert.alert-success { background-color: #183226; border-color: #25503b; color: #bfe5d1; }
@@ -465,8 +688,10 @@ html[data-sb-theme="dark"] .bootstrap .fc-day, html[data-sb-theme="dark"] .boots
 html[data-sb-theme="dark"] .bootstrap .fc td { border-color: var(--sb-line); background-color: transparent; color: var(--sb-ink); }
 /* our own guide pages */
 html[data-sb-theme="dark"] .sb-guide { color: var(--sb-ink); }
-html[data-sb-theme="dark"] .sb-guide section,
-html[data-sb-theme="dark"] .sb-guide .sb-card { background: var(--sb-card); border-color: var(--sb-line); }
+/* #content in front: the guide stylesheet loads after this file and would win otherwise */
+#content .sb-guide section,
+#content .sb-guide .sb-card,
+#content .sb-guide .sb-menu-form { background: var(--sb-card); border-color: var(--sb-line); }   /* both themes */
 html[data-sb-theme="dark"] .sb-guide .sb-toc,
 html[data-sb-theme="dark"] .sb-guide .sb-tip { background: var(--sb-subtle); border-color: var(--sb-line); }
 html[data-sb-theme="dark"] .sb-guide .sb-warn { background: #3b1d1b; }
@@ -477,28 +702,53 @@ html[data-sb-theme="dark"] .sb-guide .sb-toc a { color: var(--sb-heading); }
 html[data-sb-theme="dark"] .sb-guide .sb-path,
 html[data-sb-theme="dark"] .sb-guide .sb-btn { background: var(--sb-subtle); border-color: var(--sb-line); color: var(--sb-ink); }
 html[data-sb-theme="dark"] .sb-guide th, html[data-sb-theme="dark"] .sb-guide td { border-bottom-color: var(--sb-line); }
+html[data-sb-theme="dark"] .sb-guide th { color: var(--sb-muted); }
+html[data-sb-theme="dark"] .sb-guide .sb-go,
+html[data-sb-theme="dark"] .sb-guide .sb-toc strong { color: var(--sb-gold); }
 
-/* ---------- 10. Sign-in page ---------- */
+/* ---------- 10. Sign-in page ----------
+   Stock: a shadowed column holding the logo, a version number, a second
+   round logo overlapping the form, and the shop name. Here: the logo, then
+   one card with the form, centred on the page. */
 body#login, #login { background-color: var(--sb-canvas); }
-#login #login-panel { border-radius: 16px; box-shadow: var(--sb-shadow); }
+#login { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px 16px; box-sizing: border-box; }
+#login #content { width: 100%; max-width: 440px; margin: 0; padding: 0; }
+#login #login-panel { width: auto; margin: 0; padding: 0; border-radius: 0; background: transparent; box-shadow: none; }
+#login #login-header { height: auto; margin: 0; padding: 0 0 28px; }
+#login #login-header h1 { margin: 0; }
+#login #logo { width: auto; height: 88px; }
+/* the version number, the second logo and the repeated shop name */
+#login #login-header > div.text-center:not(#error),
+#login #shop-img,
+#login #shop_name { display: none; }
+#login #login-panel .flip-container { margin-top: 0; }
 #login #login-panel .flip-container .front,
-#login #login-panel .flip-container .back { border: 1px solid var(--sb-line); border-radius: 16px; background-color: var(--sb-card); color: var(--sb-ink); }
-#login #login-panel h4, #login #login-panel label, #login #shop_name { color: var(--sb-ink); }
-#login .form-control { background-color: var(--sb-card); border-color: var(--sb-field-line); color: var(--sb-ink); }
+#login #login-panel .flip-container .back {
+  padding: 32px 32px 28px;
+  border: 1px solid var(--sb-line);
+  border-radius: 16px;
+  background-color: var(--sb-card);
+  box-shadow: var(--sb-shadow);
+  color: var(--sb-ink);
+}
+#login #login-panel h4, #login #login-panel label { color: var(--sb-ink); }
+#login .form-control { height: 44px; background-color: var(--sb-card); border-color: var(--sb-field-line); color: var(--sb-ink); }
 #login .form-control:focus { border-color: var(--sb-accent); box-shadow: 0 0 0 3px rgba(47, 125, 100, .18); }
 #login button[name="submitLogin"], #login button[name="submitForgot"], #login .btn-primary {
+  height: 46px;
   background-color: var(--sb-accent);
   border-color: var(--sb-accent);
   border-radius: 10px;
   color: var(--sb-accent-text);
-  letter-spacing: .06em;
+  letter-spacing: .04em;
 }
 #login button[name="submitLogin"]:hover, #login .btn-primary:hover { background-color: var(--sb-accent-hover); border-color: var(--sb-accent-hover); }
 #login a { color: var(--sb-link); }
 #login a:hover { color: var(--sb-gold); }
+#login #login-footer { margin-top: 22px; }
 #login #login-footer, #login #login-footer p { color: var(--sb-muted); }
-/* the sign-in logo is a dark-ink image; on the dark theme show it on a light plate */
-html[data-sb-theme="dark"] #login #logo { padding: 8px 12px; border-radius: 10px; background-color: #fff; }
+/* the logo is dark ink on white: on the dark theme invert it and let the black drop out */
+html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
 
 /* ---------- 11. Narrow windows ----------
    Below 768px the stock theme switches to an icon rail and a 36px bar; the
@@ -535,12 +785,17 @@ html[data-sb-theme="dark"] #login #logo { padding: 8px 12px; border-radius: 10px
 #content.bootstrap .prestashop-switch input:checked + label { color: var(--sb-accent-text); }
 #content.bootstrap .list-group-item { background-color: var(--sb-card); color: var(--sb-ink); }
 #content.bootstrap .list-group-item.active { background-color: var(--sb-accent); color: var(--sb-accent-text); }
-#content.bootstrap td.list-empty,
-#content.bootstrap .list-empty { background-color: transparent; }
-#content.bootstrap .list-empty .list-empty-msg { color: var(--sb-muted); }
+#content.bootstrap .table td.list-empty,
+#content.bootstrap .list-empty { background-color: transparent !important; }
+#content.bootstrap .list-empty .list-empty-msg { color: var(--sb-muted); font-family: inherit; }
+/* the row of search boxes under a list's column titles (stock: pale blue) */
+#content.bootstrap .table thead > tr.filter > th,
+#content.bootstrap .table thead > tr.filter > td { background-color: var(--sb-subtle) !important; border-color: var(--sb-line); }
 #content.bootstrap .box-stats .title, #content.bootstrap .box-stats .title span { color: var(--sb-muted); }
 #content.bootstrap .box-stats .value, #content.bootstrap .box-stats .value span { color: var(--sb-heading); }
-.bootstrap .page-head .toolbarBox .toolbar_btn > span { color: inherit; }
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn span,
+.bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn div { color: inherit; font-weight: inherit; }
+#dashboard .avail-pie-label-container p { color: #fff; }
 .bootstrap .avail-bar-btn, .bootstrap .avail-bar-date { background-color: var(--sb-card); }
 .bootstrap .hasDatepicker.form-control { background-color: var(--sb-card); color: var(--sb-ink); }
 
@@ -562,7 +817,7 @@ html[data-sb-theme="dark"] #content.bootstrap .fc .fc-toolbar-title { color: var
 html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard td,
 html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard th,
 html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard .fc-scrollgrid { border-color: var(--sb-line); }
-html[data-sb-theme="dark"] #content.bootstrap .badge-item.label-tooltip { background-color: var(--sb-subtle) !important; border-bottom: 0; }
+#content.bootstrap .badge-item.label-tooltip { background-color: var(--sb-card) !important; border-bottom: 0; }   /* dashboard figure tiles, both themes */
 #content.bootstrap [id^="dgc_"] { color: var(--sb-heading); }
 .bootstrap input.hasDatepicker[readonly],
 .bootstrap input.form-control[readonly] { background-color: var(--sb-subtle); color: var(--sb-ink); }

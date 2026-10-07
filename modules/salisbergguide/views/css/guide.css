@@ -32,3 +32,6 @@
 .bootstrap .sb-guide .sb-card h3 { height: auto; margin: 0 0 12px !important; padding: 0 0 10px !important; line-height: 1.3; text-transform: none; font-family: inherit; }
 .bootstrap .sb-guide .sb-card h3 { padding: 0 !important; border: 0; }
 .bootstrap .sb-guide .sb-intro h2 { text-transform: none; font-family: inherit; }
+.sb-guide .sb-menu-form { margin: 14px 0; padding: 16px 18px; border: 1px solid #e3e3e3; border-radius: 10px; background: #fff; }
+.sb-guide .sb-menu-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+.sb-guide .sb-menu-name { flex: 0 0 200px; font-weight: 600; }

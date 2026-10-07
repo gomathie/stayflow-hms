@@ -26,7 +26,7 @@
 		<h3>1. {l s='Signing in and your account' mod='salisbergguide'}</h3>
 		<ol>
 			<li>{l s='Open the back office address your administrator gave you and sign in with your work email and password.' mod='salisbergguide'}</li>
-			<li>{l s='The sun or moon icon at the top right switches the back office between a light and a dark look. Pick whichever is easier on your eyes; it is remembered on that computer and changes nothing for anyone else.' mod='salisbergguide'}</li>
+			<li>{l s='The small switch with a sun and a moon at the top right changes the back office between a light and a dark look. Pick whichever is easier on your eyes; it is remembered on that computer and changes nothing for anyone else.' mod='salisbergguide'}</li>
 			<li>{l s='Every password box has an eye icon at its right edge. Click it to see what you typed, and click again to hide it. Check that nobody is looking at your screen first.' mod='salisbergguide'}</li>
 			<li>{l s='To change your password, click your name at the top right of the screen and choose' mod='salisbergguide'} <span class="sb-btn">My preferences</span>.</li>
 			<li>{l s='When you finish your shift, click your name at the top right and choose' mod='salisbergguide'} <span class="sb-btn">Sign out</span>.</li>
@@ -37,15 +37,17 @@
 	<section id="sb-s2">
 		<h3>2. {l s='Finding your way around' mod='salisbergguide'}</h3>
 		<p>{l s='The menu is on the left. You will only see the pages your role is allowed to use.' mod='salisbergguide'}</p>
+		<p>{l s='The section you are in lists its pages underneath it. For any other section, click the small arrow at the right of its name to list its pages, and click the arrow again to fold them away. Clicking the name itself opens the first page of that section.' mod='salisbergguide'}</p>
 		<table>
 			<tr><th>{l s='Menu' mod='salisbergguide'}</th><th>{l s='What it is for' mod='salisbergguide'}</th></tr>
 			<tr><td><span class="sb-path">Dashboard</span></td><td>{l s='Today at a glance: recent bookings and activity.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Hotel Reservation System &rsaquo; Book Now</span></td><td>{l s='See which rooms are free and make a booking for a guest.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Orders &rsaquo; Orders</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Bookings &rsaquo; Bookings</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records and their booking history.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customer Service</span></td><td>{l s='Messages guests send through the website.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Hotel Reservation System &rsaquo; Manage Order Refund Requests</span></td><td>{l s='Cancellation and refund requests from guests.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Guides</span></td><td>{l s='This guide.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Guides &rsaquo; What's New</span></td><td>{l s='Recent changes to the system, newest first. Look here when something looks different.' mod='salisbergguide'}</td></tr>
 		</table>
 		<p class="sb-tip">{l s='In any list you can type in the boxes under the column headings and press Enter (or click Search) to filter. Click Reset to clear the filter.' mod='salisbergguide'}</p>
 	</section>
@@ -69,7 +71,7 @@
 	<section id="sb-s4">
 		<h3>4. {l s='Find and open a booking' mod='salisbergguide'}</h3>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Orders &rsaquo; Orders</span>.</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Bookings</span>.</li>
 			<li>{l s='Search by booking reference (the nine-letter code the guest received), by guest name, or by status.' mod='salisbergguide'}</li>
 			<li>{l s='Click the row to open the booking.' mod='salisbergguide'}</li>
 		</ol>
@@ -81,7 +83,7 @@
 			<li><strong>Rooms Booking Detail</strong> &ndash; {l s='each room with its check-in and check-out dates.' mod='salisbergguide'}</li>
 			<li><strong>Messages</strong> &ndash; {l s='notes exchanged with the guest.' mod='salisbergguide'}</li>
 		</ul>
-		<a class="sb-go" href="{$sb_links.AdminOrders|escape:'html':'UTF-8'}">{l s='Open Orders' mod='salisbergguide'} &rarr;</a>
+		<a class="sb-go" href="{$sb_links.AdminOrders|escape:'html':'UTF-8'}">{l s='Open Bookings' mod='salisbergguide'} &rarr;</a>
 	</section>
 
 	<section id="sb-s5">
@@ -171,7 +173,7 @@
 		<ul>
 			<li><strong>{l s='"Too many attempts. Please wait…" when signing in:' mod='salisbergguide'}</strong> {l s='the wrong password was entered too many times from your connection (10 tries in 10 minutes). Wait the time shown, then try again carefully. If you have forgotten your password, ask an administrator to reset it.' mod='salisbergguide'}</li>
 			<li><strong>{l s='"Access denied" on a page:' mod='salisbergguide'}</strong> {l s='your role does not include it. Ask an administrator if you need it for your job.' mod='salisbergguide'}</li>
-			<li><strong>{l s='A room shows as unavailable but is empty:' mod='salisbergguide'}</strong> {l s='another booking may hold it. Search Orders for those dates before promising it to a guest.' mod='salisbergguide'}</li>
+			<li><strong>{l s='A room shows as unavailable but is empty:' mod='salisbergguide'}</strong> {l s='another booking may hold it. Search Bookings for those dates before promising it to a guest.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Guest says they paid by Mobile Money but nothing arrived:' mod='salisbergguide'}</strong> {l s='ask for the transaction ID and check the hotel account. Do not mark the booking as paid until the money is there.' mod='salisbergguide'}</li>
 			<li><strong>{l s='You recorded the wrong amount or status:' mod='salisbergguide'}</strong> {l s='do not try to hide it. Add a private note on the booking and tell your manager so it can be corrected.' mod='salisbergguide'}</li>
 			<li><strong>{l s='The website or back office is not loading:' mod='salisbergguide'}</strong> {l s='tell an administrator. Keep a paper record of bookings and payments until it is back, then enter them.' mod='salisbergguide'}</li>

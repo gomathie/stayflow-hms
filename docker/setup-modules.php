@@ -64,13 +64,13 @@ foreach (array('salisbergpay', 'salisbergguide') as $name) {
     }
 }
 
-// Menu entries and the Hotel Staff profile: created if missing, on every run
+// Menu entries and the Hotel Staff and Hotel Manager profiles: created if missing, on every run
 $guide = Module::getInstanceByName('salisbergguide');
 if ($guide && Module::isInstalled('salisbergguide')) {
     if ($guide->ensureSetup()) {
-        sb_log('guide menus and Hotel Staff profile in place');
+        sb_log('guide menus, Hotel Staff and Hotel Manager profiles in place');
     } else {
-        sb_log('ERROR: guide menus or Hotel Staff profile could not be created');
+        sb_log('ERROR: guide menus or staff profiles could not be created');
         $failed = true;
     }
 }

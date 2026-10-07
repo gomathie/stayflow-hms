@@ -16,6 +16,7 @@ COPY docker/entrypoint.sh /usr/local/bin/salisberg-entrypoint
 COPY docker/setup-modules.php /usr/local/share/salisberg/setup-modules.php
 COPY docker/backup.sh /usr/local/bin/salisberg-backup
 COPY docker/ratelimit.php /usr/local/share/salisberg/ratelimit.php
+COPY docker/branding/pay-cash.jpg docker/branding/pay-momo.jpg /usr/local/share/salisberg/
 # Lets the mysql/mysqldump CLI talk to MySQL 8 (self-signed cert) on the private stack network
 RUN printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/salisberg-client.cnf
 
@@ -27,7 +28,7 @@ COPY --chown=www-data:www-data . /var/www/html
 # - deployment files have no business in the web root
 RUN sed -i 's/\r$//' /usr/local/bin/salisberg-entrypoint /usr/local/bin/salisberg-backup \
     && chmod +x /usr/local/bin/salisberg-entrypoint /usr/local/bin/salisberg-backup \
-    && rm -rf docker docker-compose*.yml .env.example .gitattributes CHANGELOG.txt composer.json \
+    && rm -rf docker docker-compose*.yml .env.example .gitattributes CHANGELOG.txt CHANGELOG.md composer.json \
     && mkdir -p /data /usr/src/salisberg-seed \
     && cp -a img upload download /usr/src/salisberg-seed/ \
     && chown www-data:www-data /data

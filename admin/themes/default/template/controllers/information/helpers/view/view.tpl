@@ -76,7 +76,7 @@
 					<i class="icon-info"></i>
 					{l s='Configuration information'}
 				</h3>
-				<p>{l s='This information must be provided when you report an issue on our bug tracker or forum.'}</p>
+				<p>{l s='A summary of the server, database and website setup. Send it to the developer team when you report a problem. What each part means is explained in the Admin Guide, section 16.'}</p>
 			</div>
 			{if !$host_mode}
 			<div class="panel">
