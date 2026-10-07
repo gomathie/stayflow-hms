@@ -6,6 +6,7 @@ Guidance for any agent or developer working in this repository. Read it before c
 
 - **Product name:** Salisberg. **Production URL:** https://salisberg.com
 - **Base:** a fork of [QloApps](https://github.com/Qloapps/QloApps) (Webkul), an open-source hotel booking engine that is itself built on PrestaShop 1.6. License: OSL-3.0.
+- **Direction (owner, 2026-10-07):** Salisberg stands on its own. It started from QloApps 1.7.0 but does not depend on QloApps or wait for its updates. The inherited code is ours to change. Rules 11, 18 and 28 are written for that.
 - **Stack:** PHP 8.3 + Apache, MySQL 8.0, Smarty templates. No Composer dependencies at the root, no Node build step.
 - **Hosting:** a VPS running [Coolify](https://coolify.io). Coolify builds `docker-compose.yml` from this repo and its own proxy terminates TLS for the domain.
 - The repo was briefly named "StayFlow" (the GitHub repository is still `stayflow-hms`); the internal code, database prefix (`qlo_`) and many file names still say QloApps. That is expected.
@@ -61,7 +62,7 @@ The final repository must consistently identify the project as MIT licensed by S
 
 ### Code
 
-11. **Do not edit core files when an override will do.** Use `override/` and modules in `modules/`, as PrestaShop 1.6 intends. Core edits make upstream QloApps updates painful.
+11. **Fix things where they are defined.** The inherited platform code is ours (section 1, Direction), so a fault or an unwanted default in an inherited file is corrected in that file, not papered over from somewhere else. For styling this means changing the inherited stylesheet's rule instead of out-ranking it with `!important`. New behaviour still goes in `override/` and in modules, as PrestaShop 1.6 intends, because that keeps our features in one findable place; an override is no longer preferred merely to leave the original untouched. Every change to an inherited file is verified in a running stack and recorded in section 6.
 12. **Do not rename the `qlo_` table prefix or internal `QloApps`/`PrestaShop` identifiers** as part of branding work. Branding is done through shop name, theme, logos and translations.
 13. **Match the surrounding code style** (PrestaShop 1.6 conventions: PSR-2-ish PHP, Smarty `.tpl`).
 14. **Keep the upstream license headers** in files you touch (OSL-3.0 requirement).
@@ -71,7 +72,7 @@ The final repository must consistently identify the project as MIT licensed by S
 15. **Verify before claiming.** Build the image and boot the stack locally (section 5) after any change to `Dockerfile`, `docker/` or compose files. Record what was and was not tested.
 16. **Commit or push only when the owner asks.** Work on a branch, not directly on `main`.
 17. **Record every meaningful change in section 6** with what, why and how.
-18. **Track upstream by tagged release only.** Never merge `Qloapps/QloApps` `develop`. When a new tag ships, diff it against the current base tag, review, and re-test the Docker boot before deploying.
+18. **Upstream is a source of security fixes, not of releases.** Do not merge `Qloapps/QloApps` (neither `develop` nor a new tag) and never install the 1-Click Upgrade module. Do watch upstream's security advisories and fixes: a fix that applies to code we still carry is backported by hand and listed in `PATCHES.md` (rule 24). Bundled libraries (jQuery, Bootstrap scripts, TinyMCE, Smarty, TCPDF) are kept current by us, from their own publishers.
 19. **Files under upstream-ignored paths** (`img/**`, `modules/*/translations/*`) need `git add -f`. Check for silently dropped files after any import from upstream.
 20. **Anything written at runtime outside `img/`, `upload/`, `download/` and `/data` is lost on deploy.** When adding or enabling a module that accepts uploads, add its folder to `PERSIST_DIRS` in `docker/entrypoint.sh`. (Background: change log, 2026-10-06.)
 21. **Sanitise input and escape output.** Take request input through `Tools::getValue()`, cast numbers, use `pSQL()` or `(int)` for anything placed in SQL, and escape template output with `|escape:'html':'UTF-8'`.
@@ -104,7 +105,7 @@ The final repository must consistently identify the project as MIT licensed by S
     - **Proof first:** search the whole tree for every reference (class name, file path, function name, selectors for CSS) and confirm none remain outside the file itself. Check `classes/ConfigurationTest.php` too: it lists files the installer expects to exist.
     - **Then verify:** rebuild, load the storefront and back office, and confirm no errors in the log.
     - **Our own code** (anything from rule 25's table): remove freely once proven unused.
-    - **Vendor code:** remove only whole files or folders that are provably unreferenced. Never trim inside a vendor file, and never move one: the platform loads files by fixed path. Each removal makes the next upstream merge slightly harder, so record it in the change log with the evidence.
+    - **Inherited platform code:** the same proof is required, and it is harder to get, because the platform loads files by fixed path, by hook name and through the class index. Whole files or folders may go once provably unreferenced; a rule, function or block inside a file may go once nothing can reach it. Never move or rename a file (rule 29). Record each removal in the change log with the evidence.
     - **Not dead:** features that are switched off but may be switched on (reviews, testimonials, bank wire), and anything loaded by path, by a hook name or through the class index.
 29. **Never move or rename a vendor file.** The back office, the installer and the autoloader locate files by path. (Background: change log, 2026-10-06, `admin/functions.php`.)
 

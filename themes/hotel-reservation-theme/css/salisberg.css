@@ -468,7 +468,7 @@ button.button.exclusive:hover {
 .btn.btn-service-product.btn-success,
 #add_to_cart button.exclusive.book_now_submit {
   background: var(--sb-green);
-  border-color: var(--sb-green);
+  border-color: var(--sb-green) !important;
   border-radius: 10px;
   color: #fff;
   font-weight: 600;
@@ -486,7 +486,7 @@ button.button.exclusive:hover {
 
 /* Accents */
 .theme-text-underline,
-hr.theme-text-underline { border-color: var(--sb-gold) !important; }
+hr.theme-text-underline { border-color: var(--sb-gold); }
 .nav > li.active::after,
 .nav-tabs > li.active::after { background-color: var(--sb-gold); }
 a.view_more,
@@ -494,12 +494,10 @@ a.view_more,
 .num_reviews,
 .extra_demands_price_block,
 .add_new_occupancy_btn span,
-.add_new_occupancy_btn i::before { color: var(--sb-gold) !important; }
+.add_new_occupancy_btn i::before { color: var(--sb-gold) !important; }   /* must also beat the broad dark-mode text rules */
 .close_navbar { background-color: var(--sb-green); }
 .layer_cart_product h2,
-.layer_cart_product h2 i::before { color: var(--sb-green-2) !important; }
-.ui-slider .ui-slider-range { background: var(--sb-gold) !important; }
-.ui-slider .ui-slider-handle { border-color: var(--sb-gold) !important; }
+.layer_cart_product h2 i::before { color: var(--sb-green-2); }
 
 .alert.alert-info {
   background: var(--sb-cream);
@@ -508,16 +506,6 @@ a.view_more,
   text-shadow: none;
 }
 .alert.alert-info::before { color: var(--sb-gold); }
-
-/* Date picker and occupancy pop-up */
-.date-picker-wrapper .day.toMonth.valid.checked,
-.date-picker-wrapper .day.first-date-selected,
-.date-picker-wrapper .day.last-date-selected {
-  background-color: var(--sb-green) !important;
-  color: #fff !important;
-}
-.date-picker-wrapper .day.toMonth.hovering { background-color: var(--sb-line) !important; }
-.date-picker-wrapper .day.real-today { background-color: var(--sb-cream) !important; }
 
 /* Headings */
 .page-heading,
@@ -783,7 +771,7 @@ header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600
   #menu_cont .wk-nav-style > li > a {
     position: relative;
     padding: 10px 18px;
-    background: transparent;
+    background: transparent !important;
     color: var(--sb-heading);
     font-size: 13px;
     font-weight: 500;
@@ -950,7 +938,7 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 #order-opc .step-edit > a,
 #order-opc .already_registered_block #openLoginFormBlock,
 #order-opc #login_form_content #idAccountChoice,
-#order-opc .avail_vouchers_block .avail_voucher_name > .voucher_name { color: var(--sb-gold) !important; }
+#order-opc .avail_vouchers_block .avail_voucher_name > .voucher_name { color: var(--sb-gold); }
 #order-opc .room_duration_block,
 #order-opc .product-detail .room_duration_block { background-color: var(--sb-cream); border-radius: 10px; }
 #order-opc .order_step_heading,
@@ -1085,7 +1073,7 @@ html[data-sb-theme="dark"] .dropdown-menu > li > a { color: var(--sb-ink); }
 html[data-sb-theme="dark"] .dropdown-menu > li > a:hover { background-color: var(--sb-cream); color: var(--sb-gold-2); }
 html[data-sb-theme="dark"] #bigpic,
 html[data-sb-theme="dark"] #thumbs_list a { background-color: transparent; }
-html[data-sb-theme="dark"] hr { border-color: var(--sb-line); }
+html[data-sb-theme="dark"] hr:not(:where(.theme-text-underline)) { border-color: var(--sb-line); }
 html[data-sb-theme="dark"] #columns div:not([class*="alert"]) { color: var(--sb-ink); }
 html[data-sb-theme="dark"] #columns .nav-tabs > li > a.idTabHrefShort { color: var(--sb-ink) !important; }
 /* search results: filter panel and room rows */
@@ -1112,9 +1100,10 @@ html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.invali
 html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.lastMonth,
 html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.nextMonth { color: #55625c; }
 html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.checked { background-color: #1f3a31; }
+html[data-sb-theme="dark"] #columns .date-picker-wrapper .month-wrapper table .day.toMonth.valid.checked { color: #fff; }
 html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .caption th,
 html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .week-name th { color: var(--sb-muted); }
 /* checkout */
-html[data-sb-theme="dark"] #order-opc .product-name a { color: var(--sb-heading) !important; }
+html[data-sb-theme="dark"] #order-opc .product-name a { color: var(--sb-heading); }
 html[data-sb-theme="dark"] .room-type-features .room-type-feature,
 html[data-sb-theme="dark"] #order-opc .total_price_block { background-color: var(--sb-cream); border-color: var(--sb-line); color: var(--sb-ink); }

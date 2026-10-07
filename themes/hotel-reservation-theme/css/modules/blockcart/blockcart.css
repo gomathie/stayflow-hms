@@ -288,7 +288,7 @@
     position: static; }
     #layer_cart .layer_cart_product h2 {
       font: 400 23px/29px Arial, Helvetica, sans-serif;
-      color: #46a74e;
+      color: var(--sb-green-2);
       margin-bottom: 22px; }
       @media (max-width: 767px) {
         #layer_cart .layer_cart_product h2 {

@@ -55,7 +55,7 @@
     height: 40px;
 }
 .date-picker-wrapper .month-wrapper table .day.real-today {
-    background-color: unset;
+    background-color: var(--sb-cream);
 }
 .date-picker-wrapper .month-wrapper table tr td .day {
     padding: 10px 11px;
@@ -84,8 +84,13 @@
     background-color: #E6E6E6;
 }
 .date-picker-wrapper .month-wrapper table .day.toMonth.hovering {
-    background-color: #E6E6E6;
+    background-color: var(--sb-line);
 }
+.date-picker-wrapper .month-wrapper table .day.toMonth.valid.checked {
+    background-color: var(--sb-green);
+    color: #fff;
+}
+/* !important because the date picker's own stylesheet sets these two with !important */
 .date-picker-wrapper .first-date-selected, .date-picker-wrapper .last-date-selected {
-    background-color: #1292ff !important;
+    background-color: var(--sb-green) !important;
 }

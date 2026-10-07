@@ -80,15 +80,14 @@
 
 #filter_price_silder .ui-slider-range
 {
-	background-color: #379BF0;
-    background-image: none;
+	background: var(--sb-gold);
 }
 
 #filter_price_silder .ui-slider-handle
 {
 	background-color: #FFFFFF;
     background-image: none;
-    border-color: #bebbbb;
+    border-color: var(--sb-gold);
     border-radius: 50%;
     outline: none;
 }

@@ -1416,7 +1416,7 @@ Quick View Styles
   color: #333;
 }
 .price_desc_block .extra_demands_price_block {
-  color: #299DFF;
+  color: var(--sb-gold);
 }
 .price_desc_block .plus-sign {
   font-size: 24px;

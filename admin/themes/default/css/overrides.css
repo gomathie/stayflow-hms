@@ -119,7 +119,7 @@ body.ps_back-office,
 }
 .bootstrap #header_infos .notifs_badge,
 .bootstrap #header_infos .notifs_badge span { background-color: var(--sb-gold); color: #fff; }
-.bootstrap #header_infos .dropdown-menu a { color: var(--sb-ink); }
+.bootstrap #header_infos .dropdown-menu a { color: var(--sb-ink) !important; }
 .bootstrap #header_infos .dropdown-menu a:hover { background-color: var(--sb-canvas); }
 /* Quick Access and account menus as floating cards */
 .bootstrap #header_infos ul.dropdown-menu {

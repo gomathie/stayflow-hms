@@ -8845,7 +8845,7 @@ body .ui-tooltip {
   margin-top: 5px;
   width: 60px; }
 hr.theme-text-underline {
-  border: 1px solid #379bf0;
+  border: 1px solid var(--sb-gold);
   float: left;
   margin-top: 10px;
   width: 60px;
@@ -8969,7 +8969,7 @@ hr.theme-text-underline {
 a.open_rooms_extra_services_panel {
   /* font-size:12px;
   font-weight: 600; */
-  color: #0000FF;}
+  color: var(--sb-gold);}
 #rooms_extra_services {
   width: 100%;
   font-size: 16px;}
