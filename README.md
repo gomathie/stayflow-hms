@@ -23,6 +23,9 @@ Salisberg is built on [QloApps](https://github.com/Qloapps/QloApps) 1.7.0, an op
 |---|---|
 | [`CHANGELOG.md`](CHANGELOG.md) | Every change, newest first, in plain words |
 | [`AGENTS.md`](AGENTS.md) | The rules for working on this code, how the setup works, and the detailed record of each change: what, why, how, and how it was tested. **Read it before changing anything.** |
+| [`COOLIFY.md`](COOLIFY.md) | Putting the site live on a Coolify server, step by step |
+| [`COOLIFY-STAGING.md`](COOLIFY-STAGING.md) | Setting up and using the private staging copy |
+| [`BACKUP.md`](BACKUP.md) | Backups, off-server copies, and recovering from a lost server |
 | [`PATCHES.md`](PATCHES.md) | Security fixes made to vendor files, with the upstream change each one mirrors |
 | [`SECURITY.md`](SECURITY.md) | How to report a security problem |
 | [`LICENSE.md`](LICENSE.md) | The licence |

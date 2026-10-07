@@ -13,6 +13,7 @@ Every change to Salisberg, newest first, in plain words.
 
 - **Bank transfer** as a third way to pay, alongside cash and Mobile Money. It appears to guests once the hotel's bank account is entered in Salisberg Pay settings; the booking waits as "Awaiting payment" until staff record the money.
 - **Printable reports** (Bookings › Reports): bookings, arrivals and departures, and income by day, for today, this week, this month, last month or any dates, on screen and as a PDF. Given to the Hotel Manager; other profiles can be given it in Permissions.
+- Three guides for whoever looks after the server: `COOLIFY.md` (putting the site live on Coolify), `COOLIFY-STAGING.md` (a private test copy, and how to fill it with a copy of the live data) and `BACKUP.md` (what is backed up, getting copies off the server, and rebuilding the site after a lost server).
 - A repeatable check, `docker/smoke-test.sh`, that confirms the main website and back office pages load without errors.
 - **Dark mode on the website.** A sun/moon switch in the header, on computers and phones. The site starts light; a visitor's choice is remembered on their device.
 - **What's New page** in the back office (Guides › What's New). Which profiles can open it is set in Administration › Permissions. Hotel Staff and Hotel Manager have it to begin with.
