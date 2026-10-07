@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='7 October 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='Small tidy-ups to the look.' mod='salisbergguide'}</strong> {l s='Text you type into fields now uses the same typeface as the rest of the screen, a few section headings are no longer in capital letters, and a top bar item reached with the Tab key is highlighted. Nothing has moved.' mod='salisbergguide'}</li>
 			<li><strong>{l s='This page.' mod='salisbergguide'}</strong> {l s='Changes are now listed here as they are made.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Bank transfer.' mod='salisbergguide'}</strong> {l s='Guests can now choose to pay by bank transfer once the hotel bank account has been entered. Like Mobile Money, the booking waits as Awaiting payment until you record the money. See the Staff Guide, section 5.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Dark mode.' mod='salisbergguide'}</strong> {l s='Lists and forms that still showed white or pale blue areas in dark mode have been corrected.' mod='salisbergguide'}</li>

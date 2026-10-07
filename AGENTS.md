@@ -1279,3 +1279,48 @@ Follow-up to the entry above. `salisberg.css` now has **8** `!important` flags (
 - **Mistakes in the tooling, found and corrected during this work:** one "before" record was taken a few seconds after the trial stylesheet had been copied in, so the first comparison showed no differences at all; that was noticed because it contradicted the earlier per-flag measurements, and the records were retaken. The comparison also used to stop at the first element whose class list differed between runs (a carousel's "active" item), skipping the rest of that page; it now ignores those classes.
 - **Not tested:** the file upload button and the testimonials photo (not on screen); the order detail page of a past booking, which has its own button rules; right-to-left; Safari and Firefox; the live server.
 - **Back office not touched in this step:** `overrides.css` still has 33.
+
+### 2026-10-07 — Back office: inherited rules corrected, `overrides.css` down to 4 flags
+
+Same method as the website buttons entry above: remove the flags in a trial, read from the before/after record what actually changes, correct the inherited rule responsible. `overrides.css` had 64 `!important` flags at the start of the day, 33 before this step, and has **4** now.
+
+#### Changes in `admin/themes/default/css/admin-theme.css` (inherited, minified)
+
+| What | Before | Now |
+|---|---|---|
+| Typeface | `"Open Sans"` (11 places) and `"Ubuntu Condensed"` (6 places) written into individual rules | `var(--sb-font)` in all 17 |
+| Top bar text, hover, open menu, notification icons, "working" spinner | White and grey for a dark bar | The ink, link, canvas and muted tokens |
+| Logo link | `padding-left: 140px !important` | Removed |
+| Side menu search box | Dark strip with a white field | Transparent, as our rules already drew it |
+| Panel headings and `h3` | `text-transform: uppercase` | Removed |
+| Hint labels beside field names and column titles | Blue text on a pale blue chip | Removed, so ours apply |
+| Tooltip arrows (8 rules) | `#555` | `var(--sb-tip)`; our four arrow rules are deleted |
+| Selected day on the dashboard date switcher | Stock blue | `var(--sb-accent)` |
+
+The edits were made by a small script that names each rule by its selector and one declaration and refuses to run unless it matches exactly once (the file is one minified line per block, so hand edits are easy to get wrong). The inherited stylesheet now depends on the tokens defined in `overrides.css`, which is loaded on every back office page including sign-in.
+
+#### Changes in `overrides.css`
+
+- 29 flags removed. Four arrow rules deleted.
+- The drop-down menus in the top bar keep dark text on hover through an explicit rule (`.dropdown-menu a:hover`) instead of one `!important` out-ranking another.
+- A dark-mode rule of ours (`span:not(.label):not(.badge) { color: inherit }`) was overriding the hint labels' colour once their flag was gone; it now leaves them out, using `:where()` so its weight is unchanged.
+
+#### Deliberate visible changes
+
+- Text typed into fields is in Inter, like the rest of the screen. It was Open Sans, because the inherited input rule out-ranked ours.
+- `h3` headings that are not the direct child of a panel are no longer in capitals. Panel headings already were not.
+- A top bar item reached with the keyboard now gets the hover highlight. The inherited rules style hover and focus together; before, our flags suppressed the focus half.
+
+#### The 4 that remain
+
+- Three on the selected day of the inherited calendar pop-up (`.datepicker td.active`), which is only in the page while open and was not in any record. Left as they were.
+- One for a side menu that was collapsed to icons before that mode was removed (`body.page-sidebar-closed`): it fights two inherited `!important` rules for a state nobody can enter any more. Candidate for removal together with the inherited collapsed-menu rules.
+
+#### Verification (local, real browser)
+
+- 17 back office pages (sign-in, dashboard, bookings list and one booking, room types and the room type form, modules and the Salisberg Pay settings, e-mail, stats, Staff Guide, employees and the new employee form, customers and one customer, Book Now, Reports, logs) at 1440 and 700 wide, light, dark and with the old collapsed state forced: 89 runs, with `:hover` and `:focus` forced on up to 30 kinds of interactive element per page.
+- Before against after, once the three deliberate changes and their knock-on widths are set aside: no differences. The sign-in button's colour differs by a few shades between any two runs, including two "before" runs, because it is caught part-way through its own fade.
+- Tooltip arrows, which are only in the page while a tooltip is open: a real tooltip was opened on the new employee form; arrow and bubble are the same colour in light and in dark.
+- **Found and fixed on the way:** the dashboard's selected-day button turned stock blue (fixed at the source, table above); hint labels turned grey in dark mode (our own dark rule, above); drop-down items turned green on hover (explicit rule, above).
+- **Not tested:** the other back office pages (about 60); the calendar pop-up; pop-up windows; right-to-left, where `admin-theme_rtl.css` was not edited and still has the old fonts and colours; Safari and Firefox; the live server.
+- **What's New:** one line for everyone under 7 October. No guide change: nothing has moved or been renamed.

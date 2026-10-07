@@ -89,7 +89,7 @@ body.ps_back-office,
 .bootstrap h1, .bootstrap h2, .bootstrap h3, .bootstrap h4,
 .bootstrap .panel-heading, .bootstrap .page-title, .bootstrap label,
 .bootstrap .nav-tabs > li > a,
-#nav-sidebar, #header_infos { font-family: var(--sb-font) !important; }
+#nav-sidebar, #header_infos { font-family: var(--sb-font); }
 .bootstrap { color: var(--sb-ink); }
 .bootstrap a { color: var(--sb-link); }
 .bootstrap a:hover, .bootstrap a:focus { color: var(--sb-gold); }
@@ -103,10 +103,10 @@ body.ps_back-office,
 }
 .bootstrap #header_infos a,
 .bootstrap #header_infos .dropdown-toggle,
-.bootstrap #header_infos i { color: var(--sb-ink) !important; }
+.bootstrap #header_infos i { color: var(--sb-ink); }
 .bootstrap #header_infos a:hover,
 .bootstrap #header_infos a:hover i,
-.bootstrap #header_infos .dropdown.open > a { background-color: var(--sb-canvas) !important; color: var(--sb-link) !important; }
+.bootstrap #header_infos .dropdown.open > a { background-color: var(--sb-canvas); color: var(--sb-link); }
 /* the logo already carries the name; the version number is noise */
 #header_infos #header_shopname,
 #header_infos #shop_version { display: none; }
@@ -115,12 +115,12 @@ body.ps_back-office,
   background-repeat: no-repeat;
   background-size: auto 44px;
   background-position: 18px center;
-  padding: 0 !important;
+  padding: 0;
 }
 .bootstrap #header_infos .notifs_badge,
 .bootstrap #header_infos .notifs_badge span { background-color: var(--sb-gold); color: #fff; }
-.bootstrap #header_infos .dropdown-menu a { color: var(--sb-ink) !important; }
-.bootstrap #header_infos .dropdown-menu a:hover { background-color: var(--sb-canvas); }
+.bootstrap #header_infos .dropdown-menu a { color: var(--sb-ink); }
+.bootstrap #header_infos .dropdown-menu a:hover { background-color: var(--sb-canvas); color: var(--sb-ink); }
 /* Quick Access and account menus as floating cards */
 .bootstrap #header_infos ul.dropdown-menu {
   min-width: 220px;
@@ -132,7 +132,7 @@ body.ps_back-office,
   box-shadow: 0 16px 36px -16px rgba(0, 0, 0, .35);
 }
 .bootstrap #header_infos ul.dropdown-menu > li > a { padding: 9px 12px; border-radius: 8px; }
-.bootstrap #header_infos ul.dropdown-menu > li.active > a { background-color: var(--sb-accent-soft); color: var(--sb-link) !important; }
+.bootstrap #header_infos ul.dropdown-menu > li.active > a { background-color: var(--sb-accent-soft); color: var(--sb-link); }
 .bootstrap #header_infos ul.dropdown-menu > li.divider { margin: 6px 0; background-color: var(--sb-line); }
 .bootstrap #header_infos #quick_select { border: 1px solid var(--sb-line); border-radius: 999px; font-weight: 500; }
 .bootstrap #header_infos #quick_select i { margin-left: 6px; }
@@ -160,7 +160,7 @@ body.ps_back-office,
   justify-content: space-between;
   width: 60px;
   height: 32px;
-  padding: 0 8px !important;
+  padding: 0 8px;
   border: 1px solid var(--sb-line);
   border-radius: 999px;
   background-color: var(--sb-canvas);
@@ -215,13 +215,13 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   #header_infos .navbar-header > ul > li > a:hover { background-color: var(--sb-canvas); }
   #header_infos #header_notifs_icon_wrapper,
   #header_infos #header_quick { margin-left: 8px; }
-  #header_infos #header_employee_box { gap: 6px; margin-left: auto !important; padding-right: 16px; }
-  #header_infos #header_employee_box #header_foaccess { display: inline-flex; color: var(--sb-muted) !important; }
-  #header_infos #header_employee_box #employee_infos > a { height: 44px; padding: 0 10px 0 6px !important; border-radius: 999px; }
+  #header_infos #header_employee_box { gap: 6px; margin-left: auto; padding-right: 16px; }
+  #header_infos #header_employee_box #header_foaccess { display: inline-flex; color: var(--sb-muted); }
+  #header_infos #header_employee_box #employee_infos > a { height: 44px; padding: 0 10px 0 6px; border-radius: 999px; }
   #header_infos #header_employee_box #employee_infos .caret { margin-left: 8px; }
   /* the "working" spinner: stock puts it in a grey square over the logo */
   #header_infos #ajax_running { position: static; flex: 0 0 auto; width: auto; height: auto; margin: 0 14px 0 -6px; background-color: transparent; }
-  #header_infos #ajax_running i { color: var(--sb-muted) !important; font-size: 16px; line-height: 1; }
+  #header_infos #ajax_running i { color: var(--sb-muted); font-size: 16px; line-height: 1; }
   #header_infos .notifs_badge { position: relative; top: -8px; margin-left: -4px; }
 
   /* everything below the bar moves down with it */
@@ -252,7 +252,7 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
 }
 .bootstrap #nav-sidebar ul.menu > li.maintab > a.title span { padding-left: 12px; color: inherit; }
 .bootstrap #nav-sidebar ul.menu > li.maintab > a.title i { width: 20px; font-size: 16px; color: var(--sb-muted); text-align: center; }
-.bootstrap #nav-sidebar ul.menu > li.maintab:not(.active):hover > a.title { background-color: var(--sb-canvas) !important; color: var(--sb-link); }
+.bootstrap #nav-sidebar ul.menu > li.maintab:not(.active):hover > a.title { background-color: var(--sb-canvas); color: var(--sb-link); }
 .bootstrap #nav-sidebar ul.menu > li.maintab:not(.active):hover > a.title i { color: var(--sb-link); }
 /* active item: filled pill */
 .bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title,
@@ -271,8 +271,8 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   color: var(--sb-muted);
   font-size: 15px;
 }
-.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a:hover { background-color: var(--sb-canvas) !important; color: var(--sb-link) !important; }
-.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft) !important; color: var(--sb-link) !important; font-weight: 600; }
+.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a:hover { background-color: var(--sb-canvas); color: var(--sb-link); }
+.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft); color: var(--sb-link); font-weight: 600; }
 /* Sections fold and unfold with the small arrow added by side-menu.js. The
    section you are in starts open. The stock behaviour, a box of pages that
    appeared beside the menu while the pointer rested on a section, is off. */
@@ -323,7 +323,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap #nav-sidebar li.maintab.active > .sb-menu-arrow:hover { background-color: rgba(255, 255, 255, .16); }
 
 /* search field at the top of the menu */
-.bootstrap #nav-sidebar li.searchtab { padding: 14px 0 10px; background-color: transparent !important; }
+.bootstrap #nav-sidebar li.searchtab { padding: 14px 0 10px; background-color: transparent; }
 .bootstrap #nav-sidebar #header_search,
 .bootstrap #nav-sidebar #header_search .input-group-btn,
 .bootstrap #nav-sidebar #header_search .input-group-btn .btn { background-color: transparent; border: 0; box-shadow: none; }
@@ -342,7 +342,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
   height: 36px;
   border: 0;
   border-radius: 999px;
-  background-color: transparent !important;
+  background-color: transparent;
   box-shadow: none;
   color: var(--sb-ink);
 }
@@ -359,7 +359,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
   body.page-sidebar #footer.bootstrap { margin-left: var(--sb-side); }
   /* someone who had collapsed the menu before still gets the full menu */
   body.page-sidebar-closed #nav-sidebar ul.menu > li.maintab > a.title span { display: inline; }
-  body.page-sidebar-closed #nav-sidebar ul.menu > li.maintab.active ul.submenu { display: block !important; position: static; width: auto; }
+  body.page-sidebar-closed #nav-sidebar ul.menu > li.maintab.active ul.submenu { display: block; position: static; width: auto; }
   body.page-sidebar-closed #nav-sidebar li.searchtab #header_search { display: block; }
 }
 
@@ -423,7 +423,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
   font-weight: 600;
   letter-spacing: 0;
   line-height: 1.4;
-  text-transform: none !important;
+  text-transform: none;
 }
 .bootstrap .panel > .panel-heading i,
 .bootstrap .panel > h3 i { color: var(--sb-muted); }
@@ -509,7 +509,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .btn-default { border-color: var(--sb-line); background-color: var(--sb-card); color: var(--sb-ink); }
 .bootstrap .btn-default:hover, .bootstrap .btn-default:focus { border-color: var(--sb-accent); background-color: var(--sb-card); color: var(--sb-link); }
 .bootstrap .btn-group > .btn.active,
-.bootstrap .btn-group > .btn.btn-default.active { background-color: var(--sb-accent) !important; border-color: var(--sb-accent) !important; color: var(--sb-accent-text); box-shadow: none; }
+.bootstrap .btn-group > .btn.btn-default.active { background-color: var(--sb-accent); border-color: var(--sb-accent); color: var(--sb-accent-text); box-shadow: none; }
 
 /* forms */
 .bootstrap label, .bootstrap .control-label { color: var(--sb-ink); font-weight: 500; }
@@ -539,15 +539,15 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .prestashop-switch label { color: var(--sb-muted); }
 .bootstrap .prestashop-switch .slide-button { background-color: var(--sb-accent); border-color: var(--sb-accent); border-radius: 999px; }
 .bootstrap .prestashop-switch input.disable:checked ~ .slide-button,
-.bootstrap .prestashop-switch input:last-of-type:checked ~ .slide-button { background-color: #9ca3af; border-color: #9ca3af !important; }
+.bootstrap .prestashop-switch input:last-of-type:checked ~ .slide-button { background-color: #9ca3af; border-color: #9ca3af; }
 /* labels that carry a help hint */
 .bootstrap span.label-tooltip {
   padding: 0;
   border: 0;
   border-bottom: 1px dashed var(--sb-muted);
   border-radius: 0;
-  background: transparent !important;
-  color: var(--sb-ink) !important;
+  background: transparent;
+  color: var(--sb-ink);
 }
 
 /* tabs, lists and small parts */
@@ -606,10 +606,6 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
   text-transform: none;
 }
 .tooltip .tooltip-inner p { margin: 0; color: inherit; }
-.tooltip.top .tooltip-arrow, .tooltip.top-left .tooltip-arrow, .tooltip.top-right .tooltip-arrow { border-top-color: var(--sb-tip) !important; }
-.tooltip.bottom .tooltip-arrow, .tooltip.bottom-left .tooltip-arrow, .tooltip.bottom-right .tooltip-arrow { border-bottom-color: var(--sb-tip) !important; }
-.tooltip.left .tooltip-arrow { border-left-color: var(--sb-tip) !important; }
-.tooltip.right .tooltip-arrow { border-right-color: var(--sb-tip) !important; }
 .bootstrap .popover { border: 1px solid var(--sb-line); border-radius: 12px; background-color: var(--sb-card); box-shadow: var(--sb-shadow); color: var(--sb-ink); }
 .bootstrap .popover-title { border-color: var(--sb-line); border-radius: 12px 12px 0 0; background-color: var(--sb-subtle); color: var(--sb-heading); }
 
@@ -646,10 +642,8 @@ body.adminstats #content div:has(> table.table) { max-width: 100%; overflow-x: a
 .bootstrap .title-wrapper > p.text-center { color: var(--sb-muted); font-weight: 500; }
 .bootstrap .text-info,
 .bootstrap #datepicker-from-info, .bootstrap #datepicker-to-info { color: var(--sb-link); }
-.bootstrap #date-range.form-date-group { border-color: var(--sb-accent); }
-.bootstrap #date-range .form-date-heading { background-color: var(--sb-accent); }
-.bootstrap .datepicker td.active,
-.bootstrap .datepicker td.active:hover { background-color: var(--sb-accent) !important; border-color: var(--sb-accent) !important; color: var(--sb-accent-text) !important; }
+.bootstrap #datepicker #datepicker-form #date-range.form-date-group { border-color: var(--sb-accent); }
+.bootstrap #datepicker #datepicker-form #date-range .form-date-heading { background-color: var(--sb-accent); }
 .bootstrap .btn > i[class^="icon-"]:before,
 .bootstrap .btn-link,
 .bootstrap .chosen-container .chosen-search:before { color: var(--sb-link); }
@@ -669,7 +663,7 @@ html[data-sb-theme="dark"] .bootstrap h3, html[data-sb-theme="dark"] .bootstrap 
 html[data-sb-theme="dark"] .bootstrap strong, html[data-sb-theme="dark"] .bootstrap dt { color: var(--sb-heading); }
 html[data-sb-theme="dark"] .bootstrap p, html[data-sb-theme="dark"] .bootstrap li,
 html[data-sb-theme="dark"] .bootstrap dd, html[data-sb-theme="dark"] .bootstrap td,
-html[data-sb-theme="dark"] .bootstrap span:not(.label):not(.badge) { color: inherit; }
+html[data-sb-theme="dark"] .bootstrap span:not(.label):not(.badge):not(:where(.label-tooltip)) { color: inherit; }
 html[data-sb-theme="dark"] .bootstrap .table-striped > tbody > tr:nth-child(odd) > td,
 html[data-sb-theme="dark"] .bootstrap .table tbody > tr.odd > td { background-color: var(--sb-subtle); }
 html[data-sb-theme="dark"] .bootstrap .list-empty,
