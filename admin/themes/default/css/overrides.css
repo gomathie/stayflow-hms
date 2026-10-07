@@ -48,7 +48,7 @@
   --sb-shadow: 0 16px 34px -16px rgba(17, 24, 39, .3);
   --sb-logo: url("/img/qloapps@2x.png");                          /* colour lockup */
   --sb-top: 60px;              /* top bar height */
-  --sb-side: 264px;            /* side menu width */
+  --sb-side: 304px;            /* side menu width */
   --sb-tip: #1f2937;           /* tooltip bubble */
   --sb-tip-line: #1f2937;
   --sb-radius: 12px;
@@ -246,7 +246,7 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   border-radius: 8px;
   background-color: transparent;
   color: var(--sb-ink);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   transition: background-color .15s ease, color .15s ease;
 }
@@ -269,7 +269,7 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   border-radius: 6px;
   background-color: transparent !important;
   color: var(--sb-muted) !important;
-  font-size: 14px;
+  font-size: 15px;
 }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a:hover { background-color: var(--sb-canvas) !important; color: var(--sb-link) !important; }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft) !important; color: var(--sb-link) !important; font-weight: 600; }
@@ -284,9 +284,18 @@ body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.sb-closed 
 body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active:not(.sb-closed) ul.submenu,
 body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.sb-open ul.submenu { display: block; }
 .bootstrap #nav-sidebar ul.menu > li.maintab.has_submenu > a.title { padding-right: 40px; }
+/* In windows shorter than 850px the stock theme shrinks the rows to 28px and
+   12px text, squeezes the page lists, and draws a pointer for its hover box.
+   The menu keeps one size at every height and scrolls when it is too long. */
+body.page-sidebar #nav-sidebar ul.menu li.maintab > a.title { height: 42px; line-height: 42px; font-size: 16px; }
+body.page-sidebar #nav-sidebar ul.menu li.maintab > a.title i { width: 20px; font-size: 16px; text-align: center; vertical-align: middle; }
+body.page-sidebar #nav-sidebar ul.menu li.maintab ul.submenu { padding: 0 0 0 10px; }
+body.page-sidebar #nav-sidebar ul.menu li.maintab ul.submenu li { height: auto; line-height: 1.4; }
+body.page-sidebar #nav-sidebar ul.menu li.maintab ul.submenu li a { height: auto; padding: 7px 10px; line-height: 1.4; }
+body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap #nav-sidebar .sb-menu-arrow {
   position: absolute;
-  top: 6px;
+  top: 7px;
   right: 6px;
   width: 28px;
   height: 28px;
@@ -343,7 +352,7 @@ body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.sb-open ul.submen
 
 @media (min-width: 768px) {
   .bootstrap #nav-sidebar .menu-collapse { display: none !important; }
-  body.page-sidebar #nav-sidebar { width: var(--sb-side); }
+  body.page-sidebar #nav-sidebar { width: var(--sb-side); bottom: 0; height: auto; overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
   body.page-sidebar #content.bootstrap { margin-left: var(--sb-side); padding-left: 24px !important; padding-right: 24px !important; }
   body.page-sidebar .page-head .page-title { padding-left: calc(var(--sb-side) + 24px); }
   body.page-sidebar .page-head .breadcrumb,
@@ -679,9 +688,10 @@ html[data-sb-theme="dark"] .bootstrap .fc-day, html[data-sb-theme="dark"] .boots
 html[data-sb-theme="dark"] .bootstrap .fc td { border-color: var(--sb-line); background-color: transparent; color: var(--sb-ink); }
 /* our own guide pages */
 html[data-sb-theme="dark"] .sb-guide { color: var(--sb-ink); }
-.sb-guide section,
-.sb-guide .sb-card,
-.sb-guide .sb-menu-form { background: var(--sb-card); border-color: var(--sb-line); }   /* both themes */
+/* #content in front: the guide stylesheet loads after this file and would win otherwise */
+#content .sb-guide section,
+#content .sb-guide .sb-card,
+#content .sb-guide .sb-menu-form { background: var(--sb-card); border-color: var(--sb-line); }   /* both themes */
 html[data-sb-theme="dark"] .sb-guide .sb-toc,
 html[data-sb-theme="dark"] .sb-guide .sb-tip { background: var(--sb-subtle); border-color: var(--sb-line); }
 html[data-sb-theme="dark"] .sb-guide .sb-warn { background: #3b1d1b; }
@@ -692,6 +702,9 @@ html[data-sb-theme="dark"] .sb-guide .sb-toc a { color: var(--sb-heading); }
 html[data-sb-theme="dark"] .sb-guide .sb-path,
 html[data-sb-theme="dark"] .sb-guide .sb-btn { background: var(--sb-subtle); border-color: var(--sb-line); color: var(--sb-ink); }
 html[data-sb-theme="dark"] .sb-guide th, html[data-sb-theme="dark"] .sb-guide td { border-bottom-color: var(--sb-line); }
+html[data-sb-theme="dark"] .sb-guide th { color: var(--sb-muted); }
+html[data-sb-theme="dark"] .sb-guide .sb-go,
+html[data-sb-theme="dark"] .sb-guide .sb-toc strong { color: var(--sb-gold); }
 
 /* ---------- 10. Sign-in page ----------
    Stock: a shadowed column holding the logo, a version number, a second

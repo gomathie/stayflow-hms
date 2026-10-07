@@ -1030,3 +1030,42 @@ The owner asked for every "QloApps" reference that can be removed without risk o
 - **Sign-in page:** screenshots in light and dark at 1440 and 390 wide. A first version hid the logo by mistake (the selector for the version number also matched the logo's heading); caught on the screenshot and corrected.
 - **Tooltips and pop-ups:** hovered a real tooltip on the dashboard and opened a real pop-up on the Modules page, in both themes; colours read back from the page and screenshots reviewed.
 - **Not tested:** website dark mode on signed-in guest pages (My account, bookings), checkout with a room in the cart, the booking and cart pop-ups, the date picker and the phone menu panel; Safari and Firefox, including the logo blend; pop-ups other than the one opened; the live server.
+
+### 2026-10-07 — Side menu arrows; website dark mode on the remaining pages
+
+#### Back office side menu: fold and unfold with an arrow
+
+- **Asked by the owner:** the boxes of pages that popped out when the pointer passed over the menu looked stacked; a small arrow that shows the pages when clicked would be better.
+- **What:** every menu section with pages under it has a small arrow at the right of its row. Clicking it lists the pages under the section; clicking again folds them away. Several sections can be open at once. The section you are in starts open. Clicking a section's name still opens its first page. Nothing appears on hover any more.
+- **Where (rule 25):** `modules/salisbergguide/views/js/side-menu.js` (new file in the folder for small interface scripts, loaded for back office pages by `addInterfaceAssets()`), and section 5 of `overrides.css`.
+- **The fly-out rules from 2026-10-06 were removed, not left underneath (rule 27):** the card styling and the invisible wedge are gone.
+- **Why the menu looked "stacked":** in windows shorter than 850px (most laptops) the stock theme switches to 28px rows with 12px text, squeezes the page lists so their lines overlap, and draws a pointer for its hover box. Those rules were overriding ours. The menu now keeps one size at every window height, and scrolls on its own when it is longer than the window (it could not scroll before, so its lower entries could be unreachable).
+- The menu is 288px wide (was 264px) so the longest name still fits beside its arrow.
+- Open sections are not remembered from page to page; each page starts with only the current section open.
+- **Guide (rule 23):** Staff Guide section 2 now describes the arrows instead of the hover boxes.
+
+#### Website dark mode: pages not covered before
+
+- Tested the pages listed as untested on the previous entry, signed in as a test guest, and fixed what was found (`salisberg.css`, `?v=11`):
+  - **Breadcrumb** on account pages: light background with near-invisible text.
+  - **Drop-down boxes** (date of birth, state): the stock picture of a box and arrow was repeating inside our taller box. This was broken in light mode too. The picture is replaced by a drawn arrow, in both themes.
+  - **Date picker:** white calendar.
+  - **Checkout:** room name, amenity chips and the total box.
+  - The "Done" button in the guests picker was stock blue; it uses the brand colour now, in both themes.
+- Pages that needed no change: My account, booking history, personal information, addresses (after the fixes above), the account menu, the guests picker, the phone menu panel.
+
+#### Verification (local, real browser)
+
+- **Arrows:** 11 arrows on 11 sections. Hovering three rows opened nothing. Real clicks: an arrow opened its list and stayed on the same page; a second section opened alongside it; a second click folded the first; the current section could be folded and reopened; a page link inside an opened list navigated correctly. Run at a 760px-high window, the size where the problem showed. Screenshots in light and dark reviewed. At that height the menu scrolls (858px of content in a 700px area).
+- **Website:** date picker, account pages, account menu, search results with the guests picker open, checkout with a room in the cart, and the phone menu, all in dark. The scan reported one item left, the room name on checkout, since given a stronger rule.
+- **Not tested:** that last room-name fix and the "Done" button colour by screenshot; the payment step of checkout in dark (it needs the guest details step completed); the arrows by keyboard; Safari and Firefox; the live server.
+- A test guest `guest.test@example.com` exists only in the local database.
+
+### 2026-10-07 — Guides unreadable in dark mode (regression); menu scroll bar; larger menu text
+
+- **Guides in dark mode:** the owner reported that every page under Guides had poor contrast in dark mode. Light text was sitting on white cards (contrast about 1.4:1). **Cause: a mistake of ours earlier the same day.** When the guide card colour was changed from a dark-only rule to one rule for both themes, the selector lost its `html[data-sb-theme="dark"]` prefix and with it the weight it needed to beat the guide's own stylesheet, which loads after `overrides.css`. Fixed by putting `#content` in front of that rule. Table headings and the "Open …" links were also below the readable threshold in dark and were lightened.
+  - **Lesson:** when a themed rule is generalised, check it still wins. A measured check is now part of the method: a script computes the contrast ratio of every piece of text on the page against what is behind it and lists anything under 4.5:1.
+- **Side menu scroll bar:** the menu scrolls when it is longer than the window (added with the arrows earlier today), and now shows a thin scroll bar in the menu's own colours (`scrollbar-width`, `scrollbar-color`).
+- **Side menu text** one more step larger at the owner's request: section names 16px, pages 15px, rows 42px. The menu is 304px wide so names still fit beside their arrows.
+- **Verification (local, real browser):** the contrast script reported no text under 4.5:1 on Guides, Staff Guide, Admin Guide and What's New in dark mode (before: 3 to 190 failing items per page). Staff Guide screenshot reviewed. With three sections opened in a 760px-high window the menu held 1055px of content in 700px, scrolled, and the last entry could be reached.
+- **Not tested:** the scroll bar's appearance. The test browser draws scroll bars as overlays, so the bar itself was not seen; only that the menu scrolls and the styles are applied. The guides in light mode were not re-captured after this change (the rule sets the same card colour as before).

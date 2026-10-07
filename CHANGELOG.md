@@ -20,7 +20,7 @@ Every change to Salisberg, newest first, in plain words.
 - The vendor's product name no longer appears in back office text; it reads "Salisberg" instead.
 - **Website footer:** "Payment accepted" shows Cash and Mobile Money badges in place of Visa, American Express, MasterCard and PayPal logos, which the hotel does not take. Home, Our Properties, Interior and Contact Us are listed under Explore, in two columns. The empty "Follow us on" column is hidden until social links are entered. The sample founding year "2010" is gone from the copyright line.
 - **Back office side menu:** sections now fold and unfold with a small arrow beside their name. The box of pages that popped out beside the menu on hover is gone.
-- Back office side menu text is slightly larger, and the menu is a little wider so long names are not cut off.
+- Back office side menu text is larger (section names 16px, pages 15px), and the menu is a little wider so long names are not cut off.
 - **Back office sign-in page** simplified to the logo and one form; the version number and second logo are gone.
 - **Tooltips and pop-up windows** in the back office restyled: rounded, readable in light and dark, and no longer hidden behind the top bar or menu.
 - `README.md` rewritten for Salisberg.
@@ -29,6 +29,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Fixed
 
+- Back office dark mode: every page under Guides showed light text on white cards and could not be read.
+- The back office side menu could not be scrolled when it was longer than the window; it now scrolls, with a thin scroll bar.
 - Website dark mode: the breadcrumb, drop-down boxes, the date picker and parts of the checkout were still light or unreadable. Drop-down boxes also showed a broken arrow picture in light mode.
 - Dark mode: empty lists showed a white block, the search row under list headings was pale blue, and the lines between rows were bright white.
 
