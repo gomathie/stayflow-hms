@@ -1255,3 +1255,27 @@ Each moved to the last release of the line it was already on, which are fixes ra
 - **Commit note:** the owner committed twice part-way (`ecb26e63`, `aca2148e`). The first predates the flags that were put back, so neither should be deployed without the changes that follow them (back office step 2, the `?v=12` bump and these records).
 - **Not tested:** pages outside the sets above (a flag proven unnecessary on 23 back office pages could still matter on one of the other 56); right-to-left; Safari and Firefox; the testimonials block and the 1-Click pages, which are switched off; the live server. After deploying, returning visitors may for a few hours mix a cached old inherited stylesheet with the new `salisberg.css`, and see the stock blue on the date picker or slider until their browser refetches.
 - No guide or What's New entry: nothing a guest, staff member or manager does or sees has changed.
+
+### 2026-10-07 — Website buttons: inherited rules corrected, 15 more flags gone
+
+Follow-up to the entry above. `salisberg.css` now has **8** `!important` flags (45 at the start of the day). Link bumped to `?v=13`.
+
+- **Method:** all 15 remaining button, menu and tab flags were removed together in a trial, and the before/after record showed which elements changed. Only four kinds did, so only those inherited rules needed correcting; the general button rules in `global.css` did not, because our rules already out-rank them without help.
+
+  | Inherited file | Change | Flags it made unnecessary |
+  |---|---|---|
+  | `css/modules/blockcart/blockcart.css` | Cart drop-down "check out" button: its own border, blue gradient and hover gradient removed, so it takes the shared button look. Cart pop-up button: its blue four-colour border removed. | The four on the flattened buttons and their hover |
+  | `css/product.css` | Extra-service "Add" buttons take the brand green, and gold on hover, focus and press. | The two on `.btn-success` |
+  | `css/product.css` | The room page tab link's colour is set with a selector that out-ranks the general tab rules, instead of `!important`. | The dark-mode tab colour |
+
+- **In our own file:** the phone menu's hover background was declared for every width and then cancelled with `!important` on wide screens. It is now declared for narrow screens only. Seven other flags (account button, checkout buttons and their hover, newsletter button on checkout, menu close button, header link hover) changed nothing once the above was done.
+- **One deliberate visible change:** an extra-service "Add" button reached with the keyboard used to turn the stock bright green (`#1cb62e`) with our dark green border; it now turns gold like every other button.
+- **The 8 that remain, each for a reason:** the amenities block height and the booking status label colours (set by inline `style` attributes, 3); the reduced-motion rule (1); the file upload button, which fights an inherited `!important` and is not on screen now that the contact form takes no files (2); the testimonials photo size, a block that is switched off (1); one accent colour that must beat our own broad dark-mode text rules (1).
+
+**Verification (local, real browser)**
+
+- Same 72-run record as before (14 pages, 1440 and 390 wide, light and dark, with `:hover` and `:focus` forced on up to 45 kinds of interactive element per page). Before against after: the only difference is the service button's focus colour described above. Page-height differences on the phone homepage were shown to be noise by comparing two "after" runs with each other.
+- The signed-in account button with its menu open, which the record does not cover (it needs a class added by a click): white name on green, in light and dark.
+- **Mistakes in the tooling, found and corrected during this work:** one "before" record was taken a few seconds after the trial stylesheet had been copied in, so the first comparison showed no differences at all; that was noticed because it contradicted the earlier per-flag measurements, and the records were retaken. The comparison also used to stop at the first element whose class list differed between runs (a carousel's "active" item), skipping the rest of that page; it now ignores those classes.
+- **Not tested:** the file upload button and the testimonials photo (not on screen); the order detail page of a past booking, which has its own button rules; right-to-left; Safari and Firefox; the live server.
+- **Back office not touched in this step:** `overrides.css` still has 33.

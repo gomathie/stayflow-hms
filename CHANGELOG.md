@@ -21,7 +21,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
-- **Stylesheets tidied.** Half of the `!important` flags are gone from the two Salisberg stylesheets (website 45 to 23, back office 64 to 33). Where a flag only existed to out-rank an inherited rule, the inherited rule was corrected instead (date picker, price slider, cart pop-up, checkout links, heading underline, empty lists, top bar). Nothing should look different.
+- **Stylesheets tidied.** Half of the `!important` flags are gone from the two Salisberg stylesheets (website 45 to 8, back office 64 to 33). Where a flag only existed to out-rank an inherited rule, the inherited rule was corrected instead (date picker, price slider, buttons in the cart drop-down and cart pop-up, extra-service buttons, checkout links, heading underline, empty lists, top bar). One thing looks different on purpose: an "Add" button for an extra service now turns gold when reached with the keyboard, like every other button, instead of bright green.
 - **Direction recorded:** Salisberg no longer follows QloApps releases. Inherited files are corrected where they are defined; upstream is watched for security fixes only (`AGENTS.md`, section 1 and rules 11, 18, 28).
 - **Bundled libraries updated** to the last release of the line each was on: jQuery 1.11.0 to 1.12.4, Bootstrap scripts 3.1.1 to 3.4.1 (back office), and the text editor TinyMCE 4.0.16 to 4.9.11. All three old versions dated from 2014 and had known security flaws.
 - **PHP 8.3** in place of 8.1, which no longer receives security fixes. The version is a build setting (`PHP_VERSION`), so going back is a setting change.

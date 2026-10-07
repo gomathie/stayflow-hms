@@ -1179,9 +1179,13 @@ Quick View Styles
   line-height: 25px;}
 .idTabHrefShort {
   font-size: 14px;
-  color: #000000!important;
   text-align: center;
   border: none!important;}
+.nav-tabs > li > a.idTabHrefShort,
+.nav-tabs > li.active > a.idTabHrefShort,
+.nav-tabs > li.active > a.idTabHrefShort:hover,
+.nav-tabs > li.active > a.idTabHrefShort:focus {
+  color: #000000;}
 .room_info_heading {
   margin-bottom: 5px;
   font-weight: 700;
@@ -1627,12 +1631,12 @@ ul.service-product-nav > li:hover {
 }
 .service-product-element .btn-service-product.btn-success:hover, .service-product-element .btn-service-product.btn-success:focus, .service-product-element .btn-service-product.btn-success:active, .service-product-element .btn-service-product.btn-success.active {
   color: #fff;
-  background-color: #1cb62e;
-  border-color: #1cb62e;
+  background-color: var(--sb-gold);
+  border-color: var(--sb-gold);
 }
 .service-product-element .btn-service-product.btn-success {
-  background-color: #36BA46;
-  border: 1px solid #36BA46;
+  background-color: var(--sb-green);
+  border: 1px solid var(--sb-green);
 }
 #service_products_cont .bx-wrapper .bx-controls-direction a {
   height: unset;

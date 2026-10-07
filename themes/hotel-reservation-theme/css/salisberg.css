@@ -102,7 +102,7 @@ header .header-top .shopping_cart > a:first-child {
   color: var(--sb-heading);
   font-weight: 600;
 }
-header .header-top .header-top-link:hover span { color: var(--sb-gold) !important; }
+header .header-top .header-top-link:hover span { color: var(--sb-gold); }
 
 header .header-top .shopping_cart > a:first-child:before { color: var(--sb-heading); }
 
@@ -437,7 +437,7 @@ header .header-top .ajax_cart_quantity {
 a.button.exclusive,
 button.button.exclusive {
   background: var(--sb-green);
-  border: 1px solid var(--sb-green) !important;
+  border: 1px solid var(--sb-green);
   border-radius: 10px;
   color: #fff;
   text-shadow: none;
@@ -447,9 +447,9 @@ button.button.exclusive {
 .btn.btn-default.button span,
 .btn.button span,
 .button.exclusive span {
-  background: transparent !important;
+  background: transparent;
   background-image: none;
-  border: 0 !important;
+  border: 0;
   color: inherit;
   text-shadow: none;
   font-weight: 600;
@@ -460,7 +460,7 @@ button.button.exclusive {
 a.button.exclusive:hover,
 button.button.exclusive:hover {
   background: var(--sb-gold);
-  border-color: var(--sb-gold) !important;
+  border-color: var(--sb-gold);
   color: #fff;
 }
 
@@ -468,7 +468,7 @@ button.button.exclusive:hover {
 .btn.btn-service-product.btn-success,
 #add_to_cart button.exclusive.book_now_submit {
   background: var(--sb-green);
-  border-color: var(--sb-green) !important;
+  border-color: var(--sb-green);
   border-radius: 10px;
   color: #fff;
   font-weight: 600;
@@ -479,7 +479,7 @@ button.button.exclusive:hover {
 .btn.btn-service-product.btn-success:hover,
 #add_to_cart button.exclusive.book_now_submit:hover {
   background: var(--sb-gold);
-  border-color: var(--sb-gold) !important;
+  border-color: var(--sb-gold);
   color: #fff;
 }
 .btn-default:not(.button) { border-radius: 10px; }
@@ -666,7 +666,7 @@ input.account_input, input.is_required {
   box-shadow: -20px 0 40px -20px rgba(0, 0, 0, .5);
 }
 #menu_cont .close_navbar {
-  background-color: transparent !important;
+  background-color: transparent;
   color: var(--sb-gold-2);
 }
 #menu_cont .wk-nav-style { border-bottom-color: rgba(255, 255, 255, .12); }
@@ -675,11 +675,6 @@ input.account_input, input.is_required {
   font-family: var(--sb-sans);
   font-size: 16px;
   border-radius: 8px;
-}
-#menu_cont .wk-nav-style > li > a:hover,
-#menu_cont .wk-nav-style > li > a:focus {
-  background: rgba(255, 255, 255, .08);
-  color: var(--sb-gold-2);
 }
 
 /* signed-in guest: name button with Accounts / Bookings / Logout */
@@ -722,6 +717,11 @@ header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600
   #menu_cont .wk-nav-style > li,
   #menu_cont .wk-nav-style > li > a { border-color: rgba(255, 255, 255, .1); }
   #menu_cont .wk-nav-style > li + li { margin-top: 0; }
+  #menu_cont .wk-nav-style > li > a:hover,
+  #menu_cont .wk-nav-style > li > a:focus {
+    background: rgba(255, 255, 255, .08);
+    color: var(--sb-gold-2);
+  }
 }
 
 @media (min-width: 1200px) {
@@ -771,7 +771,7 @@ header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600
   #menu_cont .wk-nav-style > li > a {
     position: relative;
     padding: 10px 18px;
-    background: transparent !important;
+    background: transparent;
     color: var(--sb-heading);
     font-size: 13px;
     font-weight: 500;
@@ -816,7 +816,7 @@ header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600
   header .header-top .dropdown.open #user_info_acc { background: var(--sb-green); border-color: var(--sb-green); }
   header .header-top .header_user_info .header-top-link:hover span,
   header .header-top #user_info_acc:hover .account_user_name,
-  header .header-top .dropdown.open #user_info_acc .account_user_name { color: #fff !important; }
+  header .header-top .dropdown.open #user_info_acc .account_user_name { color: #fff; }
   header .header-top #user_info_acc:hover .caret,
   header .header-top .dropdown.open #user_info_acc .caret { border-top-color: #fff; }
 }
@@ -918,8 +918,8 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 #order-opc .opc-btn-primary:hover,
 #order-opc a.btn.btn-default.button:hover,
 #order-opc button.btn.btn-default.button:hover {
-  background-color: var(--sb-gold) !important;
-  border-color: var(--sb-gold) !important;
+  background-color: var(--sb-gold);
+  border-color: var(--sb-gold);
 }
 #order-opc .opc-btn-default {
   border-color: var(--sb-green);
@@ -927,8 +927,8 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
   color: var(--sb-heading);
 }
 #order-opc .footer-container .btn.button.newsletter-btn {
-  background-color: var(--sb-gold) !important;
-  border-color: var(--sb-gold) !important;
+  background-color: var(--sb-gold);
+  border-color: var(--sb-gold);
 }
 #order-opc .cart_total_detail_block .cart_final_total_block > .cart_total_values { color: var(--sb-heading); font-weight: 700; }
 #order-opc .cart_total_detail_block .total_discount_block,
@@ -1075,7 +1075,7 @@ html[data-sb-theme="dark"] #bigpic,
 html[data-sb-theme="dark"] #thumbs_list a { background-color: transparent; }
 html[data-sb-theme="dark"] hr:not(:where(.theme-text-underline)) { border-color: var(--sb-line); }
 html[data-sb-theme="dark"] #columns div:not([class*="alert"]) { color: var(--sb-ink); }
-html[data-sb-theme="dark"] #columns .nav-tabs > li > a.idTabHrefShort { color: var(--sb-ink) !important; }
+html[data-sb-theme="dark"] #columns .nav-tabs > li > a.idTabHrefShort { color: var(--sb-ink); }
 /* search results: filter panel and room rows */
 html[data-sb-theme="dark"] .layered_filter_cont,
 html[data-sb-theme="dark"] #center_column .cat_cont,

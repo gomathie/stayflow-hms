@@ -80,7 +80,7 @@
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 		{* Salisberg visual layer: must stay the last stylesheet *}
-		<link rel="stylesheet" href="{$css_dir}salisberg.css?v=12" type="text/css" media="all" />
+		<link rel="stylesheet" href="{$css_dir}salisberg.css?v=13" type="text/css" media="all" />
 		{* A visitor who chose dark mode gets it before the page is drawn (see theme-toggle.js) *}
 		<script type="text/javascript">{literal}try{if(localStorage.getItem('sb-site-theme')==='dark'){document.documentElement.setAttribute('data-sb-theme','dark');}}catch(e){}{/literal}</script>
 	</head>
