@@ -118,8 +118,8 @@ body.ps_back-office,
   padding: 0 !important;
 }
 .bootstrap #header_infos .notifs_badge,
-.bootstrap #header_infos .notifs_badge span { background-color: var(--sb-gold) !important; color: #fff !important; }
-.bootstrap #header_infos .dropdown-menu a { color: var(--sb-ink) !important; }
+.bootstrap #header_infos .notifs_badge span { background-color: var(--sb-gold); color: #fff; }
+.bootstrap #header_infos .dropdown-menu a { color: var(--sb-ink); }
 .bootstrap #header_infos .dropdown-menu a:hover { background-color: var(--sb-canvas); }
 /* Quick Access and account menus as floating cards */
 .bootstrap #header_infos ul.dropdown-menu {
@@ -184,7 +184,7 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle svg:last-child { color
 html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: translateX(26px); }
 
 @media (min-width: 768px) {
-  .bootstrap #header_infos { height: var(--sb-top) !important; min-height: var(--sb-top); }
+  .bootstrap #header_infos { height: var(--sb-top); min-height: var(--sb-top); }
   .bootstrap #header_infos > .navbar-header {
     display: flex;
     align-items: center;
@@ -197,18 +197,18 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   #header_infos .navbar-header > ul {
     float: none !important;
     flex: 0 0 auto;
-    margin-top: 0 !important;
+    margin-top: 0;
     margin-bottom: 0;
     line-height: normal;
   }
   #header_infos .navbar-header > a#header_shopversion { width: var(--sb-side); height: var(--sb-top); }
   #header_infos .navbar-header > ul { display: flex; align-items: center; width: auto; height: auto; padding: 0; }
-  #header_infos .navbar-header > ul > li { float: none !important; height: auto; margin: 0 !important; line-height: normal; }
+  #header_infos .navbar-header > ul > li { float: none; height: auto; margin: 0; line-height: normal; }
   #header_infos .navbar-header > ul > li > a {
     display: inline-flex;
     align-items: center;
     height: 36px;
-    padding: 0 12px !important;
+    padding: 0 12px;
     border-radius: 8px;
     line-height: 1;
   }
@@ -257,18 +257,18 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
 /* active item: filled pill */
 .bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title,
 .bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title i,
-.bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title span { color: var(--sb-accent-text) !important; }
-.bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title { background-color: var(--sb-accent) !important; }
+.bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title span { color: var(--sb-accent-text); }
+.bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title { background-color: var(--sb-accent); }
 
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu,
-.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li { background-color: transparent !important; }
+.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li { background-color: transparent; }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu { margin: 4px 0 6px 22px; padding-left: 10px; border-left: 1px solid var(--sb-line); }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a {
   padding: 7px 10px;
   border: 0;
   border-radius: 6px;
-  background-color: transparent !important;
-  color: var(--sb-muted) !important;
+  background-color: transparent;
+  color: var(--sb-muted);
   font-size: 15px;
 }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a:hover { background-color: var(--sb-canvas) !important; color: var(--sb-link) !important; }
@@ -326,21 +326,21 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap #nav-sidebar li.searchtab { padding: 14px 0 10px; background-color: transparent !important; }
 .bootstrap #nav-sidebar #header_search,
 .bootstrap #nav-sidebar #header_search .input-group-btn,
-.bootstrap #nav-sidebar #header_search .input-group-btn .btn { background-color: transparent !important; border: 0; box-shadow: none; }
+.bootstrap #nav-sidebar #header_search .input-group-btn .btn { background-color: transparent; border: 0; box-shadow: none; }
 .bootstrap #nav-sidebar #header_search .input-group {
   display: flex;
   align-items: center;
   padding: 0 6px;
   border: 1px solid var(--sb-line);
   border-radius: 999px;
-  background-color: var(--sb-canvas) !important;
+  background-color: var(--sb-canvas);
 }
 .bootstrap #nav-sidebar #header_search .input-group-btn { width: auto; }
-.bootstrap #nav-sidebar #header_search .btn i { color: var(--sb-muted) !important; }
+.bootstrap #nav-sidebar #header_search .btn i { color: var(--sb-muted); }
 .bootstrap #nav-sidebar #bo_query {
   flex: 1;
   height: 36px;
-  border: 0 !important;
+  border: 0;
   border-radius: 999px;
   background-color: transparent !important;
   box-shadow: none;
@@ -350,17 +350,17 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .icon-AdminSalisbergGuide:before { content: "\f02d"; }
 
 @media (min-width: 768px) {
-  .bootstrap #nav-sidebar .menu-collapse { display: none !important; }
+  .bootstrap #nav-sidebar .menu-collapse { display: none; }
   body.page-sidebar #nav-sidebar { width: var(--sb-side); bottom: 0; height: auto; overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
-  body.page-sidebar #content.bootstrap { margin-left: var(--sb-side); padding-left: 24px !important; padding-right: 24px !important; }
+  body.page-sidebar #content.bootstrap { margin-left: var(--sb-side); padding-left: 24px; padding-right: 24px; }
   body.page-sidebar .page-head .page-title { padding-left: calc(var(--sb-side) + 24px); }
   body.page-sidebar .page-head .breadcrumb,
   body.page-sidebar .page-head ul.page-breadcrumb { left: calc(var(--sb-side) + 24px); }
   body.page-sidebar #footer.bootstrap { margin-left: var(--sb-side); }
   /* someone who had collapsed the menu before still gets the full menu */
-  body.page-sidebar-closed #nav-sidebar ul.menu > li.maintab > a.title span { display: inline !important; }
+  body.page-sidebar-closed #nav-sidebar ul.menu > li.maintab > a.title span { display: inline; }
   body.page-sidebar-closed #nav-sidebar ul.menu > li.maintab.active ul.submenu { display: block !important; position: static; width: auto; }
-  body.page-sidebar-closed #nav-sidebar li.searchtab #header_search { display: block !important; }
+  body.page-sidebar-closed #nav-sidebar li.searchtab #header_search { display: block; }
 }
 
 /* ---------- 6. Page head (title and action buttons) and footer ---------- */
@@ -369,7 +369,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .page-head .breadcrumb,
 .bootstrap .page-head .breadcrumb a,
 .bootstrap .page-head ul.page-breadcrumb li a { color: var(--sb-muted); background-color: transparent; }
-.bootstrap .page-head .page-bar { right: 24px; left: auto !important; }
+.bootstrap .page-head .page-bar { right: 24px; left: auto; }
 /* action buttons beside the page title: outlined, and the "Add new ..." one filled */
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn {
   margin-left: 8px;
@@ -392,10 +392,10 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .page-head .toolbarBox li:has(> a[id$="-modules-list"]),
 .bootstrap .page-head .toolbarBox li:has(> a#desc-module-catalog),
 .bootstrap .alert:has(> .modules-addons-info),
-#modules_list_container { display: none !important; }
+#modules_list_container { display: none; }
 
 #footer.bootstrap {
-  background: var(--sb-card) !important;
+  background: var(--sb-card);
   border-top: 1px solid var(--sb-line);
   color: var(--sb-muted);
 }
@@ -509,7 +509,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .btn-default { border-color: var(--sb-line); background-color: var(--sb-card); color: var(--sb-ink); }
 .bootstrap .btn-default:hover, .bootstrap .btn-default:focus { border-color: var(--sb-accent); background-color: var(--sb-card); color: var(--sb-link); }
 .bootstrap .btn-group > .btn.active,
-.bootstrap .btn-group > .btn.btn-default.active { background-color: var(--sb-accent) !important; border-color: var(--sb-accent) !important; color: var(--sb-accent-text) !important; box-shadow: none; }
+.bootstrap .btn-group > .btn.btn-default.active { background-color: var(--sb-accent) !important; border-color: var(--sb-accent) !important; color: var(--sb-accent-text); box-shadow: none; }
 
 /* forms */
 .bootstrap label, .bootstrap .control-label { color: var(--sb-ink); font-weight: 500; }
@@ -537,7 +537,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 
 .bootstrap .prestashop-switch { border-radius: 999px; box-shadow: inset 0 0 0 1px var(--sb-line); background-color: var(--sb-canvas); overflow: hidden; }
 .bootstrap .prestashop-switch label { color: var(--sb-muted); }
-.bootstrap .prestashop-switch .slide-button { background-color: var(--sb-accent); border-color: var(--sb-accent) !important; border-radius: 999px; }
+.bootstrap .prestashop-switch .slide-button { background-color: var(--sb-accent); border-color: var(--sb-accent); border-radius: 999px; }
 .bootstrap .prestashop-switch input.disable:checked ~ .slide-button,
 .bootstrap .prestashop-switch input:last-of-type:checked ~ .slide-button { background-color: #9ca3af; border-color: #9ca3af !important; }
 /* labels that carry a help hint */
@@ -552,7 +552,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 
 /* tabs, lists and small parts */
 .bootstrap .nav-tabs { border-bottom-color: var(--sb-line); }
-.bootstrap .nav-tabs > li > a { padding-left: 10px; padding-right: 10px; font-size: 13px; color: var(--sb-muted); letter-spacing: 0; text-transform: none !important; }
+.bootstrap .nav-tabs > li > a { padding-left: 10px; padding-right: 10px; font-size: 13px; color: var(--sb-muted); letter-spacing: 0; text-transform: none; }
 .bootstrap .nav-tabs > li.active > a,
 .bootstrap .nav-tabs > li.active > a:hover,
 .bootstrap .nav-tabs > li.active > a:focus { border-color: var(--sb-line); border-top: 2px solid var(--sb-accent); border-bottom-color: transparent; background-color: var(--sb-card); color: var(--sb-link); font-weight: 600; }
@@ -793,7 +793,7 @@ html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); 
 #content.bootstrap .list-empty .list-empty-msg { color: var(--sb-muted); font-family: inherit; }
 /* the row of search boxes under a list's column titles (stock: pale blue) */
 #content.bootstrap .table thead > tr.filter > th,
-#content.bootstrap .table thead > tr.filter > td { background-color: var(--sb-subtle) !important; border-color: var(--sb-line); }
+#content.bootstrap .table thead > tr.filter > td { background-color: var(--sb-subtle); border-color: var(--sb-line); }
 #content.bootstrap .box-stats .title, #content.bootstrap .box-stats .title span { color: var(--sb-muted); }
 #content.bootstrap .box-stats .value, #content.bootstrap .box-stats .value span { color: var(--sb-heading); }
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn span,
@@ -819,7 +819,7 @@ html[data-sb-theme="dark"] #content.bootstrap .fc .fc-toolbar-title { color: var
 html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard td,
 html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard th,
 html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard .fc-scrollgrid { border-color: var(--sb-line); }
-#content.bootstrap .badge-item.label-tooltip { background-color: var(--sb-card) !important; border-bottom: 0; }   /* dashboard figure tiles, both themes */
+#content.bootstrap .badge-item.label-tooltip { background-color: var(--sb-card); border-bottom: 0; }   /* dashboard figure tiles, both themes */
 #content.bootstrap [id^="dgc_"] { color: var(--sb-heading); }
 .bootstrap input.hasDatepicker[readonly],
 .bootstrap input.form-control[readonly] { background-color: var(--sb-subtle); color: var(--sb-ink); }

@@ -99,7 +99,7 @@ header .header-top .header-top-link,
 header .header-top .header-top-link span,
 header .header-top .our_properties_link,
 header .header-top .shopping_cart > a:first-child {
-  color: var(--sb-heading) !important;
+  color: var(--sb-heading);
   font-weight: 600;
 }
 header .header-top .header-top-link:hover span { color: var(--sb-gold) !important; }
@@ -302,9 +302,9 @@ header .header-top .ajax_cart_quantity {
 
 /* Amenities */
 #index .home_amenities_wrapper { height: auto !important; }
-#index .homeAmenitiesBlock { position: static; width: auto !important; }
+#index .homeAmenitiesBlock { position: static; width: auto; }
 #index .homeAmenitiesBlock > .row { display: flex; flex-wrap: wrap; }
-#index .homeAmenitiesBlock > .row > [class*="col-"] { padding: 12px !important; }
+#index .homeAmenitiesBlock > .row > [class*="col-"] { padding: 12px; }
 #index .amenity_content {
   display: flex;
   height: 100%;
@@ -448,7 +448,7 @@ button.button.exclusive {
 .btn.button span,
 .button.exclusive span {
   background: transparent !important;
-  background-image: none !important;
+  background-image: none;
   border: 0 !important;
   color: inherit;
   text-shadow: none;
@@ -468,7 +468,7 @@ button.button.exclusive:hover {
 .btn.btn-service-product.btn-success,
 #add_to_cart button.exclusive.book_now_submit {
   background: var(--sb-green);
-  border-color: var(--sb-green) !important;
+  border-color: var(--sb-green);
   border-radius: 10px;
   color: #fff;
   font-weight: 600;
@@ -488,14 +488,14 @@ button.button.exclusive:hover {
 .theme-text-underline,
 hr.theme-text-underline { border-color: var(--sb-gold) !important; }
 .nav > li.active::after,
-.nav-tabs > li.active::after { background-color: var(--sb-gold) !important; }
+.nav-tabs > li.active::after { background-color: var(--sb-gold); }
 a.view_more,
 .rm_desc a,
 .num_reviews,
 .extra_demands_price_block,
 .add_new_occupancy_btn span,
 .add_new_occupancy_btn i::before { color: var(--sb-gold) !important; }
-.close_navbar { background-color: var(--sb-green) !important; }
+.close_navbar { background-color: var(--sb-green); }
 .layer_cart_product h2,
 .layer_cart_product h2 i::before { color: var(--sb-green-2) !important; }
 .ui-slider .ui-slider-range { background: var(--sb-gold) !important; }
@@ -543,7 +543,7 @@ a.view_more,
 /* Search results: side panel and list */
 #left_column .header-rmsearch-wrapper,
 #header > .header-rmsearch-wrapper {
-  background-color: var(--sb-green) !important;
+  background-color: var(--sb-green);
   border-radius: var(--sb-radius);
 }
 #category .room_cont {
@@ -732,7 +732,7 @@ header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600
 
 @media (max-width: 1199px) {
   #menu_cont .wk-nav-style > li,
-  #menu_cont .wk-nav-style > li > a { border-color: rgba(255, 255, 255, .1) !important; }
+  #menu_cont .wk-nav-style > li > a { border-color: rgba(255, 255, 255, .1); }
   #menu_cont .wk-nav-style > li + li { margin-top: 0; }
 }
 
@@ -741,7 +741,7 @@ header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600
   header .header-top .header-top-menu { align-items: center; }
   header .header-top .nav_toggle,
   header .header-top .header-top-item:has(> .nav_toggle),
-  #menu_cont .close_navbar { display: none !important; }
+  #menu_cont .close_navbar { display: none; }
 
   #menu_cont,
   #menu_cont.menu_cont_right,
@@ -783,7 +783,7 @@ header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600
   #menu_cont .wk-nav-style > li > a {
     position: relative;
     padding: 10px 18px;
-    background: transparent !important;
+    background: transparent;
     color: var(--sb-heading);
     font-size: 13px;
     font-weight: 500;
@@ -821,7 +821,7 @@ header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600
   }
   header .header-top .header_user_info .header-top-link,
   header .header-top .header_user_info .header-top-link span,
-  header .header-top #user_info_acc .account_user_name { color: var(--sb-heading) !important; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
+  header .header-top #user_info_acc .account_user_name { color: var(--sb-heading); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
   header .header-top #user_info_acc .caret { border-top-color: var(--sb-green); }
   header .header-top .header_user_info .header-top-link:hover,
   header .header-top #user_info_acc:hover,
@@ -920,8 +920,8 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 #order-opc a.btn.btn-default.button,
 #order-opc button.btn.btn-default.button,
 #order-opc .btn.button.button-medium {
-  background-color: var(--sb-green) !important;
-  border: 1px solid var(--sb-green) !important;
+  background-color: var(--sb-green);
+  border: 1px solid var(--sb-green);
   border-radius: 10px;
   box-shadow: none;
   color: #fff;
