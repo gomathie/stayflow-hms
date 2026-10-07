@@ -72,6 +72,7 @@ class Salisbergguide extends Module
         // bookings and money
         'AdminHotelRoomsBooking' => array(1, 1, 1, 1),
         'AdminOrders' => array(1, 1, 1, 1),
+        'AdminSalisbergReports' => array(1, 0, 0, 0),
         'AdminInvoices' => array(1, 1, 1, 0),
         'AdminSlip' => array(1, 1, 1, 0),
         'AdminOrderMessage' => array(1, 1, 1, 1),
@@ -430,6 +431,7 @@ class Salisbergguide extends Module
             'AdminPreferences', 'AdminThemes', 'AdminMeta', 'AdminCmsContent', 'AdminMaintenance', 'AdminEmails',
             'AdminBackup', 'AdminInformation', 'AdminEmployees', 'AdminProfiles', 'AdminAccess', 'AdminContacts', 'AdminStats',
             'AdminSalisbergGuide', 'AdminSalisbergStaffGuide', 'AdminSalisbergAdminGuide', 'AdminSalisbergWhatsNew',
+            'AdminSalisbergReports',
         );
         $links = array();
         foreach ($pages as $page) {

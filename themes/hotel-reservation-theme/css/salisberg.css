@@ -880,6 +880,7 @@ textarea:focus {
 
 /* uniform.js wrappers around selects, checkboxes and radios */
 div.selector {
+  position: relative;
   height: 46px;
   border: 1px solid #cfc8b8;
   border-radius: 10px;
@@ -887,7 +888,6 @@ div.selector {
   overflow: hidden;
 }
 /* the stock picture of a box and arrow is replaced by a drawn arrow */
-div.selector { position: relative; }
 div.selector span { height: 44px; line-height: 44px; padding: 0 34px 0 14px; background: transparent none; color: var(--sb-ink); }
 div.selector::after { content: ""; position: absolute; top: 50%; right: 14px; width: 8px; height: 8px; margin-top: -6px; border-right: 2px solid var(--sb-muted); border-bottom: 2px solid var(--sb-muted); transform: rotate(45deg); pointer-events: none; }
 div.selector select { height: 46px; }

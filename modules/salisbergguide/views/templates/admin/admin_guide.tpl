@@ -13,7 +13,7 @@
 			<li><a href="#sb-a3">{l s='Room types and rooms' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a4">{l s='Prices, seasons and discounts' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a5">{l s='Extra services' mod='salisbergguide'}</a></li>
-			<li><a href="#sb-a6">{l s='Payment methods: cash and Mobile Money' mod='salisbergguide'}</a></li>
+			<li><a href="#sb-a6">{l s='Payment methods: cash, Mobile Money and bank transfer' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a7">{l s='Currency and taxes' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a8">{l s='Cancellations and refunds' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a9">{l s='Website content' mod='salisbergguide'}</a></li>
@@ -132,17 +132,20 @@
 	</section>
 
 	<section id="sb-a6">
-		<h3>6. {l s='Payment methods: cash and Mobile Money' mod='salisbergguide'}</h3>
+		<h3>6. {l s='Payment methods: cash, Mobile Money and bank transfer' mod='salisbergguide'}</h3>
 		{if $sb_is_admin}
-		<p>{l s='Guests can book and pay with cash at the hotel or by Mobile Money. Both are confirmed by staff; nothing is charged automatically.' mod='salisbergguide'}</p>
+		<p>{l s='Guests can book and pay with cash at the hotel, by Mobile Money or by bank transfer. All three are confirmed by staff; nothing is charged automatically.' mod='salisbergguide'}</p>
 		<ol>
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Modules and Services &rsaquo; Manage Modules</span> {l s='and search for Salisberg Pay.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Configure</span>.</li>
-			<li>{l s='Switch Cash at the hotel and Mobile Money on or off.' mod='salisbergguide'}</li>
-			<li>{l s='Enter the network, the registered account name and the Mobile Money number, then Save.' mod='salisbergguide'}</li>
+			<li>{l s='Switch Cash at the hotel, Mobile Money and Bank transfer on or off.' mod='salisbergguide'}</li>
+			<li>{l s='For Mobile Money enter the network, the registered account name and the number.' mod='salisbergguide'}</li>
+			<li>{l s='For Bank transfer enter the bank, the branch if you wish, the account name and the account number.' mod='salisbergguide'}</li>
+			<li>{l s='Click Save.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-warn">{l s='Mobile Money is hidden from guests until a number is saved. Check the number twice: guests will send money to exactly what is typed here. Anyone with a SuperAdmin login can change it, which is one more reason to keep those accounts few.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='Mobile Money is hidden from guests until a number is saved, and Bank transfer until an account number is saved. Check each number twice: guests will send money to exactly what is typed here. Anyone with a SuperAdmin login can change it, which is one more reason to keep those accounts few.' mod='salisbergguide'}</p>
 		<p>{l s='Which countries and customer groups may use each payment method is set in' mod='salisbergguide'} <span class="sb-path">Modules and Services &rsaquo; Payment</span>.</p>
+		<p class="sb-tip">{l s='Card payments are not set up. They need an account with a payment company (for example Paystack or Hubtel in Ghana), which then has to be connected to the site by the developer team.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminModules|escape:'html':'UTF-8'}&amp;configure=salisbergpay">{l s='Open Salisberg Pay settings' mod='salisbergguide'} &rarr;</a>
 		{else}
 		<p class="sb-tip">{l s='This is looked after by the developer team. Ask them when it needs to change.' mod='salisbergguide'}</p>
@@ -256,6 +259,23 @@
 
 	<section id="sb-a14">
 		<h3>14. {l s='Reports' mod='salisbergguide'}</h3>
+		<h4>{l s='Printable reports (PDF)' mod='salisbergguide'}</h4>
+		<ol>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Reports</span>.</li>
+			<li>{l s='Choose the Report:' mod='salisbergguide'}
+				<ul>
+					<li><strong>Bookings</strong> &ndash; {l s='every booking made in the period, with the guest, room type, stay dates, payment method, status, total and amount paid.' mod='salisbergguide'}</li>
+					<li><strong>Arrivals and departures</strong> &ndash; {l s='the rooms checking in and the rooms checking out in the period. Useful as a daily sheet for the front desk and housekeeping.' mod='salisbergguide'}</li>
+					<li><strong>Income by day</strong> &ndash; {l s='for each day: number of bookings, their value, what has been paid and what is still to pay.' mod='salisbergguide'}</li>
+				</ul>
+			</li>
+			<li>{l s='Choose the Period: Today, This week, This month, Last month, or Choose dates to set From and To yourself (up to one year).' mod='salisbergguide'}</li>
+			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Show report</span> {l s='to see it on screen, or' mod='salisbergguide'} <span class="sb-btn">Download PDF</span> {l s='to save or print it.' mod='salisbergguide'}</li>
+		</ol>
+		<p class="sb-tip">{l s='Totals leave out cancelled and refunded bookings. The Bookings report still lists them, so nothing goes missing from the record.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='A report contains guest names and phone numbers. Keep printed copies and downloaded files private.' mod='salisbergguide'}</p>
+		<a class="sb-go" href="{$sb_links.AdminSalisbergReports|escape:'html':'UTF-8'}">{l s='Open Reports' mod='salisbergguide'} &rarr;</a>
+		<h4>{l s='Other places to look' mod='salisbergguide'}</h4>
 		<ul>
 			<li><span class="sb-path">Dashboard</span> &ndash; {l s='bookings, income and occupancy for a period you choose at the top.' mod='salisbergguide'}</li>
 			<li><span class="sb-path">Stats</span> &ndash; {l s='detailed reports: sales, best room types, visitors and more.' mod='salisbergguide'}</li>

@@ -6,7 +6,7 @@ Guidance for any agent or developer working in this repository. Read it before c
 
 - **Product name:** Salisberg. **Production URL:** https://salisberg.com
 - **Base:** a fork of [QloApps](https://github.com/Qloapps/QloApps) (Webkul), an open-source hotel booking engine that is itself built on PrestaShop 1.6. License: OSL-3.0.
-- **Stack:** PHP 8.1 + Apache, MySQL 8.0, Smarty templates. No Composer dependencies at the root, no Node build step.
+- **Stack:** PHP 8.3 + Apache, MySQL 8.0, Smarty templates. No Composer dependencies at the root, no Node build step.
 - **Hosting:** a VPS running [Coolify](https://coolify.io). Coolify builds `docker-compose.yml` from this repo and its own proxy terminates TLS for the domain.
 - The repo was briefly named "StayFlow" (the GitHub repository is still `stayflow-hms`); the internal code, database prefix (`qlo_`) and many file names still say QloApps. That is expected.
 
@@ -89,6 +89,9 @@ The final repository must consistently identify the project as MIT licensed by S
     | Small interface scripts (password eye, theme switch) | `modules/salisbergguide/views/js/`, loaded by `addInterfaceAssets()` |
     | Back office guides, Hotel Staff role | `modules/salisbergguide` |
     | Payment methods | `modules/salisbergpay` |
+    | Platform settings changed without editing vendor files (for example the jQuery version) | `config/defines_custom.inc.php` |
+    | Reports on screen and as PDF | `modules/salisbergreports` |
+    | Checking a running stack after a change | `docker/smoke-test.sh` |
     | Installing, enabling or disabling modules | `docker/setup-modules.php` |
     | One-off data or schema changes on deploy | versioned steps in `docker/entrypoint.sh` |
     | Web server headers and access rules | `docker/apache.conf` |
@@ -120,7 +123,7 @@ The final repository must consistently identify the project as MIT licensed by S
 
 | File | Purpose |
 |---|---|
-| `Dockerfile` | `php:8.1-apache` plus the extensions QloApps requires (gd, pdo_mysql, mysqli, soap, zip, intl, mbstring, opcache). Copies the repo into `/var/www/html` and keeps a pristine copy of `img`, `upload`, `download` in `/usr/src/salisberg-seed`. |
+| `Dockerfile` | `php:8.3-apache` (version set by the `PHP_VERSION` build argument) plus the extensions QloApps requires (gd, pdo_mysql, mysqli, soap, zip, intl, mbstring, opcache). Copies the repo into `/var/www/html` and keeps a pristine copy of `img`, `upload`, `download` in `/usr/src/salisberg-seed`. |
 | `docker/entrypoint.sh` | Runs at every start: seeds and fixes ownership of volumes, renames `admin` to `$ADMIN_DIR`, waits for MySQL, runs the CLI installer on first boot, persists settings, removes `install/`. |
 | `docker/php.ini` | Limits from the QloApps requirements (memory, upload size, execution time) and opcache. |
 | `docker/apache.conf` | `AllowOverride All` for `.htaccess` rewrites; trusts `X-Forwarded-For` from the proxy. |
@@ -1069,3 +1072,127 @@ The owner asked for every "QloApps" reference that can be removed without risk o
 - **Side menu text** one more step larger at the owner's request: section names 16px, pages 15px, rows 42px. The menu is 304px wide so names still fit beside their arrows.
 - **Verification (local, real browser):** the contrast script reported no text under 4.5:1 on Guides, Staff Guide, Admin Guide and What's New in dark mode (before: 3 to 190 failing items per page). Staff Guide screenshot reviewed. With three sections opened in a 760px-high window the menu held 1055px of content in 700px, scrolled, and the last entry could be reached.
 - **Not tested:** the scroll bar's appearance. The test browser draws scroll bars as overlays, so the bar itself was not seen; only that the menu scrolls and the styles are applied. The guides in light mode were not re-captured after this change (the rule sets the same card colour as before).
+
+### 2026-10-07 — Upgrade work started; printable reports; Stats pages
+
+Work is on `develop`. `main`, `develop` and `salisberg-production` were brought to the same state first (the owner pushed).
+
+#### Upgrade step 0: a repeatable check (`docker/smoke-test.sh`, new)
+
+- One command, `bash docker/smoke-test.sh`, replaces the ad hoc page checks used so far. Against a running stack it confirms: ten website pages load without error text; six files that must stay private are not served; an administrator can sign in; the dashboard and nine back office pages load (reached through the dashboard's own menu links, so their tokens are valid); and the app log has no new PHP errors. It prints the PHP and MySQL versions it ran against, and exits non-zero if anything failed. It saves nothing and makes no booking.
+- **Baseline recorded on the current stack (PHP 8.1.34, MySQL 8.0.46): 29 passed, 0 failed.** Every upgrade step below is judged against that.
+- It is a first check, not a full test (rule 15 still applies).
+
+#### Upgrade step 1: PHP 8.3 — done (see the follow-up at the end of this entry)
+
+- `Dockerfile` now takes the PHP version as a build argument, `ARG PHP_VERSION=8.1`, passed from `docker-compose.yml` (`PHP_VERSION`, documented in `.env.example`). **The default is still 8.1**, so a deploy from this code builds exactly what it built before.
+- **Why it is not switched yet:** the `php:8.3-apache` base image had not finished downloading on the development machine's connection when this entry was written, so nothing has been built or run on 8.3. Per rule 15 the default is not changed until it has.
+- **To finish:** `PHP_VERSION=8.3 docker compose up -d --build`, then `bash docker/smoke-test.sh`, then click through bookings, the room editor, a PDF (invoice and Bookings › Reports) and the E-mail test, reading the app log for new warnings. If clean, change the default in the `Dockerfile` to 8.3.
+
+#### Upgrade step 2: MySQL 8.4 — made a deliberate switch, NOT yet done
+
+- `docker-compose.yml`: `image: mysql:${MYSQL_VERSION:-8.0}`. **The default is still 8.0.**
+- **Why a setting and not a code change:** the move is one-way. Once 8.4 has opened the data files, 8.0 cannot read them again; the only way back is a restored backup. As a plain edit to the compose file it would have upgraded the production database on the next routine deploy. As a setting, it happens only when someone adds `MYSQL_VERSION=8.4` in Coolify on purpose.
+- **Before setting it anywhere real:** a backup restored successfully somewhere else (rule 8); off-server backup copies in place; the same change run first on a staging copy with a copy of the live data; `docker/smoke-test.sh` passing afterwards.
+
+#### Stylesheets
+
+- A small checker (duplicate selectors in the same context, a property set twice in one rule, empty rules) was run over our four stylesheets. It found three selectors declared twice (two in `overrides.css`, one in `salisberg.css`); each pair was merged into one rule (rule 27). No repeated properties, no empty rules. `!important` count for the record: 64 in `overrides.css`, 45 in `salisberg.css`; nearly all are there to beat stock rules that themselves use `!important` or inline styles, and were left.
+- **Not done:** the bundled libraries (jQuery, Bootstrap scripts, TinyMCE, Smarty). Each is its own step with its own testing; see `audit/upgrade-plan.md`.
+
+#### Printable reports (new module `salisbergreports`)
+
+- **What:** a page at **Bookings › Reports**. Choose a report and a period, see it on screen, download it as a PDF.
+  - **Reports:** Bookings (every booking made in the period); Arrivals and departures (rooms checking in and out, a daily sheet for the desk and housekeeping); Income by day.
+  - **Periods:** Today, This week, This month, Last month, or Choose dates with From and To. At most one year.
+  - **PDF:** landscape A4, the invoice logo, report title and period at the top, a row of summary figures, the table with a repeating header, and a footer with when and by whom it was printed. Built with the platform's own `PDFGenerator` (TCPDF), the same engine as invoices.
+- **Why a new module (rule 25):** nothing existing fits. `salisbergguide` holds help pages, roles and small interface scripts; `salisbergpay` is payments. Reports read booking data and produce documents, which is a separate concern with its own page, templates and permission. It follows the same patterns as the other two (menu entry created in `ensureSetup()`, installed by `docker/setup-modules.php`, `sb-` naming). `MODULES_VERSION=10`.
+- **Permission:** an ordinary menu page, so Administration › Permissions has a "Reports" row. The Hotel Manager is given it once, when the page is first created; Hotel Staff are not (it shows income). Either can be changed in Permissions and the change is kept.
+- **Rules followed:** totals leave out cancelled, refunded and payment-error bookings, but the Bookings report still lists them. Request values are validated before use (report and period against fixed lists; dates against a pattern and `Validate::isDate`; reversed dates are swapped; anything else falls back to today), dates go through `pSQL()`, and every cell is escaped in the templates (rule 21). The page saves nothing.
+- **To add a report:** add its name in `getReports()` and a `build<Name>()` method returning the same shape; the screen and PDF templates render any report of that shape.
+- **Guide (rule 23):** Admin Guide section 14 "Reports" now starts with "Printable reports (PDF)". Listed on What's New for managers. Added to the Hotel Manager's page list in `salisbergguide.php`.
+
+#### Stats pages ran off the right edge
+
+- Reported by the owner. Measured all 20 Stats reports at a 1366px-wide window: four (the Stats home, Stats Dashboard, Best hotels, Best-selling room types) had tables up to 250px wider than the space beside the report menu, which made the whole page scroll sideways. Each such table now scrolls inside its own box (`overrides.css`, scoped to the Stats page).
+
+#### Verification (local; everything below ran on PHP 8.1 and MySQL 8.0)
+
+- Image rebuilt from the working tree with all of the above: `setup-modules` logged the reports module installed and its page in place; `docker/smoke-test.sh` 29 of 29.
+- **Reports:** five test bookings were inserted into the local database (one paid, one unpaid with two rooms, one part-paid, one cancelled, with stays around today). On screen: Bookings for the month showed 2 bookings, 3 rooms, GH₵5,580 value, GH₵2,080 paid, GH₵3,500 to pay, 1 cancelled, which matches the test data by hand; Arrivals and departures for the week showed 3 and 4 with the cancelled room left out; Income by day agreed with Bookings. Reversed dates were swapped; a script tag and an impossible date in the address fell back to today with no error. All three PDFs downloaded as valid PDF files with sensible names; the Bookings and Arrivals PDFs were opened and read. Column widths were adjusted after that reading (amounts and "Checked in" were wrapping) and the PDFs were not re-opened afterwards.
+- **Stats:** after the fix none of the 20 reports makes the page scroll sideways.
+- **Not tested:** anything on PHP 8.3 or MySQL 8.4; reports as a Hotel Manager (the permission row was confirmed in the database, the page was only opened as SuperAdmin); reports with real bookings made through the website, with refunds, or with hundreds of rows across several PDF pages; the PDF in dark mode is not applicable (PDFs are always light); the live server.
+- Local test data: bookings with references starting `TEST` exist only in the local database.
+
+#### Follow-up, same day: PHP 8.3 built, tested and made the default
+
+- Once the base image had downloaded, the image was built on PHP 8.3.35 with the same extensions (gd, pdo_mysql, mysqli, soap, zip, intl, mbstring, opcache all loaded).
+- **Checks run on 8.3:**
+  - `docker/smoke-test.sh`: 29 of 29, no PHP errors or warnings logged.
+  - Every one of the 3,076 PHP files in the image compiled with all error reporting on: no parse errors, no compile-time deprecation notices.
+  - In a real browser, with the app log read afterwards: Bookings › Reports on screen and all three PDFs (TCPDF, the same engine as invoices); guest sign-in (bcrypt password check), account pages, adding a room to the cart from search results, checkout; the contact form reaching its duplicate-message check (a database write path); Hotel Manager sign-in and menu. The log had no PHP errors, warnings or deprecation notices.
+  - The `backup` service, built from the same Dockerfile, starts on 8.3; its database dump (MariaDB client, unchanged) produced a dump of the same size as before.
+- **Made the default:** `ARG PHP_VERSION=8.3` in the `Dockerfile` and `${PHP_VERSION:-8.3}` in `docker-compose.yml`, then rebuilt with no override and re-ran `docker/smoke-test.sh`: 29 of 29 on PHP 8.3.35. Sections 1 and 3 updated.
+- **To go back to 8.1 if the live site shows a problem:** set `PHP_VERSION=8.1` in Coolify and redeploy. Nothing in the data depends on the PHP version.
+- **Not tested on 8.3:** a real invoice PDF (no real order with an invoice exists locally); sending email (no SMTP set up); the live server. Watch the `app` log after the first deploy.
+
+### 2026-10-07 — Bundled libraries updated; bank transfer; module versions checked
+
+#### Upgrade step 3: bundled libraries
+
+Each moved to the last release of the line it was already on, which are fixes rather than redesigns. All three old versions dated from 2014.
+
+| Library | From | To | How it was swapped |
+|---|---|---|---|
+| jQuery | 1.11.0 | 1.12.4 | New file `js/jquery/jquery-1.12.4.min.js`; the version is chosen in the new `config/defines_custom.inc.php` |
+| Bootstrap scripts (back office) | 3.1.1 | 3.4.1 | `admin/themes/default/js/vendor/bootstrap.min.js` replaced |
+| TinyMCE (text editor) | 4.0.16 | 4.9.11 | `js/tiny_mce/tinymce.min.js`, `themes/modern/theme.min.js` and the 38 plugins that exist in both versions replaced |
+
+- **Where the files came from:** the official npm registry (`jquery`, `bootstrap`, `tinymce` packages at those exact versions). Each download was checked against the SHA-512 the registry publishes for it before anything was copied.
+- **jQuery without editing a vendor file:** `config/config.inc.php` loads `config/defines_custom.inc.php`, when it exists, before its own defaults, and each default is wrapped in `if (!defined(...))`. Defining `_PS_JQUERY_VERSION_` there switches every page to the new file. To go back, delete that line.
+  - The old `jquery-1.11.0.min.js` is **kept**: `classes/controller/AdminController.php` still names it for one fallback page (rule 28: not dead). The website's maintenance page (`themes/hotel-reservation-theme/maintenance.tpl`) was pointed at the new file.
+  - `jquery-migrate-1.2.1` is unchanged; its file name is written into `classes/Media.php`.
+- **TinyMCE:** the platform's own toolbar look (`skins/prestashop`), its language files, and three old plugin folders that 4.9.11 no longer ships (`example`, `example_dependency`, `layer`; none is loaded by the editor's configuration) were left as they are. The editor configuration in `js/admin/tinymce.inc.js` was not touched.
+- **Not updated:** the Bootstrap styles (compiled into the stock theme's 9,000-line stylesheet), `admin/filemanager`'s own older Bootstrap, Smarty (4.5.5 is on a supported line), and jQuery beyond 1.x (see `audit/upgrade-plan.md`).
+- These are vendor files replaced with newer vendor files. Expect them in the diff when the next QloApps release is adopted; if that release ships the same or newer versions, take theirs.
+
+#### Bank transfer (Salisberg Pay)
+
+- **Asked by the owner:** bank and card payments can be offered.
+- **Bank transfer:** added to the existing `modules/salisbergpay` as a third method, built exactly like Mobile Money (rules 25 and 26), instead of switching the stock `bankwire` module back on. That module shows itself to guests even with no account details entered, uses its own order state, and sends emails in the vendor's wording.
+  - Settings (Salisberg Pay › Configure): Bank transfer on/off, Bank, Branch, Account name, Account number, an optional note. The account number is validated (letters, digits, spaces, hyphens, 5 to 34 characters); the others follow the same rules as the Mobile Money fields.
+  - Hidden from guests until an account number is saved. The booking is created as **Awaiting payment** with the method "Bank transfer"; staff record the money as for the other methods.
+  - The three lists of setting names in the module became one (`$settings`). `ensureSettings()` creates any setting that does not exist yet and is called from `docker/setup-modules.php`, which is how the new settings reach the live install (`MODULES_VERSION=11`). Bank transfer starts switched on, and therefore hidden until the account number is entered.
+- **Card payments: not done.** They need an account with a payment company and its API keys (in Ghana: Paystack, Hubtel or Flutterwave; each also handles Mobile Money automatically). Connecting one is a new piece of work once the owner has chosen a provider and opened the account. The bundled PayPal module was left uninstalled.
+- **Owner must:** enter the bank details in Salisberg Pay settings. Note the form will not save while Mobile Money is switched on with no number: enter the Mobile Money number as well, or switch Mobile Money off.
+- **Guides (rule 23):** Staff Guide section 5 is now "Record a cash, Mobile Money or bank transfer payment" with a Bank transfer subsection, and sections 3 and 10 mention it; Admin Guide section 6 covers the bank fields and says why cards are not offered. What's New and `CHANGELOG.md` updated.
+- **Not changed:** the website footer still shows two badges, Cash and Mobile Money. Add a bank badge when the account is live.
+
+#### Modules checked
+
+- All 56 installed modules compared with their code: every installed version matches. Nothing is waiting for an upgrade step.
+- The Modules page's "An upgrade is available: Display Language and Currency Block" was false. That module's `config.xml` said 1.0.1 while its code and the database say 1.0.2 (an inconsistency in the upstream release). The file was corrected; no other module has the same mismatch.
+- **About the 1-Click Upgrade module (`qloautoupgrade`), for the record:** it downloads the vendor's newest release from their servers and overwrites the platform's files in place, then runs that release's database changes. Here it must stay uninstalled: the site's files are rebuilt from this repository on every deploy, so the overwritten files would be replaced by the old ones while the database stayed upgraded, and our patches and edits would be lost in between. New releases are adopted in the repository (rule 18).
+
+#### Verification (local, image rebuilt, PHP 8.3)
+
+- `docker/smoke-test.sh`: 29 of 29.
+- **JavaScript errors:** a browser run recorded every script error on the website (home, date picker, search results, add to cart, checkout, contact, sign in, phone menu) and the back office (dashboard, Modules, Bookings, Book Now, Reports, room type form, page editor): **none**. Pages report jQuery 1.12.4, Bootstrap 3.4.1, TinyMCE 4.9.11.
+- **Things those libraries do, exercised:** date picker opens; a room was added to the cart from search results (guest count chosen, then Book Now) and appeared at checkout; dashboard charts drawn; a tooltip, a drop-down menu, the side menu arrows and a pop-up window all opened.
+- **Text editor:** on the room type form it loads with the usual toolbar (screenshot reviewed). On the About Us page a marked line was inserted through the editor and saved; the back office reported success and the line appeared on the website page; it was then removed and the page saved again.
+- **Bank transfer, as a guest in a real browser:** not offered while no account number is set. In settings, a script tag as the account number and "switched on with no number" were both refused; valid details saved. The guest's summary page showed the bank, branch, account name and number; confirming created booking `KKISXYMBF` as "Bank transfer", Awaiting payment, GH₵8,580.00, and the confirmation page repeated the details with the booking reference and the note. This was also a complete website booking on PHP 8.3 with the new libraries.
+- **Not tested:** the editor's image and file manager buttons, and pasting from Word; the "Transplant" and other less-used back office dialogs; Safari and Firefox; recording the bank payment as staff; the live server.
+- Local test data: a test bank account and Mobile Money number are saved in the local settings only.
+
+### 2026-10-07 — MySQL 8.4 upgrade rehearsed on a copy (not applied)
+
+- **What was done:** the local database and data volumes were copied into a separate throwaway stack (`sb84`), and that copy was started on `mysql:8.4` with the current app image (PHP 8.3). The normal local stack and its 8.0 data were not touched. **Nothing was changed in the code for this; `MYSQL_VERSION` still defaults to 8.0.**
+- **Checked before starting, on 8.0:** every database account uses `caching_sha2_password` (8.4 switches the older `mysql_native_password` off by default, which is the usual cause of a failed upgrade); all 300 tables are InnoDB; no column uses the removed `FLOAT(M,D)` form; the server is started with no option that 8.4 removed.
+- **Result:**
+  - MySQL upgraded the data in place on first start, in about 35 seconds: data dictionary `80023` to `80300`, server `8.0.46` to `8.4.11`, both logged as completed, then "ready for connections". No errors or warnings in the database log.
+  - `CHECK TABLE` on all 300 tables: 300 OK. Table count and the row counts of orders, customers and configuration match the 8.0 copy.
+  - The app started against it without changes; `docker/smoke-test.sh` passed 29 of 29 on PHP 8.3.35 with MySQL 8.4.11.
+  - A dump taken from the `backup` container, with the same client the nightly backup uses, completed and was the same size as on 8.0.
+- **What this does and does not show:** the upgrade works on this data shape with this app. It was a small local database, not the live one, and the rehearsal did not include restoring an 8.0 backup into 8.4 or going back.
+- **Still required before setting `MYSQL_VERSION=8.4` on the live site (unchanged):** a live backup restored successfully somewhere else; backups copied off the server; the same rehearsal on a staging copy of the live data; a quiet hour with the site in maintenance mode. It is one-way.
+- **Left on the development machine:** five Docker volumes named `sb84_*` (about 260 MB) holding the upgraded copy. Remove them with `docker volume rm sb84_db_data sb84_app_data sb84_app_img sb84_app_upload sb84_app_download` when no longer wanted.

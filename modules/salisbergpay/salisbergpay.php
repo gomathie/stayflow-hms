@@ -19,6 +19,23 @@ class Salisbergpay extends PaymentModule
 {
     const METHOD_CASH = 'cash';
     const METHOD_MOMO = 'momo';
+    const METHOD_BANK = 'bank';
+
+    /** Every setting this module stores: key => value on a fresh install */
+    protected static $settings = array(
+        'SBPAY_CASH' => 1,
+        'SBPAY_MOMO' => 1,
+        'SBPAY_MOMO_NETWORK' => 'MTN Mobile Money',
+        'SBPAY_MOMO_NAME' => '',
+        'SBPAY_MOMO_NUMBER' => '',
+        'SBPAY_MOMO_NOTE' => '',
+        'SBPAY_BANK' => 1,
+        'SBPAY_BANK_NAME' => '',
+        'SBPAY_BANK_BRANCH' => '',
+        'SBPAY_BANK_ACCOUNT_NAME' => '',
+        'SBPAY_BANK_ACCOUNT' => '',
+        'SBPAY_BANK_NOTE' => '',
+    );
 
     protected $_html = '';
 
@@ -35,12 +52,14 @@ class Salisbergpay extends PaymentModule
 
         parent::__construct();
 
-        $this->displayName = $this->l('Salisberg Pay (Cash and Mobile Money)');
-        $this->description = $this->l('Lets guests book and pay with cash at the hotel or by Mobile Money. Staff confirm each payment in the back office.');
+        $this->displayName = $this->l('Salisberg Pay (Cash, Mobile Money and Bank Transfer)');
+        $this->description = $this->l('Lets guests book and pay with cash at the hotel, by Mobile Money or by bank transfer. Staff confirm each payment in the back office.');
         $this->confirmUninstall = $this->l('Are you sure you want to remove these payment options?');
 
         if (Configuration::get('SBPAY_MOMO') && !Configuration::get('SBPAY_MOMO_NUMBER')) {
             $this->warning = $this->l('Mobile Money is switched on but no number is set, so guests cannot see it yet.');
+        } elseif (Configuration::get('SBPAY_BANK') && !Configuration::get('SBPAY_BANK_ACCOUNT')) {
+            $this->warning = $this->l('Bank transfer is switched on but no account number is set, so guests cannot see it yet.');
         }
 
         $this->payment_type = OrderPayment::PAYMENT_TYPE_REMOTE_PAYMENT;
@@ -51,17 +70,29 @@ class Salisbergpay extends PaymentModule
         return parent::install()
             && $this->registerHook('payment')
             && $this->registerHook('paymentReturn')
-            && Configuration::updateValue('SBPAY_CASH', 1)
-            && Configuration::updateValue('SBPAY_MOMO', 1)
-            && Configuration::updateValue('SBPAY_MOMO_NETWORK', 'MTN Mobile Money')
-            && Configuration::updateValue('SBPAY_MOMO_NAME', '')
-            && Configuration::updateValue('SBPAY_MOMO_NUMBER', '')
-            && Configuration::updateValue('SBPAY_MOMO_NOTE', '');
+            && $this->ensureSettings();
+    }
+
+    /**
+     * Creates any setting that does not exist yet, with its starting value.
+     * Settings that exist are left alone. Safe to call on every deploy, which
+     * is how a setting added in a later version reaches an existing install.
+     */
+    public function ensureSettings()
+    {
+        $ok = true;
+        foreach (self::$settings as $key => $value) {
+            if (Configuration::get($key) === false) {
+                $ok = Configuration::updateValue($key, $value) && $ok;
+            }
+        }
+
+        return $ok;
     }
 
     public function uninstall()
     {
-        foreach (array('SBPAY_CASH', 'SBPAY_MOMO', 'SBPAY_MOMO_NETWORK', 'SBPAY_MOMO_NAME', 'SBPAY_MOMO_NUMBER', 'SBPAY_MOMO_NOTE') as $key) {
+        foreach (array_keys(self::$settings) as $key) {
             Configuration::deleteByName($key);
         }
 
@@ -90,6 +121,15 @@ class Salisbergpay extends PaymentModule
             );
         }
 
+        // Same rule: no account number, nothing to pay into
+        if (Configuration::get('SBPAY_BANK') && Configuration::get('SBPAY_BANK_ACCOUNT')) {
+            $methods[self::METHOD_BANK] = array(
+                'code' => self::METHOD_BANK,
+                'title' => $this->l('Pay by bank transfer'),
+                'hint' => $this->l('Transfer to our bank account; we confirm it and your booking'),
+            );
+        }
+
         return $methods;
     }
 
@@ -98,7 +138,30 @@ class Salisbergpay extends PaymentModule
      */
     public function getPaymentName($method)
     {
-        return $method == self::METHOD_MOMO ? 'Mobile Money (MoMo)' : 'Cash at hotel';
+        $names = $this->getPaymentNames();
+
+        return isset($names[$method]) ? $names[$method] : $names[self::METHOD_CASH];
+    }
+
+    /** @return array method code => name stored on the order */
+    public function getPaymentNames()
+    {
+        return array(
+            self::METHOD_CASH => 'Cash at hotel',
+            self::METHOD_MOMO => 'Mobile Money (MoMo)',
+            self::METHOD_BANK => 'Bank transfer',
+        );
+    }
+
+    public function getBankDetails()
+    {
+        return array(
+            'bank' => Configuration::get('SBPAY_BANK_NAME'),
+            'branch' => Configuration::get('SBPAY_BANK_BRANCH'),
+            'name' => Configuration::get('SBPAY_BANK_ACCOUNT_NAME'),
+            'account' => Configuration::get('SBPAY_BANK_ACCOUNT'),
+            'note' => Configuration::get('SBPAY_BANK_NOTE'),
+        );
     }
 
     public function getMomoDetails()
@@ -148,8 +211,9 @@ class Salisbergpay extends PaymentModule
 
             $smartyVars = array(
                 'status' => 'ok',
-                'sbpay_method' => $objOrder->payment == $this->getPaymentName(self::METHOD_MOMO) ? self::METHOD_MOMO : self::METHOD_CASH,
+                'sbpay_method' => array_search($objOrder->payment, $this->getPaymentNames()) ?: self::METHOD_CASH,
                 'sbpay_momo' => $this->getMomoDetails(),
+                'sbpay_bank' => $this->getBankDetails(),
                 'cart_room_bookings' => $objHotelBooking->getBookingDataByOrderReference($objOrder->reference),
                 'total_to_pay' => Tools::displayPrice($cartTotal, $params['currencyObj'], false),
                 'reference' => $objOrder->reference,
@@ -197,6 +261,24 @@ class Salisbergpay extends PaymentModule
                 $errors[] = $this->l('Enter the Mobile Money number, or switch Mobile Money off.');
             }
 
+            $bank = array();
+            foreach (array('SBPAY_BANK_NAME', 'SBPAY_BANK_BRANCH', 'SBPAY_BANK_ACCOUNT_NAME', 'SBPAY_BANK_ACCOUNT') as $key) {
+                $bank[$key] = trim((string) Tools::getValue($key));
+            }
+            $bankNote = trim(strip_tags((string) Tools::getValue('SBPAY_BANK_NOTE')));
+            if ($bank['SBPAY_BANK_ACCOUNT'] !== '' && !preg_match('/^[0-9A-Za-z][0-9A-Za-z \-]{4,33}$/', $bank['SBPAY_BANK_ACCOUNT'])) {
+                $errors[] = $this->l('The bank account number may only contain letters, digits, spaces and hyphens (5 to 34 characters).');
+            }
+            if (!Validate::isGenericName($bank['SBPAY_BANK_NAME']) || !Validate::isGenericName($bank['SBPAY_BANK_BRANCH']) || !Validate::isGenericName($bank['SBPAY_BANK_ACCOUNT_NAME'])) {
+                $errors[] = $this->l('The bank, branch and account name must not contain < > = { } characters.');
+            }
+            if (Tools::strlen($bankNote) > 500) {
+                $errors[] = $this->l('The bank note is too long (500 characters at most).');
+            }
+            if (Tools::getValue('SBPAY_BANK') && $bank['SBPAY_BANK_ACCOUNT'] === '') {
+                $errors[] = $this->l('Enter the bank account number, or switch bank transfer off.');
+            }
+
             if ($errors) {
                 foreach ($errors as $error) {
                     $this->_html .= $this->displayError($error);
@@ -208,6 +290,11 @@ class Salisbergpay extends PaymentModule
                 Configuration::updateValue('SBPAY_MOMO_NAME', $name);
                 Configuration::updateValue('SBPAY_MOMO_NUMBER', $number);
                 Configuration::updateValue('SBPAY_MOMO_NOTE', $note);
+                Configuration::updateValue('SBPAY_BANK', (int) Tools::getValue('SBPAY_BANK'));
+                foreach ($bank as $key => $value) {
+                    Configuration::updateValue($key, $value);
+                }
+                Configuration::updateValue('SBPAY_BANK_NOTE', $bankNote);
                 $this->_html .= $this->displayConfirmation($this->l('Settings updated'));
             }
         }
@@ -264,6 +351,42 @@ class Salisbergpay extends PaymentModule
                         'name' => 'SBPAY_MOMO_NOTE',
                         'desc' => $this->l('Optional. For example a merchant ID, or how soon to pay.'),
                     ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Bank transfer'),
+                        'name' => 'SBPAY_BANK',
+                        'is_bool' => true,
+                        'values' => $switch,
+                        'desc' => $this->l('Guests transfer to the account below. Shown to guests only when an account number is set.'),
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => $this->l('Bank'),
+                        'name' => 'SBPAY_BANK_NAME',
+                        'desc' => $this->l('For example: GCB Bank, Ecobank Ghana.'),
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => $this->l('Branch'),
+                        'name' => 'SBPAY_BANK_BRANCH',
+                        'desc' => $this->l('Optional.'),
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => $this->l('Account name'),
+                        'name' => 'SBPAY_BANK_ACCOUNT_NAME',
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => $this->l('Account number'),
+                        'name' => 'SBPAY_BANK_ACCOUNT',
+                    ),
+                    array(
+                        'type' => 'textarea',
+                        'label' => $this->l('Extra note for guests (bank)'),
+                        'name' => 'SBPAY_BANK_NOTE',
+                        'desc' => $this->l('Optional. For example a SWIFT code for transfers from abroad.'),
+                    ),
                 ),
                 'submit' => array('title' => $this->l('Save')),
             ),
@@ -280,7 +403,7 @@ class Salisbergpay extends PaymentModule
         $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false).'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
         $values = array();
-        foreach (array('SBPAY_CASH', 'SBPAY_MOMO', 'SBPAY_MOMO_NETWORK', 'SBPAY_MOMO_NAME', 'SBPAY_MOMO_NUMBER', 'SBPAY_MOMO_NOTE') as $key) {
+        foreach (array_keys(self::$settings) as $key) {
             $values[$key] = Tools::getValue($key, Configuration::get($key));
         }
         $helper->tpl_vars = array(

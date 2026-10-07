@@ -1,5 +1,9 @@
 # Salisberg (QloApps-based) application image
-FROM php:8.1-apache
+#
+# PHP version. Tested on 8.3 (docker/smoke-test.sh). To try another version
+# without editing this file, set PHP_VERSION in .env (see docker-compose.yml).
+ARG PHP_VERSION=8.3
+FROM php:${PHP_VERSION}-apache
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libfreetype6-dev libjpeg62-turbo-dev libpng-dev libwebp-dev \

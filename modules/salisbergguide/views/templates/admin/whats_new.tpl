@@ -22,6 +22,7 @@
 		<h3>{l s='7 October 2026' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='This page.' mod='salisbergguide'}</strong> {l s='Changes are now listed here as they are made.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Bank transfer.' mod='salisbergguide'}</strong> {l s='Guests can now choose to pay by bank transfer once the hotel bank account has been entered. Like Mobile Money, the booking waits as Awaiting payment until you record the money. See the Staff Guide, section 5.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Dark mode.' mod='salisbergguide'}</strong> {l s='Lists and forms that still showed white or pale blue areas in dark mode have been corrected.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Menu arrows.' mod='salisbergguide'}</strong> {l s='Each menu section with pages under it has a small arrow. Click it to list the pages and click again to fold them away. Pages no longer pop out beside the menu when the pointer passes over.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Sign-in page.' mod='salisbergguide'}</strong> {l s='The back office sign-in page is simpler: the logo and one form.' mod='salisbergguide'}</li>
@@ -32,6 +33,7 @@
 		{if $sb_can_read_admin_guide}
 		<h4>{l s='For the hotel manager' mod='salisbergguide'}</h4>
 		<ul>
+			<li><strong>{l s='Printable reports.' mod='salisbergguide'}</strong> {l s='Bookings, Reports gives three reports for today, this week, this month or any dates you choose: bookings, arrivals and departures, and income by day. Each can be downloaded as a PDF. See the Admin Guide, section 14.' mod='salisbergguide'}</li>
 			<li>{l s='The sample guest account that came with the system (John Doe) has been retired.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Dark mode on the website.' mod='salisbergguide'}</strong> {l s='Visitors can switch the website between light and dark with the sun and moon switch in the header. It starts light and remembers each visitor’s choice on their device.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Website footer.' mod='salisbergguide'}</strong> {l s='Payment accepted now shows Cash and Mobile Money in place of the card logos. Home, Our Properties, Interior and Contact Us are listed under Explore. The empty Follow us on heading is hidden until social links are entered, and the sample founding year 2010 is gone from the copyright line.' mod='salisbergguide'}</li>
@@ -40,6 +42,8 @@
 		{if $sb_is_admin}
 		<h4>{l s='For the developer team' mod='salisbergguide'}</h4>
 		<ul>
+			<li>{l s='Bundled libraries updated: jQuery 1.12.4, Bootstrap scripts 3.4.1 and the text editor (TinyMCE) 4.9.11. Bank transfer details are entered in Salisberg Pay settings: Admin Guide, section 6.' mod='salisbergguide'}</li>
+			<li>{l s='The system now runs on PHP 8.3 (8.1 no longer receives security fixes). The MySQL version is a setting, MYSQL_VERSION, and stays on 8.0 until it is changed on purpose. A check script, docker/smoke-test.sh, confirms the main pages after any change.' mod='salisbergguide'}</li>
 			<li>{l s='The vendor name no longer appears in back office text, and the vendor store page (Modules Catalog) is out of the menu.' mod='salisbergguide'}</li>
 			<li>{l s='Who can open this page is set in Administration, Permissions, on the row named after this page.' mod='salisbergguide'}</li>
 		</ul>

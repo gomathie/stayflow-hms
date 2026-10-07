@@ -11,12 +11,18 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Added
 
+- **Bank transfer** as a third way to pay, alongside cash and Mobile Money. It appears to guests once the hotel's bank account is entered in Salisberg Pay settings; the booking waits as "Awaiting payment" until staff record the money.
+- **Printable reports** (Bookings › Reports): bookings, arrivals and departures, and income by day, for today, this week, this month, last month or any dates, on screen and as a PDF. Given to the Hotel Manager; other profiles can be given it in Permissions.
+- A repeatable check, `docker/smoke-test.sh`, that confirms the main website and back office pages load without errors.
 - **Dark mode on the website.** A sun/moon switch in the header, on computers and phones. The site starts light; a visitor's choice is remembered on their device.
 - **What's New page** in the back office (Guides › What's New). Which profiles can open it is set in Administration › Permissions. Hotel Staff and Hotel Manager have it to begin with.
 - This file.
 
 ### Changed
 
+- **Bundled libraries updated** to the last release of the line each was on: jQuery 1.11.0 to 1.12.4, Bootstrap scripts 3.1.1 to 3.4.1 (back office), and the text editor TinyMCE 4.0.16 to 4.9.11. All three old versions dated from 2014 and had known security flaws.
+- **PHP 8.3** in place of 8.1, which no longer receives security fixes. The version is a build setting (`PHP_VERSION`), so going back is a setting change.
+- The MySQL version is now a setting (`MYSQL_VERSION`), so the move from 8.0 to 8.4 can be made deliberately, after a tested backup. It stays on 8.0 until that setting is changed.
 - The vendor's product name no longer appears in back office text; it reads "Salisberg" instead.
 - **Website footer:** "Payment accepted" shows Cash and Mobile Money badges in place of Visa, American Express, MasterCard and PayPal logos, which the hotel does not take. Home, Our Properties, Interior and Contact Us are listed under Explore, in two columns. The empty "Follow us on" column is hidden until social links are entered. The sample founding year "2010" is gone from the copyright line.
 - **Back office side menu:** sections now fold and unfold with a small arrow beside their name. The box of pages that popped out beside the menu on hover is gone.
@@ -31,6 +37,8 @@ Every change to Salisberg, newest first, in plain words.
 
 - Back office dark mode: every page under Guides showed light text on white cards and could not be read.
 - The back office side menu could not be scrolled when it was longer than the window; it now scrolls, with a thin scroll bar.
+- The Modules page kept offering an update for "Display Language and Currency Block" that did not exist; its version file was out of step with its code.
+- Stats: report tables ran off the right edge of the page; each now scrolls inside its own box.
 - Website dark mode: the breadcrumb, drop-down boxes, the date picker and parts of the checkout were still light or unreadable. Drop-down boxes also showed a broken arrow picture in light mode.
 - Dark mode: empty lists showed a white block, the search row under list headings was pale blue, and the lines between rows were bright white.
 

@@ -10,17 +10,7 @@
 * If you did not receive a copy of the license and are unable to
 * obtain it through the world-wide-web, please send an email
 * to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2017 PrestaShop SA
-*  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
+
 *}
 
 <!DOCTYPE html>
@@ -38,7 +28,7 @@
 	<meta name="robots" content="{if isset($nobots)}no{/if}index,follow">
 	<link rel="shortcut icon" href="{$favicon_url}">
 	<link href="{$css_dir}maintenance.css" rel="stylesheet">
-	<script src="{$base_dir}js/jquery/jquery-1.11.0.min.js"></script>
+	<script src="{$base_dir}js/jquery/jquery-1.12.4.min.js"></script>
 	<script src="{$js_dir}maintenance.js"></script>
 	<link href='//fonts.googleapis.com/css?family=Open+Sans:600' rel='stylesheet'>
 </head>

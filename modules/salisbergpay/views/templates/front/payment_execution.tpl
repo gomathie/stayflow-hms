@@ -38,6 +38,16 @@
                 </p>
                 <p>{l s='You will get a booking reference on the next page. Use it as the payment reference so we can match your payment.' mod='salisbergpay'}</p>
                 <p>{l s='Your booking is confirmed once we receive the payment.' mod='salisbergpay'}</p>
+            {elseif $sbpay_method.code == 'bank'}
+                <p>{l s='After you confirm, transfer this amount to:' mod='salisbergpay'}</p>
+                <p>
+                    {if $sbpay_bank.bank}{l s='Bank:' mod='salisbergpay'} <strong>{$sbpay_bank.bank|escape:'html':'UTF-8'}</strong><br />{/if}
+                    {if $sbpay_bank.branch}{l s='Branch:' mod='salisbergpay'} <strong>{$sbpay_bank.branch|escape:'html':'UTF-8'}</strong><br />{/if}
+                    {if $sbpay_bank.name}{l s='Account name:' mod='salisbergpay'} <strong>{$sbpay_bank.name|escape:'html':'UTF-8'}</strong><br />{/if}
+                    {l s='Account number:' mod='salisbergpay'} <strong>{$sbpay_bank.account|escape:'html':'UTF-8'}</strong>
+                </p>
+                <p>{l s='You will get a booking reference on the next page. Use it as the payment reference so we can match your payment.' mod='salisbergpay'}</p>
+                <p>{l s='Your booking is confirmed once we receive the payment.' mod='salisbergpay'}</p>
             {else}
                 <p>{l s='You will pay this amount in cash at reception when you arrive.' mod='salisbergpay'}</p>
                 <p>{l s='Your room is reserved now. Please bring your booking reference, shown on the next page.' mod='salisbergpay'}</p>

@@ -237,7 +237,7 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
 .bootstrap #nav-sidebar,
 .page-sidebar #nav-sidebar { background-color: var(--sb-card); border-right: 1px solid var(--sb-line); }
 .bootstrap #nav-sidebar ul.menu { padding: 6px 12px 12px; }
-.bootstrap #nav-sidebar ul.menu > li.maintab { margin-bottom: 2px; }
+.bootstrap #nav-sidebar ul.menu > li.maintab { position: relative; margin-bottom: 2px; }
 .bootstrap #nav-sidebar ul.menu > li.maintab > a.title {
   height: 40px;
   line-height: 40px;
@@ -276,7 +276,6 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
 /* Sections fold and unfold with the small arrow added by side-menu.js. The
    section you are in starts open. The stock behaviour, a box of pages that
    appeared beside the menu while the pointer rested on a section, is off. */
-.bootstrap #nav-sidebar ul.menu > li.maintab { position: relative; }
 body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab ul.submenu,
 body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.hover ul.submenu,
 body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.hover ul.submenu,
@@ -637,6 +636,10 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 #dashboard #dash_traffic_chart2 { flex: 0 0 100%; }
 #content.bootstrap #dashboard #dashproducts nav { font-family: inherit; text-transform: none; }
 
+/* Stats: report tables are wider than the space beside the report menu and
+   ran off the right edge of the page. Each one scrolls inside its own box. */
+body.adminstats #content div:has(> table.table) { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
+
 /* ---------- 8. Stock-blue replacements ----------
    The stock theme's #00aff0 family, found by scanning rendered pages. */
 .bootstrap [id^="dgc_"] { color: var(--sb-heading); }                               /* dashboard tile figures */
@@ -651,7 +654,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .btn-link,
 .bootstrap .chosen-container .chosen-search:before { color: var(--sb-link); }
 .bootstrap .btn-primary > i[class^="icon-"]:before { color: var(--sb-accent-text); }
-.bootstrap .avail-bar-btn, .bootstrap .avail-bar-date { border-color: var(--sb-accent); border-radius: 8px; color: var(--sb-link); }
+.bootstrap .avail-bar-btn, .bootstrap .avail-bar-date { border-color: var(--sb-accent); border-radius: 8px; background-color: var(--sb-card); color: var(--sb-link); }
 .bootstrap .avail-bar-btn.bar-btn-active { background-color: var(--sb-accent); border-color: var(--sb-accent); color: var(--sb-accent-text); }
 
 /* ---------- 9. Dark-theme specifics ----------
@@ -796,7 +799,6 @@ html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); 
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn span,
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn div { color: inherit; font-weight: inherit; }
 #dashboard .avail-pie-label-container p { color: #fff; }
-.bootstrap .avail-bar-btn, .bootstrap .avail-bar-date { background-color: var(--sb-card); }
 .bootstrap .hasDatepicker.form-control { background-color: var(--sb-card); color: var(--sb-ink); }
 
 /* dark theme: text the dashboard and calendar widgets colour themselves */

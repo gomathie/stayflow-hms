@@ -41,7 +41,7 @@ if ($idGhana) {
     }
 }
 
-foreach (array('salisbergpay', 'salisbergguide') as $name) {
+foreach (array('salisbergpay', 'salisbergguide', 'salisbergreports') as $name) {
     $module = Module::getInstanceByName($name);
     if (!$module) {
         sb_log("ERROR: module $name not found");
@@ -64,6 +64,17 @@ foreach (array('salisbergpay', 'salisbergguide') as $name) {
     }
 }
 
+// Settings added to Salisberg Pay in a later version (bank transfer) reach an existing install here
+$pay = Module::getInstanceByName('salisbergpay');
+if ($pay && Module::isInstalled('salisbergpay')) {
+    if ($pay->ensureSettings()) {
+        sb_log('payment settings in place');
+    } else {
+        sb_log('ERROR: payment settings could not be created');
+        $failed = true;
+    }
+}
+
 // Menu entries and the Hotel Staff and Hotel Manager profiles: created if missing, on every run
 $guide = Module::getInstanceByName('salisbergguide');
 if ($guide && Module::isInstalled('salisbergguide')) {
@@ -71,6 +82,17 @@ if ($guide && Module::isInstalled('salisbergguide')) {
         sb_log('guide menus, Hotel Staff and Hotel Manager profiles in place');
     } else {
         sb_log('ERROR: guide menus or staff profiles could not be created');
+        $failed = true;
+    }
+}
+
+// Bookings > Reports: after the profiles above exist, so the Hotel Manager can be given the page
+$reports = Module::getInstanceByName('salisbergreports');
+if ($reports && Module::isInstalled('salisbergreports')) {
+    if ($reports->ensureSetup()) {
+        sb_log('reports page in place');
+    } else {
+        sb_log('ERROR: reports page could not be created');
         $failed = true;
     }
 }
@@ -87,7 +109,7 @@ if ($idPay && $idGhana) {
 }
 
 // Switched off on every deploy:
-//  - bankwire, cheque: the hotel takes cash and Mobile Money only for now
+//  - bankwire, cheque: bank transfer is offered through Salisberg Pay, in the same way as Mobile Money
 //  - qlohotelreview: guest reviews are not in use; keeping it off also keeps its
 //    upload endpoint closed (CVE-2025-67325). Remove it from this list to use reviews.
 foreach (array('bankwire', 'cheque', 'qlohotelreview') as $name) {
