@@ -19,6 +19,7 @@ Every change to Salisberg, newest first, in plain words.
 ### Changed
 
 - **Menu rename:** the back office sidebar section "Hotel Reservation System" is now "Manage Hotel". Its "Manage Hotel" sub-page (hotel address and details) is renamed to "Hotel Details" so the two no longer share a name.
+- **Admin Guide warning added:** a new room type with no rooms entered in its Rooms tab can still be found, added to cart and taken through to a confirmation page by a guest, but the booking is not properly recorded and will not appear under Bookings. The guide now says, clearly, to add at least one room number before switching a new room type on.
 
 ### Fixed
 

@@ -107,6 +107,7 @@
 			</li>
 			<li>{l s='Save. The room type appears on the website when it is enabled and has at least one available room.' mod='salisbergguide'}</li>
 		</ol>
+		<p class="sb-warn">{l s='A new room type with nothing in its Rooms tab is not finished. Guests can still find it, add it to their cart and reach the confirmation page, but with no actual room to give them the booking is not recorded properly and will not appear under Bookings. Always add at least one real room number before switching a new room type on (Information tab, Active).' mod='salisbergguide'}</p>
 		<p class="sb-tip">{l s='To take one room out of service (repairs, deep clean), change that room in the Rooms tab rather than disabling the whole type.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminProducts|escape:'html':'UTF-8'}">{l s='Open Manage Room Types' mod='salisbergguide'} &rarr;</a>
 	</section>

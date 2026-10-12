@@ -30,6 +30,7 @@
 		<ul>
 			<li>{l s='Inside Manage Hotel, the page where the hotel address and details are edited is now called Hotel Details (it used to share the Manage Hotel name).' mod='salisbergguide'}</li>
 			<li><strong>{l s='Website footer.' mod='salisbergguide'}</strong> {l s='A new Location and Contact column shows the address, phone and email already shown on the Contact page.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Important: new room types need a room number before going live.' mod='salisbergguide'}</strong> {l s='Guests can still reach a confirmation page for a room type with nothing in its Rooms tab, but the booking is not recorded. See the Admin Guide, section 3.' mod='salisbergguide'}</li>
 		</ul>
 		{/if}
 		{if $sb_is_admin}
