@@ -6,7 +6,8 @@ Guidance for any agent or developer working in this repository. Read it before c
 
 - **Product name:** Salisberg. **Production URL:** https://salisberg.com
 - **Base:** a fork of [QloApps](https://github.com/Qloapps/QloApps) (Webkul), an open-source hotel booking engine that is itself built on PrestaShop 1.6. License: OSL-3.0.
-- **Stack:** PHP 8.1 + Apache, MySQL 8.0, Smarty templates. No Composer dependencies at the root, no Node build step.
+- **Direction (owner, 2026-10-07):** Salisberg stands on its own. It started from QloApps 1.7.0 but does not depend on QloApps or wait for its updates. The inherited code is ours to change. Rules 11, 18 and 28 are written for that.
+- **Stack:** PHP 8.3 + Apache, MySQL 8.0, Smarty templates. No Composer dependencies at the root, no Node build step.
 - **Hosting:** a VPS running [Coolify](https://coolify.io). Coolify builds `docker-compose.yml` from this repo and its own proxy terminates TLS for the domain.
 - The repo was briefly named "StayFlow" (the GitHub repository is still `stayflow-hms`); the internal code, database prefix (`qlo_`) and many file names still say QloApps. That is expected.
 
@@ -61,7 +62,7 @@ The final repository must consistently identify the project as MIT licensed by S
 
 ### Code
 
-11. **Do not edit core files when an override will do.** Use `override/` and modules in `modules/`, as PrestaShop 1.6 intends. Core edits make upstream QloApps updates painful.
+11. **Fix things where they are defined.** The inherited platform code is ours (section 1, Direction), so a fault or an unwanted default in an inherited file is corrected in that file, not papered over from somewhere else. For styling this means changing the inherited stylesheet's rule instead of out-ranking it with `!important`. New behaviour still goes in `override/` and in modules, as PrestaShop 1.6 intends, because that keeps our features in one findable place; an override is no longer preferred merely to leave the original untouched. Every change to an inherited file is verified in a running stack and recorded in section 6.
 12. **Do not rename the `qlo_` table prefix or internal `QloApps`/`PrestaShop` identifiers** as part of branding work. Branding is done through shop name, theme, logos and translations.
 13. **Match the surrounding code style** (PrestaShop 1.6 conventions: PSR-2-ish PHP, Smarty `.tpl`).
 14. **Keep the upstream license headers** in files you touch (OSL-3.0 requirement).
@@ -71,7 +72,7 @@ The final repository must consistently identify the project as MIT licensed by S
 15. **Verify before claiming.** Build the image and boot the stack locally (section 5) after any change to `Dockerfile`, `docker/` or compose files. Record what was and was not tested.
 16. **Commit or push only when the owner asks.** Work on a branch, not directly on `main`.
 17. **Record every meaningful change in section 6** with what, why and how.
-18. **Track upstream by tagged release only.** Never merge `Qloapps/QloApps` `develop`. When a new tag ships, diff it against the current base tag, review, and re-test the Docker boot before deploying.
+18. **Upstream is a source of security fixes, not of releases.** Do not merge `Qloapps/QloApps` (neither `develop` nor a new tag) and never install the 1-Click Upgrade module. Do watch upstream's security advisories and fixes: a fix that applies to code we still carry is backported by hand and listed in `PATCHES.md` (rule 24). Bundled libraries (jQuery, Bootstrap scripts, TinyMCE, Smarty, TCPDF, SimpleXLSX) are kept current by us, from their own publishers.
 19. **Files under upstream-ignored paths** (`img/**`, `modules/*/translations/*`) need `git add -f`. Check for silently dropped files after any import from upstream.
 20. **Anything written at runtime outside `img/`, `upload/`, `download/` and `/data` is lost on deploy.** When adding or enabling a module that accepts uploads, add its folder to `PERSIST_DIRS` in `docker/entrypoint.sh`. (Background: change log, 2026-10-06.)
 21. **Sanitise input and escape output.** Take request input through `Tools::getValue()`, cast numbers, use `pSQL()` or `(int)` for anything placed in SQL, and escape template output with `|escape:'html':'UTF-8'`.
@@ -89,6 +90,9 @@ The final repository must consistently identify the project as MIT licensed by S
     | Small interface scripts (password eye, theme switch) | `modules/salisbergguide/views/js/`, loaded by `addInterfaceAssets()` |
     | Back office guides, Hotel Staff role | `modules/salisbergguide` |
     | Payment methods | `modules/salisbergpay` |
+    | Platform settings changed without editing vendor files (for example the jQuery version) | `config/defines_custom.inc.php` |
+    | Reports on screen and as PDF | `modules/salisbergreports` |
+    | Checking a running stack after a change | `docker/smoke-test.sh` |
     | Installing, enabling or disabling modules | `docker/setup-modules.php` |
     | One-off data or schema changes on deploy | versioned steps in `docker/entrypoint.sh` |
     | Web server headers and access rules | `docker/apache.conf` |
@@ -101,7 +105,7 @@ The final repository must consistently identify the project as MIT licensed by S
     - **Proof first:** search the whole tree for every reference (class name, file path, function name, selectors for CSS) and confirm none remain outside the file itself. Check `classes/ConfigurationTest.php` too: it lists files the installer expects to exist.
     - **Then verify:** rebuild, load the storefront and back office, and confirm no errors in the log.
     - **Our own code** (anything from rule 25's table): remove freely once proven unused.
-    - **Vendor code:** remove only whole files or folders that are provably unreferenced. Never trim inside a vendor file, and never move one: the platform loads files by fixed path. Each removal makes the next upstream merge slightly harder, so record it in the change log with the evidence.
+    - **Inherited platform code:** the same proof is required, and it is harder to get, because the platform loads files by fixed path, by hook name and through the class index. Whole files or folders may go once provably unreferenced; a rule, function or block inside a file may go once nothing can reach it. Never move or rename a file (rule 29). Record each removal in the change log with the evidence.
     - **Not dead:** features that are switched off but may be switched on (reviews, testimonials, bank wire), and anything loaded by path, by a hook name or through the class index.
 29. **Never move or rename a vendor file.** The back office, the installer and the autoloader locate files by path. (Background: change log, 2026-10-06, `admin/functions.php`.)
 
@@ -120,7 +124,7 @@ The final repository must consistently identify the project as MIT licensed by S
 
 | File | Purpose |
 |---|---|
-| `Dockerfile` | `php:8.1-apache` plus the extensions QloApps requires (gd, pdo_mysql, mysqli, soap, zip, intl, mbstring, opcache). Copies the repo into `/var/www/html` and keeps a pristine copy of `img`, `upload`, `download` in `/usr/src/salisberg-seed`. |
+| `Dockerfile` | `php:8.3-apache` (version set by the `PHP_VERSION` build argument) plus the extensions QloApps requires (gd, pdo_mysql, mysqli, soap, zip, intl, mbstring, opcache). Copies the repo into `/var/www/html` and keeps a pristine copy of `img`, `upload`, `download` in `/usr/src/salisberg-seed`. |
 | `docker/entrypoint.sh` | Runs at every start: seeds and fixes ownership of volumes, renames `admin` to `$ADMIN_DIR`, waits for MySQL, runs the CLI installer on first boot, persists settings, removes `install/`. |
 | `docker/php.ini` | Limits from the QloApps requirements (memory, upload size, execution time) and opcache. |
 | `docker/apache.conf` | `AllowOverride All` for `.htaccess` rewrites; trusts `X-Forwarded-For` from the proxy. |
@@ -1069,3 +1073,375 @@ The owner asked for every "QloApps" reference that can be removed without risk o
 - **Side menu text** one more step larger at the owner's request: section names 16px, pages 15px, rows 42px. The menu is 304px wide so names still fit beside their arrows.
 - **Verification (local, real browser):** the contrast script reported no text under 4.5:1 on Guides, Staff Guide, Admin Guide and What's New in dark mode (before: 3 to 190 failing items per page). Staff Guide screenshot reviewed. With three sections opened in a 760px-high window the menu held 1055px of content in 700px, scrolled, and the last entry could be reached.
 - **Not tested:** the scroll bar's appearance. The test browser draws scroll bars as overlays, so the bar itself was not seen; only that the menu scrolls and the styles are applied. The guides in light mode were not re-captured after this change (the rule sets the same card colour as before).
+
+### 2026-10-07 — Upgrade work started; printable reports; Stats pages
+
+Work is on `develop`. `main`, `develop` and `salisberg-production` were brought to the same state first (the owner pushed).
+
+#### Upgrade step 0: a repeatable check (`docker/smoke-test.sh`, new)
+
+- One command, `bash docker/smoke-test.sh`, replaces the ad hoc page checks used so far. Against a running stack it confirms: ten website pages load without error text; six files that must stay private are not served; an administrator can sign in; the dashboard and nine back office pages load (reached through the dashboard's own menu links, so their tokens are valid); and the app log has no new PHP errors. It prints the PHP and MySQL versions it ran against, and exits non-zero if anything failed. It saves nothing and makes no booking.
+- **Baseline recorded on the current stack (PHP 8.1.34, MySQL 8.0.46): 29 passed, 0 failed.** Every upgrade step below is judged against that.
+- It is a first check, not a full test (rule 15 still applies).
+
+#### Upgrade step 1: PHP 8.3 — done (see the follow-up at the end of this entry)
+
+- `Dockerfile` now takes the PHP version as a build argument, `ARG PHP_VERSION=8.1`, passed from `docker-compose.yml` (`PHP_VERSION`, documented in `.env.example`). **The default is still 8.1**, so a deploy from this code builds exactly what it built before.
+- **Why it is not switched yet:** the `php:8.3-apache` base image had not finished downloading on the development machine's connection when this entry was written, so nothing has been built or run on 8.3. Per rule 15 the default is not changed until it has.
+- **To finish:** `PHP_VERSION=8.3 docker compose up -d --build`, then `bash docker/smoke-test.sh`, then click through bookings, the room editor, a PDF (invoice and Bookings › Reports) and the E-mail test, reading the app log for new warnings. If clean, change the default in the `Dockerfile` to 8.3.
+
+#### Upgrade step 2: MySQL 8.4 — made a deliberate switch, NOT yet done
+
+- `docker-compose.yml`: `image: mysql:${MYSQL_VERSION:-8.0}`. **The default is still 8.0.**
+- **Why a setting and not a code change:** the move is one-way. Once 8.4 has opened the data files, 8.0 cannot read them again; the only way back is a restored backup. As a plain edit to the compose file it would have upgraded the production database on the next routine deploy. As a setting, it happens only when someone adds `MYSQL_VERSION=8.4` in Coolify on purpose.
+- **Before setting it anywhere real:** a backup restored successfully somewhere else (rule 8); off-server backup copies in place; the same change run first on a staging copy with a copy of the live data; `docker/smoke-test.sh` passing afterwards.
+
+#### Stylesheets
+
+- A small checker (duplicate selectors in the same context, a property set twice in one rule, empty rules) was run over our four stylesheets. It found three selectors declared twice (two in `overrides.css`, one in `salisberg.css`); each pair was merged into one rule (rule 27). No repeated properties, no empty rules. `!important` count for the record: 64 in `overrides.css`, 45 in `salisberg.css`; nearly all are there to beat stock rules that themselves use `!important` or inline styles, and were left.
+- **Not done:** the bundled libraries (jQuery, Bootstrap scripts, TinyMCE, Smarty). Each is its own step with its own testing; see `audit/upgrade-plan.md`.
+
+#### Printable reports (new module `salisbergreports`)
+
+- **What:** a page at **Bookings › Reports**. Choose a report and a period, see it on screen, download it as a PDF.
+  - **Reports:** Bookings (every booking made in the period); Arrivals and departures (rooms checking in and out, a daily sheet for the desk and housekeeping); Income by day.
+  - **Periods:** Today, This week, This month, Last month, or Choose dates with From and To. At most one year.
+  - **PDF:** landscape A4, the invoice logo, report title and period at the top, a row of summary figures, the table with a repeating header, and a footer with when and by whom it was printed. Built with the platform's own `PDFGenerator` (TCPDF), the same engine as invoices.
+- **Why a new module (rule 25):** nothing existing fits. `salisbergguide` holds help pages, roles and small interface scripts; `salisbergpay` is payments. Reports read booking data and produce documents, which is a separate concern with its own page, templates and permission. It follows the same patterns as the other two (menu entry created in `ensureSetup()`, installed by `docker/setup-modules.php`, `sb-` naming). `MODULES_VERSION=10`.
+- **Permission:** an ordinary menu page, so Administration › Permissions has a "Reports" row. The Hotel Manager is given it once, when the page is first created; Hotel Staff are not (it shows income). Either can be changed in Permissions and the change is kept.
+- **Rules followed:** totals leave out cancelled, refunded and payment-error bookings, but the Bookings report still lists them. Request values are validated before use (report and period against fixed lists; dates against a pattern and `Validate::isDate`; reversed dates are swapped; anything else falls back to today), dates go through `pSQL()`, and every cell is escaped in the templates (rule 21). The page saves nothing.
+- **To add a report:** add its name in `getReports()` and a `build<Name>()` method returning the same shape; the screen and PDF templates render any report of that shape.
+- **Guide (rule 23):** Admin Guide section 14 "Reports" now starts with "Printable reports (PDF)". Listed on What's New for managers. Added to the Hotel Manager's page list in `salisbergguide.php`.
+
+#### Stats pages ran off the right edge
+
+- Reported by the owner. Measured all 20 Stats reports at a 1366px-wide window: four (the Stats home, Stats Dashboard, Best hotels, Best-selling room types) had tables up to 250px wider than the space beside the report menu, which made the whole page scroll sideways. Each such table now scrolls inside its own box (`overrides.css`, scoped to the Stats page).
+
+#### Verification (local; everything below ran on PHP 8.1 and MySQL 8.0)
+
+- Image rebuilt from the working tree with all of the above: `setup-modules` logged the reports module installed and its page in place; `docker/smoke-test.sh` 29 of 29.
+- **Reports:** five test bookings were inserted into the local database (one paid, one unpaid with two rooms, one part-paid, one cancelled, with stays around today). On screen: Bookings for the month showed 2 bookings, 3 rooms, GH₵5,580 value, GH₵2,080 paid, GH₵3,500 to pay, 1 cancelled, which matches the test data by hand; Arrivals and departures for the week showed 3 and 4 with the cancelled room left out; Income by day agreed with Bookings. Reversed dates were swapped; a script tag and an impossible date in the address fell back to today with no error. All three PDFs downloaded as valid PDF files with sensible names; the Bookings and Arrivals PDFs were opened and read. Column widths were adjusted after that reading (amounts and "Checked in" were wrapping) and the PDFs were not re-opened afterwards.
+- **Stats:** after the fix none of the 20 reports makes the page scroll sideways.
+- **Not tested:** anything on PHP 8.3 or MySQL 8.4; reports as a Hotel Manager (the permission row was confirmed in the database, the page was only opened as SuperAdmin); reports with real bookings made through the website, with refunds, or with hundreds of rows across several PDF pages; the PDF in dark mode is not applicable (PDFs are always light); the live server.
+- Local test data: bookings with references starting `TEST` exist only in the local database.
+
+#### Follow-up, same day: PHP 8.3 built, tested and made the default
+
+- Once the base image had downloaded, the image was built on PHP 8.3.35 with the same extensions (gd, pdo_mysql, mysqli, soap, zip, intl, mbstring, opcache all loaded).
+- **Checks run on 8.3:**
+  - `docker/smoke-test.sh`: 29 of 29, no PHP errors or warnings logged.
+  - Every one of the 3,076 PHP files in the image compiled with all error reporting on: no parse errors, no compile-time deprecation notices.
+  - In a real browser, with the app log read afterwards: Bookings › Reports on screen and all three PDFs (TCPDF, the same engine as invoices); guest sign-in (bcrypt password check), account pages, adding a room to the cart from search results, checkout; the contact form reaching its duplicate-message check (a database write path); Hotel Manager sign-in and menu. The log had no PHP errors, warnings or deprecation notices.
+  - The `backup` service, built from the same Dockerfile, starts on 8.3; its database dump (MariaDB client, unchanged) produced a dump of the same size as before.
+- **Made the default:** `ARG PHP_VERSION=8.3` in the `Dockerfile` and `${PHP_VERSION:-8.3}` in `docker-compose.yml`, then rebuilt with no override and re-ran `docker/smoke-test.sh`: 29 of 29 on PHP 8.3.35. Sections 1 and 3 updated.
+- **To go back to 8.1 if the live site shows a problem:** set `PHP_VERSION=8.1` in Coolify and redeploy. Nothing in the data depends on the PHP version.
+- **Not tested on 8.3:** a real invoice PDF (no real order with an invoice exists locally); sending email (no SMTP set up); the live server. Watch the `app` log after the first deploy.
+
+### 2026-10-07 — Bundled libraries updated; bank transfer; module versions checked
+
+#### Upgrade step 3: bundled libraries
+
+Each moved to the last release of the line it was already on, which are fixes rather than redesigns. All three old versions dated from 2014.
+
+| Library | From | To | How it was swapped |
+|---|---|---|---|
+| jQuery | 1.11.0 | 1.12.4 | New file `js/jquery/jquery-1.12.4.min.js`; the version is chosen in the new `config/defines_custom.inc.php` |
+| Bootstrap scripts (back office) | 3.1.1 | 3.4.1 | `admin/themes/default/js/vendor/bootstrap.min.js` replaced |
+| TinyMCE (text editor) | 4.0.16 | 4.9.11 | `js/tiny_mce/tinymce.min.js`, `themes/modern/theme.min.js` and the 38 plugins that exist in both versions replaced |
+
+- **Where the files came from:** the official npm registry (`jquery`, `bootstrap`, `tinymce` packages at those exact versions). Each download was checked against the SHA-512 the registry publishes for it before anything was copied.
+- **jQuery without editing a vendor file:** `config/config.inc.php` loads `config/defines_custom.inc.php`, when it exists, before its own defaults, and each default is wrapped in `if (!defined(...))`. Defining `_PS_JQUERY_VERSION_` there switches every page to the new file. To go back, delete that line.
+  - The old `jquery-1.11.0.min.js` is **kept**: `classes/controller/AdminController.php` still names it for one fallback page (rule 28: not dead). The website's maintenance page (`themes/hotel-reservation-theme/maintenance.tpl`) was pointed at the new file.
+  - `jquery-migrate-1.2.1` is unchanged; its file name is written into `classes/Media.php`.
+- **TinyMCE:** the platform's own toolbar look (`skins/prestashop`), its language files, and three old plugin folders that 4.9.11 no longer ships (`example`, `example_dependency`, `layer`; none is loaded by the editor's configuration) were left as they are. The editor configuration in `js/admin/tinymce.inc.js` was not touched.
+- **Not updated:** the Bootstrap styles (compiled into the stock theme's 9,000-line stylesheet), `admin/filemanager`'s own older Bootstrap, Smarty (4.5.5 is on a supported line), and jQuery beyond 1.x (see `audit/upgrade-plan.md`).
+- These are vendor files replaced with newer vendor files. Expect them in the diff when the next QloApps release is adopted; if that release ships the same or newer versions, take theirs.
+
+#### Bank transfer (Salisberg Pay)
+
+- **Asked by the owner:** bank and card payments can be offered.
+- **Bank transfer:** added to the existing `modules/salisbergpay` as a third method, built exactly like Mobile Money (rules 25 and 26), instead of switching the stock `bankwire` module back on. That module shows itself to guests even with no account details entered, uses its own order state, and sends emails in the vendor's wording.
+  - Settings (Salisberg Pay › Configure): Bank transfer on/off, Bank, Branch, Account name, Account number, an optional note. The account number is validated (letters, digits, spaces, hyphens, 5 to 34 characters); the others follow the same rules as the Mobile Money fields.
+  - Hidden from guests until an account number is saved. The booking is created as **Awaiting payment** with the method "Bank transfer"; staff record the money as for the other methods.
+  - The three lists of setting names in the module became one (`$settings`). `ensureSettings()` creates any setting that does not exist yet and is called from `docker/setup-modules.php`, which is how the new settings reach the live install (`MODULES_VERSION=11`). Bank transfer starts switched on, and therefore hidden until the account number is entered.
+- **Card payments: not done.** They need an account with a payment company and its API keys (in Ghana: Paystack, Hubtel or Flutterwave; each also handles Mobile Money automatically). Connecting one is a new piece of work once the owner has chosen a provider and opened the account. The bundled PayPal module was left uninstalled.
+- **Owner must:** enter the bank details in Salisberg Pay settings. Note the form will not save while Mobile Money is switched on with no number: enter the Mobile Money number as well, or switch Mobile Money off.
+- **Guides (rule 23):** Staff Guide section 5 is now "Record a cash, Mobile Money or bank transfer payment" with a Bank transfer subsection, and sections 3 and 10 mention it; Admin Guide section 6 covers the bank fields and says why cards are not offered. What's New and `CHANGELOG.md` updated.
+- **Not changed:** the website footer still shows two badges, Cash and Mobile Money. Add a bank badge when the account is live.
+
+#### Modules checked
+
+- All 56 installed modules compared with their code: every installed version matches. Nothing is waiting for an upgrade step.
+- The Modules page's "An upgrade is available: Display Language and Currency Block" was false. That module's `config.xml` said 1.0.1 while its code and the database say 1.0.2 (an inconsistency in the upstream release). The file was corrected; no other module has the same mismatch.
+- **About the 1-Click Upgrade module (`qloautoupgrade`), for the record:** it downloads the vendor's newest release from their servers and overwrites the platform's files in place, then runs that release's database changes. Here it must stay uninstalled: the site's files are rebuilt from this repository on every deploy, so the overwritten files would be replaced by the old ones while the database stayed upgraded, and our patches and edits would be lost in between. New releases are adopted in the repository (rule 18).
+
+#### Verification (local, image rebuilt, PHP 8.3)
+
+- `docker/smoke-test.sh`: 29 of 29.
+- **JavaScript errors:** a browser run recorded every script error on the website (home, date picker, search results, add to cart, checkout, contact, sign in, phone menu) and the back office (dashboard, Modules, Bookings, Book Now, Reports, room type form, page editor): **none**. Pages report jQuery 1.12.4, Bootstrap 3.4.1, TinyMCE 4.9.11.
+- **Things those libraries do, exercised:** date picker opens; a room was added to the cart from search results (guest count chosen, then Book Now) and appeared at checkout; dashboard charts drawn; a tooltip, a drop-down menu, the side menu arrows and a pop-up window all opened.
+- **Text editor:** on the room type form it loads with the usual toolbar (screenshot reviewed). On the About Us page a marked line was inserted through the editor and saved; the back office reported success and the line appeared on the website page; it was then removed and the page saved again.
+- **Bank transfer, as a guest in a real browser:** not offered while no account number is set. In settings, a script tag as the account number and "switched on with no number" were both refused; valid details saved. The guest's summary page showed the bank, branch, account name and number; confirming created booking `KKISXYMBF` as "Bank transfer", Awaiting payment, GH₵8,580.00, and the confirmation page repeated the details with the booking reference and the note. This was also a complete website booking on PHP 8.3 with the new libraries.
+- **Not tested:** the editor's image and file manager buttons, and pasting from Word; the "Transplant" and other less-used back office dialogs; Safari and Firefox; recording the bank payment as staff; the live server.
+- Local test data: a test bank account and Mobile Money number are saved in the local settings only.
+
+### 2026-10-07 — MySQL 8.4 upgrade rehearsed on a copy (not applied)
+
+- **What was done:** the local database and data volumes were copied into a separate throwaway stack (`sb84`), and that copy was started on `mysql:8.4` with the current app image (PHP 8.3). The normal local stack and its 8.0 data were not touched. **Nothing was changed in the code for this; `MYSQL_VERSION` still defaults to 8.0.**
+- **Checked before starting, on 8.0:** every database account uses `caching_sha2_password` (8.4 switches the older `mysql_native_password` off by default, which is the usual cause of a failed upgrade); all 300 tables are InnoDB; no column uses the removed `FLOAT(M,D)` form; the server is started with no option that 8.4 removed.
+- **Result:**
+  - MySQL upgraded the data in place on first start, in about 35 seconds: data dictionary `80023` to `80300`, server `8.0.46` to `8.4.11`, both logged as completed, then "ready for connections". No errors or warnings in the database log.
+  - `CHECK TABLE` on all 300 tables: 300 OK. Table count and the row counts of orders, customers and configuration match the 8.0 copy.
+  - The app started against it without changes; `docker/smoke-test.sh` passed 29 of 29 on PHP 8.3.35 with MySQL 8.4.11.
+  - A dump taken from the `backup` container, with the same client the nightly backup uses, completed and was the same size as on 8.0.
+- **What this does and does not show:** the upgrade works on this data shape with this app. It was a small local database, not the live one, and the rehearsal did not include restoring an 8.0 backup into 8.4 or going back.
+- **Still required before setting `MYSQL_VERSION=8.4` on the live site (unchanged):** a live backup restored successfully somewhere else; backups copied off the server; the same rehearsal on a staging copy of the live data; a quiet hour with the site in maintenance mode. It is one-way.
+- **Left on the development machine:** five Docker volumes named `sb84_*` (about 260 MB) holding the upgraded copy. Remove them with `docker volume rm sb84_db_data sb84_app_data sb84_app_img sb84_app_upload sb84_app_download` when no longer wanted.
+
+### 2026-10-07 — Server guides: COOLIFY.md, COOLIFY-STAGING.md, BACKUP.md; `staging` branch
+
+- **Asked by the owner:** a detailed Coolify set-up guide, a staging guide, and a backup guide "in case the server crashes".
+- **What:** three documents at the repository root. They are for whoever runs the server, not for back office users, so they are not in the in-app guides (rule 23 does not apply) and not on What's New.
+  - `COOLIFY.md`: DNS, creating the resource (Build Pack Docker Compose, branch `salisberg-production`), the domain on the `app` service, every environment variable with what to put in it, the first deploy and its log lines, checks afterwards, first back office tasks, updating, changing the domain, what must never be done, and a fault table.
+  - `COOLIFY-STAGING.md`: a second Coolify resource built from the new `staging` branch with its own passwords and volumes; keeping it private (maintenance mode, e-mail off); the `develop` → `staging` → `salisberg-production` flow; restoring a production backup into staging; rehearsing MySQL 8.4 there; deleting and recreating it.
+  - `BACKUP.md`: what the nightly backup holds and what it does not (the `img`, `upload` and `download` volumes), taking a backup by hand, two ways of getting copies off the server (pulling with `scp`, or a host script with rclone that also archives the three picture volumes), proving a backup, restoring the live database, and rebuilding everything on a new server.
+- **Why at the root and not under `docs/`:** `docs/` is a vendor folder. `.dockerignore` already leaves `*.md` out of the image, so none of them is served by the website. They hold no secrets or server addresses (the repository is public).
+- **Branch `staging`** created from `develop` at the owner's request. Section 5's production steps are now given in full in `COOLIFY.md`; the restore procedure in the 2026-10-06 entry is repeated and extended in `BACKUP.md`.
+- **Checked:** every variable, default, log line and file name in the guides was read from `.env.example`, `docker-compose.yml`, `docker/entrypoint.sh`, `docker/backup.sh` and `docker/smoke-test.sh`. The one-line command that rewrites `_DB_PASSWD_` in a restored settings file was run against a sample settings file (PHP 8.3) and the result passed `php -l`.
+- **Not tested:** nothing in these guides was carried out on a Coolify server in this session. In particular: the Coolify screen and button names (written for v4; they vary by version), the staging restore from a production backup, the off-server script `salisberg-offsite.sh` (written, never run), and the full recovery on a new server. `BACKUP.md` says so beside the script. The first real run of each should be treated as the test, on staging.
+
+### 2026-10-07 — Independent of QloApps; stylesheets tidied, `!important` halved
+
+#### Direction
+
+- **Owner, 2026-10-07:** "the goal of this project is not to depend on qloapps updates anymore." Recorded in section 1. Rules reworded to match: **11** (fix things where they are defined, instead of "do not edit core files"), **18** (upstream is a source of security fixes, not releases) and **28** (inherited code may be trimmed inside a file, with the same proof). Rule 29 (never move or rename) and rule 14 (licence headers) are unchanged.
+- The owner also considered Tailwind and decided against it for this codebase: the markup comes from several hundred inherited templates written for Bootstrap 3, the scripts depend on Bootstrap's class names, and it would add a build step.
+
+#### What was done
+
+| Stylesheet | `!important` before | After |
+|---|---|---|
+| `themes/hotel-reservation-theme/css/salisberg.css` | 45 | 23 |
+| `admin/themes/default/css/overrides.css` | 64 | 33 |
+
+- **Step 1, flags that did nothing (41 removed):** each flag was removed on its own in a real browser and the computed style of every element its rule matches was compared. A flag was dropped only where nothing changed on any tested page, width and theme.
+- **Step 2, flags that only existed to out-rank an inherited rule:** the inherited rule was changed instead (rule 11), and our flag, or our whole duplicate rule, removed.
+
+  | Inherited file | Change |
+  |---|---|
+  | `themes/hotel-reservation-theme/css/daterangepicker.css` | Selected days, hovered days and "today" take the brand colours here. The four date picker rules in `salisberg.css` are deleted. One `!important` stays in this file because the date picker library's own stylesheet uses one. |
+  | `modules/wkhotelfilterblock/views/css/wkhotelfilterblock.css` | Price slider bar and handle in gold. Our two slider rules are deleted. |
+  | `themes/hotel-reservation-theme/css/modules/blockcart/blockcart.css` | Cart pop-up heading colour. |
+  | `themes/hotel-reservation-theme/css/order-opc.css` | "Extra services" links in gold instead of pure blue (three places); `!important` removed from the room name colour. |
+  | `themes/hotel-reservation-theme/css/global.css` | Heading underline and the extra-services link in gold. |
+  | `themes/hotel-reservation-theme/css/product.css` | Extra-services price in gold. |
+  | `admin/themes/default/css/admin-theme.css` | `!important` removed from the float of Quick Access and the account menu, and from the background of an empty list. |
+
+- Inherited website stylesheets now use the `--sb-` colour tokens defined in `salisberg.css`. That file is loaded on every website page, so the tokens are always there; it also means those rules follow dark mode by themselves.
+- `salisberg.css` link bumped to `?v=12`.
+
+#### What is left, and why
+
+- **Website (23):** the flattened two-layer buttons, which out-rank about a dozen inherited button rules spread over `global.css` and module stylesheets (6); hover and focus states of those buttons and of the menus (7); colours set by inline `style` attributes, which only `!important` can beat: booking status labels and the amenities block height (3); the reduced-motion rule, where `!important` is the point (1); rules for things not on screen in the test data, left alone: testimonials and the file upload button (3); the phone menu's close button (1); an accent rule that also has to beat our own broad dark-mode text rules (1); and a dark-mode tab colour that fights an inherited `!important` (1).
+- **Back office (33):** top bar and side menu rules (about 20), which sit against a dense set of inherited `#header_infos` and `#nav-sidebar` rules; tooltip arrows and the calendar's selected day, which are only in the page while open (7); the rest are one-offs.
+- **Next step if wanted:** the website buttons. Rewriting the inherited button rules in `global.css` so there is one layer, not an anchor and a span each with its own gradient, would remove a dozen flags at once.
+
+#### Method and verification (local, real browser)
+
+- Three small tools written for this, kept outside the repository: one removes each flag in turn and reports whether anything changed; one lists which other rule takes over when a flag is removed; one records the computed look of every element on a set of pages (71 properties each, plus `::before` and `::after`), and of interactive elements with `:hover` and `:focus` forced on, so a "before" and an "after" run can be compared. Two "before" runs are taken, so anything that differs between them (a carousel, a calendar still drawing) is treated as noise.
+- **Website:** 14 pages (home, room, search results, contact, sign in, About Us, checkout with a room in the cart, password, 404, Our Properties, and as a signed-in guest: account, bookings, personal information, addresses), at 1440 and 390 wide, light and dark: 72 runs. After the changes: no differences beyond the noise.
+- **Back office:** step 1 on 23 pages at three widths, light, dark and with the menu's old collapsed state forced: 165 runs, no differences. Step 2 on 17 pages at two widths, light, dark and collapsed: 89 runs, no differences beyond the noise on 15 of the pages. The dashboard and the room type form could not be compared element by element in step 2, because their element lists differ from one load to the next (charts, generated ids); the three step 2 back office changes concern the top bar and empty lists, which are the same on the other 15 pages.
+- **Caught by the checks and corrected before finishing:** three flags that step 1 had judged unnecessary were needed only on hover or focus (desktop menu links, the Book Now button border, links in the top bar's drop-down menus) and were put back. In step 2, two flags turned out to be needed after all (the account menu's position in the top bar, and an accent colour that our own dark-mode rules would otherwise override) and were put back, with the inherited rule for the first restored too; and two dark-mode differences were fixed by adjusting our own dark rules.
+- **Commit note:** the owner committed twice part-way (`ecb26e63`, `aca2148e`). The first predates the flags that were put back, so neither should be deployed without the changes that follow them (back office step 2, the `?v=12` bump and these records).
+- **Not tested:** pages outside the sets above (a flag proven unnecessary on 23 back office pages could still matter on one of the other 56); right-to-left; Safari and Firefox; the testimonials block and the 1-Click pages, which are switched off; the live server. After deploying, returning visitors may for a few hours mix a cached old inherited stylesheet with the new `salisberg.css`, and see the stock blue on the date picker or slider until their browser refetches.
+- No guide or What's New entry: nothing a guest, staff member or manager does or sees has changed.
+
+### 2026-10-07 — Website buttons: inherited rules corrected, 15 more flags gone
+
+Follow-up to the entry above. `salisberg.css` now has **8** `!important` flags (45 at the start of the day). Link bumped to `?v=13`.
+
+- **Method:** all 15 remaining button, menu and tab flags were removed together in a trial, and the before/after record showed which elements changed. Only four kinds did, so only those inherited rules needed correcting; the general button rules in `global.css` did not, because our rules already out-rank them without help.
+
+  | Inherited file | Change | Flags it made unnecessary |
+  |---|---|---|
+  | `css/modules/blockcart/blockcart.css` | Cart drop-down "check out" button: its own border, blue gradient and hover gradient removed, so it takes the shared button look. Cart pop-up button: its blue four-colour border removed. | The four on the flattened buttons and their hover |
+  | `css/product.css` | Extra-service "Add" buttons take the brand green, and gold on hover, focus and press. | The two on `.btn-success` |
+  | `css/product.css` | The room page tab link's colour is set with a selector that out-ranks the general tab rules, instead of `!important`. | The dark-mode tab colour |
+
+- **In our own file:** the phone menu's hover background was declared for every width and then cancelled with `!important` on wide screens. It is now declared for narrow screens only. Seven other flags (account button, checkout buttons and their hover, newsletter button on checkout, menu close button, header link hover) changed nothing once the above was done.
+- **One deliberate visible change:** an extra-service "Add" button reached with the keyboard used to turn the stock bright green (`#1cb62e`) with our dark green border; it now turns gold like every other button.
+- **The 8 that remain, each for a reason:** the amenities block height and the booking status label colours (set by inline `style` attributes, 3); the reduced-motion rule (1); the file upload button, which fights an inherited `!important` and is not on screen now that the contact form takes no files (2); the testimonials photo size, a block that is switched off (1); one accent colour that must beat our own broad dark-mode text rules (1).
+
+**Verification (local, real browser)**
+
+- Same 72-run record as before (14 pages, 1440 and 390 wide, light and dark, with `:hover` and `:focus` forced on up to 45 kinds of interactive element per page). Before against after: the only difference is the service button's focus colour described above. Page-height differences on the phone homepage were shown to be noise by comparing two "after" runs with each other.
+- The signed-in account button with its menu open, which the record does not cover (it needs a class added by a click): white name on green, in light and dark.
+- **Mistakes in the tooling, found and corrected during this work:** one "before" record was taken a few seconds after the trial stylesheet had been copied in, so the first comparison showed no differences at all; that was noticed because it contradicted the earlier per-flag measurements, and the records were retaken. The comparison also used to stop at the first element whose class list differed between runs (a carousel's "active" item), skipping the rest of that page; it now ignores those classes.
+- **Not tested:** the file upload button and the testimonials photo (not on screen); the order detail page of a past booking, which has its own button rules; right-to-left; Safari and Firefox; the live server.
+- **Back office not touched in this step:** `overrides.css` still has 33.
+
+### 2026-10-07 — Back office: inherited rules corrected, `overrides.css` down to 4 flags
+
+Same method as the website buttons entry above: remove the flags in a trial, read from the before/after record what actually changes, correct the inherited rule responsible. `overrides.css` had 64 `!important` flags at the start of the day, 33 before this step, and has **4** now.
+
+#### Changes in `admin/themes/default/css/admin-theme.css` (inherited, minified)
+
+| What | Before | Now |
+|---|---|---|
+| Typeface | `"Open Sans"` (11 places) and `"Ubuntu Condensed"` (6 places) written into individual rules | `var(--sb-font)` in all 17 |
+| Top bar text, hover, open menu, notification icons, "working" spinner | White and grey for a dark bar | The ink, link, canvas and muted tokens |
+| Logo link | `padding-left: 140px !important` | Removed |
+| Side menu search box | Dark strip with a white field | Transparent, as our rules already drew it |
+| Panel headings and `h3` | `text-transform: uppercase` | Removed |
+| Hint labels beside field names and column titles | Blue text on a pale blue chip | Removed, so ours apply |
+| Tooltip arrows (8 rules) | `#555` | `var(--sb-tip)`; our four arrow rules are deleted |
+| Selected day on the dashboard date switcher | Stock blue | `var(--sb-accent)` |
+
+The edits were made by a small script that names each rule by its selector and one declaration and refuses to run unless it matches exactly once (the file is one minified line per block, so hand edits are easy to get wrong). The inherited stylesheet now depends on the tokens defined in `overrides.css`, which is loaded on every back office page including sign-in.
+
+#### Changes in `overrides.css`
+
+- 29 flags removed. Four arrow rules deleted.
+- The drop-down menus in the top bar keep dark text on hover through an explicit rule (`.dropdown-menu a:hover`) instead of one `!important` out-ranking another.
+- A dark-mode rule of ours (`span:not(.label):not(.badge) { color: inherit }`) was overriding the hint labels' colour once their flag was gone; it now leaves them out, using `:where()` so its weight is unchanged.
+
+#### Deliberate visible changes
+
+- Text typed into fields is in Inter, like the rest of the screen. It was Open Sans, because the inherited input rule out-ranked ours.
+- `h3` headings that are not the direct child of a panel are no longer in capitals. Panel headings already were not.
+- A top bar item reached with the keyboard now gets the hover highlight. The inherited rules style hover and focus together; before, our flags suppressed the focus half.
+
+#### The 4 that remain
+
+- Three on the selected day of the inherited calendar pop-up (`.datepicker td.active`), which is only in the page while open and was not in any record. Left as they were.
+- One for a side menu that was collapsed to icons before that mode was removed (`body.page-sidebar-closed`): it fights two inherited `!important` rules for a state nobody can enter any more. Candidate for removal together with the inherited collapsed-menu rules.
+
+#### Verification (local, real browser)
+
+- 17 back office pages (sign-in, dashboard, bookings list and one booking, room types and the room type form, modules and the Salisberg Pay settings, e-mail, stats, Staff Guide, employees and the new employee form, customers and one customer, Book Now, Reports, logs) at 1440 and 700 wide, light, dark and with the old collapsed state forced: 89 runs, with `:hover` and `:focus` forced on up to 30 kinds of interactive element per page.
+- Before against after, once the three deliberate changes and their knock-on widths are set aside: no differences. The sign-in button's colour differs by a few shades between any two runs, including two "before" runs, because it is caught part-way through its own fade.
+- Tooltip arrows, which are only in the page while a tooltip is open: a real tooltip was opened on the new employee form; arrow and bubble are the same colour in light and in dark.
+- **Found and fixed on the way:** the dashboard's selected-day button turned stock blue (fixed at the source, table above); hint labels turned grey in dark mode (our own dark rule, above); drop-down items turned green on hover (explicit rule, above).
+- **Not tested:** the other back office pages (about 60); the calendar pop-up; pop-up windows; right-to-left, where `admin-theme_rtl.css` was not edited and still has the old fonts and colours; Safari and Firefox; the live server.
+- **What's New:** one line for everyone under 7 October. No guide change: nothing has moved or been renamed.
+
+### 2026-10-12 — Sidebar section renamed "Manage Hotel"
+
+**What**
+
+- The back office sidebar section **Hotel Reservation System** is now **Manage Hotel**. Its own existing sub-page, previously also called **Manage Hotel** (hotel address, phone, photos, policies — class `AdminAddHotel`), is renamed to **Hotel Details** so the two no longer share a name.
+- `modules/salisbergguide/salisbergguide.php`: two entries added to the existing `$menuLabels` rename mechanism (rule 25/26, the same one used for the 2026-10-06 Orders → Bookings rename): `AdminHotelReservationSystemManagement` and `AdminAddHotel`. `MODULES_VERSION=12` so `renameMenuEntries()` runs again on the next deploy. As with every entry in `$menuLabels`, an entry is renamed only while it still carries the name it is expected to have, so a name changed by hand in the back office afterwards is kept.
+- Every on-screen path in the guides and in `COOLIFY.md` that read "Hotel Reservation System" or "… › Manage Hotel" (the sub-page) was updated to match: `admin_guide.tpl` (9 places plus the "Open Manage Hotel" quick link and the "Attach rules to the hotel in Manage Hotel" line), `staff_guide.tpl` (4 places), `COOLIFY.md` (1 place).
+- The one vendor template that names the sub-page in on-screen text, `modules/hotelreservationsystem/views/templates/admin/hotel_rooms_booking/helpers/view/view.tpl` (the "No active hotels" notice on Book Now), was corrected at the source (rule 11) rather than worked around.
+- Guide (rule 23): no section moved, so no restructuring; path text throughout both guides now reads "Manage Hotel" / "Hotel Details" as above.
+- What's New (rule 30): new "12 October 2026" entry. The section rename is in the everyone list (both Hotel Staff and Hotel Manager see this menu); the sub-page rename is under "For the hotel manager" only, since Hotel Staff is not granted `AdminAddHotel`.
+- `CHANGELOG.md`: one line under a new 2026-10-12 "Changed" heading.
+
+**Why asked this way**
+
+- The owner asked only to rename "Hotel Reservation System"; the collision with the existing "Manage Hotel" sub-page was found while locating the tab's class name and flagged before acting. The owner chose to rename the sub-page too rather than leave the two names stacked.
+
+**Verification (local, running stack)**
+
+- `docker/setup-modules.php` run by hand (`docker exec -u www-data … php /usr/local/share/salisberg/setup-modules.php`) after copying the changed files into the running container: `qlo_tab_lang` shows `AdminHotelReservationSystemManagement` = "Manage Hotel" and `AdminAddHotel` = "Hotel Details".
+- Logged into the back office by script (curl, following the real login POST and token) and fetched the dashboard, Admin Guide, Staff Guide and What's New pages: the dashboard's sidebar shows "Manage Hotel" and "Hotel Details" and no longer "Hotel Reservation System"; all three guide pages render with the new names and no PHP, Smarty or SQL errors (the one "Smarty" text hit on the Admin Guide page is the unrelated Advanced Parameters paragraph about template caching). The one remaining "Hotel Reservation System" string anywhere fetched is the historical sentence in the new What's New entry itself, which names the old label on purpose.
+- `docker/smoke-test.sh`: 29 of 29, no PHP errors or warnings logged.
+- **Not tested:** a real deploy (this was applied to the already-running local container and database, not through an image rebuild); the vendor "No active hotels" notice itself (it only shows when no hotel is active, which is not the current local state); every other place `AdminAddHotel`'s old name might have been assumed; the live server.
+
+### 2026-10-12 — Website footer: Location and Contact column
+
+**What**
+
+- The website footer has a new "Location and Contact" column, next to Explore, Follow us on and Payment accepted: the hotel's address (icon-building), phone (icon-phone, `tel:` link) and email (icon-envelope, `mailto:` link).
+- Source of the data: the same one already used by the Contact page's "Main Branch" card (`controllers/front/ContactController.php`, `$gblHtlAddress`/`$gblHtlPhone`/`$gblHtlEmail`) — `Shop::getAddress()` formatted with `AddressFormat::generateAddress()`, and `Configuration::get('PS_SHOP_PHONE' / 'PS_SHOP_EMAIL')`. Reusing it means there is one place this information comes from and the two pages can never disagree (rule 26).
+- `modules/salisbergguide/salisbergguide.php`: new `hookFooter()` method and a `registerHook('footer')` call added to the existing `ensureSetup()` (so it reaches the already-installed module on the next deploy, the same way the Bookings/Manage Hotel menu renames do). New template `modules/salisbergguide/views/templates/hook/footer_location.tpl`.
+- `themes/hotel-reservation-theme/css/salisberg.css`: new `.sb-footer-contact` rules in the existing Footer section; stylesheet link bumped to `?v=14` (`header.tpl`).
+
+**Why this module, and why the `footer` hook directly**
+
+- Looked for an existing home first (rule 25): no Salisberg module owns front-end content blocks. `salisbergguide` already hooks the front end for small additions (`addInterfaceAssets()`, "Add new ones here rather than in a new module") and already has the idempotent `ensureSetup()` machinery needed to register a new hook on an already-installed module — a whole new module for one footer column would be the kind of premature abstraction the project avoids.
+- Rule 11 reserves direct edits to inherited files for *fixing* what is already there; this is new behaviour, so it was kept out of the vendor `hotelreservationsystem` module even though that module owns the address/phone data and already implements the near-identical `hookDisplayNav()` (header contact) and `hookDisplayAfterDefautlFooterHook()` (copyright).
+- `blocknavigationmenu`'s Explore column hooks the `footer` hook (canonical name `displayFooter`) directly and renders its own `col-sm-3`; the new column does the same, matching an existing pattern rather than introducing the other one present in the stock footer (a "container" module wrapping a more specific sub-hook, used by the payment and language/currency columns).
+
+**Found along the way, not fixed (out of scope for this change)**
+
+- `PS_SHOP_ADDR1` already contains the installer's demo text with the shop name baked in ("Salisberg Hotels, Monticello Dr, Montgomery, 10010"), so `Shop::getAddress()` (which also prepends `PS_SHOP_NAME` as the address `company`) produces "Salisberg Hotels, Salisberg Hotels, Monticello Dr, Montgomery, 10010, United States". This already shows on the Contact page today; the new footer column inherits the same text rather than introducing it. Fixing it means tidying `PS_SHOP_ADDR1`/city/postcode/country into their own fields.
+- The only back office page that writes `PS_SHOP_ADDR1`/`PS_SHOP_PHONE`/`PS_SHOP_EMAIL` is `AdminStoresController`, and it currently has no menu tab (`qlo_tab` has no row for class `AdminStores`), so there is no back-office way to change this address/phone/email short of editing the database directly. Neither of these was touched; the owner should decide whether to give `AdminStores` a menu entry or move this one piece of contact data into the hotel's own "Hotel Details" (`AdminAddHotel`) fields instead.
+
+**Verification (local, running stack)**
+
+- Copied the three changed/new files into the running container, re-ran `setup-modules.php`: `qlo_hook_module` shows `salisbergguide` now registered on `displayFooter` alongside `blocknavigationmenu`, `hotelreservationsystem` and `wkfooternotificationblock`, in addition to its existing `Header`/`actionAdminControllerSetMedia`/`actionAdminLoginControllerSetMedia` hooks.
+- Fetched the homepage and the Contact page: both render 200 with no PHP/Smarty errors; the new column appears once on the homepage with the address, phone (`tel:0987654321`) and email (`mailto:booking@salisberg.com`) links, matching the Contact page's own text exactly (including the pre-existing duplicate-name quirk above).
+- `docker/smoke-test.sh`: 29 of 29, no PHP errors or warnings logged.
+- **Not tested:** a real deploy; the column with social links present (so "Follow us on" also shows, changing how many columns wrap per row); phone widths; dark mode is automatic here (the footer has always been dark) but was not screenshotted; the live server.
+
+### 2026-10-12 — The hotel's real room types
+
+**What**
+
+- Six room types from the owner's first room list, each with its own price, bed and amenities: Standard Room 1 (GH₵200, double bed, Fan, TV), Standard Room 2 (GH₵250, double bed, + Breakfast, Wi-Fi), Standard Room 3 (GH₵250, twin beds, + Breakfast, Wi-Fi), Deluxe Room 1 (GH₵300, double bed, + A/C), Deluxe Room 2 (GH₵350, queen bed, + A/C, water heater), Executive Room 1 (GH₵450, king bed, + A/C, water heater, Snacks).
+- The three demo room types that matched a tier name (General Rooms, Delux Rooms, Executive Rooms) were renamed and repriced into Standard Room 1, Deluxe Room 1 and Executive Room 1 in place, at the owner's choice, rather than left as stale extra listings next to the real ones.
+- New script `docker/setup-room-types.php` (same shape as `setup-modules.php`): renames/reprices the three reused products, then creates the three new ones by duplicating the matching template room type through the same sequence the back office's own "Duplicate" button uses (`Product::add()` plus `Product::duplicateSuppliers/Attributes/Accessories/Features/...`, then `HotelRoomType::duplicateRoomType()`, which also assigns the location categories via `updateCategories()`). No individual rooms (room numbers/floors) are duplicated — the owner adds those once real numbers are known. Bed types (`htl_room_type_bed_type`) are set directly: Full Bed for "Double bed", Queen Bed, King Bed, and two Twin Bed rows for "Twin room (2 single beds)". Amenities have no structured per-room-type field in this platform (the "Features" tab is per-hotel, not per-room-type; CSV import's "Feature IDs" is the unrelated generic PrestaShop Features system), so they are written as a bullet list into the description and short description.
+- Wired into `docker/entrypoint.sh` as a new versioned step, `ROOM_TYPES_VERSION` (currently 1), run right after the modules step and gated the same way (`/data/.room-types-version` marker). Each room is skipped individually once it already carries its new name, so an edit made afterwards in the back office is kept (rule 22).
+
+**Verification (local)**
+
+- Ran the script by hand against the running container, then again to confirm every line reports "already in place/exists, skipped". `qlo_product`, `qlo_htl_room_type`, `qlo_htl_room_type_bed_type` and `qlo_category_product` all checked by query and matched the intended name/price/bed/category for all six products.
+- All six room pages (ids 1, 2, 3, 11, 12, 13) return 200 with no PHP errors; Standard Room 3's page shows "Twin Bed" twice and the price 250; the room type editor opens cleanly for the newly created Standard Room 3.
+- Rebuilt the image from scratch and recreated the container (not just hot-patched): the entrypoint log shows `Room types step v1 done` and, on a second recreation, all six lines report "skipped" — the deploy step works on a container that has never run it before, which is what a real redeploy looks like. `docker/smoke-test.sh`: 29 of 29 both times.
+- **Not tested:** the live server; a hotel with more than one property (the script assumes a single id_hotel, matching this site); re-running after an admin has manually edited one of the six rooms (the per-room skip-if-renamed check was exercised only for the original demo names, not for a hand-edited name).
+
+### 2026-10-12 — CSV Import also accepts Excel (.xlsx); its sample downloads were broken; simplified for non-technical users
+
+**What**
+
+- **Excel upload.** `override/controllers/admin/AdminImportController.php` overrides only the upload step (`ajaxProcessuploadCsv()`): if the uploaded file ends in `.xlsx`, it is parsed with a newly vendored library and rewritten, in place, as a semicolon-separated CSV before the stock method runs. Every other line of the 3,000-line vendor import engine — column mapping, validation, the import itself — is untouched; from the stock code's point of view a normal `.csv` was uploaded. Old binary `.xls` is not read.
+- **Library:** `tools/simplexlsx/SimpleXLSX.php` (Shuchkin/SimpleXLSX, MIT, latest release 1.1.19, security fixes included), vendored next to `tools/pear` and `tools/random_compat` — the existing home for small bundled PHP libraries (rule 25). Its own licence file is kept alongside it (rule 14/18).
+- **Sample downloads fixed.** The back office's "Download sample csv files" panel (Advanced Parameters › CSV Import) links to `docs/csv_import/*.csv`, but `.dockerignore` excluded the entire `docs` folder, so on a real deploy every one of those links returned 404 — a pre-existing bug, found while adding the `.xlsx` versions, not something this change introduced. Fixed by excluding only the vendor readmes and licence copies under `docs/`, keeping `docs/csv_import/` and `docs/index.php`.
+- **Simplified `.xlsx` samples.** For the entities a non-technical hotel staffer would actually fill in by hand — Hotels, Room Types, Service Products, Customers — the `.xlsx` download has only the columns a person would realistically type: name, price, bed/occupancy numbers, contact details, description. Columns the app can work out itself (web address slug, meta title/keywords/description, tax rule, advance-payment settings, length-of-stay limits, image URLs) are left out of the `.xlsx` version; `AdminImportController` already fills most of these from sensible defaults or from the name (`Tools::link_rewrite()` auto-generates the URL slug when it is absent — confirmed by reading the import code, not assumed). The full-column `.csv` samples are untouched, for anyone who wants to set every field. Rooms and Categories were already short enough (4-6 columns) to leave as they were; Bookings was left full, since bulk-importing bookings is an administrator task, not a front-desk one.
+- An extra Room Types example, `room_types_import_example_simple.xlsx`, ships pre-filled with the hotel's own six room types (same simplified columns), so a manager can open it, add their own rows, and import. The simplified Room Types sample is `room_types_import_simple.xlsx` (not `room_types_import.xlsx`, matching every other entity's `_simple` naming) — see the note below on why.
+- Admin Guide, section 16 (CSV Import) and What's New updated; both gated `{if $sb_is_admin}` since CSV Import has no SuperAdmin-only menu grant to any other profile.
+
+**Why overriding the upload step rather than rewriting the importer**
+
+- Rule 11: new behaviour belongs in `override/` or a module, not a rewrite of vendor logic. Converting at the point of upload, before the stock code ever sees the file, means the 3,000-line import engine — validation, every entity's field list, the whole chunked-AJAX processing flow — needed no changes and keeps working exactly as before for ordinary `.csv` uploads.
+- `move_uploaded_file()` only succeeds on the exact temp path PHP itself registered as an upload; the converted content is written into that same path with `file_put_contents()` rather than a new file, so the stock code's own `move_uploaded_file()` call a few lines later still succeeds unmodified.
+
+**Verification (local)**
+
+- Generated real, valid `.xlsx` files with a small script (`ZipArchive`, inline-string cells — no external tool was available to "Save As" from) and round-tripped every one of them through `SimpleXLSX::parse()` directly: all seven base samples and the filled example parsed back with the expected row and column counts.
+- Uploaded a real `.xlsx` through the actual AJAX endpoint (`action=uploadCsv`) on a running container, twice: once against a hot-patched container (worked, but only after finding and deleting a stale `cache/class_index.php` left over from before the override existed — see below), and once against a container freshly rebuilt and recreated from the image (worked immediately, no cache issue). The converted file on disk in `admin-salisberg/import/` was byte-for-byte the same shape as a native CSV upload, including correct quoting.
+- Confirmed the pre-existing 404 bug and its fix: before the `.dockerignore` change, `docs/csv_import/room_types_import.csv` (already linked from the stock Import page, never touched by Salisberg) returned 404 against a freshly rebuilt image; after, it and all eight `.xlsx` links return 200, and the vendor `docs/readme_en.txt` still does not serve (403).
+- `docker/smoke-test.sh`: 29 of 29 on the final rebuilt-and-recreated container.
+- **Caught during this work:** `cache/class_index.php` is PrestaShop's own cache mapping class names to files, including override resolution; it is not committed (generated at runtime) and is not on a volume, so it does not exist on a fresh container and is rebuilt correctly from scratch on first boot. It only went stale here because this session kept hot-patching files into a single long-running dev container across many edits instead of rebuilding each time; deleting it forced a correct rebuild. This is a note for whoever tests admin controller overrides locally the same way, not a deploy-time fix.
+- **Resolved the same day:** `docs/csv_import/room_types_import.xlsx` and `room_types_import_example.xlsx` (the un-simplified, pre-correction versions) could not be overwritten or deleted on the local filesystem at first — Windows reported them locked by another process, and `~$room_types_import.xlsx` / `~$room_types_import_example.xlsx` lock files in the same folder showed they were open in Microsoft Excel at the time (most likely opened to look at the downloads while this work was in progress). The simplified replacements were written under new names instead — `room_types_import_simple.xlsx` and `room_types_import_example_simple.xlsx` — and the back office's download links (`form.tpl`) point at those. Once Excel released the lock later the same session, the two old files were deleted and the matching `.dockerignore` exclusion removed; `room_types_import_simple.xlsx` / `room_types_import_example_simple.xlsx` are the only Room Types `.xlsx` downloads now.
+- **Not tested:** the live server; a `.xlsx` with formulas, multiple sheets, or non-UTF-8 text; a file large enough to need the import's chunked processing to run more than one AJAX tick; opening the generated sample files in actual Excel or LibreOffice (only machine-verified via SimpleXLSX, since neither is available in this environment).
+
+### 2026-10-12 — Friendly URLs switched on
+
+**What**
+
+- Website links no longer show `index.php` or a `.php` extension: a room page reads `salisberg.com/salisberg-hotels/1-standard-room-1.html` instead of `salisberg.com/index.php?controller=product&id_product=1`. Old-style links still resolve (PrestaShop keeps both working side by side). The back office is unaffected — admin links always use `index.php` by design, Friendly URL only changes the storefront.
+- `docker/setup-modules.php` sets `PS_REWRITING_SETTINGS=1` once, gated by `MODULES_VERSION` (bumped to 13) the same as the rest of that script. The `.htaccess` file itself is written by a separate new script, `docker/generate-htaccess.php`, run **unconditionally on every start** (see the correction below for why it could not share the gated step).
+- No custom URL patterns were added; PrestaShop's `Dispatcher` has built-in default route patterns for product/category/CMS pages used automatically when no `PS_ROUTE_*` override exists in the database (confirmed none exist here — the installer never wrote any), so this was purely a one-setting change plus the generated `.htaccess`, not a routing design task.
+- Admin Guide section 9 (Website content) has a new row, admin-only, saying Friendly URL is kept on by the deploy and that turning it off is undone on the next deploy. What's New updated.
+
+**Why this was safe to turn on without asking**
+
+- `AllowOverride All` and `mod_rewrite` (`a2enmod rewrite`) were already in place from the original Docker setup (section 4), so nothing in the serving stack needed to change, only a PrestaShop setting plus the file it generates.
+
+**Verification (local, running stack, then rebuilt and recreated)**
+
+- Enabled by hand first: homepage links changed from `index.php?controller=...` to slug-based URLs; both `salisberg.com/salisberg-hotels/1-standard-room-1.html` and `salisberg.com/contact-us` returned 200 with the correct page title; the old `index.php?controller=product&id_product=1` form still returned 200 too. One link, "Our Properties" (a theme-added custom page, not a catalog/CMS entity with its own `url_rewrite` record), still shows `index.php?controller=our-properties` — expected: Friendly URL rewrites entities with a `meta_lang.url_rewrite` row (products, categories, CMS pages and the few controllers PrestaShop registers one for), not every custom front controller; this is normal PrestaShop behaviour, not a bug introduced here.
+- The back office's own SEO & URLs page opened without error after the change.
+- Rebuilt the image and recreated the container from scratch: entrypoint log showed `Friendly URLs enabled (.htaccess up to date)` and `Modules step v13 done` on first boot; the same friendly link returned 200 immediately. `docker/smoke-test.sh`: 29 of 29 — see the correction below, this result was real but incomplete.
+- **Not tested (at the time):** recreating the container a second time without rebuilding, which is exactly what exposed the bug below.
+
+**Correction, same day: `.htaccess` went missing on the next redeploy — seven storefront pages 404'd**
+
+- Having proven the feature on that first rebuilt-and-recreated container, two more rounds of unrelated edits (the Excel samples, then the `.dockerignore` fix) each ended with a rebuild-and-recreate cycle, as section 15's own rules require. On the fourth recreation, `docker/smoke-test.sh` suddenly failed 7 of 29: search results, contact, sign in, password reset, cart/checkout, our properties and about us all returned 404. `.htaccess` was missing from the container's filesystem entirely.
+- **Cause:** `.htaccess` was being written inside `setup-modules.php`, gated by `MODULES_VERSION` the same as the database changes earlier in that script. But `.htaccess` lives in the code filesystem, not a persisted volume (section 3's table), so it does **not** survive a redeploy — a brand new container starts with no `.htaccess` at all. The version marker that gates `setup-modules.php` lives in `/data` (persisted) and already said "13" from the previous container's successful run, so the whole script, `.htaccess` included, was skipped on the next container even though the file did not exist on its filesystem. Every redeploy after the first would have shipped with Friendly URL switched on in the database but no `.htaccess` to make it work — a worse state than never enabling it, since every storefront link including the ones that don't need rewriting (contact, sign-in, checkout) redirects to a URL that 404s, rather than just staying on the old `index.php?...` form.
+- **Fix:** split the two concerns. `docker/setup-modules.php` only sets the one-time database flag now. A new script, `docker/generate-htaccess.php`, regenerates `.htaccess` from that flag on **every** start, unconditionally, the same "every run" treatment already used for the shop domain (`SYNC_DOMAIN`) — correct, because both are facts about the filesystem/environment that must be re-established on every fresh container, not "has this version's change been applied to the data" facts.
+- **Lesson:** a deploy step that writes to the filesystem (not the database) cannot share a run-once-per-version gate with database steps, even when they are triggered by the same feature and even when the first test — a single rebuild-and-recreate — looked completely clean. The project's `AGENTS.md` rule 7 ("the entrypoint must stay idempotent... safe to repeat") was followed for each step individually; the bug was in assuming "ran once, version marker set" was equivalent to "the file is now on disk," which is only true for state that lives in a persisted volume.
+- **Verification:** rebuilt and recreated once (clean, 29 of 29, `.htaccess` present), then force-recreated the *same* image a second time with no rebuild in between — the exact sequence that triggered the bug. `.htaccess` was present both times; the entrypoint log on the second recreation showed only `[generate-htaccess] .htaccess written (Friendly URLs)`, with no `Modules step`/`Room types step` lines, confirming the database-gated steps correctly stayed skipped while the filesystem step correctly ran anyway. `docker/smoke-test.sh`: 29 of 29 on both recreations.
+- **Not tested:** the live server; CMS pages other than Contact Us; search-engine indexing of the new URLs (no canonical/redirect strategy was reviewed for already-indexed `index.php?...` links, since the site has not been live/indexed yet).

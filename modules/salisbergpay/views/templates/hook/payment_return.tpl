@@ -14,6 +14,18 @@
             </p>
             {if $sbpay_momo.note}<p>{$sbpay_momo.note|escape:'html':'UTF-8'|nl2br}</p>{/if}
             <p>{l s='We will confirm your booking as soon as the payment arrives.' mod='salisbergpay'}</p>
+        {elseif $sbpay_method == 'bank'}
+            <p>{l s='Please send your payment by bank transfer:' mod='salisbergpay'}</p>
+            <p>
+                {l s='Amount:' mod='salisbergpay'} <span class="price"><strong>{$total_to_pay}</strong></span><br />
+                {if $sbpay_bank.bank}{l s='Bank:' mod='salisbergpay'} <strong>{$sbpay_bank.bank|escape:'html':'UTF-8'}</strong><br />{/if}
+                {if $sbpay_bank.branch}{l s='Branch:' mod='salisbergpay'} <strong>{$sbpay_bank.branch|escape:'html':'UTF-8'}</strong><br />{/if}
+                {if $sbpay_bank.name}{l s='Account name:' mod='salisbergpay'} <strong>{$sbpay_bank.name|escape:'html':'UTF-8'}</strong><br />{/if}
+                {l s='Account number:' mod='salisbergpay'} <strong>{$sbpay_bank.account|escape:'html':'UTF-8'}</strong><br />
+                {l s='Payment reference:' mod='salisbergpay'} <strong>{$reference|escape:'html':'UTF-8'}</strong>
+            </p>
+            {if $sbpay_bank.note}<p>{$sbpay_bank.note|escape:'html':'UTF-8'|nl2br}</p>{/if}
+            <p>{l s='We will confirm your booking as soon as the payment arrives.' mod='salisbergpay'}</p>
         {else}
             <p>{l s='Please pay in cash at reception when you arrive:' mod='salisbergpay'}</p>
             <p>

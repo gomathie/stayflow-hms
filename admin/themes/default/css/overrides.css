@@ -89,7 +89,7 @@ body.ps_back-office,
 .bootstrap h1, .bootstrap h2, .bootstrap h3, .bootstrap h4,
 .bootstrap .panel-heading, .bootstrap .page-title, .bootstrap label,
 .bootstrap .nav-tabs > li > a,
-#nav-sidebar, #header_infos { font-family: var(--sb-font) !important; }
+#nav-sidebar, #header_infos { font-family: var(--sb-font); }
 .bootstrap { color: var(--sb-ink); }
 .bootstrap a { color: var(--sb-link); }
 .bootstrap a:hover, .bootstrap a:focus { color: var(--sb-gold); }
@@ -103,10 +103,10 @@ body.ps_back-office,
 }
 .bootstrap #header_infos a,
 .bootstrap #header_infos .dropdown-toggle,
-.bootstrap #header_infos i { color: var(--sb-ink) !important; }
+.bootstrap #header_infos i { color: var(--sb-ink); }
 .bootstrap #header_infos a:hover,
 .bootstrap #header_infos a:hover i,
-.bootstrap #header_infos .dropdown.open > a { background-color: var(--sb-canvas) !important; color: var(--sb-link) !important; }
+.bootstrap #header_infos .dropdown.open > a { background-color: var(--sb-canvas); color: var(--sb-link); }
 /* the logo already carries the name; the version number is noise */
 #header_infos #header_shopname,
 #header_infos #shop_version { display: none; }
@@ -115,12 +115,12 @@ body.ps_back-office,
   background-repeat: no-repeat;
   background-size: auto 44px;
   background-position: 18px center;
-  padding: 0 !important;
+  padding: 0;
 }
 .bootstrap #header_infos .notifs_badge,
-.bootstrap #header_infos .notifs_badge span { background-color: var(--sb-gold) !important; color: #fff !important; }
-.bootstrap #header_infos .dropdown-menu a { color: var(--sb-ink) !important; }
-.bootstrap #header_infos .dropdown-menu a:hover { background-color: var(--sb-canvas); }
+.bootstrap #header_infos .notifs_badge span { background-color: var(--sb-gold); color: #fff; }
+.bootstrap #header_infos .dropdown-menu a { color: var(--sb-ink); }
+.bootstrap #header_infos .dropdown-menu a:hover { background-color: var(--sb-canvas); color: var(--sb-ink); }
 /* Quick Access and account menus as floating cards */
 .bootstrap #header_infos ul.dropdown-menu {
   min-width: 220px;
@@ -132,7 +132,7 @@ body.ps_back-office,
   box-shadow: 0 16px 36px -16px rgba(0, 0, 0, .35);
 }
 .bootstrap #header_infos ul.dropdown-menu > li > a { padding: 9px 12px; border-radius: 8px; }
-.bootstrap #header_infos ul.dropdown-menu > li.active > a { background-color: var(--sb-accent-soft); color: var(--sb-link) !important; }
+.bootstrap #header_infos ul.dropdown-menu > li.active > a { background-color: var(--sb-accent-soft); color: var(--sb-link); }
 .bootstrap #header_infos ul.dropdown-menu > li.divider { margin: 6px 0; background-color: var(--sb-line); }
 .bootstrap #header_infos #quick_select { border: 1px solid var(--sb-line); border-radius: 999px; font-weight: 500; }
 .bootstrap #header_infos #quick_select i { margin-left: 6px; }
@@ -160,7 +160,7 @@ body.ps_back-office,
   justify-content: space-between;
   width: 60px;
   height: 32px;
-  padding: 0 8px !important;
+  padding: 0 8px;
   border: 1px solid var(--sb-line);
   border-radius: 999px;
   background-color: var(--sb-canvas);
@@ -184,7 +184,7 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle svg:last-child { color
 html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: translateX(26px); }
 
 @media (min-width: 768px) {
-  .bootstrap #header_infos { height: var(--sb-top) !important; min-height: var(--sb-top); }
+  .bootstrap #header_infos { height: var(--sb-top); min-height: var(--sb-top); }
   .bootstrap #header_infos > .navbar-header {
     display: flex;
     align-items: center;
@@ -195,33 +195,33 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   }
   #header_infos .navbar-header > a#header_shopversion,
   #header_infos .navbar-header > ul {
-    float: none !important;
+    float: none;
     flex: 0 0 auto;
-    margin-top: 0 !important;
+    margin-top: 0;
     margin-bottom: 0;
     line-height: normal;
   }
   #header_infos .navbar-header > a#header_shopversion { width: var(--sb-side); height: var(--sb-top); }
   #header_infos .navbar-header > ul { display: flex; align-items: center; width: auto; height: auto; padding: 0; }
-  #header_infos .navbar-header > ul > li { float: none !important; height: auto; margin: 0 !important; line-height: normal; }
+  #header_infos .navbar-header > ul > li { float: none; height: auto; margin: 0; line-height: normal; }
   #header_infos .navbar-header > ul > li > a {
     display: inline-flex;
     align-items: center;
     height: 36px;
-    padding: 0 12px !important;
+    padding: 0 12px;
     border-radius: 8px;
     line-height: 1;
   }
   #header_infos .navbar-header > ul > li > a:hover { background-color: var(--sb-canvas); }
   #header_infos #header_notifs_icon_wrapper,
   #header_infos #header_quick { margin-left: 8px; }
-  #header_infos #header_employee_box { gap: 6px; margin-left: auto !important; padding-right: 16px; }
-  #header_infos #header_employee_box #header_foaccess { display: inline-flex; color: var(--sb-muted) !important; }
-  #header_infos #header_employee_box #employee_infos > a { height: 44px; padding: 0 10px 0 6px !important; border-radius: 999px; }
+  #header_infos #header_employee_box { gap: 6px; margin-left: auto; padding-right: 16px; }
+  #header_infos #header_employee_box #header_foaccess { display: inline-flex; color: var(--sb-muted); }
+  #header_infos #header_employee_box #employee_infos > a { height: 44px; padding: 0 10px 0 6px; border-radius: 999px; }
   #header_infos #header_employee_box #employee_infos .caret { margin-left: 8px; }
   /* the "working" spinner: stock puts it in a grey square over the logo */
   #header_infos #ajax_running { position: static; flex: 0 0 auto; width: auto; height: auto; margin: 0 14px 0 -6px; background-color: transparent; }
-  #header_infos #ajax_running i { color: var(--sb-muted) !important; font-size: 16px; line-height: 1; }
+  #header_infos #ajax_running i { color: var(--sb-muted); font-size: 16px; line-height: 1; }
   #header_infos .notifs_badge { position: relative; top: -8px; margin-left: -4px; }
 
   /* everything below the bar moves down with it */
@@ -237,7 +237,7 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
 .bootstrap #nav-sidebar,
 .page-sidebar #nav-sidebar { background-color: var(--sb-card); border-right: 1px solid var(--sb-line); }
 .bootstrap #nav-sidebar ul.menu { padding: 6px 12px 12px; }
-.bootstrap #nav-sidebar ul.menu > li.maintab { margin-bottom: 2px; }
+.bootstrap #nav-sidebar ul.menu > li.maintab { position: relative; margin-bottom: 2px; }
 .bootstrap #nav-sidebar ul.menu > li.maintab > a.title {
   height: 40px;
   line-height: 40px;
@@ -252,31 +252,30 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
 }
 .bootstrap #nav-sidebar ul.menu > li.maintab > a.title span { padding-left: 12px; color: inherit; }
 .bootstrap #nav-sidebar ul.menu > li.maintab > a.title i { width: 20px; font-size: 16px; color: var(--sb-muted); text-align: center; }
-.bootstrap #nav-sidebar ul.menu > li.maintab:not(.active):hover > a.title { background-color: var(--sb-canvas) !important; color: var(--sb-link); }
+.bootstrap #nav-sidebar ul.menu > li.maintab:not(.active):hover > a.title { background-color: var(--sb-canvas); color: var(--sb-link); }
 .bootstrap #nav-sidebar ul.menu > li.maintab:not(.active):hover > a.title i { color: var(--sb-link); }
 /* active item: filled pill */
 .bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title,
 .bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title i,
-.bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title span { color: var(--sb-accent-text) !important; }
-.bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title { background-color: var(--sb-accent) !important; }
+.bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title span { color: var(--sb-accent-text); }
+.bootstrap #nav-sidebar ul.menu > li.maintab.active > a.title { background-color: var(--sb-accent); }
 
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu,
-.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li { background-color: transparent !important; }
+.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li { background-color: transparent; }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu { margin: 4px 0 6px 22px; padding-left: 10px; border-left: 1px solid var(--sb-line); }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a {
   padding: 7px 10px;
   border: 0;
   border-radius: 6px;
-  background-color: transparent !important;
-  color: var(--sb-muted) !important;
+  background-color: transparent;
+  color: var(--sb-muted);
   font-size: 15px;
 }
-.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a:hover { background-color: var(--sb-canvas) !important; color: var(--sb-link) !important; }
-.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft) !important; color: var(--sb-link) !important; font-weight: 600; }
+.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a:hover { background-color: var(--sb-canvas); color: var(--sb-link); }
+.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft); color: var(--sb-link); font-weight: 600; }
 /* Sections fold and unfold with the small arrow added by side-menu.js. The
    section you are in starts open. The stock behaviour, a box of pages that
    appeared beside the menu while the pointer rested on a section, is off. */
-.bootstrap #nav-sidebar ul.menu > li.maintab { position: relative; }
 body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab ul.submenu,
 body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.hover ul.submenu,
 body:not(.page-sidebar-closed) #nav-sidebar ul.menu li.maintab.active.hover ul.submenu,
@@ -324,26 +323,26 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap #nav-sidebar li.maintab.active > .sb-menu-arrow:hover { background-color: rgba(255, 255, 255, .16); }
 
 /* search field at the top of the menu */
-.bootstrap #nav-sidebar li.searchtab { padding: 14px 0 10px; background-color: transparent !important; }
+.bootstrap #nav-sidebar li.searchtab { padding: 14px 0 10px; background-color: transparent; }
 .bootstrap #nav-sidebar #header_search,
 .bootstrap #nav-sidebar #header_search .input-group-btn,
-.bootstrap #nav-sidebar #header_search .input-group-btn .btn { background-color: transparent !important; border: 0; box-shadow: none; }
+.bootstrap #nav-sidebar #header_search .input-group-btn .btn { background-color: transparent; border: 0; box-shadow: none; }
 .bootstrap #nav-sidebar #header_search .input-group {
   display: flex;
   align-items: center;
   padding: 0 6px;
   border: 1px solid var(--sb-line);
   border-radius: 999px;
-  background-color: var(--sb-canvas) !important;
+  background-color: var(--sb-canvas);
 }
 .bootstrap #nav-sidebar #header_search .input-group-btn { width: auto; }
-.bootstrap #nav-sidebar #header_search .btn i { color: var(--sb-muted) !important; }
+.bootstrap #nav-sidebar #header_search .btn i { color: var(--sb-muted); }
 .bootstrap #nav-sidebar #bo_query {
   flex: 1;
   height: 36px;
-  border: 0 !important;
+  border: 0;
   border-radius: 999px;
-  background-color: transparent !important;
+  background-color: transparent;
   box-shadow: none;
   color: var(--sb-ink);
 }
@@ -351,17 +350,17 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .icon-AdminSalisbergGuide:before { content: "\f02d"; }
 
 @media (min-width: 768px) {
-  .bootstrap #nav-sidebar .menu-collapse { display: none !important; }
+  .bootstrap #nav-sidebar .menu-collapse { display: none; }
   body.page-sidebar #nav-sidebar { width: var(--sb-side); bottom: 0; height: auto; overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
-  body.page-sidebar #content.bootstrap { margin-left: var(--sb-side); padding-left: 24px !important; padding-right: 24px !important; }
+  body.page-sidebar #content.bootstrap { margin-left: var(--sb-side); padding-left: 24px; padding-right: 24px; }
   body.page-sidebar .page-head .page-title { padding-left: calc(var(--sb-side) + 24px); }
   body.page-sidebar .page-head .breadcrumb,
   body.page-sidebar .page-head ul.page-breadcrumb { left: calc(var(--sb-side) + 24px); }
   body.page-sidebar #footer.bootstrap { margin-left: var(--sb-side); }
   /* someone who had collapsed the menu before still gets the full menu */
-  body.page-sidebar-closed #nav-sidebar ul.menu > li.maintab > a.title span { display: inline !important; }
-  body.page-sidebar-closed #nav-sidebar ul.menu > li.maintab.active ul.submenu { display: block !important; position: static; width: auto; }
-  body.page-sidebar-closed #nav-sidebar li.searchtab #header_search { display: block !important; }
+  body.page-sidebar-closed #nav-sidebar ul.menu > li.maintab > a.title span { display: inline; }
+  body.page-sidebar-closed #nav-sidebar ul.menu > li.maintab.active ul.submenu { display: block; position: static; width: auto; }
+  body.page-sidebar-closed #nav-sidebar li.searchtab #header_search { display: block; }
 }
 
 /* ---------- 6. Page head (title and action buttons) and footer ---------- */
@@ -370,7 +369,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .page-head .breadcrumb,
 .bootstrap .page-head .breadcrumb a,
 .bootstrap .page-head ul.page-breadcrumb li a { color: var(--sb-muted); background-color: transparent; }
-.bootstrap .page-head .page-bar { right: 24px; left: auto !important; }
+.bootstrap .page-head .page-bar { right: 24px; left: auto; }
 /* action buttons beside the page title: outlined, and the "Add new ..." one filled */
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn {
   margin-left: 8px;
@@ -393,10 +392,10 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .page-head .toolbarBox li:has(> a[id$="-modules-list"]),
 .bootstrap .page-head .toolbarBox li:has(> a#desc-module-catalog),
 .bootstrap .alert:has(> .modules-addons-info),
-#modules_list_container { display: none !important; }
+#modules_list_container { display: none; }
 
 #footer.bootstrap {
-  background: var(--sb-card) !important;
+  background: var(--sb-card);
   border-top: 1px solid var(--sb-line);
   color: var(--sb-muted);
 }
@@ -424,7 +423,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
   font-weight: 600;
   letter-spacing: 0;
   line-height: 1.4;
-  text-transform: none !important;
+  text-transform: none;
 }
 .bootstrap .panel > .panel-heading i,
 .bootstrap .panel > h3 i { color: var(--sb-muted); }
@@ -510,7 +509,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .btn-default { border-color: var(--sb-line); background-color: var(--sb-card); color: var(--sb-ink); }
 .bootstrap .btn-default:hover, .bootstrap .btn-default:focus { border-color: var(--sb-accent); background-color: var(--sb-card); color: var(--sb-link); }
 .bootstrap .btn-group > .btn.active,
-.bootstrap .btn-group > .btn.btn-default.active { background-color: var(--sb-accent) !important; border-color: var(--sb-accent) !important; color: var(--sb-accent-text) !important; box-shadow: none; }
+.bootstrap .btn-group > .btn.btn-default.active { background-color: var(--sb-accent); border-color: var(--sb-accent); color: var(--sb-accent-text); box-shadow: none; }
 
 /* forms */
 .bootstrap label, .bootstrap .control-label { color: var(--sb-ink); font-weight: 500; }
@@ -538,22 +537,22 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 
 .bootstrap .prestashop-switch { border-radius: 999px; box-shadow: inset 0 0 0 1px var(--sb-line); background-color: var(--sb-canvas); overflow: hidden; }
 .bootstrap .prestashop-switch label { color: var(--sb-muted); }
-.bootstrap .prestashop-switch .slide-button { background-color: var(--sb-accent); border-color: var(--sb-accent) !important; border-radius: 999px; }
+.bootstrap .prestashop-switch .slide-button { background-color: var(--sb-accent); border-color: var(--sb-accent); border-radius: 999px; }
 .bootstrap .prestashop-switch input.disable:checked ~ .slide-button,
-.bootstrap .prestashop-switch input:last-of-type:checked ~ .slide-button { background-color: #9ca3af; border-color: #9ca3af !important; }
+.bootstrap .prestashop-switch input:last-of-type:checked ~ .slide-button { background-color: #9ca3af; border-color: #9ca3af; }
 /* labels that carry a help hint */
 .bootstrap span.label-tooltip {
   padding: 0;
   border: 0;
   border-bottom: 1px dashed var(--sb-muted);
   border-radius: 0;
-  background: transparent !important;
-  color: var(--sb-ink) !important;
+  background: transparent;
+  color: var(--sb-ink);
 }
 
 /* tabs, lists and small parts */
 .bootstrap .nav-tabs { border-bottom-color: var(--sb-line); }
-.bootstrap .nav-tabs > li > a { padding-left: 10px; padding-right: 10px; font-size: 13px; color: var(--sb-muted); letter-spacing: 0; text-transform: none !important; }
+.bootstrap .nav-tabs > li > a { padding-left: 10px; padding-right: 10px; font-size: 13px; color: var(--sb-muted); letter-spacing: 0; text-transform: none; }
 .bootstrap .nav-tabs > li.active > a,
 .bootstrap .nav-tabs > li.active > a:hover,
 .bootstrap .nav-tabs > li.active > a:focus { border-color: var(--sb-line); border-top: 2px solid var(--sb-accent); border-bottom-color: transparent; background-color: var(--sb-card); color: var(--sb-link); font-weight: 600; }
@@ -607,10 +606,6 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
   text-transform: none;
 }
 .tooltip .tooltip-inner p { margin: 0; color: inherit; }
-.tooltip.top .tooltip-arrow, .tooltip.top-left .tooltip-arrow, .tooltip.top-right .tooltip-arrow { border-top-color: var(--sb-tip) !important; }
-.tooltip.bottom .tooltip-arrow, .tooltip.bottom-left .tooltip-arrow, .tooltip.bottom-right .tooltip-arrow { border-bottom-color: var(--sb-tip) !important; }
-.tooltip.left .tooltip-arrow { border-left-color: var(--sb-tip) !important; }
-.tooltip.right .tooltip-arrow { border-right-color: var(--sb-tip) !important; }
 .bootstrap .popover { border: 1px solid var(--sb-line); border-radius: 12px; background-color: var(--sb-card); box-shadow: var(--sb-shadow); color: var(--sb-ink); }
 .bootstrap .popover-title { border-color: var(--sb-line); border-radius: 12px 12px 0 0; background-color: var(--sb-subtle); color: var(--sb-heading); }
 
@@ -637,21 +632,23 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 #dashboard #dash_traffic_chart2 { flex: 0 0 100%; }
 #content.bootstrap #dashboard #dashproducts nav { font-family: inherit; text-transform: none; }
 
+/* Stats: report tables are wider than the space beside the report menu and
+   ran off the right edge of the page. Each one scrolls inside its own box. */
+body.adminstats #content div:has(> table.table) { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
+
 /* ---------- 8. Stock-blue replacements ----------
    The stock theme's #00aff0 family, found by scanning rendered pages. */
 .bootstrap [id^="dgc_"] { color: var(--sb-heading); }                               /* dashboard tile figures */
 .bootstrap .title-wrapper > p.text-center { color: var(--sb-muted); font-weight: 500; }
 .bootstrap .text-info,
 .bootstrap #datepicker-from-info, .bootstrap #datepicker-to-info { color: var(--sb-link); }
-.bootstrap #date-range.form-date-group { border-color: var(--sb-accent); }
-.bootstrap #date-range .form-date-heading { background-color: var(--sb-accent); }
-.bootstrap .datepicker td.active,
-.bootstrap .datepicker td.active:hover { background-color: var(--sb-accent) !important; border-color: var(--sb-accent) !important; color: var(--sb-accent-text) !important; }
+.bootstrap #datepicker #datepicker-form #date-range.form-date-group { border-color: var(--sb-accent); }
+.bootstrap #datepicker #datepicker-form #date-range .form-date-heading { background-color: var(--sb-accent); }
 .bootstrap .btn > i[class^="icon-"]:before,
 .bootstrap .btn-link,
 .bootstrap .chosen-container .chosen-search:before { color: var(--sb-link); }
 .bootstrap .btn-primary > i[class^="icon-"]:before { color: var(--sb-accent-text); }
-.bootstrap .avail-bar-btn, .bootstrap .avail-bar-date { border-color: var(--sb-accent); border-radius: 8px; color: var(--sb-link); }
+.bootstrap .avail-bar-btn, .bootstrap .avail-bar-date { border-color: var(--sb-accent); border-radius: 8px; background-color: var(--sb-card); color: var(--sb-link); }
 .bootstrap .avail-bar-btn.bar-btn-active { background-color: var(--sb-accent); border-color: var(--sb-accent); color: var(--sb-accent-text); }
 
 /* ---------- 9. Dark-theme specifics ----------
@@ -666,7 +663,7 @@ html[data-sb-theme="dark"] .bootstrap h3, html[data-sb-theme="dark"] .bootstrap 
 html[data-sb-theme="dark"] .bootstrap strong, html[data-sb-theme="dark"] .bootstrap dt { color: var(--sb-heading); }
 html[data-sb-theme="dark"] .bootstrap p, html[data-sb-theme="dark"] .bootstrap li,
 html[data-sb-theme="dark"] .bootstrap dd, html[data-sb-theme="dark"] .bootstrap td,
-html[data-sb-theme="dark"] .bootstrap span:not(.label):not(.badge) { color: inherit; }
+html[data-sb-theme="dark"] .bootstrap span:not(.label):not(.badge):not(:where(.label-tooltip)) { color: inherit; }
 html[data-sb-theme="dark"] .bootstrap .table-striped > tbody > tr:nth-child(odd) > td,
 html[data-sb-theme="dark"] .bootstrap .table tbody > tr.odd > td { background-color: var(--sb-subtle); }
 html[data-sb-theme="dark"] .bootstrap .list-empty,
@@ -786,17 +783,16 @@ html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); 
 #content.bootstrap .list-group-item { background-color: var(--sb-card); color: var(--sb-ink); }
 #content.bootstrap .list-group-item.active { background-color: var(--sb-accent); color: var(--sb-accent-text); }
 #content.bootstrap .table td.list-empty,
-#content.bootstrap .list-empty { background-color: transparent !important; }
+#content.bootstrap .list-empty { background-color: transparent; }
 #content.bootstrap .list-empty .list-empty-msg { color: var(--sb-muted); font-family: inherit; }
 /* the row of search boxes under a list's column titles (stock: pale blue) */
 #content.bootstrap .table thead > tr.filter > th,
-#content.bootstrap .table thead > tr.filter > td { background-color: var(--sb-subtle) !important; border-color: var(--sb-line); }
+#content.bootstrap .table thead > tr.filter > td { background-color: var(--sb-subtle); border-color: var(--sb-line); }
 #content.bootstrap .box-stats .title, #content.bootstrap .box-stats .title span { color: var(--sb-muted); }
 #content.bootstrap .box-stats .value, #content.bootstrap .box-stats .value span { color: var(--sb-heading); }
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn span,
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn div { color: inherit; font-weight: inherit; }
 #dashboard .avail-pie-label-container p { color: #fff; }
-.bootstrap .avail-bar-btn, .bootstrap .avail-bar-date { background-color: var(--sb-card); }
 .bootstrap .hasDatepicker.form-control { background-color: var(--sb-card); color: var(--sb-ink); }
 
 /* dark theme: text the dashboard and calendar widgets colour themselves */
@@ -817,7 +813,7 @@ html[data-sb-theme="dark"] #content.bootstrap .fc .fc-toolbar-title { color: var
 html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard td,
 html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard th,
 html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard .fc-scrollgrid { border-color: var(--sb-line); }
-#content.bootstrap .badge-item.label-tooltip { background-color: var(--sb-card) !important; border-bottom: 0; }   /* dashboard figure tiles, both themes */
+#content.bootstrap .badge-item.label-tooltip { background-color: var(--sb-card); border-bottom: 0; }   /* dashboard figure tiles, both themes */
 #content.bootstrap [id^="dgc_"] { color: var(--sb-heading); }
 .bootstrap input.hasDatepicker[readonly],
 .bootstrap input.form-control[readonly] { background-color: var(--sb-subtle); color: var(--sb-ink); }

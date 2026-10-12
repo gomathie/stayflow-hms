@@ -1,5 +1,9 @@
 # Salisberg (QloApps-based) application image
-FROM php:8.1-apache
+#
+# PHP version. Tested on 8.3 (docker/smoke-test.sh). To try another version
+# without editing this file, set PHP_VERSION in .env (see docker-compose.yml).
+ARG PHP_VERSION=8.3
+FROM php:${PHP_VERSION}-apache
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libfreetype6-dev libjpeg62-turbo-dev libpng-dev libwebp-dev \
@@ -14,6 +18,8 @@ COPY docker/php.ini /usr/local/etc/php/conf.d/zz-salisberg.ini
 COPY docker/apache.conf /etc/apache2/conf-enabled/zz-salisberg.conf
 COPY docker/entrypoint.sh /usr/local/bin/salisberg-entrypoint
 COPY docker/setup-modules.php /usr/local/share/salisberg/setup-modules.php
+COPY docker/setup-room-types.php /usr/local/share/salisberg/setup-room-types.php
+COPY docker/generate-htaccess.php /usr/local/share/salisberg/generate-htaccess.php
 COPY docker/backup.sh /usr/local/bin/salisberg-backup
 COPY docker/ratelimit.php /usr/local/share/salisberg/ratelimit.php
 COPY docker/branding/pay-cash.jpg docker/branding/pay-momo.jpg /usr/local/share/salisberg/

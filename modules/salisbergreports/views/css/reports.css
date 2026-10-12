@@ -1,0 +1,22 @@
+/* Salisberg Reports: Bookings > Reports. Colours come from the back office
+   tokens in admin/themes/default/css/overrides.css, so light and dark both work. */
+.sb-reports-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; }
+.sb-reports-field { display: flex; flex-direction: column; gap: 6px; min-width: 190px; }
+.sb-reports-field label { margin: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--sb-muted); }
+.sb-reports-field select,
+.sb-reports-field input { height: 38px; padding: 0 10px; border: 1px solid var(--sb-field-line); border-radius: 8px; background-color: var(--sb-card); color: var(--sb-ink); }
+.sb-reports-actions { display: flex; gap: 8px; margin-left: auto; }
+.sb-reports-actions .btn { height: 38px; padding: 0 16px; display: inline-flex; align-items: center; gap: 8px; }
+
+.sb-report-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--sb-line); }
+.sb-report-head h3 { margin: 0; padding: 0; border: 0; font-size: 20px; font-weight: 600; text-transform: none; color: var(--sb-heading); }
+.sb-report-head p { margin: 0; color: var(--sb-muted); }
+.sb-report-summary { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0 10px; }
+.sb-report-figure { flex: 1 1 150px; padding: 14px 16px; border: 1px solid var(--sb-line); border-radius: 10px; background-color: var(--sb-subtle); }
+.sb-report-figure span { display: block; font-size: 12px; color: var(--sb-muted); }
+.sb-report-figure strong { display: block; margin-top: 4px; font-size: 20px; color: var(--sb-heading); }
+.sb-report-note { margin: 0 0 14px; font-size: 12px; color: var(--sb-muted); }
+.sb-report h4 { margin: 22px 0 8px; font-size: 15px; font-weight: 600; color: var(--sb-heading); }
+.sb-report-scroll { max-width: 100%; overflow-x: auto; }
+.sb-report-scroll .table { margin: 0; }
+.sb-report-empty { padding: 26px 10px !important; text-align: center; color: var(--sb-muted); }

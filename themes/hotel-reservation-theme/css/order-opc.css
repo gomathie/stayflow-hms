@@ -178,7 +178,7 @@
 }
 .order-detail-content .product-name a {
 	font-size: 22px;
-	color: #333333 !important;
+	color: #333333;
 }
 
 .order-detail-content .hotel-location {
@@ -276,7 +276,7 @@
 	color: #777777;}
 .room_price_detail_block .open_rooms_extra_services_panel, .product_price_detail_block .open_rooms_extra_services_panel  {
 	font-weight: 600;
-	color: #0000FF;}
+	color: var(--sb-gold);}
 .order-detail-content .total_price_block {
 	display: inline-block;
     padding: 10px 15px 0px;
@@ -656,7 +656,7 @@
 .room_extra_demands .open_rooms_extra_services_panel {
 	font-size:12px;
 	font-weight: 600;
-	color: #0000FF;}
+	color: var(--sb-gold);}
 
 .btn-edit-guest-info {
 	padding: 0px 50px;

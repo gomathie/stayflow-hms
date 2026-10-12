@@ -12,7 +12,7 @@
 			<li><a href="#sb-s2">{l s='Finding your way around' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-s3">{l s='Make a booking for a guest' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-s4">{l s='Find and open a booking' mod='salisbergguide'}</a></li>
-			<li><a href="#sb-s5">{l s='Record a cash or Mobile Money payment' mod='salisbergguide'}</a></li>
+			<li><a href="#sb-s5">{l s='Record a cash, Mobile Money or bank transfer payment' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-s6">{l s='Check a guest in and out' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-s7">{l s='Change or cancel a booking' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-s8">{l s='Guests and their details' mod='salisbergguide'}</a></li>
@@ -41,11 +41,11 @@
 		<table>
 			<tr><th>{l s='Menu' mod='salisbergguide'}</th><th>{l s='What it is for' mod='salisbergguide'}</th></tr>
 			<tr><td><span class="sb-path">Dashboard</span></td><td>{l s='Today at a glance: recent bookings and activity.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Hotel Reservation System &rsaquo; Book Now</span></td><td>{l s='See which rooms are free and make a booking for a guest.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Book Now</span></td><td>{l s='See which rooms are free and make a booking for a guest.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Bookings</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records and their booking history.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customer Service</span></td><td>{l s='Messages guests send through the website.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Hotel Reservation System &rsaquo; Manage Order Refund Requests</span></td><td>{l s='Cancellation and refund requests from guests.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Requests</span></td><td>{l s='Cancellation and refund requests from guests.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Guides</span></td><td>{l s='This guide.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Guides &rsaquo; What's New</span></td><td>{l s='Recent changes to the system, newest first. Look here when something looks different.' mod='salisbergguide'}</td></tr>
 		</table>
@@ -56,13 +56,13 @@
 		<h3>3. {l s='Make a booking for a guest' mod='salisbergguide'}</h3>
 		<p>{l s='Use this for walk-in guests and bookings taken by phone.' mod='salisbergguide'}</p>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; Book Now</span>.</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Book Now</span>.</li>
 			<li>{l s='In the Booking Form, choose the check-in and check-out dates, the room type and the number of guests, then click' mod='salisbergguide'} <span class="sb-btn">Search</span>.</li>
 			<li>{l s='The calendar and room lists show what is free. Rooms are grouped as Available Rooms, Partially Available, Booked Rooms and Unavailable Rooms.' mod='salisbergguide'}</li>
 			<li>{l s='Pick a room, set the occupancy and click' mod='salisbergguide'} <span class="sb-btn">Add To Cart</span>. {l s='Repeat if the guest needs more than one room.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Book Now</span> {l s='to continue to the order form.' mod='salisbergguide'}</li>
 			<li>{l s='Choose the guest: search for an existing customer, or create a new one with their name, email and phone number.' mod='salisbergguide'}</li>
-			<li>{l s='Check the rooms, dates and total. Choose the payment method (Cash at hotel or Mobile Money) and the status, then create the order.' mod='salisbergguide'}</li>
+			<li>{l s='Check the rooms, dates and total. Choose the payment method (Cash at hotel, Mobile Money or Bank transfer) and the status, then create the order.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='If the guest has not paid yet, leave the status as Awaiting payment. Change it only when the money has actually been received (see section 5).' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminHotelRoomsBooking|escape:'html':'UTF-8'}">{l s='Open Book Now' mod='salisbergguide'} &rarr;</a>
@@ -87,8 +87,8 @@
 	</section>
 
 	<section id="sb-s5">
-		<h3>5. {l s='Record a cash or Mobile Money payment' mod='salisbergguide'}</h3>
-		<p>{l s='Bookings made on the website with Cash at hotel or Mobile Money arrive as Awaiting payment. Nothing is confirmed automatically: a member of staff must record the money.' mod='salisbergguide'}</p>
+		<h3>5. {l s='Record a cash, Mobile Money or bank transfer payment' mod='salisbergguide'}</h3>
+		<p>{l s='Bookings made on the website with Cash at hotel, Mobile Money or Bank transfer arrive as Awaiting payment. Nothing is confirmed automatically: a member of staff must record the money.' mod='salisbergguide'}</p>
 		<h4>{l s='Mobile Money' mod='salisbergguide'}</h4>
 		<ol>
 			<li>{l s='Check the hotel Mobile Money phone or statement. The guest is asked to use their booking reference as the payment reference.' mod='salisbergguide'}</li>
@@ -96,6 +96,11 @@
 			<li>{l s='Open the booking (section 4).' mod='salisbergguide'}</li>
 			<li>{l s='In the Payment panel click' mod='salisbergguide'} <span class="sb-btn">Add new payment</span>, {l s='enter the amount received and the method, and save. Put the Mobile Money transaction ID in the transaction field so it can be traced later.' mod='salisbergguide'}</li>
 			<li>{l s='In the Status panel choose Complete payment received (or Partial payment received if only part was paid) and click' mod='salisbergguide'} <span class="sb-btn">Update status</span>.</li>
+		</ol>
+		<h4>{l s='Bank transfer' mod='salisbergguide'}</h4>
+		<ol>
+			<li>{l s='Check the hotel bank statement or banking app. The guest is asked to use their booking reference as the payment reference.' mod='salisbergguide'}</li>
+			<li>{l s='Record it on the booking exactly as for Mobile Money above, choosing Bank transfer as the method. Do not record it until the money shows in the account: a screenshot from the guest is not proof.' mod='salisbergguide'}</li>
 		</ol>
 		<h4>{l s='Cash at the hotel' mod='salisbergguide'}</h4>
 		<ol>
@@ -147,7 +152,7 @@
 		<p>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Customers &rsaquo; Customer Service</span>. {l s='Open a message to read it and reply. Reply the same day where you can.' mod='salisbergguide'}</p>
 		<h4>{l s='Refund and cancellation requests' mod='salisbergguide'}</h4>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; Manage Order Refund Requests</span>.</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Requests</span>.</li>
 			<li>{l s='Open the request to see the booking, the rooms and the reason.' mod='salisbergguide'}</li>
 			<li>{l s='Tell your manager before approving anything. How much is refunded depends on the hotel refund rules, which only an administrator can set.' mod='salisbergguide'}</li>
 		</ol>
@@ -157,7 +162,7 @@
 		<h3>10. {l s='What each booking status means' mod='salisbergguide'}</h3>
 		<table>
 			<tr><th>{l s='Status' mod='salisbergguide'}</th><th>{l s='Meaning' mod='salisbergguide'}</th><th>{l s='What you do' mod='salisbergguide'}</th></tr>
-			<tr><td>Awaiting payment</td><td>{l s='Booked, nothing paid yet.' mod='salisbergguide'}</td><td>{l s='Wait for Mobile Money, or collect cash on arrival.' mod='salisbergguide'}</td></tr>
+			<tr><td>Awaiting payment</td><td>{l s='Booked, nothing paid yet.' mod='salisbergguide'}</td><td>{l s='Wait for Mobile Money or the bank transfer, or collect cash on arrival.' mod='salisbergguide'}</td></tr>
 			<tr><td>Partial payment received</td><td>{l s='Part of the total has been paid.' mod='salisbergguide'}</td><td>{l s='Collect the balance before check-out.' mod='salisbergguide'}</td></tr>
 			<tr><td>Complete payment received</td><td>{l s='Paid in full.' mod='salisbergguide'}</td><td>{l s='Nothing. Ready for check-in.' mod='salisbergguide'}</td></tr>
 			<tr><td>Processing in progress</td><td>{l s='Being handled by staff.' mod='salisbergguide'}</td><td>{l s='Check the private note for who is dealing with it.' mod='salisbergguide'}</td></tr>

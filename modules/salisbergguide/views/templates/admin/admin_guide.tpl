@@ -13,7 +13,7 @@
 			<li><a href="#sb-a3">{l s='Room types and rooms' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a4">{l s='Prices, seasons and discounts' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a5">{l s='Extra services' mod='salisbergguide'}</a></li>
-			<li><a href="#sb-a6">{l s='Payment methods: cash and Mobile Money' mod='salisbergguide'}</a></li>
+			<li><a href="#sb-a6">{l s='Payment methods: cash, Mobile Money and bank transfer' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a7">{l s='Currency and taxes' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a8">{l s='Cancellations and refunds' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a9">{l s='Website content' mod='salisbergguide'}</a></li>
@@ -71,7 +71,7 @@
 	<section id="sb-a2">
 		<h3>2. {l s='Hotel details' mod='salisbergguide'}</h3>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; Manage Hotel</span> {l s='and open the hotel.' mod='salisbergguide'}</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Hotel Details</span> {l s='and open the hotel.' mod='salisbergguide'}</li>
 			<li>{l s='Work through the tabs:' mod='salisbergguide'}
 				<ul>
 					<li><strong>Information</strong> &ndash; {l s='name, descriptions, phone, email, address, star rating, check-in and check-out times.' mod='salisbergguide'}</li>
@@ -84,8 +84,8 @@
 			</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Save and stay</span> {l s='after each tab.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-tip">{l s='The hotel name, tag line and large header photo on the homepage are set separately, in' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; General Settings &rsaquo; General Settings</span>, {l s='under Website Configuration.' mod='salisbergguide'}</p>
-		<a class="sb-go" href="{$sb_links.AdminAddHotel|escape:'html':'UTF-8'}">{l s='Open Manage Hotel' mod='salisbergguide'} &rarr;</a>
+		<p class="sb-tip">{l s='The hotel name, tag line and large header photo on the homepage are set separately, in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; General Settings</span>, {l s='under Website Configuration.' mod='salisbergguide'}</p>
+		<a class="sb-go" href="{$sb_links.AdminAddHotel|escape:'html':'UTF-8'}">{l s='Open Hotel Details' mod='salisbergguide'} &rarr;</a>
 	</section>
 
 	<section id="sb-a3">
@@ -115,7 +115,7 @@
 		<h3>4. {l s='Prices, seasons and discounts' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='Normal price:' mod='salisbergguide'}</strong> {l s='the Prices tab of the room type (section 3).' mod='salisbergguide'}</li>
-			<li><strong>{l s='Different prices for dates or days of the week' mod='salisbergguide'}</strong> {l s='(holidays, weekends, low season):' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; General Settings &rsaquo; Advanced Price Rules</span>. {l s='A rule can raise or lower the price, for one room type or several, for a date range or specific weekdays.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Different prices for dates or days of the week' mod='salisbergguide'}</strong> {l s='(holidays, weekends, low season):' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; Advanced Price Rules</span>. {l s='A rule can raise or lower the price, for one room type or several, for a date range or specific weekdays.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Voucher codes and promotions:' mod='salisbergguide'}</strong> <span class="sb-path">Manage Discounts &rsaquo; Cart Rules</span>. {l s='Set the code, the amount or percentage off, the validity dates and how many times it can be used.' mod='salisbergguide'}</li>
 		</ul>
 		<p class="sb-warn">{l s='After changing prices, open the website and search for a few dates to confirm guests see what you expect. Existing bookings keep the price they were made at.' mod='salisbergguide'}</p>
@@ -126,23 +126,26 @@
 		<h3>5. {l s='Extra services' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='Paid extras' mod='salisbergguide'}</strong> {l s='such as breakfast, dinner or airport transfer:' mod='salisbergguide'} <span class="sb-path">Catalog &rsaquo; Manage Service Products</span>.</li>
-			<li><strong>{l s='Room add-ons' mod='salisbergguide'}</strong> {l s='such as an extra bed:' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; General Settings &rsaquo; Additional Facilities</span>.</li>
+			<li><strong>{l s='Room add-ons' mod='salisbergguide'}</strong> {l s='such as an extra bed:' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; Additional Facilities</span>.</li>
 		</ul>
 		<p>{l s='Attach them to room types in that type\'s Service Products and Additional Facilities tabs.' mod='salisbergguide'}</p>
 	</section>
 
 	<section id="sb-a6">
-		<h3>6. {l s='Payment methods: cash and Mobile Money' mod='salisbergguide'}</h3>
+		<h3>6. {l s='Payment methods: cash, Mobile Money and bank transfer' mod='salisbergguide'}</h3>
 		{if $sb_is_admin}
-		<p>{l s='Guests can book and pay with cash at the hotel or by Mobile Money. Both are confirmed by staff; nothing is charged automatically.' mod='salisbergguide'}</p>
+		<p>{l s='Guests can book and pay with cash at the hotel, by Mobile Money or by bank transfer. All three are confirmed by staff; nothing is charged automatically.' mod='salisbergguide'}</p>
 		<ol>
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Modules and Services &rsaquo; Manage Modules</span> {l s='and search for Salisberg Pay.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Configure</span>.</li>
-			<li>{l s='Switch Cash at the hotel and Mobile Money on or off.' mod='salisbergguide'}</li>
-			<li>{l s='Enter the network, the registered account name and the Mobile Money number, then Save.' mod='salisbergguide'}</li>
+			<li>{l s='Switch Cash at the hotel, Mobile Money and Bank transfer on or off.' mod='salisbergguide'}</li>
+			<li>{l s='For Mobile Money enter the network, the registered account name and the number.' mod='salisbergguide'}</li>
+			<li>{l s='For Bank transfer enter the bank, the branch if you wish, the account name and the account number.' mod='salisbergguide'}</li>
+			<li>{l s='Click Save.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-warn">{l s='Mobile Money is hidden from guests until a number is saved. Check the number twice: guests will send money to exactly what is typed here. Anyone with a SuperAdmin login can change it, which is one more reason to keep those accounts few.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='Mobile Money is hidden from guests until a number is saved, and Bank transfer until an account number is saved. Check each number twice: guests will send money to exactly what is typed here. Anyone with a SuperAdmin login can change it, which is one more reason to keep those accounts few.' mod='salisbergguide'}</p>
 		<p>{l s='Which countries and customer groups may use each payment method is set in' mod='salisbergguide'} <span class="sb-path">Modules and Services &rsaquo; Payment</span>.</p>
+		<p class="sb-tip">{l s='Card payments are not set up. They need an account with a payment company (for example Paystack or Hubtel in Ghana), which then has to be connected to the site by the developer team.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminModules|escape:'html':'UTF-8'}&amp;configure=salisbergpay">{l s='Open Salisberg Pay settings' mod='salisbergguide'} &rarr;</a>
 		{else}
 		<p class="sb-tip">{l s='This is looked after by the developer team. Ask them when it needs to change.' mod='salisbergguide'}</p>
@@ -165,9 +168,9 @@
 	<section id="sb-a8">
 		<h3>8. {l s='Cancellations and refunds' mod='salisbergguide'}</h3>
 		<ol>
-			<li>{l s='Set the rules in' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; Manage Order Refund Rules</span>: {l s='how much is kept depending on how many days before check-in the guest cancels.' mod='salisbergguide'}</li>
-			<li>{l s='Attach rules to the hotel in Manage Hotel, Refund Policies tab.' mod='salisbergguide'}</li>
-			<li>{l s='Guest requests arrive in' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; Manage Order Refund Requests</span>. {l s='Open one, decide, and set its status. The system does not send money: return cash or Mobile Money yourself, then record it on the booking.' mod='salisbergguide'}</li>
+			<li>{l s='Set the rules in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Rules</span>: {l s='how much is kept depending on how many days before check-in the guest cancels.' mod='salisbergguide'}</li>
+			<li>{l s='Attach rules to the hotel in Hotel Details, Refund Policies tab.' mod='salisbergguide'}</li>
+			<li>{l s='Guest requests arrive in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Requests</span>. {l s='Open one, decide, and set its status. The system does not send money: return cash or Mobile Money yourself, then record it on the booking.' mod='salisbergguide'}</li>
 		</ol>
 	</section>
 
@@ -175,15 +178,16 @@
 		<h3>9. {l s='Website content' mod='salisbergguide'}</h3>
 		<table>
 			<tr><th>{l s='What' mod='salisbergguide'}</th><th>{l s='Where' mod='salisbergguide'}</th></tr>
-			<tr><td>{l s='Homepage hotel name, tag line, short description and header photo' mod='salisbergguide'}</td><td><span class="sb-path">Hotel Reservation System &rsaquo; General Settings &rsaquo; General Settings</span></td></tr>
-			<tr><td>{l s='Homepage photo gallery' mod='salisbergguide'}</td><td><span class="sb-path">Hotel Reservation System &rsaquo; General Settings &rsaquo; Hotel Interior Block</span></td></tr>
-			<tr><td>{l s='Homepage amenities' mod='salisbergguide'}</td><td><span class="sb-path">Hotel Reservation System &rsaquo; General Settings &rsaquo; Hotel Amenities Block</span></td></tr>
+			<tr><td>{l s='Homepage hotel name, tag line, short description and header photo' mod='salisbergguide'}</td><td><span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; General Settings</span></td></tr>
+			<tr><td>{l s='Homepage photo gallery' mod='salisbergguide'}</td><td><span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; Hotel Interior Block</span></td></tr>
+			<tr><td>{l s='Homepage amenities' mod='salisbergguide'}</td><td><span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; Hotel Amenities Block</span></td></tr>
 			{if $sb_is_admin}
 			<tr><td>{l s='Homepage guest reviews, room list, footer payment icons' mod='salisbergguide'}</td><td><span class="sb-path">Modules and Services &rsaquo; Manage Modules</span>, {l s='then Configure on the block' mod='salisbergguide'}</td></tr>
 			{/if}
 			<tr><td>{l s='Pages such as About Us, Terms, Legal Notice' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; CMS</span></td></tr>
 			{if $sb_is_admin}
 			<tr><td>{l s='Page titles and descriptions for search engines' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; SEO &amp; URLs</span></td></tr>
+			<tr><td>{l s='Friendly URL (website links read salisberg.com/room-name instead of salisberg.com/index.php?...)' mod='salisbergguide'}</td><td>{l s='Switched on and kept on by the deploy. Leave Friendly URL set to Yes here; turning it off is undone on the next deploy.' mod='salisbergguide'}</td></tr>
 			{/if}
 			<tr><td>{l s='Who receives messages from the Contact form' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Contacts</span></td></tr>
 			<tr><td>{l s='Whether guests can attach a file to a Contact form message (switched off: the form takes messages only)' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Customer Service</span>, {l s='Contact options, Allow file uploading' mod='salisbergguide'}</td></tr>
@@ -256,6 +260,23 @@
 
 	<section id="sb-a14">
 		<h3>14. {l s='Reports' mod='salisbergguide'}</h3>
+		<h4>{l s='Printable reports (PDF)' mod='salisbergguide'}</h4>
+		<ol>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Reports</span>.</li>
+			<li>{l s='Choose the Report:' mod='salisbergguide'}
+				<ul>
+					<li><strong>Bookings</strong> &ndash; {l s='every booking made in the period, with the guest, room type, stay dates, payment method, status, total and amount paid.' mod='salisbergguide'}</li>
+					<li><strong>Arrivals and departures</strong> &ndash; {l s='the rooms checking in and the rooms checking out in the period. Useful as a daily sheet for the front desk and housekeeping.' mod='salisbergguide'}</li>
+					<li><strong>Income by day</strong> &ndash; {l s='for each day: number of bookings, their value, what has been paid and what is still to pay.' mod='salisbergguide'}</li>
+				</ul>
+			</li>
+			<li>{l s='Choose the Period: Today, This week, This month, Last month, or Choose dates to set From and To yourself (up to one year).' mod='salisbergguide'}</li>
+			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Show report</span> {l s='to see it on screen, or' mod='salisbergguide'} <span class="sb-btn">Download PDF</span> {l s='to save or print it.' mod='salisbergguide'}</li>
+		</ol>
+		<p class="sb-tip">{l s='Totals leave out cancelled and refunded bookings. The Bookings report still lists them, so nothing goes missing from the record.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='A report contains guest names and phone numbers. Keep printed copies and downloaded files private.' mod='salisbergguide'}</p>
+		<a class="sb-go" href="{$sb_links.AdminSalisbergReports|escape:'html':'UTF-8'}">{l s='Open Reports' mod='salisbergguide'} &rarr;</a>
+		<h4>{l s='Other places to look' mod='salisbergguide'}</h4>
 		<ul>
 			<li><span class="sb-path">Dashboard</span> &ndash; {l s='bookings, income and occupancy for a period you choose at the top.' mod='salisbergguide'}</li>
 			<li><span class="sb-path">Stats</span> &ndash; {l s='detailed reports: sales, best room types, visitors and more.' mod='salisbergguide'}</li>
@@ -301,7 +322,7 @@
 			<tr><td><span class="sb-path">Configuration Information</span></td><td>{l s='A read-only summary of the server, database, website and mail setup, plus two checks.' mod='salisbergguide'}</td><td>{l s='Look here first when something is wrong, and copy it into any problem report. See below.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Performance</span></td><td>{l s='How pages are prepared and cached.' mod='salisbergguide'}</td><td>{l s='If a page looks out of date or broken after a change, click Clear cache at the top right. Leave the other settings as described below.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">E-mail</span></td><td>{l s='How the site sends email.' mod='salisbergguide'}</td><td>{l s='See section 10.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">CSV Import</span></td><td>{l s='Loads many records at once from a spreadsheet file: Hotels, Room Types, Rooms, Categories, Service Products, Bookings or Customers.' mod='salisbergguide'}</td><td>{l s='Useful when moving from another system. See below before using it.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">CSV Import</span></td><td>{l s='Loads many records at once from a spreadsheet file: Hotels, Room Types, Rooms, Categories, Service Products, Bookings or Customers. Accepts a .csv or an Excel .xlsx file.' mod='salisbergguide'}</td><td>{l s='Useful when moving from another system. See below before using it.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">DB Backup</span></td><td>{l s='Makes a copy of the database by hand.' mod='salisbergguide'}</td><td>{l s='See section 12. The nightly automatic backup is the one to rely on.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">SQL Manager</span></td><td>{l s='Saved database questions whose answers can be exported to a spreadsheet, for reports the other pages do not offer.' mod='salisbergguide'}</td><td>{l s='Click Add new SQL query, give it a name and the query, and Save. Only SELECT queries are accepted, so nothing can be changed or deleted from here.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Logs</span></td><td>{l s='A record of back office sign-ins and of errors, with a severity from 1 (informative) to 4 (major issue).' mod='salisbergguide'}</td><td>{l s='Check it when a sign-in looks suspicious or something failed. Logs by email at the bottom can send serious entries to the shop email.' mod='salisbergguide'}</td></tr>
@@ -331,6 +352,8 @@
 			<li>{l s='Choose what to import, then download the matching file under Download sample csv files and fill it in the same layout. The Available fields box lists every column; those marked * are required.' mod='salisbergguide'}</li>
 			<li>{l s='Upload the file, match the columns on the next screen, and import a file with two or three rows first to check the result before loading the rest.' mod='salisbergguide'}</li>
 		</ol>
+		<p class="sb-tip">{l s='The file can be a .csv or an ordinary Excel .xlsx file (not the old .xls format): save the spreadsheet as .xlsx and upload it directly, no need to export to CSV first.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='The ".xlsx" sample downloads only have the columns a non-technical user is likely to fill in by hand (name, price, beds, description and similar). Columns left out, such as the web address, search-engine text and tax rule, are filled in by the system from the name and the shop defaults. The full .csv files still have every column, for anyone who wants to set those by hand.' mod='salisbergguide'}</p>
 		<p class="sb-warn">{l s='Importing with the same ID as an existing record replaces that record. Leave the ID column empty to add new ones.' mod='salisbergguide'}</p>
 
 		<h4>{l s='Webservice' mod='salisbergguide'}</h4>

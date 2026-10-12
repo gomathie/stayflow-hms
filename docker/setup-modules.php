@@ -1,7 +1,8 @@
 <?php
 /**
- * Installs and switches on the Salisberg modules, and switches off the payment
- * methods the hotel does not use. Run by docker/entrypoint.sh as www-data
+ * Installs and switches on the Salisberg modules, switches off the payment
+ * methods the hotel does not use, and keeps Friendly URLs (no .php in
+ * website links) switched on. Run by docker/entrypoint.sh as www-data
  * whenever MODULES_VERSION changes. Safe to run repeatedly.
  *
  * Lives outside the web root (see Dockerfile); it must never be reachable by URL.
@@ -41,7 +42,7 @@ if ($idGhana) {
     }
 }
 
-foreach (array('salisbergpay', 'salisbergguide') as $name) {
+foreach (array('salisbergpay', 'salisbergguide', 'salisbergreports') as $name) {
     $module = Module::getInstanceByName($name);
     if (!$module) {
         sb_log("ERROR: module $name not found");
@@ -64,6 +65,17 @@ foreach (array('salisbergpay', 'salisbergguide') as $name) {
     }
 }
 
+// Settings added to Salisberg Pay in a later version (bank transfer) reach an existing install here
+$pay = Module::getInstanceByName('salisbergpay');
+if ($pay && Module::isInstalled('salisbergpay')) {
+    if ($pay->ensureSettings()) {
+        sb_log('payment settings in place');
+    } else {
+        sb_log('ERROR: payment settings could not be created');
+        $failed = true;
+    }
+}
+
 // Menu entries and the Hotel Staff and Hotel Manager profiles: created if missing, on every run
 $guide = Module::getInstanceByName('salisbergguide');
 if ($guide && Module::isInstalled('salisbergguide')) {
@@ -71,6 +83,17 @@ if ($guide && Module::isInstalled('salisbergguide')) {
         sb_log('guide menus, Hotel Staff and Hotel Manager profiles in place');
     } else {
         sb_log('ERROR: guide menus or staff profiles could not be created');
+        $failed = true;
+    }
+}
+
+// Bookings > Reports: after the profiles above exist, so the Hotel Manager can be given the page
+$reports = Module::getInstanceByName('salisbergreports');
+if ($reports && Module::isInstalled('salisbergreports')) {
+    if ($reports->ensureSetup()) {
+        sb_log('reports page in place');
+    } else {
+        sb_log('ERROR: reports page could not be created');
         $failed = true;
     }
 }
@@ -87,7 +110,7 @@ if ($idPay && $idGhana) {
 }
 
 // Switched off on every deploy:
-//  - bankwire, cheque: the hotel takes cash and Mobile Money only for now
+//  - bankwire, cheque: bank transfer is offered through Salisberg Pay, in the same way as Mobile Money
 //  - qlohotelreview: guest reviews are not in use; keeping it off also keeps its
 //    upload endpoint closed (CVE-2025-67325). Remove it from this list to use reviews.
 foreach (array('bankwire', 'cheque', 'qlohotelreview') as $name) {
@@ -116,6 +139,20 @@ if (!file_exists($testimonialsFlag)) {
         sb_log('ERROR: could not record that the testimonials block was hidden');
         $failed = true;
     }
+}
+
+// Friendly URLs: website links read example.com/room-name instead of
+// example.com/index.php?controller=product&id_product=12, with no .php in
+// sight. Back office links are unaffected (they always use index.php by
+// design). Only the database setting is set here, once; the .htaccess file
+// itself is regenerated on every start by docker/generate-htaccess.php,
+// because it lives in the code filesystem, not a persisted volume, and does
+// not survive a redeploy.
+if (!Configuration::get('PS_REWRITING_SETTINGS')) {
+    Configuration::updateValue('PS_REWRITING_SETTINGS', 1);
+    sb_log('Friendly URLs switched on');
+} else {
+    sb_log('Friendly URLs already on');
 }
 
 exit($failed ? 1 : 0);

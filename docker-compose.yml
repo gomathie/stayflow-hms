@@ -3,7 +3,11 @@
 # is picked up automatically and publishes the app on HTTP_PORT.
 services:
   db:
-    image: mysql:8.0
+    # The database version is a setting, not a code change, because moving to a
+    # newer one is one-way: once 8.4 has opened the data, 8.0 cannot read it
+    # again. Leave it unset until a backup has been restored successfully
+    # somewhere else, then set MYSQL_VERSION=8.4 (AGENTS.md, change log).
+    image: mysql:${MYSQL_VERSION:-8.0}
     restart: unless-stopped
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-mode=
     environment:
@@ -21,7 +25,10 @@ services:
       start_period: 30s
 
   app:
-    build: .
+    build:
+      context: .
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.3}
     restart: unless-stopped
     depends_on:
       db:
@@ -53,7 +60,10 @@ services:
   # Nightly encrypted database + settings backup into the db_backups volume.
   # Uses the app image, which already has the MySQL client and openssl.
   backup:
-    build: .
+    build:
+      context: .
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.3}
     restart: unless-stopped
     entrypoint: ["salisberg-backup"]
     healthcheck:

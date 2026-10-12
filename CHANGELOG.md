@@ -7,16 +7,42 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
+## 2026-10-12
+
+### Added
+
+- **Website footer: Location and Contact.** A new column next to Explore, Follow us on and Payment accepted, showing the hotel's address, phone and email: the same ones already shown on the Contact page.
+- **Six real room types from the hotel's first room list:** Standard Room 1-3, Deluxe Room 1-2, Executive Room 1, each with its own price, bed type and amenities. The three demo room types with matching names (General, Delux and Executive Rooms) were renamed and repriced into Standard Room 1, Deluxe Room 1 and Executive Room 1 instead of being left as stale extra entries.
+- **CSV Import now also accepts Excel (.xlsx) files.** Advanced Parameters › CSV Import: upload a spreadsheet saved as .xlsx directly, no need to export it to CSV first. Every sample file on that page now has a matching ".xlsx" download, and Room Types has an extra one already filled in with the hotel's six room types, ready to try.
+- **Friendly URLs.** Website links no longer show `index.php` or a `.php` extension: a room page reads `salisberg.com/salisberg-hotels/1-standard-room-1.html` instead of `salisberg.com/index.php?controller=product&id_product=1`. Old-style links still work. Kept switched on by the deploy, so turning it off by mistake in the back office is undone on the next deploy.
+
+### Changed
+
+- **Menu rename:** the back office sidebar section "Hotel Reservation System" is now "Manage Hotel". Its "Manage Hotel" sub-page (hotel address and details) is renamed to "Hotel Details" so the two no longer share a name.
+
+### Fixed
+
+- **CSV Import's sample-file downloads were all broken.** `.dockerignore` excluded the whole `docs/` folder, so every "Download sample csv files" link on that page returned 404 on a real deploy. Fixed by keeping `docs/csv_import/` while still dropping the unrelated vendor readmes and licence copies.
+
 ## 2026-10-07
 
 ### Added
 
+- **Bank transfer** as a third way to pay, alongside cash and Mobile Money. It appears to guests once the hotel's bank account is entered in Salisberg Pay settings; the booking waits as "Awaiting payment" until staff record the money.
+- **Printable reports** (Bookings › Reports): bookings, arrivals and departures, and income by day, for today, this week, this month, last month or any dates, on screen and as a PDF. Given to the Hotel Manager; other profiles can be given it in Permissions.
+- Three guides for whoever looks after the server: `COOLIFY.md` (putting the site live on Coolify), `COOLIFY-STAGING.md` (a private test copy, and how to fill it with a copy of the live data) and `BACKUP.md` (what is backed up, getting copies off the server, and rebuilding the site after a lost server).
+- A repeatable check, `docker/smoke-test.sh`, that confirms the main website and back office pages load without errors.
 - **Dark mode on the website.** A sun/moon switch in the header, on computers and phones. The site starts light; a visitor's choice is remembered on their device.
 - **What's New page** in the back office (Guides › What's New). Which profiles can open it is set in Administration › Permissions. Hotel Staff and Hotel Manager have it to begin with.
 - This file.
 
 ### Changed
 
+- **Stylesheets tidied.** Half of the `!important` flags are gone from the two Salisberg stylesheets (website 45 to 8, back office 64 to 4). Where a flag only existed to out-rank an inherited rule, the inherited rule was corrected instead (date picker, price slider, buttons in the cart drop-down and cart pop-up, extra-service buttons, checkout links, heading underline, empty lists, and the back office top bar, search box, panel headings, hint labels and typeface). A few things look different on purpose: in the back office, text typed into fields uses the same typeface as everything else, a few section headings are no longer in capitals, and a top bar item reached with the keyboard is highlighted the way it is under the mouse; on the website, an "Add" button for an extra service now turns gold when reached with the keyboard, like every other button, instead of bright green.
+- **Direction recorded:** Salisberg no longer follows QloApps releases. Inherited files are corrected where they are defined; upstream is watched for security fixes only (`AGENTS.md`, section 1 and rules 11, 18, 28).
+- **Bundled libraries updated** to the last release of the line each was on: jQuery 1.11.0 to 1.12.4, Bootstrap scripts 3.1.1 to 3.4.1 (back office), and the text editor TinyMCE 4.0.16 to 4.9.11. All three old versions dated from 2014 and had known security flaws.
+- **PHP 8.3** in place of 8.1, which no longer receives security fixes. The version is a build setting (`PHP_VERSION`), so going back is a setting change.
+- The MySQL version is now a setting (`MYSQL_VERSION`), so the move from 8.0 to 8.4 can be made deliberately, after a tested backup. It stays on 8.0 until that setting is changed.
 - The vendor's product name no longer appears in back office text; it reads "Salisberg" instead.
 - **Website footer:** "Payment accepted" shows Cash and Mobile Money badges in place of Visa, American Express, MasterCard and PayPal logos, which the hotel does not take. Home, Our Properties, Interior and Contact Us are listed under Explore, in two columns. The empty "Follow us on" column is hidden until social links are entered. The sample founding year "2010" is gone from the copyright line.
 - **Back office side menu:** sections now fold and unfold with a small arrow beside their name. The box of pages that popped out beside the menu on hover is gone.
@@ -31,6 +57,8 @@ Every change to Salisberg, newest first, in plain words.
 
 - Back office dark mode: every page under Guides showed light text on white cards and could not be read.
 - The back office side menu could not be scrolled when it was longer than the window; it now scrolls, with a thin scroll bar.
+- The Modules page kept offering an update for "Display Language and Currency Block" that did not exist; its version file was out of step with its code.
+- Stats: report tables ran off the right edge of the page; each now scrolls inside its own box.
 - Website dark mode: the breadcrumb, drop-down boxes, the date picker and parts of the checkout were still light or unreadable. Drop-down boxes also showed a broken arrow picture in light mode.
 - Dark mode: empty lists showed a white block, the search row under list headings was pale blue, and the lines between rows were bright white.
 

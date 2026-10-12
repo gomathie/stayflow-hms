@@ -16,7 +16,9 @@ BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
 CURRENCY_VERSION=2
 # Bump MODULES_VERSION whenever docker/setup-modules.php changes.
-MODULES_VERSION=9
+MODULES_VERSION=13
+# Bump ROOM_TYPES_VERSION whenever docker/setup-room-types.php changes.
+ROOM_TYPES_VERSION=1
 # Bump SCHEMA_VERSION when a schema/settings step below is added or changed.
 SCHEMA_VERSION=1
 
@@ -295,6 +297,27 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         else
             echo "WARNING: modules step failed; will retry on next start" >&2
         fi
+    fi
+
+    # The hotel's real room types. Renames the matching demo room types in
+    # place and adds the rest; each step is skipped once already applied, so
+    # edits made afterwards in the back office are kept (rule 22).
+    if [ -e "$SETTINGS" ] && [ "$(cat /data/.room-types-version 2>/dev/null)" != "$ROOM_TYPES_VERSION" ]; then
+        if su -s /bin/bash www-data -c "php /usr/local/share/salisberg/setup-room-types.php"; then
+            echo "$ROOM_TYPES_VERSION" > /data/.room-types-version
+            echo "Room types step v$ROOM_TYPES_VERSION done"
+        else
+            echo "WARNING: room types step failed; will retry on next start" >&2
+        fi
+    fi
+
+    # .htaccess lives in the code filesystem, not a persisted volume, so it
+    # does not survive a redeploy; unlike the steps above this runs on every
+    # start, not gated by a version marker (rule 22: Friendly URLs being
+    # already on in the database does not mean the file exists on THIS
+    # container's filesystem).
+    if [ -e "$SETTINGS" ]; then
+        su -s /bin/bash www-data -c "php /usr/local/share/salisberg/generate-htaccess.php" || echo "WARNING: .htaccess step failed; will retry on next start" >&2
     fi
 fi
 

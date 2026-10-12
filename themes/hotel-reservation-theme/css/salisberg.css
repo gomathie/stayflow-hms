@@ -99,10 +99,10 @@ header .header-top .header-top-link,
 header .header-top .header-top-link span,
 header .header-top .our_properties_link,
 header .header-top .shopping_cart > a:first-child {
-  color: var(--sb-heading) !important;
+  color: var(--sb-heading);
   font-weight: 600;
 }
-header .header-top .header-top-link:hover span { color: var(--sb-gold) !important; }
+header .header-top .header-top-link:hover span { color: var(--sb-gold); }
 
 header .header-top .shopping_cart > a:first-child:before { color: var(--sb-heading); }
 
@@ -302,9 +302,9 @@ header .header-top .ajax_cart_quantity {
 
 /* Amenities */
 #index .home_amenities_wrapper { height: auto !important; }
-#index .homeAmenitiesBlock { position: static; width: auto !important; }
+#index .homeAmenitiesBlock { position: static; width: auto; }
 #index .homeAmenitiesBlock > .row { display: flex; flex-wrap: wrap; }
-#index .homeAmenitiesBlock > .row > [class*="col-"] { padding: 12px !important; }
+#index .homeAmenitiesBlock > .row > [class*="col-"] { padding: 12px; }
 #index .amenity_content {
   display: flex;
   height: 100%;
@@ -437,7 +437,7 @@ header .header-top .ajax_cart_quantity {
 a.button.exclusive,
 button.button.exclusive {
   background: var(--sb-green);
-  border: 1px solid var(--sb-green) !important;
+  border: 1px solid var(--sb-green);
   border-radius: 10px;
   color: #fff;
   text-shadow: none;
@@ -447,9 +447,9 @@ button.button.exclusive {
 .btn.btn-default.button span,
 .btn.button span,
 .button.exclusive span {
-  background: transparent !important;
-  background-image: none !important;
-  border: 0 !important;
+  background: transparent;
+  background-image: none;
+  border: 0;
   color: inherit;
   text-shadow: none;
   font-weight: 600;
@@ -460,7 +460,7 @@ button.button.exclusive {
 a.button.exclusive:hover,
 button.button.exclusive:hover {
   background: var(--sb-gold);
-  border-color: var(--sb-gold) !important;
+  border-color: var(--sb-gold);
   color: #fff;
 }
 
@@ -468,7 +468,7 @@ button.button.exclusive:hover {
 .btn.btn-service-product.btn-success,
 #add_to_cart button.exclusive.book_now_submit {
   background: var(--sb-green);
-  border-color: var(--sb-green) !important;
+  border-color: var(--sb-green);
   border-radius: 10px;
   color: #fff;
   font-weight: 600;
@@ -479,27 +479,25 @@ button.button.exclusive:hover {
 .btn.btn-service-product.btn-success:hover,
 #add_to_cart button.exclusive.book_now_submit:hover {
   background: var(--sb-gold);
-  border-color: var(--sb-gold) !important;
+  border-color: var(--sb-gold);
   color: #fff;
 }
 .btn-default:not(.button) { border-radius: 10px; }
 
 /* Accents */
 .theme-text-underline,
-hr.theme-text-underline { border-color: var(--sb-gold) !important; }
+hr.theme-text-underline { border-color: var(--sb-gold); }
 .nav > li.active::after,
-.nav-tabs > li.active::after { background-color: var(--sb-gold) !important; }
+.nav-tabs > li.active::after { background-color: var(--sb-gold); }
 a.view_more,
 .rm_desc a,
 .num_reviews,
 .extra_demands_price_block,
 .add_new_occupancy_btn span,
-.add_new_occupancy_btn i::before { color: var(--sb-gold) !important; }
-.close_navbar { background-color: var(--sb-green) !important; }
+.add_new_occupancy_btn i::before { color: var(--sb-gold) !important; }   /* must also beat the broad dark-mode text rules */
+.close_navbar { background-color: var(--sb-green); }
 .layer_cart_product h2,
-.layer_cart_product h2 i::before { color: var(--sb-green-2) !important; }
-.ui-slider .ui-slider-range { background: var(--sb-gold) !important; }
-.ui-slider .ui-slider-handle { border-color: var(--sb-gold) !important; }
+.layer_cart_product h2 i::before { color: var(--sb-green-2); }
 
 .alert.alert-info {
   background: var(--sb-cream);
@@ -508,16 +506,6 @@ a.view_more,
   text-shadow: none;
 }
 .alert.alert-info::before { color: var(--sb-gold); }
-
-/* Date picker and occupancy pop-up */
-.date-picker-wrapper .day.toMonth.valid.checked,
-.date-picker-wrapper .day.first-date-selected,
-.date-picker-wrapper .day.last-date-selected {
-  background-color: var(--sb-green) !important;
-  color: #fff !important;
-}
-.date-picker-wrapper .day.toMonth.hovering { background-color: var(--sb-line) !important; }
-.date-picker-wrapper .day.real-today { background-color: var(--sb-cream) !important; }
 
 /* Headings */
 .page-heading,
@@ -543,7 +531,7 @@ a.view_more,
 /* Search results: side panel and list */
 #left_column .header-rmsearch-wrapper,
 #header > .header-rmsearch-wrapper {
-  background-color: var(--sb-green) !important;
+  background-color: var(--sb-green);
   border-radius: var(--sb-radius);
 }
 #category .room_cont {
@@ -630,6 +618,19 @@ input.account_input, input.is_required {
   border-color: var(--sb-gold);
 }
 .footer-container .btn.button.newsletter-btn:hover { background: var(--sb-gold-2); border-color: var(--sb-gold-2); }
+/* Location and Contact */
+.footer-container .sb-footer-contact {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.footer-container .sb-footer-contact li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-bottom: 14px;
+}
+.footer-container .sb-footer-contact i { margin-top: 3px; color: var(--sb-gold-2); }
 .copyRightWrapper {
   background: #081a15;
   border-top: 1px solid rgba(255, 255, 255, .06);
@@ -678,7 +679,7 @@ input.account_input, input.is_required {
   box-shadow: -20px 0 40px -20px rgba(0, 0, 0, .5);
 }
 #menu_cont .close_navbar {
-  background-color: transparent !important;
+  background-color: transparent;
   color: var(--sb-gold-2);
 }
 #menu_cont .wk-nav-style { border-bottom-color: rgba(255, 255, 255, .12); }
@@ -687,11 +688,6 @@ input.account_input, input.is_required {
   font-family: var(--sb-sans);
   font-size: 16px;
   border-radius: 8px;
-}
-#menu_cont .wk-nav-style > li > a:hover,
-#menu_cont .wk-nav-style > li > a:focus {
-  background: rgba(255, 255, 255, .08);
-  color: var(--sb-gold-2);
 }
 
 /* signed-in guest: name button with Accounts / Bookings / Logout */
@@ -732,8 +728,13 @@ header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600
 
 @media (max-width: 1199px) {
   #menu_cont .wk-nav-style > li,
-  #menu_cont .wk-nav-style > li > a { border-color: rgba(255, 255, 255, .1) !important; }
+  #menu_cont .wk-nav-style > li > a { border-color: rgba(255, 255, 255, .1); }
   #menu_cont .wk-nav-style > li + li { margin-top: 0; }
+  #menu_cont .wk-nav-style > li > a:hover,
+  #menu_cont .wk-nav-style > li > a:focus {
+    background: rgba(255, 255, 255, .08);
+    color: var(--sb-gold-2);
+  }
 }
 
 @media (min-width: 1200px) {
@@ -741,7 +742,7 @@ header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600
   header .header-top .header-top-menu { align-items: center; }
   header .header-top .nav_toggle,
   header .header-top .header-top-item:has(> .nav_toggle),
-  #menu_cont .close_navbar { display: none !important; }
+  #menu_cont .close_navbar { display: none; }
 
   #menu_cont,
   #menu_cont.menu_cont_right,
@@ -783,7 +784,7 @@ header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600
   #menu_cont .wk-nav-style > li > a {
     position: relative;
     padding: 10px 18px;
-    background: transparent !important;
+    background: transparent;
     color: var(--sb-heading);
     font-size: 13px;
     font-weight: 500;
@@ -821,14 +822,14 @@ header .header-top .ajax_cart_total { color: var(--sb-heading); font-weight: 600
   }
   header .header-top .header_user_info .header-top-link,
   header .header-top .header_user_info .header-top-link span,
-  header .header-top #user_info_acc .account_user_name { color: var(--sb-heading) !important; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
+  header .header-top #user_info_acc .account_user_name { color: var(--sb-heading); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
   header .header-top #user_info_acc .caret { border-top-color: var(--sb-green); }
   header .header-top .header_user_info .header-top-link:hover,
   header .header-top #user_info_acc:hover,
   header .header-top .dropdown.open #user_info_acc { background: var(--sb-green); border-color: var(--sb-green); }
   header .header-top .header_user_info .header-top-link:hover span,
   header .header-top #user_info_acc:hover .account_user_name,
-  header .header-top .dropdown.open #user_info_acc .account_user_name { color: #fff !important; }
+  header .header-top .dropdown.open #user_info_acc .account_user_name { color: #fff; }
   header .header-top #user_info_acc:hover .caret,
   header .header-top .dropdown.open #user_info_acc .caret { border-top-color: #fff; }
 }
@@ -880,6 +881,7 @@ textarea:focus {
 
 /* uniform.js wrappers around selects, checkboxes and radios */
 div.selector {
+  position: relative;
   height: 46px;
   border: 1px solid #cfc8b8;
   border-radius: 10px;
@@ -887,7 +889,6 @@ div.selector {
   overflow: hidden;
 }
 /* the stock picture of a box and arrow is replaced by a drawn arrow */
-div.selector { position: relative; }
 div.selector span { height: 44px; line-height: 44px; padding: 0 34px 0 14px; background: transparent none; color: var(--sb-ink); }
 div.selector::after { content: ""; position: absolute; top: 50%; right: 14px; width: 8px; height: 8px; margin-top: -6px; border-right: 2px solid var(--sb-muted); border-bottom: 2px solid var(--sb-muted); transform: rotate(45deg); pointer-events: none; }
 div.selector select { height: 46px; }
@@ -920,8 +921,8 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 #order-opc a.btn.btn-default.button,
 #order-opc button.btn.btn-default.button,
 #order-opc .btn.button.button-medium {
-  background-color: var(--sb-green) !important;
-  border: 1px solid var(--sb-green) !important;
+  background-color: var(--sb-green);
+  border: 1px solid var(--sb-green);
   border-radius: 10px;
   box-shadow: none;
   color: #fff;
@@ -930,8 +931,8 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 #order-opc .opc-btn-primary:hover,
 #order-opc a.btn.btn-default.button:hover,
 #order-opc button.btn.btn-default.button:hover {
-  background-color: var(--sb-gold) !important;
-  border-color: var(--sb-gold) !important;
+  background-color: var(--sb-gold);
+  border-color: var(--sb-gold);
 }
 #order-opc .opc-btn-default {
   border-color: var(--sb-green);
@@ -939,8 +940,8 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
   color: var(--sb-heading);
 }
 #order-opc .footer-container .btn.button.newsletter-btn {
-  background-color: var(--sb-gold) !important;
-  border-color: var(--sb-gold) !important;
+  background-color: var(--sb-gold);
+  border-color: var(--sb-gold);
 }
 #order-opc .cart_total_detail_block .cart_final_total_block > .cart_total_values { color: var(--sb-heading); font-weight: 700; }
 #order-opc .cart_total_detail_block .total_discount_block,
@@ -950,7 +951,7 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 #order-opc .step-edit > a,
 #order-opc .already_registered_block #openLoginFormBlock,
 #order-opc #login_form_content #idAccountChoice,
-#order-opc .avail_vouchers_block .avail_voucher_name > .voucher_name { color: var(--sb-gold) !important; }
+#order-opc .avail_vouchers_block .avail_voucher_name > .voucher_name { color: var(--sb-gold); }
 #order-opc .room_duration_block,
 #order-opc .product-detail .room_duration_block { background-color: var(--sb-cream); border-radius: 10px; }
 #order-opc .order_step_heading,
@@ -1085,9 +1086,9 @@ html[data-sb-theme="dark"] .dropdown-menu > li > a { color: var(--sb-ink); }
 html[data-sb-theme="dark"] .dropdown-menu > li > a:hover { background-color: var(--sb-cream); color: var(--sb-gold-2); }
 html[data-sb-theme="dark"] #bigpic,
 html[data-sb-theme="dark"] #thumbs_list a { background-color: transparent; }
-html[data-sb-theme="dark"] hr { border-color: var(--sb-line); }
+html[data-sb-theme="dark"] hr:not(:where(.theme-text-underline)) { border-color: var(--sb-line); }
 html[data-sb-theme="dark"] #columns div:not([class*="alert"]) { color: var(--sb-ink); }
-html[data-sb-theme="dark"] #columns .nav-tabs > li > a.idTabHrefShort { color: var(--sb-ink) !important; }
+html[data-sb-theme="dark"] #columns .nav-tabs > li > a.idTabHrefShort { color: var(--sb-ink); }
 /* search results: filter panel and room rows */
 html[data-sb-theme="dark"] .layered_filter_cont,
 html[data-sb-theme="dark"] #center_column .cat_cont,
@@ -1112,9 +1113,10 @@ html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.invali
 html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.lastMonth,
 html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.nextMonth { color: #55625c; }
 html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .day.checked { background-color: #1f3a31; }
+html[data-sb-theme="dark"] #columns .date-picker-wrapper .month-wrapper table .day.toMonth.valid.checked { color: #fff; }
 html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .caption th,
 html[data-sb-theme="dark"] .date-picker-wrapper .month-wrapper table .week-name th { color: var(--sb-muted); }
 /* checkout */
-html[data-sb-theme="dark"] #order-opc .product-name a { color: var(--sb-heading) !important; }
+html[data-sb-theme="dark"] #order-opc .product-name a { color: var(--sb-heading); }
 html[data-sb-theme="dark"] .room-type-features .room-type-feature,
 html[data-sb-theme="dark"] #order-opc .total_price_block { background-color: var(--sb-cream); border-color: var(--sb-line); color: var(--sb-ink); }

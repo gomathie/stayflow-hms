@@ -214,7 +214,7 @@
 
 			<div class="alert alert-warning">
 				<p>{l s='No active hotels available for booking.' mod='hotelreservationsystem'}</p>
-				<p>{l s='You can manage hotels from ' mod='hotelreservationsystem'} <a href="{$link->getAdminLink('AdminAddHotel')}">{l s='Hotel Reservation System > Manage Hotel' mod='hotelreservationsystem'}</a> {l s='page.' mod='hotelreservationsystem'}</p>
+				<p>{l s='You can manage hotels from ' mod='hotelreservationsystem'} <a href="{$link->getAdminLink('AdminAddHotel')}">{l s='Manage Hotel > Hotel Details' mod='hotelreservationsystem'}</a> {l s='page.' mod='hotelreservationsystem'}</p>
 			</div>
 		</div>
 	{/if}

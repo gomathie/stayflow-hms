@@ -314,23 +314,47 @@
 				<a class="list-group-item _blank" href="../docs/csv_import/hotels_import.csv">
 					{l s='Sample Hotels file'}
 				</a>
+				<a class="list-group-item _blank" href="../docs/csv_import/hotels_import.xlsx">
+					{l s='Sample Hotels file, simple (.xlsx)'}
+				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/room_types_import.csv">
 					{l s='Sample Room Types file'}
+				</a>
+				<a class="list-group-item _blank" href="../docs/csv_import/room_types_import_simple.xlsx">
+					{l s='Sample Room Types file, simple (.xlsx)'}
+				</a>
+				<a class="list-group-item _blank" href="../docs/csv_import/room_types_import_example_simple.xlsx">
+					{l s='Example: Salisberg Room Types, filled in, simple (.xlsx)'}
 				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/rooms_import.csv">
 					{l s='Sample Rooms file'}
 				</a>
+				<a class="list-group-item _blank" href="../docs/csv_import/rooms_import.xlsx">
+					{l s='Sample Rooms file (.xlsx)'}
+				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/service_products_import.csv">
 					{l s='Sample Service Products file'}
+				</a>
+				<a class="list-group-item _blank" href="../docs/csv_import/service_products_import.xlsx">
+					{l s='Sample Service Products file, simple (.xlsx)'}
 				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/categories_import.csv">
 					{l s='Sample Categories file'}
 				</a>
+				<a class="list-group-item _blank" href="../docs/csv_import/categories_import.xlsx">
+					{l s='Sample Categories file (.xlsx)'}
+				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/customers_import.csv">
 					{l s='Sample Customers file'}
 				</a>
+				<a class="list-group-item _blank" href="../docs/csv_import/customers_import.xlsx">
+					{l s='Sample Customers file, simple (.xlsx)'}
+				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/bookings_import.csv">
 					{l s='Sample Bookings file'}
+				</a>
+				<a class="list-group-item _blank" href="../docs/csv_import/bookings_import.xlsx">
+					{l s='Sample Bookings file (.xlsx)'}
 				</a>
 				{if $PS_ADVANCED_STOCK_MANAGEMENT}
 				<a class="list-group-item _blank" href="../docs/csv_import/supply_orders_import.csv">

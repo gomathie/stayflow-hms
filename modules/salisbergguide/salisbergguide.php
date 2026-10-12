@@ -72,6 +72,7 @@ class Salisbergguide extends Module
         // bookings and money
         'AdminHotelRoomsBooking' => array(1, 1, 1, 1),
         'AdminOrders' => array(1, 1, 1, 1),
+        'AdminSalisbergReports' => array(1, 0, 0, 0),
         'AdminInvoices' => array(1, 1, 1, 0),
         'AdminSlip' => array(1, 1, 1, 0),
         'AdminOrderMessage' => array(1, 1, 1, 1),
@@ -120,6 +121,8 @@ class Salisbergguide extends Module
     protected $menuLabels = array(
         'AdminParentOrders' => array('Orders', 'Bookings'),
         'AdminOrders' => array('Orders', 'Bookings'),
+        'AdminHotelReservationSystemManagement' => array('Hotel Reservation System', 'Manage Hotel'),
+        'AdminAddHotel' => array('Manage Hotel', 'Hotel Details'),
     );
 
     /** The vendor's own store pages, kept out of the menu: class names */
@@ -165,6 +168,7 @@ class Salisbergguide extends Module
             && $this->renameMenuEntries()
             && $this->hideVendorMenus()
             && $this->registerHook('header')
+            && $this->registerHook('footer')
             && $this->registerHook('actionAdminControllerSetMedia')
             && $this->registerHook('actionAdminLoginControllerSetMedia');
     }
@@ -227,6 +231,30 @@ class Salisbergguide extends Module
     public function hookHeader()
     {
         $this->addInterfaceAssets();
+    }
+
+    /**
+     * Website footer: a "Location and Contact" column, next to Explore,
+     * Follow us on and Payment accepted. Uses the same address, phone and
+     * email already shown on the Contact page (Shop::getAddress(),
+     * PS_SHOP_PHONE, PS_SHOP_EMAIL), so there is one place to update them
+     * (Preferences > General / Shop Parameters) and both pages agree.
+     */
+    public function hookFooter()
+    {
+        $address = (new Shop())->getAddress();
+        $formattedAddress = '';
+        if ($address instanceof Address) {
+            $formattedAddress = trim(AddressFormat::generateAddress($address, array(), ', ', ' '));
+        }
+
+        $this->smarty->assign(array(
+            'sbFooterAddress' => $formattedAddress,
+            'sbFooterPhone' => Configuration::get('PS_SHOP_PHONE'),
+            'sbFooterEmail' => Configuration::get('PS_SHOP_EMAIL'),
+        ));
+
+        return $this->display(__FILE__, 'footer_location.tpl');
     }
 
     public function hookActionAdminControllerSetMedia()
@@ -430,6 +458,7 @@ class Salisbergguide extends Module
             'AdminPreferences', 'AdminThemes', 'AdminMeta', 'AdminCmsContent', 'AdminMaintenance', 'AdminEmails',
             'AdminBackup', 'AdminInformation', 'AdminEmployees', 'AdminProfiles', 'AdminAccess', 'AdminContacts', 'AdminStats',
             'AdminSalisbergGuide', 'AdminSalisbergStaffGuide', 'AdminSalisbergAdminGuide', 'AdminSalisbergWhatsNew',
+            'AdminSalisbergReports',
         );
         $links = array();
         foreach ($pages as $page) {
