@@ -92,7 +92,7 @@
 		<h3>3. {l s='Room types and rooms' mod='salisbergguide'}</h3>
 		<p>{l s='A room type is what guests choose on the website (for example Deluxe Room). Each type contains the actual numbered rooms.' mod='salisbergguide'}</p>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Catalog &rsaquo; Manage Room Types</span>. {l s='Click a type to edit it, or Add new.' mod='salisbergguide'}</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Rooms &amp; Services &rsaquo; Manage Room Types</span>. {l s='Click a type to edit it, or Add new.' mod='salisbergguide'}</li>
 			<li>{l s='Fill in the tabs:' mod='salisbergguide'}
 				<ul>
 					<li><strong>Information</strong> &ndash; {l s='name, hotel, descriptions, and whether it is shown on the website.' mod='salisbergguide'}</li>
@@ -126,7 +126,7 @@
 	<section id="sb-a5">
 		<h3>5. {l s='Extra services' mod='salisbergguide'}</h3>
 		<ul>
-			<li><strong>{l s='Paid extras' mod='salisbergguide'}</strong> {l s='such as breakfast, dinner or airport transfer:' mod='salisbergguide'} <span class="sb-path">Catalog &rsaquo; Manage Service Products</span>.</li>
+			<li><strong>{l s='Paid extras' mod='salisbergguide'}</strong> {l s='such as breakfast, dinner or airport transfer:' mod='salisbergguide'} <span class="sb-path">Rooms &amp; Services &rsaquo; Manage Service Products</span>.</li>
 			<li><strong>{l s='Room add-ons' mod='salisbergguide'}</strong> {l s='such as an extra bed:' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; Additional Facilities</span>.</li>
 		</ul>
 		<p>{l s='Attach them to room types in that type\'s Service Products and Additional Facilities tabs.' mod='salisbergguide'}</p>

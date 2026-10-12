@@ -19,11 +19,13 @@ Every change to Salisberg, newest first, in plain words.
 ### Changed
 
 - **Menu rename:** the back office sidebar section "Hotel Reservation System" is now "Manage Hotel". Its "Manage Hotel" sub-page (hotel address and details) is renamed to "Hotel Details" so the two no longer share a name.
+- **Menu rename:** "Catalog" is now "Rooms & Services", which is what it actually holds (room types, service products, categories, features, bed types).
 - **Admin Guide warning added:** a new room type with no rooms entered in its Rooms tab can still be found, added to cart and taken through to a confirmation page by a guest, but the booking is not properly recorded and will not appear under Bookings. The guide now says, clearly, to add at least one room number before switching a new room type on.
 
 ### Fixed
 
 - **CSV Import's sample-file downloads were all broken.** `.dockerignore` excluded the whole `docs/` folder, so every "Download sample csv files" link on that page returned 404 on a real deploy. Fixed by keeping `docs/csv_import/` while still dropping the unrelated vendor readmes and licence copies.
+- **Hotel Staff and Hotel Manager could make a booking but never see it again, and the dashboard showed no revenue or check-ins/outs for either role.** QloApps has a second permission layer, separate from the usual Permissions grid, that grants or refuses each profile access to each hotel; it was never granted to either role, so it silently defaulted to no access. Bookings, the booking they had just taken, and every hotel-scoped dashboard and stats widget all rendered empty or refused for exactly this reason. Now granted automatically on deploy.
 
 ## 2026-10-07
 
