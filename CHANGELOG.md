@@ -12,10 +12,17 @@ Every change to Salisberg, newest first, in plain words.
 ### Added
 
 - **Website footer: Location and Contact.** A new column next to Explore, Follow us on and Payment accepted, showing the hotel's address, phone and email: the same ones already shown on the Contact page.
+- **Six real room types from the hotel's first room list:** Standard Room 1-3, Deluxe Room 1-2, Executive Room 1, each with its own price, bed type and amenities. The three demo room types with matching names (General, Delux and Executive Rooms) were renamed and repriced into Standard Room 1, Deluxe Room 1 and Executive Room 1 instead of being left as stale extra entries.
+- **CSV Import now also accepts Excel (.xlsx) files.** Advanced Parameters › CSV Import: upload a spreadsheet saved as .xlsx directly, no need to export it to CSV first. Every sample file on that page now has a matching ".xlsx" download, and Room Types has an extra one already filled in with the hotel's six room types, ready to try.
+- **Friendly URLs.** Website links no longer show `index.php` or a `.php` extension: a room page reads `salisberg.com/salisberg-hotels/1-standard-room-1.html` instead of `salisberg.com/index.php?controller=product&id_product=1`. Old-style links still work. Kept switched on by the deploy, so turning it off by mistake in the back office is undone on the next deploy.
 
 ### Changed
 
 - **Menu rename:** the back office sidebar section "Hotel Reservation System" is now "Manage Hotel". Its "Manage Hotel" sub-page (hotel address and details) is renamed to "Hotel Details" so the two no longer share a name.
+
+### Fixed
+
+- **CSV Import's sample-file downloads were all broken.** `.dockerignore` excluded the whole `docs/` folder, so every "Download sample csv files" link on that page returned 404 on a real deploy. Fixed by keeping `docs/csv_import/` while still dropping the unrelated vendor readmes and licence copies.
 
 ## 2026-10-07
 
