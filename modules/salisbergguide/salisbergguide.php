@@ -123,6 +123,7 @@ class Salisbergguide extends Module
         'AdminOrders' => array('Orders', 'Bookings'),
         'AdminHotelReservationSystemManagement' => array('Hotel Reservation System', 'Manage Hotel'),
         'AdminAddHotel' => array('Manage Hotel', 'Hotel Details'),
+        'AdminCatalog' => array('Catalog', 'Rooms & Services'),
     );
 
     /** The vendor's own store pages, kept out of the menu: class names */
@@ -165,12 +166,75 @@ class Salisbergguide extends Module
             && $this->installProfile(self::STAFF_PROFILE, self::$staffAccess)
             && $this->installProfile(self::MANAGER_PROFILE, self::$managerAccess)
             && (!$whatsNewIsNew || $this->grantWhatsNew())
+            && $this->grantHotelAccess()
             && $this->renameMenuEntries()
             && $this->hideVendorMenus()
             && $this->registerHook('header')
             && $this->registerHook('footer')
             && $this->registerHook('actionAdminControllerSetMedia')
             && $this->registerHook('actionAdminLoginControllerSetMedia');
+    }
+
+    /**
+     * QloApps has a second, separate permission layer on top of the normal
+     * Administration > Permissions grid: a per-hotel "Hotel Permissions"
+     * table on the same page (class AdminAccessController, table
+     * htl_access), defaulting to no access for every profile it creates
+     * except SuperAdmin. Without this, Hotel Staff and Hotel Manager can
+     * still search, add to cart and create a booking (none of that checks
+     * htl_access), but are refused when the system tries to show them
+     * anything hotel-scoped afterward: the booking they just made ("You do
+     * not have permission to view this."), and every hotel-scoped dashboard
+     * and stats widget (revenue, occupancy, check-ins/outs), which simply
+     * render empty rather than erroring. Found and fixed 2026-10-12 after a
+     * live report of exactly this. Run on every deploy, not guarded, because
+     * access being off for either role on the hotel this project runs is
+     * never a deliberate choice (there is one hotel, and both roles work
+     * inside it by design) — unlike $staffAccess/$managerAccess, which are
+     * deliberately never reset once an admin has adjusted them by hand.
+     */
+    protected function grantHotelAccess()
+    {
+        $idStaff = (int) $this->getProfileId(self::STAFF_PROFILE);
+        $idManager = (int) $this->getProfileId(self::MANAGER_PROFILE);
+        $hotelIds = array_column(
+            Db::getInstance()->executeS('SELECT `id` FROM `'._DB_PREFIX_.'htl_branch_info` WHERE `active` = 1'),
+            'id'
+        );
+
+        $changed = 0;
+        foreach (array($idStaff, $idManager) as $idProfile) {
+            if (!$idProfile) {
+                continue;
+            }
+            foreach ($hotelIds as $idHotel) {
+                $current = Db::getInstance()->getValue(
+                    'SELECT `access` FROM `'._DB_PREFIX_.'htl_access`
+                    WHERE `id_profile` = '.(int) $idProfile.' AND `id_hotel` = '.(int) $idHotel
+                );
+                if ($current === false) {
+                    Db::getInstance()->insert('htl_access', array(
+                        'id_profile' => (int) $idProfile,
+                        'id_hotel' => (int) $idHotel,
+                        'access' => 1,
+                    ));
+                    ++$changed;
+                } elseif (!$current) {
+                    Db::getInstance()->update(
+                        'htl_access',
+                        array('access' => 1),
+                        'id_profile = '.(int) $idProfile.' AND id_hotel = '.(int) $idHotel
+                    );
+                    ++$changed;
+                }
+            }
+        }
+
+        if ($changed) {
+            PrestaShopLogger::addLog("salisbergguide: granted hotel access to $changed profile/hotel row(s) for Hotel Staff/Hotel Manager", 1);
+        }
+
+        return true;
     }
 
     protected function renameMenuEntries()

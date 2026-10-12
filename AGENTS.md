@@ -1445,3 +1445,76 @@ The edits were made by a small script that names each rule by its selector and o
 - **Lesson:** a deploy step that writes to the filesystem (not the database) cannot share a run-once-per-version gate with database steps, even when they are triggered by the same feature and even when the first test — a single rebuild-and-recreate — looked completely clean. The project's `AGENTS.md` rule 7 ("the entrypoint must stay idempotent... safe to repeat") was followed for each step individually; the bug was in assuming "ran once, version marker set" was equivalent to "the file is now on disk," which is only true for state that lives in a persisted volume.
 - **Verification:** rebuilt and recreated once (clean, 29 of 29, `.htaccess` present), then force-recreated the *same* image a second time with no rebuild in between — the exact sequence that triggered the bug. `.htaccess` was present both times; the entrypoint log on the second recreation showed only `[generate-htaccess] .htaccess written (Friendly URLs)`, with no `Modules step`/`Room types step` lines, confirming the database-gated steps correctly stayed skipped while the filesystem step correctly ran anyway. `docker/smoke-test.sh`: 29 of 29 on both recreations.
 - **Not tested:** the live server; CMS pages other than Contact Us; search-engine indexing of the new URLs (no canonical/redirect strategy was reviewed for already-indexed `index.php?...` links, since the site has not been live/indexed yet).
+
+### 2026-10-12 — Live incident: a booking vanished; traced to a room type with no rooms; Admin Guide now warns about it
+
+**What happened**
+
+- The owner reported, on the live site: a guest completed checkout and reached a confirmation page, but the booking is nowhere in Bookings, and every room shows as available regardless. The room type involved was "Standard Room" (GH₵500), created directly in the live back office by a Hotel Staff employee who had been given elevated Products permissions for the purpose (confirmed intentional, not a permissions bug — `AdminProducts` has been view-only for `$staffAccess` since the Hotel Staff profile was first introduced; a grant made by hand in Permissions is never reset by a deploy, by design, so it is expected to persist).
+- Production was found to be three commits behind `develop` at the time (none of this session's room-type, Friendly URL or CSV/Excel import work had reached it), so the live "Standard Room" is unrelated to the six room types added earlier in this file's 2026-10-12 entries; it is a separate, real room type the owner's team created on the live site.
+- Checked via `WebFetch` against `https://salisberg.com` (read-only; no production data was changed): the homepage listed Delux Rooms, Executive Rooms, Standard Room and Luxury Rooms, with Standard Room's price (GH₵500) matching nothing in this repository's history — confirming it genuinely was created independently on the live site, not by any commit here.
+
+**Root cause, traced through the code (not the live database, which was not accessible)**
+
+- `modules/hotelreservationsystem/classes/HotelRoomInformation.php`'s `getRoomTypeAvailableRoomsForDateRange()` computes availability as "all rows in `htl_room_information` for this room type, minus the ones with a conflicting row in `htl_booking_detail`." A room type with zero rows in `htl_room_information` — because nobody used its "Rooms" tab to add individual room numbers after creating it — returns an empty set from that query every time, for every date range, which is indistinguishable at that layer from "every room is booked." The storefront listing itself does not appear to gate on this count before showing a room type as bookable; it was reproduced locally (see the 2026-10-12 room-types entries above) that a product with no `htl_room_information` rows still renders a working product page.
+- `HotelCartBookingData::updateCartBooking()` does guard the final add-to-cart step on `$totalAvailableRooms >= $roomsRequired`, which should refuse a room type with zero rooms. The owner's account confirms the guest nonetheless reached a confirmation page, so either that guard did not fire on the specific code path exercised, or the failure is further down the booking/order-validation flow; this was not pinned down exactly, because there is no shell or database access to the production server from this environment, and the exact live request could not be replayed.
+- This was **not fixed in code** this session: the mechanism is understood well enough to document and warn about, not well enough to safely patch blind, and production is still three commits behind `develop` with no deploy requested.
+
+**Fix applied: guide warning, not a deploy**
+
+- `modules/salisbergguide/views/templates/admin/admin_guide.tpl`, section 3 ("Room types and rooms"): a new `sb-warn` paragraph, right after the existing "Save" step, states plainly that a room type with nothing in its Rooms tab can still be found, added to cart and taken to a confirmation page by a guest, but the booking will not be recorded, and to always add at least one real room number before switching a new room type on.
+- `CHANGELOG.md` and the What's New page (manager section, 12 October 2026) updated to match.
+- No change was made to `$staffAccess`, Permissions, or any booking/availability code. The owner was advised that Hotel Staff being able to add room types, when given the right by hand in Permissions, is working as intended, not a bug to close.
+
+**Why this stayed as a guide fix and not a code patch**
+
+- Fixing the underlying gap properly — refusing to show a room type as bookable at all until it has at least one room, or blocking checkout earlier with a clear message — is real behaviour change to vendor booking code (`hotelreservationsystem`), which under rule 11 belongs in `override/` or a module, done deliberately and tested end to end, not guessed at without being able to see the actual failing request on the live server. It is a good candidate for a follow-up change once there is a way to reproduce it (for example, creating a fresh empty room type on the local stack and deliberately walking it through checkout) rather than reasoning from code alone.
+
+**Verification**
+
+- Confirmed via `git log -p` that `AdminProducts` has only ever been `array(1, 0, 0, 0)` (view-only) in `$staffAccess`, in every commit since the Hotel Staff profile was introduced — ruling out a regression in this repository's code as the cause of staff being able to add a room type (the access was granted by hand in Permissions, which is expected to be possible and to persist).
+- The two guide/changelog files were copied into the running local container and reloaded as a signed-in SuperAdmin: the Admin Guide's section 3 shows the new warning and the What's New page shows the new manager-facing line, both with no PHP or Smarty errors.
+- **Not tested:** reproducing the exact failure (an empty room type reaching a confirmation page) on the local stack; the live server, which was only read via `WebFetch`, never modified; whether the guard in `updateCartBooking()` is actually what's being bypassed, versus a different step in checkout.
+- **Still needed from the owner:** add at least one room number under Standard Room's Rooms tab (Rooms & Services › Manage Room Types › Standard Room › Rooms); worth checking Delux Rooms, Executive Rooms and Luxury Rooms have real rooms too, since they were edited independently of this repository and their state on the live server is not known from here.
+
+### 2026-10-12 — The real cause of "staff can't see their own bookings": a second, undocumented permission layer
+
+**What the owner reported, in order**
+
+1. A guest booking "doesn't appear" and all rooms show available (the entry above — traced to Standard Room having no rooms in its Rooms tab).
+2. "We tried to book with admin and it works fine. We gave the staff rights and still cannot book. The staff clicks book now but the booking doesn't register. It still remains in the cart." All of this in the **back office** Book Now page, not the website.
+3. "No showing on the dashboard. No revenue data. No check-ins and out showing."
+
+Reports 2 and 3 turned out to share one cause, found by reproducing the exact flow locally rather than reasoning from code alone.
+
+**Reproduced locally, step by step, as both roles**
+
+- Created a throwaway Hotel Staff employee (`staff.test@example.com`) and used `curl` to drive the *exact* back office flow as both that account and the SuperAdmin account: `ajaxProcessAddDataToCart` (Book Now's "add room to cart"), then `submitAddOrder` (the "create order" submit on `AdminOrders&addorder`), reading the real JSON/HTML responses and the database after each step — not guessing from the source.
+- **Add to cart:** succeeded for both roles identically (`{"success":true,...}`), and a row appeared in `htl_cart_booking_data` for both. Staff's default permissions (`$staffAccess`, unchanged since this profile was introduced) were sufficient for this step.
+- **Create order:** also succeeded for both roles — an `qlo_orders` row and a matching `htl_booking_detail` row were created correctly for staff's booking (order reference, correct customer, correct total, state "Payment accepted", `valid=1`). The booking **was** being recorded.
+- **What staff actually saw:** `submitAddOrder` redirects to `...&id_order=N&vieworder&conf=3` to show the new order. For staff, that redirect landed on a page titled just "Bookings" with the error "You do not have permission to view this." — even though `AdminOrders` view access is granted in `$staffAccess`. From the owner's or a staff member's point of view this looks exactly like "the booking didn't register" and "it still remains in the cart": nothing confirms success, and clicking back shows the same cart.
+
+**Root cause: `qlo_htl_access`, a permission layer this project never touched**
+
+- QloApps has a *second* access-control table, separate from PrestaShop's own tab-based Permissions grid (the one `$staffAccess`/`$managerAccess` configure): `htl_access` (`id_profile`, `id_hotel`, `access`), consumed by `getProfileAccessedHotels()` in `HotelBranchInformation.php` and checked directly in `AdminOrdersController`, `AdminDashboardController`, `AdminProductsController`, `AdminCartsController`, `AdminStatsController`, `dashinsights`, `statssales` and several other controllers — every one of them silently filtering out, or outright refusing, anything tied to a hotel the signed-in employee's profile isn't granted. It is managed from a "Hotel Permissions" panel that appears on the **same** Administration › Permissions page as the normal grid, once a profile is selected, easy to miss because it looks like a second, unrelated panel rather than part of the same screen.
+- `SELECT * FROM qlo_htl_access` locally showed exactly the bug: `(SuperAdmin, hotel 1, access=1)`, `(Hotel Staff, hotel 1, access=0)`, `(Hotel Manager, hotel 1, access=0)`. These rows are created automatically by the vendor's own profile-creation code with `access=0` by default; nothing in this project's setup (`installProfile()`, `ensureSetup()`) ever touched them, because this layer was never discovered when the Hotel Staff and Hotel Manager roles were first built (2026-10-06). **Hotel Manager was affected too**, not just Hotel Staff — the owner had not yet tested booking visibility or the dashboard as a manager, so this had not surfaced for that role yet.
+- This single gap explains report 2 (booking created, then refused on view) and report 3 in full: the dashboard's revenue, occupancy and check-in/out widgets all scope their SQL to `getProfileAccessedHotels()`'s result, which is empty for both roles, so they render with no data and no error — indistinguishable, from the screen, from "nothing has been booked."
+
+**Fix**
+
+- `modules/salisbergguide/salisbergguide.php`: new method `grantHotelAccess()`, called from `ensureSetup()` (so it runs on every deploy, like the rest of that method). For Hotel Staff and Hotel Manager, for every currently active hotel, it sets `access = 1` in `htl_access` if the row is missing or still 0; it only ever raises 0 to 1, never touches a row already at 1, and is not gated by a "ran once" flag the way `$staffAccess`/`$managerAccess` deliberately are — because, unlike a tab permission an admin might deliberately narrow, "this role cannot see the one hotel this project runs" is never a correct state to leave standing, and the method already only acts on rows that are still at the broken default.
+- `MODULES_VERSION` bumped to 14 so this reaches the live database on the next deploy without any other action.
+
+**Verification (local, running stack)**
+
+- Reset `htl_access` to `0` for both roles by hand, deployed the fix, ran `setup-modules.php`: both rows flipped to `1`, logged `salisbergguide: granted hotel access to 2 profile/hotel row(s)...` (PrestaShop Logs, severity 1). Ran it again immediately after: no change, no log line — idempotent.
+- Re-ran the exact `vieworder` request for the order staff had created earlier in this session, with no other change: before, "You do not have permission to view this."; after, the real "Bookings > View" page. Same isolated A/B result for loading the dashboard as staff (200, no errors; full data verification through the dashboard's own AJAX widgets was not done — see below).
+- `docker/smoke-test.sh`: 29 of 29.
+- **Not tested:** the dashboard's actual revenue/occupancy/check-in figures before and after (only that the page loads without error in both states) — the widgets fetch their numbers through further AJAX calls this session did not individually replay; `AdminCarts`, `AdminStatsController` and the other controllers in the "uses htl_access" list, beyond Orders and Dashboard; a second hotel (this fix reads "every active hotel" and should extend correctly, but there is only one hotel to test against); the live server.
+- **Still needed on the live server:** this fix is on `develop`, not yet deployed (see the branch-state note elsewhere in this file). Until it is deployed, the owner can unblock staff and manager accounts immediately, with no deploy needed, from **Administration › Permissions**: select the Hotel Staff (then Hotel Manager) tab, find the **Hotel Permissions** panel, and tick the hotel there.
+
+### 2026-10-12 — "Catalog" renamed "Rooms & Services"
+
+- The sidebar section "Catalog" (Manage Room Types, Manage Service Products, Categories, Features, Bed Types) is now "Rooms & Services" — e-commerce terminology replaced with what the section actually is, matching the direction already applied to "Orders" → "Bookings" and "Hotel Reservation System" → "Manage Hotel".
+- Added to the same `$menuLabels` mechanism (rule 25/26) in `modules/salisbergguide/salisbergguide.php`; `MODULES_VERSION` stayed at 14 (bundled with the `htl_access` fix above, both deployed by the same version bump). Admin Guide's two `Catalog ›` paths (section 3, section on paid extras) updated to match; What's New given a line.
+- **Verification:** ran `setup-modules.php` locally, confirmed `qlo_tab_lang` for `AdminCatalog` reads "Rooms & Services"; Admin Guide page reloaded with the new path text and no errors; `docker/smoke-test.sh` 29 of 29.
