@@ -22,11 +22,21 @@
 		<h3>{l s='12 October 2026' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='Manage Hotel menu.' mod='salisbergguide'}</strong> {l s='The Hotel Reservation System section of the menu is now called Manage Hotel.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Room types updated.' mod='salisbergguide'}</strong> {l s='The hotel now has six real room types to book: Standard Room 1, 2 and 3, Deluxe Room 1 and 2, and Executive Room 1, each with its own price, bed and amenities.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Cleaner website links.' mod='salisbergguide'}</strong> {l s='A room page now reads salisberg.com/salisberg-hotels/1-standard-room-1.html instead of a long address with index.php in it. Older links still work.' mod='salisbergguide'}</li>
 		</ul>
 		{if $sb_can_read_admin_guide}
 		<h4>{l s='For the hotel manager' mod='salisbergguide'}</h4>
 		<ul>
 			<li>{l s='Inside Manage Hotel, the page where the hotel address and details are edited is now called Hotel Details (it used to share the Manage Hotel name).' mod='salisbergguide'}</li>
+			<li><strong>{l s='Website footer.' mod='salisbergguide'}</strong> {l s='A new Location and Contact column shows the address, phone and email already shown on the Contact page.' mod='salisbergguide'}</li>
+		</ul>
+		{/if}
+		{if $sb_is_admin}
+		<h4>{l s='For the developer team' mod='salisbergguide'}</h4>
+		<ul>
+			<li>{l s='CSV Import now also accepts .xlsx files, converted to CSV right after upload (no change to the import logic itself). Every sample file has a matching .xlsx download, and Room Types has an extra example already filled in with the hotel data. See the Admin Guide, section 16.' mod='salisbergguide'}</li>
+			<li>{l s='Fixed: the sample-file downloads on the CSV Import page were all returning 404 on a real deploy, because .dockerignore excluded the whole docs folder.' mod='salisbergguide'}</li>
 		</ul>
 		{/if}
 	</section>

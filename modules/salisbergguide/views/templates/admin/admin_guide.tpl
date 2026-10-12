@@ -187,6 +187,7 @@
 			<tr><td>{l s='Pages such as About Us, Terms, Legal Notice' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; CMS</span></td></tr>
 			{if $sb_is_admin}
 			<tr><td>{l s='Page titles and descriptions for search engines' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; SEO &amp; URLs</span></td></tr>
+			<tr><td>{l s='Friendly URL (website links read salisberg.com/room-name instead of salisberg.com/index.php?...)' mod='salisbergguide'}</td><td>{l s='Switched on and kept on by the deploy. Leave Friendly URL set to Yes here; turning it off is undone on the next deploy.' mod='salisbergguide'}</td></tr>
 			{/if}
 			<tr><td>{l s='Who receives messages from the Contact form' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Contacts</span></td></tr>
 			<tr><td>{l s='Whether guests can attach a file to a Contact form message (switched off: the form takes messages only)' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Customer Service</span>, {l s='Contact options, Allow file uploading' mod='salisbergguide'}</td></tr>
@@ -321,7 +322,7 @@
 			<tr><td><span class="sb-path">Configuration Information</span></td><td>{l s='A read-only summary of the server, database, website and mail setup, plus two checks.' mod='salisbergguide'}</td><td>{l s='Look here first when something is wrong, and copy it into any problem report. See below.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Performance</span></td><td>{l s='How pages are prepared and cached.' mod='salisbergguide'}</td><td>{l s='If a page looks out of date or broken after a change, click Clear cache at the top right. Leave the other settings as described below.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">E-mail</span></td><td>{l s='How the site sends email.' mod='salisbergguide'}</td><td>{l s='See section 10.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">CSV Import</span></td><td>{l s='Loads many records at once from a spreadsheet file: Hotels, Room Types, Rooms, Categories, Service Products, Bookings or Customers.' mod='salisbergguide'}</td><td>{l s='Useful when moving from another system. See below before using it.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">CSV Import</span></td><td>{l s='Loads many records at once from a spreadsheet file: Hotels, Room Types, Rooms, Categories, Service Products, Bookings or Customers. Accepts a .csv or an Excel .xlsx file.' mod='salisbergguide'}</td><td>{l s='Useful when moving from another system. See below before using it.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">DB Backup</span></td><td>{l s='Makes a copy of the database by hand.' mod='salisbergguide'}</td><td>{l s='See section 12. The nightly automatic backup is the one to rely on.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">SQL Manager</span></td><td>{l s='Saved database questions whose answers can be exported to a spreadsheet, for reports the other pages do not offer.' mod='salisbergguide'}</td><td>{l s='Click Add new SQL query, give it a name and the query, and Save. Only SELECT queries are accepted, so nothing can be changed or deleted from here.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Logs</span></td><td>{l s='A record of back office sign-ins and of errors, with a severity from 1 (informative) to 4 (major issue).' mod='salisbergguide'}</td><td>{l s='Check it when a sign-in looks suspicious or something failed. Logs by email at the bottom can send serious entries to the shop email.' mod='salisbergguide'}</td></tr>
@@ -351,6 +352,8 @@
 			<li>{l s='Choose what to import, then download the matching file under Download sample csv files and fill it in the same layout. The Available fields box lists every column; those marked * are required.' mod='salisbergguide'}</li>
 			<li>{l s='Upload the file, match the columns on the next screen, and import a file with two or three rows first to check the result before loading the rest.' mod='salisbergguide'}</li>
 		</ol>
+		<p class="sb-tip">{l s='The file can be a .csv or an ordinary Excel .xlsx file (not the old .xls format): save the spreadsheet as .xlsx and upload it directly, no need to export to CSV first.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='The ".xlsx" sample downloads only have the columns a non-technical user is likely to fill in by hand (name, price, beds, description and similar). Columns left out, such as the web address, search-engine text and tax rule, are filled in by the system from the name and the shop defaults. The full .csv files still have every column, for anyone who wants to set those by hand.' mod='salisbergguide'}</p>
 		<p class="sb-warn">{l s='Importing with the same ID as an existing record replaces that record. Leave the ID column empty to add new ones.' mod='salisbergguide'}</p>
 
 		<h4>{l s='Webservice' mod='salisbergguide'}</h4>

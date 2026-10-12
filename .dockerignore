@@ -5,7 +5,12 @@
 !.env.example
 Dockerfile
 .dockerignore
-docs
+# Keep docs/csv_import/: the back office's CSV Import page links straight to
+# it ("Download sample csv files"); only the vendor readmes and licence
+# copies are dropped (AGENTS.md, 2026-10-12).
+docs/CHANGELOG.txt
+docs/readme_*.txt
+docs/licences
 *.md
 cache/smarty/cache/*
 cache/smarty/compile/*
@@ -17,3 +22,4 @@ log/*
 !log/index.php
 node_modules
 audit
+~$*

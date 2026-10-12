@@ -618,6 +618,19 @@ input.account_input, input.is_required {
   border-color: var(--sb-gold);
 }
 .footer-container .btn.button.newsletter-btn:hover { background: var(--sb-gold-2); border-color: var(--sb-gold-2); }
+/* Location and Contact */
+.footer-container .sb-footer-contact {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.footer-container .sb-footer-contact li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-bottom: 14px;
+}
+.footer-container .sb-footer-contact i { margin-top: 3px; color: var(--sb-gold-2); }
 .copyRightWrapper {
   background: #081a15;
   border-top: 1px solid rgba(255, 255, 255, .06);

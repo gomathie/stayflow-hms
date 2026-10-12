@@ -1,7 +1,8 @@
 <?php
 /**
- * Installs and switches on the Salisberg modules, and switches off the payment
- * methods the hotel does not use. Run by docker/entrypoint.sh as www-data
+ * Installs and switches on the Salisberg modules, switches off the payment
+ * methods the hotel does not use, and keeps Friendly URLs (no .php in
+ * website links) switched on. Run by docker/entrypoint.sh as www-data
  * whenever MODULES_VERSION changes. Safe to run repeatedly.
  *
  * Lives outside the web root (see Dockerfile); it must never be reachable by URL.
@@ -138,6 +139,20 @@ if (!file_exists($testimonialsFlag)) {
         sb_log('ERROR: could not record that the testimonials block was hidden');
         $failed = true;
     }
+}
+
+// Friendly URLs: website links read example.com/room-name instead of
+// example.com/index.php?controller=product&id_product=12, with no .php in
+// sight. Back office links are unaffected (they always use index.php by
+// design). Only the database setting is set here, once; the .htaccess file
+// itself is regenerated on every start by docker/generate-htaccess.php,
+// because it lives in the code filesystem, not a persisted volume, and does
+// not survive a redeploy.
+if (!Configuration::get('PS_REWRITING_SETTINGS')) {
+    Configuration::updateValue('PS_REWRITING_SETTINGS', 1);
+    sb_log('Friendly URLs switched on');
+} else {
+    sb_log('Friendly URLs already on');
 }
 
 exit($failed ? 1 : 0);
