@@ -18,6 +18,7 @@ COPY docker/php.ini /usr/local/etc/php/conf.d/zz-salisberg.ini
 COPY docker/apache.conf /etc/apache2/conf-enabled/zz-salisberg.conf
 COPY docker/entrypoint.sh /usr/local/bin/salisberg-entrypoint
 COPY docker/setup-modules.php /usr/local/share/salisberg/setup-modules.php
+COPY docker/setup-room-types.php /usr/local/share/salisberg/setup-room-types.php
 COPY docker/backup.sh /usr/local/bin/salisberg-backup
 COPY docker/ratelimit.php /usr/local/share/salisberg/ratelimit.php
 COPY docker/branding/pay-cash.jpg docker/branding/pay-momo.jpg /usr/local/share/salisberg/
