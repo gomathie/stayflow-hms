@@ -121,6 +121,8 @@ class Salisbergguide extends Module
     protected $menuLabels = array(
         'AdminParentOrders' => array('Orders', 'Bookings'),
         'AdminOrders' => array('Orders', 'Bookings'),
+        'AdminHotelReservationSystemManagement' => array('Hotel Reservation System', 'Manage Hotel'),
+        'AdminAddHotel' => array('Manage Hotel', 'Hotel Details'),
     );
 
     /** The vendor's own store pages, kept out of the menu: class names */

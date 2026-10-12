@@ -174,7 +174,7 @@ Then:
 | Change the administrator password | Your name (top right) › My preferences |
 | Give the hotel's manager the **Hotel Manager** profile, and each front desk employee **Hotel Staff** | Administration › Employees. Keep **SuperAdmin** for the developer team only. |
 | Enter the Mobile Money number and the bank account | Modules and Services › Salisberg Pay › Configure. Until then guests are offered cash only. |
-| Enter the hotel's real phone, address and details | Hotel Reservation System › Manage Hotel |
+| Enter the hotel's real phone, address and details | Manage Hotel › Hotel Details |
 | Enter the real room types, photos and prices | Catalog › Manage Room Types |
 | Set up outgoing email (SMTP) | Advanced Parameters › E-mail. Until then no confirmation emails are sent. |
 | Hide the Channel Manager menu if it is not used | Guides › Admin Guide, section 15 |

@@ -71,7 +71,7 @@
 	<section id="sb-a2">
 		<h3>2. {l s='Hotel details' mod='salisbergguide'}</h3>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; Manage Hotel</span> {l s='and open the hotel.' mod='salisbergguide'}</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Hotel Details</span> {l s='and open the hotel.' mod='salisbergguide'}</li>
 			<li>{l s='Work through the tabs:' mod='salisbergguide'}
 				<ul>
 					<li><strong>Information</strong> &ndash; {l s='name, descriptions, phone, email, address, star rating, check-in and check-out times.' mod='salisbergguide'}</li>
@@ -84,8 +84,8 @@
 			</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Save and stay</span> {l s='after each tab.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-tip">{l s='The hotel name, tag line and large header photo on the homepage are set separately, in' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; General Settings &rsaquo; General Settings</span>, {l s='under Website Configuration.' mod='salisbergguide'}</p>
-		<a class="sb-go" href="{$sb_links.AdminAddHotel|escape:'html':'UTF-8'}">{l s='Open Manage Hotel' mod='salisbergguide'} &rarr;</a>
+		<p class="sb-tip">{l s='The hotel name, tag line and large header photo on the homepage are set separately, in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; General Settings</span>, {l s='under Website Configuration.' mod='salisbergguide'}</p>
+		<a class="sb-go" href="{$sb_links.AdminAddHotel|escape:'html':'UTF-8'}">{l s='Open Hotel Details' mod='salisbergguide'} &rarr;</a>
 	</section>
 
 	<section id="sb-a3">
@@ -115,7 +115,7 @@
 		<h3>4. {l s='Prices, seasons and discounts' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='Normal price:' mod='salisbergguide'}</strong> {l s='the Prices tab of the room type (section 3).' mod='salisbergguide'}</li>
-			<li><strong>{l s='Different prices for dates or days of the week' mod='salisbergguide'}</strong> {l s='(holidays, weekends, low season):' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; General Settings &rsaquo; Advanced Price Rules</span>. {l s='A rule can raise or lower the price, for one room type or several, for a date range or specific weekdays.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Different prices for dates or days of the week' mod='salisbergguide'}</strong> {l s='(holidays, weekends, low season):' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; Advanced Price Rules</span>. {l s='A rule can raise or lower the price, for one room type or several, for a date range or specific weekdays.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Voucher codes and promotions:' mod='salisbergguide'}</strong> <span class="sb-path">Manage Discounts &rsaquo; Cart Rules</span>. {l s='Set the code, the amount or percentage off, the validity dates and how many times it can be used.' mod='salisbergguide'}</li>
 		</ul>
 		<p class="sb-warn">{l s='After changing prices, open the website and search for a few dates to confirm guests see what you expect. Existing bookings keep the price they were made at.' mod='salisbergguide'}</p>
@@ -126,7 +126,7 @@
 		<h3>5. {l s='Extra services' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='Paid extras' mod='salisbergguide'}</strong> {l s='such as breakfast, dinner or airport transfer:' mod='salisbergguide'} <span class="sb-path">Catalog &rsaquo; Manage Service Products</span>.</li>
-			<li><strong>{l s='Room add-ons' mod='salisbergguide'}</strong> {l s='such as an extra bed:' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; General Settings &rsaquo; Additional Facilities</span>.</li>
+			<li><strong>{l s='Room add-ons' mod='salisbergguide'}</strong> {l s='such as an extra bed:' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; Additional Facilities</span>.</li>
 		</ul>
 		<p>{l s='Attach them to room types in that type\'s Service Products and Additional Facilities tabs.' mod='salisbergguide'}</p>
 	</section>
@@ -168,9 +168,9 @@
 	<section id="sb-a8">
 		<h3>8. {l s='Cancellations and refunds' mod='salisbergguide'}</h3>
 		<ol>
-			<li>{l s='Set the rules in' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; Manage Order Refund Rules</span>: {l s='how much is kept depending on how many days before check-in the guest cancels.' mod='salisbergguide'}</li>
-			<li>{l s='Attach rules to the hotel in Manage Hotel, Refund Policies tab.' mod='salisbergguide'}</li>
-			<li>{l s='Guest requests arrive in' mod='salisbergguide'} <span class="sb-path">Hotel Reservation System &rsaquo; Manage Order Refund Requests</span>. {l s='Open one, decide, and set its status. The system does not send money: return cash or Mobile Money yourself, then record it on the booking.' mod='salisbergguide'}</li>
+			<li>{l s='Set the rules in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Rules</span>: {l s='how much is kept depending on how many days before check-in the guest cancels.' mod='salisbergguide'}</li>
+			<li>{l s='Attach rules to the hotel in Hotel Details, Refund Policies tab.' mod='salisbergguide'}</li>
+			<li>{l s='Guest requests arrive in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Requests</span>. {l s='Open one, decide, and set its status. The system does not send money: return cash or Mobile Money yourself, then record it on the booking.' mod='salisbergguide'}</li>
 		</ol>
 	</section>
 
@@ -178,9 +178,9 @@
 		<h3>9. {l s='Website content' mod='salisbergguide'}</h3>
 		<table>
 			<tr><th>{l s='What' mod='salisbergguide'}</th><th>{l s='Where' mod='salisbergguide'}</th></tr>
-			<tr><td>{l s='Homepage hotel name, tag line, short description and header photo' mod='salisbergguide'}</td><td><span class="sb-path">Hotel Reservation System &rsaquo; General Settings &rsaquo; General Settings</span></td></tr>
-			<tr><td>{l s='Homepage photo gallery' mod='salisbergguide'}</td><td><span class="sb-path">Hotel Reservation System &rsaquo; General Settings &rsaquo; Hotel Interior Block</span></td></tr>
-			<tr><td>{l s='Homepage amenities' mod='salisbergguide'}</td><td><span class="sb-path">Hotel Reservation System &rsaquo; General Settings &rsaquo; Hotel Amenities Block</span></td></tr>
+			<tr><td>{l s='Homepage hotel name, tag line, short description and header photo' mod='salisbergguide'}</td><td><span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; General Settings</span></td></tr>
+			<tr><td>{l s='Homepage photo gallery' mod='salisbergguide'}</td><td><span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; Hotel Interior Block</span></td></tr>
+			<tr><td>{l s='Homepage amenities' mod='salisbergguide'}</td><td><span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; Hotel Amenities Block</span></td></tr>
 			{if $sb_is_admin}
 			<tr><td>{l s='Homepage guest reviews, room list, footer payment icons' mod='salisbergguide'}</td><td><span class="sb-path">Modules and Services &rsaquo; Manage Modules</span>, {l s='then Configure on the block' mod='salisbergguide'}</td></tr>
 			{/if}

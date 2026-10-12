@@ -1324,3 +1324,26 @@ The edits were made by a small script that names each rule by its selector and o
 - **Found and fixed on the way:** the dashboard's selected-day button turned stock blue (fixed at the source, table above); hint labels turned grey in dark mode (our own dark rule, above); drop-down items turned green on hover (explicit rule, above).
 - **Not tested:** the other back office pages (about 60); the calendar pop-up; pop-up windows; right-to-left, where `admin-theme_rtl.css` was not edited and still has the old fonts and colours; Safari and Firefox; the live server.
 - **What's New:** one line for everyone under 7 October. No guide change: nothing has moved or been renamed.
+
+### 2026-10-12 — Sidebar section renamed "Manage Hotel"
+
+**What**
+
+- The back office sidebar section **Hotel Reservation System** is now **Manage Hotel**. Its own existing sub-page, previously also called **Manage Hotel** (hotel address, phone, photos, policies — class `AdminAddHotel`), is renamed to **Hotel Details** so the two no longer share a name.
+- `modules/salisbergguide/salisbergguide.php`: two entries added to the existing `$menuLabels` rename mechanism (rule 25/26, the same one used for the 2026-10-06 Orders → Bookings rename): `AdminHotelReservationSystemManagement` and `AdminAddHotel`. `MODULES_VERSION=12` so `renameMenuEntries()` runs again on the next deploy. As with every entry in `$menuLabels`, an entry is renamed only while it still carries the name it is expected to have, so a name changed by hand in the back office afterwards is kept.
+- Every on-screen path in the guides and in `COOLIFY.md` that read "Hotel Reservation System" or "… › Manage Hotel" (the sub-page) was updated to match: `admin_guide.tpl` (9 places plus the "Open Manage Hotel" quick link and the "Attach rules to the hotel in Manage Hotel" line), `staff_guide.tpl` (4 places), `COOLIFY.md` (1 place).
+- The one vendor template that names the sub-page in on-screen text, `modules/hotelreservationsystem/views/templates/admin/hotel_rooms_booking/helpers/view/view.tpl` (the "No active hotels" notice on Book Now), was corrected at the source (rule 11) rather than worked around.
+- Guide (rule 23): no section moved, so no restructuring; path text throughout both guides now reads "Manage Hotel" / "Hotel Details" as above.
+- What's New (rule 30): new "12 October 2026" entry. The section rename is in the everyone list (both Hotel Staff and Hotel Manager see this menu); the sub-page rename is under "For the hotel manager" only, since Hotel Staff is not granted `AdminAddHotel`.
+- `CHANGELOG.md`: one line under a new 2026-10-12 "Changed" heading.
+
+**Why asked this way**
+
+- The owner asked only to rename "Hotel Reservation System"; the collision with the existing "Manage Hotel" sub-page was found while locating the tab's class name and flagged before acting. The owner chose to rename the sub-page too rather than leave the two names stacked.
+
+**Verification (local, running stack)**
+
+- `docker/setup-modules.php` run by hand (`docker exec -u www-data … php /usr/local/share/salisberg/setup-modules.php`) after copying the changed files into the running container: `qlo_tab_lang` shows `AdminHotelReservationSystemManagement` = "Manage Hotel" and `AdminAddHotel` = "Hotel Details".
+- Logged into the back office by script (curl, following the real login POST and token) and fetched the dashboard, Admin Guide, Staff Guide and What's New pages: the dashboard's sidebar shows "Manage Hotel" and "Hotel Details" and no longer "Hotel Reservation System"; all three guide pages render with the new names and no PHP, Smarty or SQL errors (the one "Smarty" text hit on the Admin Guide page is the unrelated Advanced Parameters paragraph about template caching). The one remaining "Hotel Reservation System" string anywhere fetched is the historical sentence in the new What's New entry itself, which names the old label on purpose.
+- `docker/smoke-test.sh`: 29 of 29, no PHP errors or warnings logged.
+- **Not tested:** a real deploy (this was applied to the already-running local container and database, not through an image rebuild); the vendor "No active hotels" notice itself (it only shows when no hotel is active, which is not the current local state); every other place `AdminAddHotel`'s old name might have been assumed; the live server.

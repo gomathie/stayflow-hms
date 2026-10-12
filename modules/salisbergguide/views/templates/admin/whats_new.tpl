@@ -19,6 +19,19 @@
 	</div>
 
 	<section>
+		<h3>{l s='12 October 2026' mod='salisbergguide'}</h3>
+		<ul>
+			<li><strong>{l s='Manage Hotel menu.' mod='salisbergguide'}</strong> {l s='The Hotel Reservation System section of the menu is now called Manage Hotel.' mod='salisbergguide'}</li>
+		</ul>
+		{if $sb_can_read_admin_guide}
+		<h4>{l s='For the hotel manager' mod='salisbergguide'}</h4>
+		<ul>
+			<li>{l s='Inside Manage Hotel, the page where the hotel address and details are edited is now called Hotel Details (it used to share the Manage Hotel name).' mod='salisbergguide'}</li>
+		</ul>
+		{/if}
+	</section>
+
+	<section>
 		<h3>{l s='7 October 2026' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='Small tidy-ups to the look.' mod='salisbergguide'}</strong> {l s='Text you type into fields now uses the same typeface as the rest of the screen, a few section headings are no longer in capital letters, and a top bar item reached with the Tab key is highlighted. Nothing has moved.' mod='salisbergguide'}</li>
