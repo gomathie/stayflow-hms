@@ -27,6 +27,7 @@
 		<h4>{l s='For the hotel manager' mod='salisbergguide'}</h4>
 		<ul>
 			<li>{l s='Inside Manage Hotel, the page where the hotel address and details are edited is now called Hotel Details (it used to share the Manage Hotel name).' mod='salisbergguide'}</li>
+			<li><strong>{l s='Website footer.' mod='salisbergguide'}</strong> {l s='A new Location and Contact column shows the address, phone and email already shown on the Contact page.' mod='salisbergguide'}</li>
 		</ul>
 		{/if}
 	</section>

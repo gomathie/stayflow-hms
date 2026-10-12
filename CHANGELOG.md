@@ -9,6 +9,10 @@ Every change to Salisberg, newest first, in plain words.
 
 ## 2026-10-12
 
+### Added
+
+- **Website footer: Location and Contact.** A new column next to Explore, Follow us on and Payment accepted, showing the hotel's address, phone and email: the same ones already shown on the Contact page.
+
 ### Changed
 
 - **Menu rename:** the back office sidebar section "Hotel Reservation System" is now "Manage Hotel". Its "Manage Hotel" sub-page (hotel address and details) is renamed to "Hotel Details" so the two no longer share a name.

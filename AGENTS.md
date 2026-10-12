@@ -1347,3 +1347,30 @@ The edits were made by a small script that names each rule by its selector and o
 - Logged into the back office by script (curl, following the real login POST and token) and fetched the dashboard, Admin Guide, Staff Guide and What's New pages: the dashboard's sidebar shows "Manage Hotel" and "Hotel Details" and no longer "Hotel Reservation System"; all three guide pages render with the new names and no PHP, Smarty or SQL errors (the one "Smarty" text hit on the Admin Guide page is the unrelated Advanced Parameters paragraph about template caching). The one remaining "Hotel Reservation System" string anywhere fetched is the historical sentence in the new What's New entry itself, which names the old label on purpose.
 - `docker/smoke-test.sh`: 29 of 29, no PHP errors or warnings logged.
 - **Not tested:** a real deploy (this was applied to the already-running local container and database, not through an image rebuild); the vendor "No active hotels" notice itself (it only shows when no hotel is active, which is not the current local state); every other place `AdminAddHotel`'s old name might have been assumed; the live server.
+
+### 2026-10-12 — Website footer: Location and Contact column
+
+**What**
+
+- The website footer has a new "Location and Contact" column, next to Explore, Follow us on and Payment accepted: the hotel's address (icon-building), phone (icon-phone, `tel:` link) and email (icon-envelope, `mailto:` link).
+- Source of the data: the same one already used by the Contact page's "Main Branch" card (`controllers/front/ContactController.php`, `$gblHtlAddress`/`$gblHtlPhone`/`$gblHtlEmail`) — `Shop::getAddress()` formatted with `AddressFormat::generateAddress()`, and `Configuration::get('PS_SHOP_PHONE' / 'PS_SHOP_EMAIL')`. Reusing it means there is one place this information comes from and the two pages can never disagree (rule 26).
+- `modules/salisbergguide/salisbergguide.php`: new `hookFooter()` method and a `registerHook('footer')` call added to the existing `ensureSetup()` (so it reaches the already-installed module on the next deploy, the same way the Bookings/Manage Hotel menu renames do). New template `modules/salisbergguide/views/templates/hook/footer_location.tpl`.
+- `themes/hotel-reservation-theme/css/salisberg.css`: new `.sb-footer-contact` rules in the existing Footer section; stylesheet link bumped to `?v=14` (`header.tpl`).
+
+**Why this module, and why the `footer` hook directly**
+
+- Looked for an existing home first (rule 25): no Salisberg module owns front-end content blocks. `salisbergguide` already hooks the front end for small additions (`addInterfaceAssets()`, "Add new ones here rather than in a new module") and already has the idempotent `ensureSetup()` machinery needed to register a new hook on an already-installed module — a whole new module for one footer column would be the kind of premature abstraction the project avoids.
+- Rule 11 reserves direct edits to inherited files for *fixing* what is already there; this is new behaviour, so it was kept out of the vendor `hotelreservationsystem` module even though that module owns the address/phone data and already implements the near-identical `hookDisplayNav()` (header contact) and `hookDisplayAfterDefautlFooterHook()` (copyright).
+- `blocknavigationmenu`'s Explore column hooks the `footer` hook (canonical name `displayFooter`) directly and renders its own `col-sm-3`; the new column does the same, matching an existing pattern rather than introducing the other one present in the stock footer (a "container" module wrapping a more specific sub-hook, used by the payment and language/currency columns).
+
+**Found along the way, not fixed (out of scope for this change)**
+
+- `PS_SHOP_ADDR1` already contains the installer's demo text with the shop name baked in ("Salisberg Hotels, Monticello Dr, Montgomery, 10010"), so `Shop::getAddress()` (which also prepends `PS_SHOP_NAME` as the address `company`) produces "Salisberg Hotels, Salisberg Hotels, Monticello Dr, Montgomery, 10010, United States". This already shows on the Contact page today; the new footer column inherits the same text rather than introducing it. Fixing it means tidying `PS_SHOP_ADDR1`/city/postcode/country into their own fields.
+- The only back office page that writes `PS_SHOP_ADDR1`/`PS_SHOP_PHONE`/`PS_SHOP_EMAIL` is `AdminStoresController`, and it currently has no menu tab (`qlo_tab` has no row for class `AdminStores`), so there is no back-office way to change this address/phone/email short of editing the database directly. Neither of these was touched; the owner should decide whether to give `AdminStores` a menu entry or move this one piece of contact data into the hotel's own "Hotel Details" (`AdminAddHotel`) fields instead.
+
+**Verification (local, running stack)**
+
+- Copied the three changed/new files into the running container, re-ran `setup-modules.php`: `qlo_hook_module` shows `salisbergguide` now registered on `displayFooter` alongside `blocknavigationmenu`, `hotelreservationsystem` and `wkfooternotificationblock`, in addition to its existing `Header`/`actionAdminControllerSetMedia`/`actionAdminLoginControllerSetMedia` hooks.
+- Fetched the homepage and the Contact page: both render 200 with no PHP/Smarty errors; the new column appears once on the homepage with the address, phone (`tel:0987654321`) and email (`mailto:booking@salisberg.com`) links, matching the Contact page's own text exactly (including the pre-existing duplicate-name quirk above).
+- `docker/smoke-test.sh`: 29 of 29, no PHP errors or warnings logged.
+- **Not tested:** a real deploy; the column with social links present (so "Follow us on" also shows, changing how many columns wrap per row); phone widths; dark mode is automatic here (the footer has always been dark) but was not screenshotted; the live server.
