@@ -11,7 +11,7 @@
 		</div>
 		<div class="sb-desk-links">
 			<a class="btn btn-default" href="{$sb_housekeeping_link|escape:'html':'UTF-8'}"><i class="icon-home"></i> {l s='Housekeeping' mod='salisbergfrontdesk'}</a>
-			<a class="btn btn-primary" href="{$sb_book_link|escape:'html':'UTF-8'}"><i class="icon-plus"></i> {l s='Book Now' mod='salisbergfrontdesk'}</a>
+			<a class="btn btn-primary" href="{$sb_book_link|escape:'html':'UTF-8'}"><i class="icon-plus"></i> {l s='Add new booking' mod='salisbergfrontdesk'}</a>
 		</div>
 	</div>
 

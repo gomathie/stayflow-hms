@@ -889,6 +889,57 @@
 		});
 	}
 
+	// Guest details typed on the form: use the guest on record or add them,
+	// then continue exactly as if "Choose" had been clicked on a search result
+	$(document).on('click', '#sb_guest_continue', function(e) {
+		e.preventDefault();
+		var button = $(this);
+		var message = $('#sb_guest_message');
+		message.hide().removeClass('alert-danger alert-success');
+		button.prop('disabled', true);
+		$.ajax({
+			type: "POST",
+			url: "{$link->getAdminLink('AdminCustomers')|addslashes}",
+			dataType: "json",
+			data: {
+				ajax: "1",
+				tab: "AdminCustomers",
+				action: "findOrCreateGuest",
+				firstname: $('#sb_guest_firstname').val(),
+				lastname: $('#sb_guest_lastname').val(),
+				phone: $('#sb_guest_phone').val(),
+				email: $('#sb_guest_email').val()
+			},
+			success: function(res) {
+				button.prop('disabled', false);
+				if (!res || res.errors || !res.customer) {
+					var errors = (res && res.errors) ? res.errors : ["{l s='The guest could not be saved. Check the details and try again.' js=1}"];
+					message.addClass('alert-danger').text(errors.join(' ')).show();
+					return;
+				}
+				var guest = res.customer;
+				var html = '<div class="customerCard col-lg-4">';
+				html += '<div class="panel">';
+				html += '<div class="panel-heading">'+guest.firstname+' '+guest.lastname;
+				html += '<span class="pull-right">#'+guest.id_customer+'</span></div>';
+				html += '<span>'+guest.email+'</span><br/>';
+				html += '<span class="text-muted">'+guest.phone+'</span><br/>';
+				html += '<div class="panel-footer">';
+				html += '<button type="button" data-id_cart="'+id_cart+'" data-customer="'+guest.id_customer+'" class="setup-customer btn btn-default pull-right"><i class="icon-arrow-right"></i> {l s='Choose'}</button>';
+				html += '</div></div></div>';
+				html += '<div class="col-lg-8"><div class="alert '+(res.created ? 'alert-success' : 'alert-info')+'">'
+					+(res.created ? "{l s='New guest added.' js=1}" : "{l s='This guest is already on record, so their record is used. Check the name; click Change if it is someone else.' js=1}")
+					+'</div></div>';
+				$('#customers').html(html);
+				$('#customers .setup-customer').click();
+			},
+			error: function() {
+				button.prop('disabled', false);
+				message.addClass('alert-danger').text("{l s='The guest could not be saved. Check the details and try again.' js=1}").show();
+			}
+		});
+	});
+
 	let customerSearchAjax = '';
 	function searchCustomers()
 	{
@@ -1875,30 +1926,54 @@
     <div class="panel form-horizontal" id="customer_part" {if isset($is_order_created) && $is_order_created}style="display:none;"{/if}>
         <div class="panel-heading">
             <i class="icon-user"></i>
-            {l s='Customer'}
+            {l s='Guest'}
         </div>
-        <div id="search-customer-form-group" class="form-group">
-            <label class="control-label col-lg-3">
-                <span title="" data-toggle="tooltip" class="label-tooltip" data-original-title="{l s='Search for an existing customer by typing the first letters of his/her name.'}">
-                    {l s='Search for a customer'}
-                </span>
-            </label>
-            <div class="col-lg-9">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                            <input type="text" id="customer" value="" />
-                            <span class="input-group-addon">
-                                <i class="icon-search"></i>
-                            </span>
-                        </div>
+        <div id="search-customer-form-group">
+            {* Type the guest's details: someone already on record (same email, or same phone) is used, anyone else is added *}
+            <div id="sb-guest-form">
+                <p class="help-block">{l s='Type the details of the guest. If they have stayed before, their record is used; if not, they are added.'}</p>
+                <div class="form-group">
+                    <label class="control-label col-lg-3 required" for="sb_guest_firstname">{l s='First name'}</label>
+                    <div class="col-lg-4"><input type="text" id="sb_guest_firstname" maxlength="32" autocomplete="off" /></div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-lg-3 required" for="sb_guest_lastname">{l s='Last name'}</label>
+                    <div class="col-lg-4"><input type="text" id="sb_guest_lastname" maxlength="32" autocomplete="off" /></div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-lg-3" for="sb_guest_phone">{l s='Phone'}</label>
+                    <div class="col-lg-4"><input type="text" id="sb_guest_phone" maxlength="32" autocomplete="off" /></div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-lg-3" for="sb_guest_email">{l s='Email address'}</label>
+                    <div class="col-lg-4">
+                        <input type="text" id="sb_guest_email" maxlength="128" autocomplete="off" />
+                        <p class="help-block">{l s='A phone number or an email address is needed. A guest with an email address is sent the booking confirmation.'}</p>
                     </div>
-                    <div class="col-lg-6">
-                        <span class="form-control-static">{l s='Or'}&nbsp;</span>
-                        <a class="fancybox_customer btn btn-default" href="{$link->getAdminLink('AdminCustomers')|escape:'html':'UTF-8'}&amp;addcustomer&amp;liteDisplaying=1&amp;submitFormAjax=1#">
-                            <i class="icon-plus-sign-alt"></i>
-                            {l s='Add new customer'}
-                        </a>
+                </div>
+                <div class="form-group">
+                    <div class="col-lg-9 col-lg-offset-3">
+                        <button type="button" id="sb_guest_continue" class="btn btn-primary"><i class="icon-arrow-right"></i> {l s='Continue with this guest'}</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-lg-9 col-lg-offset-3">
+                        <div id="sb_guest_message" class="alert" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-lg-3">
+                    <span title="" data-toggle="tooltip" class="label-tooltip" data-original-title="{l s='Search for an existing customer by typing the first letters of his/her name.'}">
+                        {l s='Or search for a guest on record'}
+                    </span>
+                </label>
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <input type="text" id="customer" value="" />
+                        <span class="input-group-addon">
+                            <i class="icon-search"></i>
+                        </span>
                     </div>
                 </div>
             </div>

@@ -43,7 +43,7 @@
 			<tr><td><span class="sb-path">Dashboard</span></td><td>{l s='Today at a glance: recent bookings and activity.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Today</span></td><td>{l s='Start here each day: arrivals, departures, guests in house and unpaid bookings, with Check in and Check out buttons.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Housekeeping</span></td><td>{l s='Every room and whether it is clean, dirty or out of service.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Book Now</span></td><td>{l s='See which rooms are free and make a booking for a guest.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Add new booking</span></td><td>{l s='See which rooms are free and make a booking for a guest.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Bookings</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records and their booking history.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Inbox</span></td><td>{l s='Messages guests send through the website.' mod='salisbergguide'}</td></tr>
@@ -56,20 +56,22 @@
 
 	<section id="sb-s3">
 		<h3>3. {l s='Make a booking for a guest' mod='salisbergguide'}</h3>
-		<p>{l s='Use this for walk-in guests and bookings taken by phone.' mod='salisbergguide'}</p>
+		<p>{l s='Use this for walk-in guests and bookings taken by phone. The Add new booking button on the Bookings page opens the same thing.' mod='salisbergguide'}</p>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Book Now</span>.</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Add new booking</span>.</li>
 			<li>{l s='In the Booking Form, choose the check-in and check-out dates, the room type and the number of guests, then click' mod='salisbergguide'} <span class="sb-btn">Search</span>.</li>
 			<li>{l s='The calendar and room lists show what is free. Rooms are grouped as Available Rooms, Partially Available, Booked Rooms and Unavailable Rooms.' mod='salisbergguide'}</li>
 			<li>{l s='Pick a room, set the occupancy and click' mod='salisbergguide'} <span class="sb-btn">Add To Cart</span>. {l s='Repeat if the guest needs more than one room.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Book Now</span> {l s='to continue to the order form.' mod='salisbergguide'}</li>
-			<li>{l s='Choose the guest: search for an existing customer first. For someone new, click' mod='salisbergguide'} <span class="sb-btn">Add new customer</span>{l s=', fill in their title, first name, last name, phone and email, and save. Nothing else is asked.' mod='salisbergguide'}</li>
-			<li>{l s='If the guest has no email address, leave Email address empty. The booking still works; they simply get no booking emails. If they give you an email later, edit the guest and type it in.' mod='salisbergguide'}</li>
+			<li>{l s='In the Guest box, type the first name, last name, phone and email of the guest and click' mod='salisbergguide'} <span class="sb-btn">Continue with this guest</span>. {l s='A phone number or an email is enough; give both when you can.' mod='salisbergguide'}</li>
+			<li>{l s='If the guest has stayed before (same email, or same phone number), their record is used and the page tells you so: check that the name shown is the right person, and click Change if it is not. If they are new, they are added.' mod='salisbergguide'}</li>
+			<li>{l s='You can also find a guest by name in Or search for a guest on record, and click Choose.' mod='salisbergguide'}</li>
+			<li>{l s='A guest with no email address is fine: leave Email address empty. They simply get no booking emails.' mod='salisbergguide'}</li>
 			<li>{l s='Check the rooms, dates and total. Choose the payment method (Cash at hotel, Mobile Money or Bank transfer) and the status, then create the order.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='A guest with an email address is sent the booking confirmation by email when you create the booking, as long as Send mails is left on Yes on the order form.' mod='salisbergguide'}</p>
 		<p class="sb-tip">{l s='If the guest has not paid yet, leave the status as Awaiting payment. Change it only when the money has actually been received (see section 5).' mod='salisbergguide'}</p>
-		<a class="sb-go" href="{$sb_links.AdminHotelRoomsBooking|escape:'html':'UTF-8'}">{l s='Open Book Now' mod='salisbergguide'} &rarr;</a>
+		<a class="sb-go" href="{$sb_links.AdminHotelRoomsBooking|escape:'html':'UTF-8'}">{l s='Open Add new booking' mod='salisbergguide'} &rarr;</a>
 	</section>
 
 	<section id="sb-s4">

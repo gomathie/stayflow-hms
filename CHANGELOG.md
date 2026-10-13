@@ -14,7 +14,7 @@ Every change to Salisberg, newest first, in plain words.
 - **Bookings › Today.** One page for the front desk: arrivals, departures, rooms in house and unpaid bookings, with Check in and Check out buttons.
 - **Bookings › Housekeeping.** Every room as clean, dirty or out of service. A room turns dirty when its guest is checked out; out of service takes it off sale.
 - **Warning for room types with no rooms.** Manage Room Types marks them "No rooms" and names them in a warning; they cannot be booked.
-- **Short form for a walk-in guest.** Add new customer asks for title, name, phone and email only, and the email may be left empty.
+- **Guest details on the booking form.** The form asks for first name, last name, phone and email. A guest already on record (same email, or same phone) is used; anyone else is added. Email may be left empty. The separate Add new customer form is also shorter.
 
 ### Removed
 
@@ -29,6 +29,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Book Now and Add new order are both "Add new booking"** in the back office (menu page under Manage Hotel, and the button on Bookings). The website's Book Now button is unchanged.
 - **No index.php in the address bar, website and back office.** Back office pages now show as /admin-name/?controller=... instead of /admin-name/index.php?controller=.... On the website the last link that still showed index.php, Our Properties, now reads /our-properties.
 - **Customer Service renamed Inbox and simplified.** The Customers menu page is now Inbox. The list keeps From, Email, Phone, Message, Status, Handled by and Received (ID, Contact, Language, Last Reply by, Has Private and the full message text columns are gone); the message start is a link that opens the conversation; statuses read Open, In progress, Waiting for guest, Closed. The mail-server (IMAP) settings are shown to SuperAdmins only. Message titles end on a whole word.
 - **Contact form refuses links.** A message with a web address in it is not sent, and the guest is asked to remove it. Links already stored are shown as plain text in the back office instead of clickable ones, so front desk staff cannot click one by accident.
