@@ -107,6 +107,7 @@
 				<tr>
 					<td>
 						<p>{$legal_free_text|escape:'html':'UTF-8'|nl2br}</p>
+						<p class="muted">{l s='Thank you for staying with us.' pdf='true'}</p>
 					</td>
 				</tr>
 			</table>

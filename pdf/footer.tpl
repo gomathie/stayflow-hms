@@ -27,7 +27,6 @@
 <table style="width: 100%">
 	<tr>
 		<td style="border-top: 1px solid #d9d4c7; text-align: center; font-size: 7pt; color: #6b7280; line-height: 140%;">
-			<span style="color: #12352c; font-weight: bold;">{$shop_name|escape:'html':'UTF-8'}</span><br />
 			{$shop_address|escape:'html':'UTF-8'}<br />
 			{if !empty($shop_phone)}{l s='Tel: %s' sprintf=[$shop_phone|escape:'html':'UTF-8'] pdf='true'}{/if}{if !empty($shop_phone) && !empty($shop_email)} &nbsp;|&nbsp; {/if}{if !empty($shop_email)}{$shop_email|escape:'html':'UTF-8'}{/if}
 			{if isset($shop_details) && $shop_details}<br />{$shop_details|escape:'html':'UTF-8'}{/if}
