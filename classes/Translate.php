@@ -255,8 +255,9 @@ class TranslateCore
             $i18n_file = $override_i18n_file;
         }
 
-        if (!include($i18n_file)) {
-            Tools::displayError(sprintf('Cannot include PDF translation language file : %s', $i18n_file));
+        // No PDF translation file for a language means its PDFs use the text as written
+        if (file_exists($i18n_file)) {
+            include($i18n_file);
         }
 
         if (!isset($_LANGPDF) || !is_array($_LANGPDF)) {

@@ -41,6 +41,8 @@
 		<table>
 			<tr><th>{l s='Menu' mod='salisbergguide'}</th><th>{l s='What it is for' mod='salisbergguide'}</th></tr>
 			<tr><td><span class="sb-path">Dashboard</span></td><td>{l s='Today at a glance: recent bookings and activity.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Bookings &rsaquo; Today</span></td><td>{l s='Start here each day: arrivals, departures, guests in house and unpaid bookings, with Check in and Check out buttons.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Bookings &rsaquo; Housekeeping</span></td><td>{l s='Every room and whether it is clean, dirty or out of service.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Book Now</span></td><td>{l s='See which rooms are free and make a booking for a guest.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Bookings</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records and their booking history.' mod='salisbergguide'}</td></tr>
@@ -61,9 +63,11 @@
 			<li>{l s='The calendar and room lists show what is free. Rooms are grouped as Available Rooms, Partially Available, Booked Rooms and Unavailable Rooms.' mod='salisbergguide'}</li>
 			<li>{l s='Pick a room, set the occupancy and click' mod='salisbergguide'} <span class="sb-btn">Add To Cart</span>. {l s='Repeat if the guest needs more than one room.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Book Now</span> {l s='to continue to the order form.' mod='salisbergguide'}</li>
-			<li>{l s='Choose the guest: search for an existing customer, or create a new one with their name, email and phone number.' mod='salisbergguide'}</li>
+			<li>{l s='Choose the guest: search for an existing customer first. For someone new, click' mod='salisbergguide'} <span class="sb-btn">Add new customer</span>{l s=', fill in their title, first name, last name, phone and email, and save. Nothing else is asked.' mod='salisbergguide'}</li>
+			<li>{l s='If the guest has no email address, leave Email address empty. The booking still works; they simply get no booking emails. If they give you an email later, edit the guest and type it in.' mod='salisbergguide'}</li>
 			<li>{l s='Check the rooms, dates and total. Choose the payment method (Cash at hotel, Mobile Money or Bank transfer) and the status, then create the order.' mod='salisbergguide'}</li>
 		</ol>
+		<p class="sb-tip">{l s='A guest with an email address is sent the booking confirmation by email when you create the booking, as long as Send mails is left on Yes on the order form.' mod='salisbergguide'}</p>
 		<p class="sb-tip">{l s='If the guest has not paid yet, leave the status as Awaiting payment. Change it only when the money has actually been received (see section 5).' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminHotelRoomsBooking|escape:'html':'UTF-8'}">{l s='Open Book Now' mod='salisbergguide'} &rarr;</a>
 	</section>
@@ -114,6 +118,25 @@
 
 	<section id="sb-s6">
 		<h3>6. {l s='Check a guest in and out' mod='salisbergguide'}</h3>
+		<h4>{l s='From the Today page (quickest)' mod='salisbergguide'}</h4>
+		<ol>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Today</span>.</li>
+			<li>{l s='Arrivals lists the rooms due today, and any due earlier that have not arrived (marked Late). Check the Still to pay column and the Room is column: do not give out a room that is Dirty or Out of service.' mod='salisbergguide'}</li>
+			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='on the room. The time is recorded.' mod='salisbergguide'}</li>
+			<li>{l s='Departures lists the rooms due to leave today, and any that should already have left (marked Overdue). If money is still due, click the booking reference and take payment first (section 5).' mod='salisbergguide'}</li>
+			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Check out</span>{l s='. The room is marked Dirty for housekeeping.' mod='salisbergguide'}</li>
+		</ol>
+		<p class="sb-tip">{l s='Rooms in house lists every room with a guest in it right now. Unpaid bookings lists bookings with money still to pay; click Open booking to record a payment.' mod='salisbergguide'}</p>
+		<a class="sb-go" href="{$sb_links.AdminSalisbergToday|escape:'html':'UTF-8'}">{l s='Open Today' mod='salisbergguide'} &rarr;</a>
+		<h4>{l s='Housekeeping' mod='salisbergguide'}</h4>
+		<ol>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Housekeeping</span>. {l s='Click Clean, Dirty or Out of service at the top to list only those rooms.' mod='salisbergguide'}</li>
+			<li>{l s='When a room has been cleaned, click' mod='salisbergguide'} <span class="sb-btn">Mark clean</span>. {l s='Use Mark dirty if a room needs cleaning for any other reason.' mod='salisbergguide'}</li>
+			<li>{l s='For a room that cannot be used (repairs, a fault), click' mod='salisbergguide'} <span class="sb-btn">Out of service</span>. {l s='The room is no longer offered to guests, on the website or in Book Now. Click Back in service when it can be used again.' mod='salisbergguide'}</li>
+		</ol>
+		<p class="sb-warn">{l s='A room with a guest checked in cannot be taken out of service. If a room you take out of service has coming bookings, the page says so in red: tell your manager so those guests can be moved to another room.' mod='salisbergguide'}</p>
+		<a class="sb-go" href="{$sb_links.AdminSalisbergHousekeeping|escape:'html':'UTF-8'}">{l s='Open Housekeeping' mod='salisbergguide'} &rarr;</a>
+		<h4>{l s='From the booking itself' mod='salisbergguide'}</h4>
 		<ol>
 			<li>{l s='Open the booking (section 4) and confirm the guest name and dates. Ask for ID if hotel policy requires it.' mod='salisbergguide'}</li>
 			<li>{l s='If money is still due, take payment first (section 5).' mod='salisbergguide'}</li>
@@ -138,7 +161,7 @@
 	<section id="sb-s8">
 		<h3>8. {l s='Guests and their details' mod='salisbergguide'}</h3>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Customers &rsaquo; Customers</span> {l s='and search by name or email.' mod='salisbergguide'}</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Customers &rsaquo; Customers</span> {l s='and search by name, phone or email.' mod='salisbergguide'}</li>
 			<li>{l s='Click a guest to see their details and every booking they have made.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Edit</span> {l s='to correct a name, email or phone number, or' mod='salisbergguide'} <span class="sb-btn">Add new customer</span> {l s='to create a record.' mod='salisbergguide'}</li>
 		</ol>

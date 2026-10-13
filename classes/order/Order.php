@@ -2577,10 +2577,9 @@ class OrderCore extends ObjectModel
                     )) {
                         $totals = array_reduce($serviceProductDetail, function ($carry, $item) use ($order_detail) {
                             $objHotelBookingDetail = new HotelBookingDetail((int) $item['id_htl_booking_detail']);
-                            if ((Product::PRICE_CALCULATION_METHOD_PER_DAY == $order_detail['product_price_calculation_method'])
-                                && (!$numDays = HotelHelper::getNumberOfDays($objHotelBookingDetail->date_from, $objHotelBookingDetail->date_to))
-                            ) {
-                                $numDays = 1;
+                            $numDays = 1;
+                            if (Product::PRICE_CALCULATION_METHOD_PER_DAY == $order_detail['product_price_calculation_method']) {
+                                $numDays = max(1, (int) HotelHelper::getNumberOfDays($objHotelBookingDetail->date_from, $objHotelBookingDetail->date_to));
                             }
 
                             if (!empty($item['id_tax_rules_group'])) {

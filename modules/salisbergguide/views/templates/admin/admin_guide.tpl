@@ -49,6 +49,7 @@
 		{if $sb_is_admin}
 		<p>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Permissions</span>, {l s='pick the profile on the left, and tick View, Add, Edit or Delete for each page. To create another role (for example Housekeeping), add it in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Profiles</span> {l s='first.' mod='salisbergguide'}</p>
 		<p>{l s='The What is New page under Guides is one of those pages: tick or untick View on its row to decide which profiles can read it. Hotel Staff and Hotel Manager have it to begin with.' mod='salisbergguide'}</p>
+		<p>{l s='The front desk pages are two more rows on this page: Today and Housekeeping (both under Bookings). View lets a profile see the page; Edit lets it check rooms in and out, and change a room to clean, dirty or out of service. Hotel Staff and Hotel Manager are given both when the pages are first created; what you change afterwards is kept.' mod='salisbergguide'}</p>
 		<p class="sb-warn">{l s='Anyone who takes bookings in Book Now needs three things on this page, not one: View, Add and Edit on Bookings; View, Add and Edit on Booking Carts (under Customers); and the hotel ticked in the Hotel Permissions panel beside the grid. Without Add and Edit on Booking Carts the guest is never attached to the booking and the rooms stay in the cart. Without the hotel ticked, the booking is made but cannot be opened, and the dashboard shows no figures. Hotel Staff and Hotel Manager are given all three on every update.' mod='salisbergguide'}</p>
 		{else}
 		<p>{l s='What each profile may open is set by the developer team. Tell them if a member of staff needs a page they cannot see, or should lose one.' mod='salisbergguide'}</p>
@@ -108,8 +109,8 @@
 			</li>
 			<li>{l s='Save. The room type appears on the website when it is enabled and has at least one available room.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-warn">{l s='A new room type with nothing in its Rooms tab is not finished. Guests can still find it, add it to their cart and reach the confirmation page, but with no actual room to give them the booking is not recorded properly and will not appear under Bookings. Always add at least one real room number before switching a new room type on (Information tab, Active).' mod='salisbergguide'}</p>
-		<p class="sb-tip">{l s='To take one room out of service (repairs, deep clean), change that room in the Rooms tab rather than disabling the whole type.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='A room type that is switched on but has no room in service cannot be booked: the website shows it as sold out for every date and Book Now offers nothing for it. The Manage Room Types list marks it No rooms in red and shows a warning at the top naming it. Add its rooms in the Rooms tab, or switch the room type off until it is ready.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='To take one room out of service (repairs, a fault), use' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Housekeeping</span> {l s='and click Out of service on the room; it is the same as setting the room to Inactive in the Rooms tab. To close a room for set dates only, use the Rooms tab.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminProducts|escape:'html':'UTF-8'}">{l s='Open Manage Room Types' mod='salisbergguide'} &rarr;</a>
 	</section>
 
@@ -192,7 +193,7 @@
 			<tr><td>{l s='Friendly URL (website links read salisberg.com/room-name instead of salisberg.com/index.php?...)' mod='salisbergguide'}</td><td>{l s='Switched on and kept on by the deploy. Leave Friendly URL set to Yes here; turning it off is undone on the next deploy.' mod='salisbergguide'}</td></tr>
 			{/if}
 			<tr><td>{l s='Who receives messages from the Contact form (the form has no Title or Send To choice: every message goes to this one contact and appears under Inbox, titled with the start of the message)' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Contacts</span></td></tr>
-			<tr><td>{l s='The mail-server (IMAP) settings under Inbox are shown to the developer team only; the Contact form settings (name and phone fields, default reply text) are on the same page' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Inbox</span></td></tr>
+			<tr><td>{l s='Contact form settings (name and phone fields, default reply text). All email, including replies sent from Inbox, goes out through the one mail server set under Advanced Parameters, E-mail; there is no separate mailbox to set up' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Inbox</span></td></tr>
 			<tr><td>{l s='Whether guests can attach a file to a Contact form message (switched off: the form takes messages only)' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Inbox</span>, {l s='Contact form settings, Allow file uploading' mod='salisbergguide'}</td></tr>
 		</table>
 		<p class="sb-tip">{l s='The Hotel Reviews feature (guests rating their stay after check-out) is switched off for now. Ask the developer to switch it on when you want to start collecting reviews; it cannot be enabled from the Modules page because it is switched off again at every update.' mod='salisbergguide'}</p>
@@ -215,6 +216,8 @@
 		<h3>10. {l s='Email' mod='salisbergguide'}</h3>
 		{if $sb_is_admin}
 		<p>{l s='Booking confirmations and password resets are sent by email. Set how they are sent in' mod='salisbergguide'} <span class="sb-path">Advanced Parameters &rsaquo; E-mail</span>.</p>
+		<p>{l s='That one setting is used for every email the system sends: booking confirmations, payment and status notices, password resets, Contact form notices and replies written in Inbox. There is no second mail server or mailbox to configure anywhere else.' mod='salisbergguide'}</p>
+		<p>{l s='A guest recorded at the desk without an email address is stored with a placeholder ending in guest.invalid. Nothing is ever sent to those addresses.' mod='salisbergguide'}</p>
 		<ol>
 			<li>{l s='Choose to send through your own SMTP server and enter the details from your email provider (server, port, username, password, encryption).' mod='salisbergguide'}</li>
 			<li>{l s='Use the Test your email configuration box at the bottom to send yourself a test.' mod='salisbergguide'}</li>
