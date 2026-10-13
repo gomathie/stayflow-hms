@@ -1590,3 +1590,60 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - What's New (everyone) and CHANGELOG updated. No guide change: no menu path moved.
 - **Verification (local, image rebuilt twice):** `apachectl -t` Syntax OK; back office GET `index.php?controller=AdminLogin` gives 302 to `/admin-salisberg/?controller=AdminLogin`; with `X-Forwarded-Proto: https` and a `salisberg.com` Host the target is `https://salisberg.com/admin-salisberg/?...`; POST to `index.php` is answered directly (200); signed in, Inbox, Bookings, Room Types and the Staff Guide each end on an address without `index.php` and render with no errors; the homepage has no link containing `.php`; `/our-properties` and a room page return 200; `docker/smoke-test.sh` 29 of 29, no PHP errors logged.
 - **Not tested:** a real browser session (clicks, form saves, pop-ups) after the redirect; behind Coolify's real proxy; the live server.
+
+### 2026-10-13 — Front desk (Today, Housekeeping), no-rooms warning, walk-in guests, one mailer; Stock, shop pages and 1-Click Upgrade removed
+
+#### Empty room types: checked first, then flagged
+
+- **Tested before changing anything.** Room types 11, 12 and 13 locally have no rooms. On the website they are absent from search results, their page says "sold out", and a direct add-to-cart request is refused ("Rooms are unavailable"). Book Now offers nothing for them. So an empty room type was already unbookable; the 2026-10-12 incident note that a guest could reach a confirmation page was wrong (that incident was the hotel-permission gap found the same day). The Admin Guide warning that repeated it is corrected.
+- **What was missing was telling the manager.** `controllers/admin/AdminProductsController.php` (inherited, rule 11): the Total Rooms column shows a red "No rooms" badge (`printRoomCount()`), and `renderList()` adds a warning naming every switched-on room type with no room in service.
+
+#### New module `salisbergfrontdesk` (rule 25: why a new one)
+
+- Nothing existing fits: `salisbergreports` is read-only documents, `salisbergguide` is help, roles and menus. This one changes booking and room state, has its own table and its own two permission rows. It follows the same patterns (tabs created in `ensureSetup()`, installed by `docker/setup-modules.php`, `sb-` naming, CSS from the back office tokens). `MODULES_VERSION=18`.
+- **Bookings > Today** (`AdminSalisbergToday`, placed first in the Bookings section, so clicking Bookings opens it): arrivals (due today, due earlier and not arrived, arrived today), departures (in the room and due out today or earlier, left today), rooms in house, unpaid bookings (stay coming, current, or ended in the last 30 days). Rows are limited to the hotels the profile may see (`htl_access`).
+- **Check in / Check out** (`changeBookingStatus()`): same rules as the booking page (time within the stay, in before out), a late departure is recorded at the end of the booked stay, and it fires the same `actionRoomBookingStatusUpdateAfter` hook. It is a second implementation beside `AdminOrdersController::changeRoomStatus()`, which reads the request and redirects to the booking and could not be called; the rules are kept identical on purpose. A failed save is reported on the page and logged, never an error page.
+- **Bookings > Housekeeping** (`AdminSalisbergHousekeeping`): clean / dirty per room in the new table `sb_room_status`; a room with no row is clean. The module listens to `actionRoomBookingStatusUpdateAfter`, so a check-out from either page marks the room dirty.
+- **Out of service is not a new flag.** It is the platform's room status Inactive, which the availability search already excludes, so the Rooms tab and this page cannot disagree (rule 26). A room with a guest checked in cannot be taken out; one with coming bookings can, and the page says so in red. A room closed for set dates (Temporary inactive) is shown as out of service and is changed in its room type.
+- **Permissions:** two ordinary rows, View to see and Edit to change. Hotel Staff and Hotel Manager get both once, when the pages are first created.
+- `docker/smoke-test.sh` now loads both pages.
+
+#### Walk-in guests
+
+- `controllers/admin/AdminCustomersController.php` (inherited): the form for a NEW guest shows title, first name, last name, email, phone and Enabled only; password, birthday, newsletter, opt-in and the two group fields are on the edit form. `processSave()` supplies the usual customer group when the short form posts none. Email is optional on add: an empty one becomes `guest-<time>-<4 digits>@guest.invalid` (`Customer::NO_EMAIL_DOMAIN`, `Customer::hasNoEmail()` in `classes/Customer.php`).
+- `override/classes/Mail.php`: `Mail::Send()` returns without sending when the recipient is such a placeholder. `.invalid` is reserved (RFC 2606) and can never be a real address.
+- **Email to the guest** is the platform's booking confirmation, sent by `validateOrder()` when Send mails is Yes on the order form (the default). **SMS is not built**; the owner will add a provider. The places to send from are the hooks `actionValidateOrder` (booking created) and `actionRoomBookingStatusUpdateAfter` (check-in, check-out), reading the phone from the customer.
+
+#### One mailer
+
+- Searched for anything sending mail outside `classes/Mail.php` (`mail(`, Swift transports, PHPMailer, sockets): none. Every email already used the settings under Advanced Parameters > E-mail.
+- The only other mail configuration was the IMAP mailbox sync under Inbox (reading a mailbox into conversations). Removed from `controllers/admin/AdminCustomerThreadsController.php`: the options panel, `renderOptions()`, `updateOptionPsSavImapOpt()`, `ajaxProcessSyncImap()`, `renderProcessSyncImap()`, `syncImap()` and the sync call in `renderList()`; and the template folder `customer_threads/helpers/options` (its only content was the Run sync button). The `PS_SAV_IMAP_*` settings and the `customer_message_sync_imap` table are left in the database, unused.
+
+#### Removed (rule 28, with the evidence)
+
+| Removed | Evidence |
+|---|---|
+| Stock menu: tabs `AdminStock`, `AdminWarehouses`, `AdminStockManagement`, `AdminStockMvt`, `AdminStockInstantState`, `AdminStockCover`, `AdminStockConfiguration` | Deleted on every deploy by `removeMenus()` in `salisbergguide.php` (`$removedMenus`), with every profile's rights to them. The installer still creates them on a fresh install; the same step then deletes them. |
+| Their six controllers and the template folders `warehouses`, `stock_mvt`, `stock_instant_state`, `stock_cover` | A search of the whole tree (outside `install/`, caches, translations, docs) for each class name found only the controller itself and its own templates. Not in `ConfigurationTest.php`. The stock classes under `classes/stock/` are used by room and product code and stay. |
+| Front controllers `BestSales`, `NewProducts`, `PricesDrop`, `Compare`, `Manufacturer`, `Supplier`; theme files `best-sales.tpl`, `new-products.tpl`, `prices-drop.tpl`, `manufacturer.tpl`, `manufacturer-list.tpl`, `supplier.tpl`, `supplier-list.tpl`, `products-comparison.tpl`, `product-compare.tpl`, `css/comparator.css`, `js/products-comparison.js` | References were: `sitemap.tpl` (the "Our offers" block, removed), `search.tpl` (two includes of `product-compare.tpl`, removed), `FrontController` (loaded the comparison script when the comparator was on; lines removed), `config/xml/themes/default.xml` and the theme's `lang/en.php` (lists and strings, harmless). Content step v6 (`CONTENT_VERSION=6`) deletes their `meta`, `meta_lang` and `theme_meta` rows and sets `PS_COMPARATOR_MAX_ITEM` to 0. |
+| `modules/qloautoupgrade` | Not installed, no tab. Remaining mentions are a string passed to `Module::isInstalled()` in `Tools.php` and vendor version-check fields in `Upgrader.php`, neither of which loads the module. |
+
+#### Fixed on the way (inherited, found in the log while testing)
+
+- `classes/Translate.php`: including the PDF translation file of a language that has none logged two warnings per string. It is included only if it exists.
+- `classes/order/Order.php`: `$numDays` was unset for items not priced per night, logging a warning and multiplying their quantity by nothing in the invoice tax breakdown. It now starts at 1. **This changes that quantity from 0 to the real quantity on invoices with such items.**
+
+#### Guides (rule 23)
+
+- Staff Guide: menu table (Today, Housekeeping); section 3 (new guest, no email, confirmation email); section 6 rewritten in three parts (Today, Housekeeping, from the booking). Admin Guide: section 1 (the two permission rows), section 3 (no-rooms warning corrected, out of service), section 9 (Inbox row), section 10 (one mail server, placeholder addresses). What's New for all three roles; CHANGELOG.
+
+#### Verification (local, image rebuilt, PHP 8.3)
+
+- **Deploy log:** `Content v6 applied (... shop pages removed: 6)`, `salisbergfrontdesk installed`, `Modules step v18 done`. Database: both tabs under Bookings with Today first, no Stock tabs left, both profiles with view and edit, table and hook present.
+- **Today, as SuperAdmin, with stays moved to today by SQL:** counts and rows correct (a late arrival, three arrivals owing GH₵8,580, an overdue departure). Check in recorded the time; a second check-in, a check-out before check-in, and a stay that has not started were each refused with a message; a wrong token changed nothing. Check out recorded the end of the booked stay for the overdue room and the room became dirty through the hook.
+- **Housekeeping:** mark clean; out of service refused for a room with a guest in it; allowed for a room with coming bookings, with the red note and `id_status` 2; an invalid state refused; back in service restored `id_status` 1.
+- **As the Hotel Staff test account:** Today opens with its buttons; the new-guest form has only the six fields; a guest with no email was created (placeholder address, customer group, bcrypt password); an already-used email was refused; that guest was booked through Book Now and the order form with Send mails on, the booking page opened, and no mail was attempted.
+- **Removed pages:** all six shop addresses, in both the old and the friendly form, return 404; home, sitemap, search and contact return 200 with no errors.
+- **Bug found and fixed while testing:** the computed columns on Today were blank because the loops modified a copy (`foreach ((array) $rows as &$row)`).
+- **Why earlier smoke tests sometimes failed right after a file was copied in:** opcache rechecks files every 60 seconds (`docker/php.ini`), so a hot-patched file is not seen at once. Reload Apache (`apachectl -k graceful`) after copying a PHP file into a running container.
+- **Not tested:** a real browser (all of this was driven with `curl`); Hotel Manager on the new pages; a check-out made from the booking page marking the room dirty (same hook, not exercised from that page); real email through SMTP, including an invoice attachment after the two fixes; the Inbox reply and options save after the IMAP removal beyond loading the page; dark mode screenshots of the new pages; a fresh install; the live server.

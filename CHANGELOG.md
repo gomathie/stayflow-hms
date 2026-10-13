@@ -9,6 +9,24 @@ Every change to Salisberg, newest first, in plain words.
 
 ## 2026-10-13
 
+### Added
+
+- **Bookings › Today.** One page for the front desk: arrivals, departures, rooms in house and unpaid bookings, with Check in and Check out buttons.
+- **Bookings › Housekeeping.** Every room as clean, dirty or out of service. A room turns dirty when its guest is checked out; out of service takes it off sale.
+- **Warning for room types with no rooms.** Manage Room Types marks them "No rooms" and names them in a warning; they cannot be booked.
+- **Short form for a walk-in guest.** Add new customer asks for title, name, phone and email only, and the email may be left empty.
+
+### Removed
+
+- **Stock menu** (Warehouses, Stock Management, Stock Movement, Instant Stock Status, Stock Coverage, Configuration): menu entries and their pages.
+- **Shop pages on the website:** Suppliers, Manufacturers, Best sales, New products, Prices drop, Products Comparison. Their addresses now show Page not found.
+- **1-Click Upgrade module** (`modules/qloautoupgrade`). It was never installed and must not be used here.
+- **IMAP mailbox sync under Inbox.** All email uses the one mail server under Advanced Parameters › E-mail.
+
+### Fixed
+
+- Two warnings logged whenever an invoice PDF was made (a missing PDF translation file, and an unset day count for items not priced per night).
+
 ### Changed
 
 - **No index.php in the address bar, website and back office.** Back office pages now show as /admin-name/?controller=... instead of /admin-name/index.php?controller=.... On the website the last link that still showed index.php, Our Properties, now reads /our-properties.

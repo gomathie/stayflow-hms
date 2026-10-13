@@ -39,12 +39,14 @@
 			<li>{l s='Removed from the code: the Stock menu and its six pages, the shop pages Suppliers, Manufacturers, Best sales, New products, Prices drop and Products Comparison, the 1-Click Upgrade module, and the IMAP mailbox sync under Inbox. All mail goes through Mail::Send and the E-mail settings.' mod='salisbergguide'}</li>
 		</ul>
 		{/if}
+		{if $sb_can_read_admin_guide}
 		<h4>{l s='For the hotel manager' mod='salisbergguide'}</h4>
 		<ul>
 			<li><strong>{l s='Room types with no rooms are flagged.' mod='salisbergguide'}</strong> {l s='Manage Room Types shows No rooms in red and a warning at the top for any room type that is switched on but has no room in service. Guests see such a room type as sold out.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Stock menu removed.' mod='salisbergguide'}</strong> {l s='Warehouses and stock pages belonged to the shop software this system grew from; a hotel does not use them.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Old shop pages removed from the website.' mod='salisbergguide'}</strong> {l s='Suppliers, Manufacturers, Best sales, New products, Prices drop and Products Comparison no longer exist; their addresses show the Page not found page.' mod='salisbergguide'}</li>
 		</ul>
+		{/if}
 	</section>
 
 	<section>
