@@ -13,7 +13,52 @@ class ContactController extends ContactControllerCore
             unset($_FILES['fileUpload']);
         }
 
+        // A form value sent as a list (message[]=x) would stop the page with an
+        // error; the form only ever sends text, so such values are emptied.
+        foreach (array('message', 'user_name', 'phone', 'subject', 'from', 'token', 'contactKey', 'id_contact', 'id_product', 'id_order', 'url') as $field) {
+            foreach (array('_POST', '_GET') as $source) {
+                if (isset($GLOBALS[$source][$field]) && !is_string($GLOBALS[$source][$field])) {
+                    $GLOBALS[$source][$field] = '';
+                    $listSent = true;
+                }
+            }
+        }
+
         if (Tools::isSubmit('submitMessage')) {
+            if (!empty($listSent)) {
+                $this->errors[] = Tools::displayError('Some of the details sent are not valid. Please check the form and try again.');
+
+                return;
+            }
+
+            // Every value reaches the database through pSQL() or a cast in the
+            // stock code. This is a second line of defence: each field must
+            // have the shape the form can produce, so nothing else is passed on.
+            $shapes = array(
+                'token' => '/^[A-Za-z0-9]{0,64}$/',
+                'contactKey' => '/^[A-Za-z0-9]{0,64}$/',
+                'id_contact' => '/^[0-9]{0,10}$/',
+                'id_product' => '/^[0-9]{0,10}$/',
+                'id_order' => '/^[#A-Za-z0-9_\-]{0,64}$/',
+                'from' => '/^[^\x00-\x1F\'"`;\\\\<>]{0,254}$/',
+            );
+            $badShape = false;
+            foreach (array('message', 'user_name', 'phone', 'subject', 'from', 'token', 'contactKey', 'id_contact', 'id_product', 'id_order', 'url') as $field) {
+                if (!isset($_POST[$field])) {
+                    continue;
+                }
+                if (!is_string($_POST[$field])
+                    || (isset($shapes[$field]) && !preg_match($shapes[$field], $_POST[$field]))
+                ) {
+                    $badShape = true;
+                }
+            }
+            if ($badShape) {
+                $this->errors[] = Tools::displayError('Some of the details sent are not valid. Please check the form and try again.');
+
+                return;
+            }
+
             // Links are refused: staff read these messages and should never be
             // one click from an address a stranger typed. Markup is stripped
             // first so a link cannot hide inside a tag.
