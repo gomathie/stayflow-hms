@@ -11,7 +11,7 @@ ADMIN_DIR="${ADMIN_DIR:-admin-salisberg}"
 BRANDING_VERSION=1
 BRAND_NAME="Salisberg Hotels"
 # Bump CONTENT_VERSION to re-run the demo-content replacement below.
-CONTENT_VERSION=4
+CONTENT_VERSION=5
 BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
 CURRENCY_VERSION=2
@@ -237,6 +237,8 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         # The contact form takes messages only, no attached files
         uploads_on=$(db_query "SELECT COUNT(*) FROM qlo_configuration WHERE name='PS_CUSTOMER_SERVICE_FILE_UPLOAD' AND value='1'")
         db_query "UPDATE qlo_configuration SET value='0' WHERE name='PS_CUSTOMER_SERVICE_FILE_UPLOAD'"
+        # ...and no "Send To" choice: every message goes to the one contact
+        db_query "UPDATE qlo_configuration SET value='0' WHERE name='PS_CUSTOMER_SERVICE_DISPLAY_CONTACT'"
         echo "$CONTENT_VERSION" > /data/.content-version
         echo "Content v$CONTENT_VERSION applied (demo identity replaced; sample guest accounts retired: ${demo_guests:-0}; contact form file upload switched off: ${uploads_on:-0}; footer: ${footer_note}, links added: ${footer_links:-0})"
     fi

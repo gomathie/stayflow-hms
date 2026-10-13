@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='13 October 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='Simpler Contact form.' mod='salisbergguide'}</strong> {l s='The website Contact page no longer asks guests for a Title or who to send to. Messages arrive under Customers, Customer Service, titled with the start of the message.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Fixed: front desk staff could not finish a booking in Book Now.' mod='salisbergguide'}</strong> {l s='The rooms stayed in the cart and no booking was made. Staff accounts were missing a right on Booking Carts that the last step depends on. It is now given automatically.' mod='salisbergguide'}</li>
 		</ul>
 		{if $sb_is_admin}

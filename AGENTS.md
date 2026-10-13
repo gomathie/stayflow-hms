@@ -1548,3 +1548,12 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - Admin Guide and What's New pages load with the new text; `docker/smoke-test.sh`: 29 of 29.
 - **Not tested:** the flow in a real browser (the calls were made with `curl`, in the order the form makes them); vouchers, extra services and occupancy changes on the form as staff; a new guest created from the form; the live server.
 - Local test data: employee `staff.test@example.com` and bookings for December 2026 exist only in the local database.
+
+### 2026-10-13 — Contact form: no Title, no Send To
+
+- The website Contact form lost its Title field (`themes/hotel-reservation-theme/contact-form.tpl`) and its "Send To" choice. The owner asked for it to be simple, with messages going to users in the back office.
+- "Send To" uses the platform's own switch, `PS_CUSTOMER_SERVICE_DISPLAY_CONTACT`, set to 0 by the content step (`CONTENT_VERSION=5`). The stock controller then uses `PS_CUSTOMER_SERVICE_CONTACT`.
+- The controller still requires a title and a valid contact, so `override/controllers/front/ContactController.php` fills them in: the title is the first 60 characters of the message; if `PS_CUSTOMER_SERVICE_CONTACT` is not a real contact it is set to the first contact. Messages are stored as customer threads (Customers › Customer Service) and mailed to that contact's address, as before.
+- Admin Guide section 9, CHANGELOG and What's New updated.
+- **Verification (local, hot-patched into the running container):** with the switch at 0, the Contact page has no Title and no Send To field; posting a message created customer thread 2 (contact 2, the message start as its title) and showed the success notice, with no PHP errors logged. The `PS_CUSTOMER_SERVICE_CONTACT` setting was unset locally, so the first-contact fallback is what was exercised.
+- **Not tested:** the content step through a rebuilt image (the switch was set by hand locally); the email to the contact address (no SMTP); the live server.

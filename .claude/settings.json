@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -L \"http://localhost:8080/index.php?controller=contact\")",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec stayflow-hms-app-1 grep -c 'name=\"subject\"' /var/www/html/themes/hotel-reservation-theme/contact-form.tpl)",
+      "Bash(php -r '$f=\"AGENTS.md\";$s=file_get_contents\\($f\\);$i=strrpos\\($s,\"- **Not tested:** nothing was run.\"\\);$s=substr\\($s,0,$i\\).\"- **Verification \\(local, hot-patched into the running container\\):** with the switch at 0, the Contact page has no Title and no Send To field; posting a message created customer thread 2 \\(contact 2, the message start as its title\\) and showed the success notice, with no PHP errors logged. The `PS_CUSTOMER_SERVICE_CONTACT` setting was unset locally, so the first-contact fallback is what was exercised.\\\\n- **Not tested:** the content step through a rebuilt image \\(the switch was set by hand locally\\); the email to the contact address \\(no SMTP\\); the live server.\\\\n\";file_put_contents\\($f,$s\\);')"
+    ]
+  }
+}

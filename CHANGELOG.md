@@ -9,6 +9,10 @@ Every change to Salisberg, newest first, in plain words.
 
 ## 2026-10-13
 
+### Changed
+
+- **Contact form simplified.** The website Contact page no longer asks for a Title or a Send To choice: it takes name, email, phone and the message. Every message goes to the one contact set in Customers › Contacts and appears under Customers › Customer Service, titled with the start of the message.
+
 ### Fixed
 
 - **Front desk staff could not finish a booking in Book Now.** The rooms stayed in the cart and nothing was recorded. The last step (Bookings › Add new) attaches the guest to the cart through the Booking Carts page, which needs Add and Edit rights there; Hotel Staff and Hotel Manager had been created with View only. Both are now given those rights automatically on deploy, and the Admin Guide lists the three things a profile needs to take bookings.
