@@ -101,10 +101,14 @@ abstract class HTMLTemplateCore
 
         $id_shop = (int)$this->shop->id;
 
-        if (Configuration::get('PS_LOGO_INVOICE', null, null, $id_shop) != false) {
-            $logo = Context::getContext()->link->getMediaLink(_PS_IMG_.Configuration::get('PS_LOGO_INVOICE', null, null, $id_shop));
-        } elseif (Configuration::get('PS_LOGO', null, null, $id_shop) != false) {
-            $logo = Context::getContext()->link->getMediaLink(_PS_IMG_.Configuration::get('PS_LOGO', null, null, $id_shop));
+        // The file on disk, not its web address: the server cannot always
+        // reach its own public address (behind a proxy, or locally)
+        foreach (array('PS_LOGO_INVOICE', 'PS_LOGO') as $key) {
+            $file = Configuration::get($key, null, null, $id_shop);
+            if ($file && file_exists(_PS_IMG_DIR_.$file)) {
+                $logo = _PS_IMG_DIR_.$file;
+                break;
+            }
         }
         return $logo;
     }

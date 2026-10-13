@@ -261,7 +261,9 @@ class TranslateCore
         }
 
         if (!isset($_LANGPDF) || !is_array($_LANGPDF)) {
-            return str_replace('"', '&quot;', $string);
+            $string = str_replace('"', '&quot;', $string);
+
+            return ($sprintf !== null) ? Translate::checkAndReplaceArgs($string, $sprintf) : $string;
         }
 
         $string = preg_replace("/\\\*'/", "\'", $string);
