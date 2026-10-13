@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='13 October 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='Cleaner addresses.' mod='salisbergguide'}</strong> {l s='The address bar no longer shows index.php, in the back office or on the website. Old bookmarks still work.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Customer Service is now Inbox, and easier to read.' mod='salisbergguide'}</strong> {l s='Messages from the website Contact form arrive under Customers, Inbox. The list shows who it is from, their email and phone, the start of the message, its status, who is handling it and when it arrived; click the message to open it. Statuses are Open, In progress, Waiting for guest and Closed.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Links cannot be sent through the Contact form.' mod='salisbergguide'}</strong> {l s='A message that contains a web address is refused with a short note to the guest, and any link that is already in a message is shown as plain text that cannot be clicked.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Import uses Excel only.' mod='salisbergguide'}</strong> {l s='Under Advanced Parameters, CSV Import, upload an Excel .xlsx file. The sample files are Excel files too.' mod='salisbergguide'}</li>

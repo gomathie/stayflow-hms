@@ -11,6 +11,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **No index.php in the address bar, website and back office.** Back office pages now show as /admin-name/?controller=... instead of /admin-name/index.php?controller=.... On the website the last link that still showed index.php, Our Properties, now reads /our-properties.
 - **Customer Service renamed Inbox and simplified.** The Customers menu page is now Inbox. The list keeps From, Email, Phone, Message, Status, Handled by and Received (ID, Contact, Language, Last Reply by, Has Private and the full message text columns are gone); the message start is a link that opens the conversation; statuses read Open, In progress, Waiting for guest, Closed. The mail-server (IMAP) settings are shown to SuperAdmins only. Message titles end on a whole word.
 - **Contact form refuses links.** A message with a web address in it is not sent, and the guest is asked to remove it. Links already stored are shown as plain text in the back office instead of clickable ones, so front desk staff cannot click one by accident.
 - **Import is Excel only.** Advanced Parameters › CSV Import now accepts .xlsx files only. All the .csv sample files and their download links are removed; the samples are Excel files. The upload box on that page now also accepts .xlsx in the browser (it was still filtering for .csv there, which would have blocked an Excel file).

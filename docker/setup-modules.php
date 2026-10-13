@@ -143,8 +143,8 @@ if (!file_exists($testimonialsFlag)) {
 
 // Friendly URLs: website links read example.com/room-name instead of
 // example.com/index.php?controller=product&id_product=12, with no .php in
-// sight. Back office links are unaffected (they always use index.php by
-// design). Only the database setting is set here, once; the .htaccess file
+// sight. The back office keeps its index.php links; docker/apache.conf
+// takes index.php out of its address bar. Only the database setting is set here, once; the .htaccess file
 // itself is regenerated on every start by docker/generate-htaccess.php,
 // because it lives in the code filesystem, not a persisted volume, and does
 // not survive a redeploy.
