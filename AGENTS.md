@@ -1557,3 +1557,12 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - Admin Guide section 9, CHANGELOG and What's New updated.
 - **Verification (local, hot-patched into the running container):** with the switch at 0, the Contact page has no Title and no Send To field; posting a message created customer thread 2 (contact 2, the message start as its title) and showed the success notice, with no PHP errors logged. The `PS_CUSTOMER_SERVICE_CONTACT` setting was unset locally, so the first-contact fallback is what was exercised.
 - **Not tested:** the content step through a rebuilt image (the switch was set by hand locally); the email to the contact address (no SMTP); the live server.
+
+### 2026-10-13 — Import is Excel only
+
+- Owner: remove the CSV imports and examples, keep Excel only. All `docs/csv_import/*.csv` samples are deleted and their links removed from the import form (`admin/themes/default/template/controllers/import/helpers/form/form.tpl`); the supply-order links went too (no such entity in this product, and no Excel version). The folder keeps its name because the page links to it by path (rule 29).
+- `override/controllers/admin/AdminImportController.php` now refuses anything that is not `.xlsx` (the error shows in the upload box). The stock engine still reads CSV internally, so the `.xlsx` is converted to a temporary CSV exactly as before.
+- **Bug found in the earlier Excel feature:** the form's browser-side filter was still `acceptFileTypes: /(csv)$/`, so a real browser would have refused an `.xlsx` before it reached the server. The earlier tests used `curl` and missed it. The filter is now `xlsx`.
+- Admin Guide section 16, CHANGELOG and What's New updated.
+- **Verification (local, hot-patched):** the import page loads with 0 `.csv` links and 8 `.xlsx` links and the `xlsx` filter; uploading a `.csv` returns "Please upload an Excel (.xlsx) file."; uploading `hotels_import.xlsx` is converted and accepted; a `.csv` sample URL returns 404.
+- **Not tested:** the upload box in a real browser (the filter text was read from the page, not exercised); completing an import of a converted file; the live server.

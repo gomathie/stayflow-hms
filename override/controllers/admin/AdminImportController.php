@@ -1,10 +1,10 @@
 <?php
 /**
- * CSV Import also accepts .xlsx (modern Excel) files. An uploaded .xlsx is
- * converted to a semicolon-separated CSV right after upload, in the same
- * temporary file the stock code already expects; everything after that
- * (column mapping, validation, the import itself) is the unmodified vendor
- * flow. Old binary .xls is not read; save those as .xlsx or .csv first.
+ * CSV Import takes Excel (.xlsx) files only. An uploaded .xlsx is converted to
+ * a semicolon-separated CSV right after upload, in the same temporary file the
+ * stock code already expects, which the stock import engine then reads
+ * unchanged (it works on CSV internally). Anything that is not .xlsx is
+ * refused. Old binary .xls is not read; save those as .xlsx first.
  */
 require_once _PS_ROOT_DIR_.'/tools/simplexlsx/SimpleXLSX.php';
 
@@ -12,7 +12,11 @@ class AdminImportController extends AdminImportControllerCore
 {
     public function ajaxProcessuploadCsv()
     {
-        if (isset($_FILES['file']['name']) && preg_match('/\.xlsx$/i', $_FILES['file']['name'])) {
+        if (isset($_FILES['file']['name']) && empty($_FILES['file']['error'])) {
+            if (!preg_match('/\.xlsx$/i', $_FILES['file']['name'])) {
+                $_FILES['file']['error'] = Tools::displayError('Please upload an Excel (.xlsx) file.');
+                die(json_encode($_FILES));
+            }
             $this->convertXlsxUpload();
         }
 

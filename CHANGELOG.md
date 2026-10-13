@@ -11,6 +11,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Import is Excel only.** Advanced Parameters › CSV Import now accepts .xlsx files only. All the .csv sample files and their download links are removed; the samples are Excel files. The upload box on that page now also accepts .xlsx in the browser (it was still filtering for .csv there, which would have blocked an Excel file).
 - **Contact form simplified.** The website Contact page no longer asks for a Title or a Send To choice: it takes name, email, phone and the message. Every message goes to the one contact set in Customers › Contacts and appears under Customers › Customer Service, titled with the start of the message.
 
 ### Fixed
