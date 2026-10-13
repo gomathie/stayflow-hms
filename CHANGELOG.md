@@ -27,6 +27,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Every booking gets its invoice when it is made**, not only once money has come in. The part-payment email now carries the PDF as well.
 - **Book Now and Add new order are both "Add new booking"** in the back office (menu page under Manage Hotel, and the button on Bookings). The website's Book Now button is unchanged.
 - **No index.php in the address bar, website and back office.** Back office pages now show as /admin-name/?controller=... instead of /admin-name/index.php?controller=.... On the website the last link that still showed index.php, Our Properties, now reads /our-properties.
 - **Customer Service renamed Inbox and simplified.** The Customers menu page is now Inbox. The list keeps From, Email, Phone, Message, Status, Handled by and Received (ID, Contact, Language, Last Reply by, Has Private and the full message text columns are gone); the message start is a link that opens the conversation; statuses read Open, In progress, Waiting for guest, Closed. The mail-server (IMAP) settings are shown to SuperAdmins only. Message titles end on a whole word.
