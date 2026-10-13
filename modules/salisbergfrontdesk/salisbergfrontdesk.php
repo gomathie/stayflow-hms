@@ -17,6 +17,13 @@
  * of service on either screen stops being offered to guests. This module only
  * stores clean/dirty, in sb_room_status.
  *
+ * It also tells the guest what has happened:
+ *  - at check-in: an email with the invoice or receipt attached, and a text;
+ *  - when the booking is paid in full: a text (the platform already emails
+ *    the receipt for that).
+ * Texts go out through the hook actionSalisbergSendSms. Nothing listens to it
+ * until an SMS provider's module is installed, so until then no text is sent.
+ *
  * Who may open the pages is an ordinary menu permission (Administration >
  * Permissions, rows "Today" and "Housekeeping"): View to see, Edit to change.
  */
@@ -74,8 +81,10 @@ class Salisbergfrontdesk extends Module
                 PRIMARY KEY (`id_room`)
             ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8'
         );
-        if (!$this->isRegisteredInHook('actionRoomBookingStatusUpdateAfter')) {
-            $ok = $this->registerHook('actionRoomBookingStatusUpdateAfter') && $ok;
+        foreach (array('actionRoomBookingStatusUpdateAfter', 'actionOrderStatusPostUpdate') as $hook) {
+            if (!$this->isRegisteredInHook($hook)) {
+                $ok = $this->registerHook($hook) && $ok;
+            }
         }
 
         return $ok
@@ -154,8 +163,129 @@ class Salisbergfrontdesk extends Module
             return;
         }
         $booking = new HotelBookingDetail((int) $params['id_hotel_booking_detail']);
-        if (Validate::isLoadedObject($booking) && (int) $booking->id_status == HotelBookingDetail::STATUS_CHECKED_OUT) {
+        if (!Validate::isLoadedObject($booking)) {
+            return;
+        }
+        if ((int) $booking->id_status == HotelBookingDetail::STATUS_CHECKED_OUT) {
             $this->saveRoomStatus((int) $booking->id_room, self::ROOM_DIRTY);
+        } elseif ((int) $booking->id_status == HotelBookingDetail::STATUS_CHECKED_IN) {
+            $this->notifyCheckIn($booking);
+        }
+    }
+
+    /** A booking that has just become paid in full: text the guest */
+    public function hookActionOrderStatusPostUpdate($params)
+    {
+        if (empty($params['newOrderStatus']) || empty($params['id_order']) || !$params['newOrderStatus']->paid) {
+            return;
+        }
+        $order = new Order((int) $params['id_order']);
+        if (!Validate::isLoadedObject($order)) {
+            return;
+        }
+        $customer = new Customer((int) $order->id_customer);
+        $this->sendSms($customer->phone, sprintf(
+            $this->l('%1$s: we have received your payment of %2$s for booking %3$s. Thank you.'),
+            Configuration::get('PS_SHOP_NAME'),
+            Tools::displayPrice((float) $order->total_paid_real, (int) $order->id_currency),
+            $order->reference
+        ), $order);
+    }
+
+    /**
+     * The first room of a booking to be checked in: email the guest with the
+     * invoice (a receipt once it is paid) attached, and text them. Later rooms
+     * of the same booking say nothing more.
+     */
+    protected function notifyCheckIn(HotelBookingDetail $booking)
+    {
+        $arrived = (int) Db::getInstance()->getValue(
+            'SELECT COUNT(*) FROM `'._DB_PREFIX_.'htl_booking_detail`
+            WHERE `id_order` = '.(int) $booking->id_order.' AND `id` != '.(int) $booking->id.'
+            AND `id_status` IN ('.(int) HotelBookingDetail::STATUS_CHECKED_IN.', '.(int) HotelBookingDetail::STATUS_CHECKED_OUT.')'
+        );
+        $order = new Order((int) $booking->id_order);
+        if ($arrived || !Validate::isLoadedObject($order)) {
+            return;
+        }
+        $customer = new Customer((int) $order->id_customer);
+        $shopName = Configuration::get('PS_SHOP_NAME');
+        $checkOut = date('j M Y', strtotime($booking->date_to));
+        $balance = max(0, (float) $order->total_paid_tax_incl - (float) $order->total_paid_real);
+
+        $this->sendSms($customer->phone, sprintf(
+            $this->l('Welcome to %1$s, %2$s. You are checked in to room %3$s until %4$s. Booking %5$s.'),
+            $shopName,
+            $customer->firstname,
+            $booking->room_num,
+            $checkOut,
+            $order->reference
+        ), $order);
+
+        if (!Validate::isEmail($customer->email) || Customer::hasNoEmail($customer->email)) {
+            return;
+        }
+        try {
+            $attachment = null;
+            if ((int) Configuration::get('PS_INVOICE') && $order->invoice_number) {
+                $invoices = $order->getInvoicesCollection();
+                Hook::exec('actionPDFInvoiceRender', array('order_invoice_list' => $invoices));
+                $pdf = new PDF($invoices, PDF::TEMPLATE_INVOICE, $this->context->smarty);
+                $attachment = array(
+                    'content' => $pdf->render(false),
+                    'name' => Configuration::get('PS_INVOICE_PREFIX', (int) $order->id_lang, null, $order->id_shop).sprintf('%06d', $order->invoice_number).'.pdf',
+                    'mime' => 'application/pdf',
+                );
+            }
+            Mail::Send(
+                (int) $order->id_lang,
+                'checkin',
+                sprintf(Mail::l('Welcome to %s', (int) $order->id_lang), $shopName),
+                array(
+                    '{firstname}' => $customer->firstname,
+                    '{lastname}' => $customer->lastname,
+                    '{order_name}' => $order->reference,
+                    '{room}' => $booking->room_num.' ('.$booking->room_type_name.')',
+                    '{check_out}' => $checkOut,
+                    '{balance_line}' => ($balance > 0.009)
+                        ? sprintf($this->l('Still to pay: %s. You can settle it at reception.'), Tools::displayPrice($balance, (int) $order->id_currency))
+                        : $this->l('Your booking is paid in full. Your receipt is attached.'),
+                ),
+                $customer->email,
+                $customer->firstname.' '.$customer->lastname,
+                null,
+                null,
+                $attachment,
+                null,
+                $this->local_path.'mails/',
+                false,
+                (int) $order->id_shop
+            );
+        } catch (Exception $e) {
+            // a mail problem must never stop a guest being checked in
+            PrestaShopLogger::addLog('salisbergfrontdesk: check-in email for '.$order->reference.' not sent: '.$e->getMessage(), 3);
+        }
+    }
+
+    /**
+     * Hands a text message to whichever SMS provider is installed. With none
+     * installed the hook has no listener and nothing happens.
+     */
+    protected function sendSms($phone, $message, Order $order)
+    {
+        $phone = trim((string) $phone);
+        if ($phone === '') {
+            return;
+        }
+        try {
+            Hook::exec('actionSalisbergSendSms', array(
+                'phone' => $phone,
+                'message' => $message,
+                'id_order' => (int) $order->id,
+                'reference' => $order->reference,
+            ));
+        } catch (Exception $e) {
+            PrestaShopLogger::addLog('salisbergfrontdesk: text for '.$order->reference.' not sent: '.$e->getMessage(), 3);
         }
     }
 

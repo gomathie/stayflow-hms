@@ -11,12 +11,12 @@ ADMIN_DIR="${ADMIN_DIR:-admin-salisberg}"
 BRANDING_VERSION=1
 BRAND_NAME="Salisberg Hotels"
 # Bump CONTENT_VERSION to re-run the demo-content replacement below.
-CONTENT_VERSION=7
+CONTENT_VERSION=8
 BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
 CURRENCY_VERSION=2
 # Bump MODULES_VERSION whenever docker/setup-modules.php changes.
-MODULES_VERSION=19
+MODULES_VERSION=20
 # Bump ROOM_TYPES_VERSION whenever docker/setup-room-types.php changes.
 ROOM_TYPES_VERSION=1
 # Bump SCHEMA_VERSION when a schema/settings step below is added or changed.
@@ -252,6 +252,8 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         # still owed. (Orders > Statuses, "Awaiting payment", is where to undo it.)
         invoice_states=$(db_query "SELECT COUNT(*) FROM qlo_order_state WHERE invoice=0 AND id_order_state IN (SELECT value FROM qlo_configuration WHERE name='PS_OS_AWAITING_PAYMENT')")
         db_query "UPDATE qlo_order_state SET invoice=1 WHERE invoice=0 AND id_order_state IN (SELECT value FROM (SELECT value FROM qlo_configuration WHERE name='PS_OS_AWAITING_PAYMENT') v)"
+        # The PDF goes out with the payment emails: full payment already did, part payment now does
+        db_query "UPDATE qlo_order_state SET pdf_invoice=1 WHERE pdf_invoice=0 AND id_order_state IN (SELECT value FROM (SELECT value FROM qlo_configuration WHERE name IN ('PS_OS_PAYMENT','PS_OS_PAYMENT_ACCEPTED','PS_OS_PARTIAL_PAYMENT_ACCEPTED')) v)"
         echo "$CONTENT_VERSION" > /data/.content-version
         echo "Content v$CONTENT_VERSION applied (demo identity replaced; sample guest accounts retired: ${demo_guests:-0}; contact form file upload switched off: ${uploads_on:-0}; footer: ${footer_note}, links added: ${footer_links:-0}; shop pages removed: ${shop_pages_gone:-0}; states now issuing an invoice: ${invoice_states:-0})"
     fi
