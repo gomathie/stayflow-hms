@@ -211,7 +211,8 @@ class Salisbergfrontdesk extends Module
             ORDER BY '.$orderBy
         );
         $today = date('Y-m-d');
-        foreach ((array) $rows as &$row) {
+        $rows = (array) $rows;
+        foreach ($rows as &$row) {
             $row['balance'] = max(0, (float) $row['total_paid_tax_incl'] - (float) $row['total_paid_real']);
             $row['balance_text'] = $row['balance'] > 0.009 ? $this->money($row['balance']) : '';
             $row['stay'] = Tools::displayDate($row['date_from']).' - '.Tools::displayDate($row['date_to']);
@@ -221,8 +222,9 @@ class Salisbergfrontdesk extends Module
             $row['leaves_today'] = substr($row['date_to'], 0, 10) == $today;
             $row['room_label'] = $this->roomLabel($row['room_state'], $row['housekeeping']);
         }
+        unset($row);
 
-        return (array) $rows;
+        return $rows;
     }
 
     /**
@@ -281,14 +283,16 @@ class Salisbergfrontdesk extends Module
             ORDER BY `stay_from` ASC
             LIMIT 200'
         );
-        foreach ((array) $rows as &$row) {
+        $rows = (array) $rows;
+        foreach ($rows as &$row) {
             $row['total_text'] = $this->money($row['total_paid_tax_incl']);
             $row['paid_text'] = $this->money($row['total_paid_real']);
             $row['balance_text'] = $this->money((float) $row['total_paid_tax_incl'] - (float) $row['total_paid_real']);
             $row['stay'] = Tools::displayDate($row['stay_from']).' - '.Tools::displayDate($row['stay_to']);
         }
+        unset($row);
 
-        return (array) $rows;
+        return $rows;
     }
 
     /**
@@ -398,14 +402,16 @@ class Salisbergfrontdesk extends Module
             WHERE r.`id_hotel` IN ('.implode(',', $hotels).')
             ORDER BY pl.`name` ASC, r.`room_num` ASC'
         );
-        foreach ((array) $rows as &$row) {
+        $rows = (array) $rows;
+        foreach ($rows as &$row) {
             $row['state'] = $this->roomLabel($row['room_state'], $row['housekeeping']);
             // dates for a room closed for a period are set in its room type
             $row['fixed'] = (int) $row['room_state'] == HotelRoomInformation::STATUS_TEMPORARY_INACTIVE;
             $row['changed'] = $row['date_upd'] ? Tools::displayDate($row['date_upd'], null, true) : '';
         }
+        unset($row);
 
-        return (array) $rows;
+        return $rows;
     }
 
     protected function saveRoomStatus($idRoom, $status, $idEmployee = null)
