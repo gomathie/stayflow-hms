@@ -95,6 +95,9 @@
 	<section id="sb-s5">
 		<h3>5. {l s='Record a cash, Mobile Money or bank transfer payment' mod='salisbergguide'}</h3>
 		<p>{l s='Bookings made on the website with Cash at hotel, Mobile Money or Bank transfer arrive as Awaiting payment. Nothing is confirmed automatically: a member of staff must record the money.' mod='salisbergguide'}</p>
+		<p>{l s='Every booking has an invoice from the moment it is made. It shows the stay, the total, each payment received, and the balance still due, with the ways to pay it. Once nothing is owed the same document is headed Receipt. Open the booking and use the invoice button to print it or save it as a PDF.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='What the guest is sent, if they have an email address: the booking confirmation with the invoice when the booking is made, the receipt when payment is confirmed, and a welcome email with the invoice or receipt when you check them in. Text messages for check-in and payment will start once the text service is connected.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='Record a payment once only. Changing the status to Complete payment received records the full amount by itself, so do not also add that payment by hand, or the money is counted twice.' mod='salisbergguide'}</p>
 		<h4>{l s='Mobile Money' mod='salisbergguide'}</h4>
 		<ol>
 			<li>{l s='Check the hotel Mobile Money phone or statement. The guest is asked to use their booking reference as the payment reference.' mod='salisbergguide'}</li>

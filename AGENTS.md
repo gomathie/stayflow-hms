@@ -1658,3 +1658,50 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - Guides: Staff Guide menu table and section 3 (steps rewritten for the Guest box); Admin Guide wording; What's New; CHANGELOG.
 - **Verification (local, image rebuilt, as the Hotel Staff test account, driven with `curl`):** the menu shows Add new booking; the order form renders with the five new elements and no template errors; the endpoint created a guest from a phone only, found the same guest from the same number written differently and under another name, found an existing guest by email, created one with an email, refused no contact details and refused a script tag, a bad phone and a bad email with one message each; a request without a token got the platform's invalid-token page. A booking for the new guest was then created and its page opened. `docker/smoke-test.sh` 31 of 31. The PDF translation warnings fixed earlier no longer appear in the log.
 - **Not tested:** the Guest box in a real browser (the button, the message box, the automatic Choose click); Hotel Manager; the live server. Seen in the local log and left alone: a warning at `AdminCartsController.php:470` during the cart step, and the invoice logo fetched over `http://localhost:8080` failing inside the container (a local-only address).
+
+### 2026-10-13 — Invoice reviewed and redesigned; receipt; check-in and payment notices
+
+#### What the invoice flow did (read from the code and the database before changing it)
+
+- An invoice (number `#IN000001` onward, table `order_invoice`) is created the first time a booking enters an order state whose `invoice` flag is on. That was: Complete payment received, Processing, Refunded, Partial payment received, Remote payment accepted. **Awaiting payment was not one of them**, so a guest paying cash on arrival, or still to send Mobile Money, had no document at all.
+- The PDF (`classes/pdf/HTMLTemplateInvoice.php`, templates in `pdf/invoice*.tpl`, `pdf/header.tpl`, `pdf/footer.tpl`) is attached to the booking confirmation email when the booking already has an invoice, and to a status email when that state's `pdf_invoice` flag is on (only Complete payment received).
+- **Faults found on a real invoice:** no logo (it was fetched over the public web address, which the server cannot always reach); the footer printed `Tel: %s`; an invisible "Powered by TCPDF" line; dates as 10/13/2026; amounts wrapping onto two lines; nothing about what had been paid or was still owed; the guest's email missing; payment method shown as the module name.
+
+#### Flow changes
+
+- **Awaiting payment now issues the invoice** (`order_state.invoice = 1` for the state in `PS_OS_AWAITING_PAYMENT`), so every booking has one from the start, showing the balance due. Content step, `CONTENT_VERSION=7`. Undo it under Bookings > Statuses, Awaiting payment, "Allow a customer to download and view PDF versions of his/her invoices". Bookings already sitting in Awaiting payment get their invoice at their next status change.
+- **Part payment emails carry the PDF** (`pdf_invoice = 1` for the full and part payment states), `CONTENT_VERSION=8`.
+- **The paid document is the receipt:** `getHeader()` titles it Receipt once nothing is owed, Invoice otherwise. Same number, same file.
+
+#### Design (inherited templates, edited in place; licence headers kept)
+
+- `pdf/header.tpl` (shared by every PDF): logo at a fixed width, document name in brand green, number in gold, date, a green rule.
+- `pdf/footer.tpl` (shared): address, phone and email on a hairline. The vendor's "electronic version in your account" and Fax lines are gone.
+- `invoice.addresses-tab` (From / Billed to, with the guest's phone and email), `invoice.summary-tab` (number, date, booking reference, booked on, status in colour), `invoice.product-tab` ("Your stay": room type and room numbers, check-in, check-out, nights, guests, rate per night, amount), `invoice.payment-tab` (each payment with date, method and reference; then "How to pay the balance" when money is owed), `invoice.total-tab` (lines, Total, Paid, Balance due in red or green), `invoice.style-tab` (brand colours, new classes). The tax, extra-services and other-items tables keep their content and take the same heading band.
+- `invoice.tpl`: the bottom block is one row of two cells. The old `rowspan` layout pushed the last line onto a second page.
+- **Data added in `HTMLTemplateInvoice`:** `getBookingSummary()` (guest, totals, paid, balance, status, payments, how to pay from `Salisbergpay::getAvailableMethods()`, `getMomoDetails()`, `getBankDetails()`), `dateInWords()` (13 Oct 2026, the same everywhere), room numbers and worded dates on each stay line.
+- **Fixes at the source:** `HTMLTemplate::getLogo()` returns the file path; `PDFGenerator` switches the TCPDF line off; `Translate::getPdfTranslation()` fills `%s` placeholders when a language has no PDF translation file.
+
+#### Notices to the guest (`modules/salisbergfrontdesk`, `MODULES_VERSION=20`)
+
+- **Check-in** (`actionRoomBookingStatusUpdateAfter`, first room of a booking only): an email from the module's own template (`mails/en/checkin.html`, `.txt`) with the invoice or receipt attached, and a text.
+- **Paid in full** (`actionOrderStatusPostUpdate`, new state with `paid = 1`): a text. The platform's own payment email already carries the PDF.
+- **Texts** go through `Hook::exec('actionSalisbergSendSms', array('phone', 'message', 'id_order', 'reference'))`. No module listens to it yet, so nothing is sent; a provider module registers that hook and sends. A mail or text failure is logged and never blocks a check-in.
+
+#### Found and left for the owner (data, not code)
+
+- **Two installer sample charges are added to every booking automatically:** "Room Maintenance Fees" and "Internet Handling Charges", GH₵250 each, shown on the invoice as Fees. Rooms & Services > Manage Service Products.
+- **A 4% sample tax** is applied to rooms and fees.
+- The hotel address and phone on the invoice are still the installer's (Montgomery, Alabama; 0987654321).
+- **Marking a booking Complete payment received records the full amount as a payment by itself.** A payment also added by hand is then counted twice (seen in testing: paid GH₵17,160 on a GH₵8,580 booking). Staff Guide section 5 now warns about it.
+- The status and confirmation emails are still the vendor's design and wording ("order", "powered by Webkul"); only the new check-in email is in the brand style.
+
+#### Guides (rule 23)
+
+- Staff Guide section 5 (the invoice, what the guest is sent, record a payment once). Admin Guide section 10 (table of what is sent when; the text hook, SuperAdmin only). What's New; CHANGELOG.
+
+#### Verification (local, image rebuilt; PDFs opened and read)
+
+- Before/after of the same paid invoice; an unpaid one (NOT YET PAID, balance in red, how-to-pay block with the test Mobile Money and bank details); the same booking after payment (headed RECEIPT, two payments listed, balance GH₵0.00). Each is one page, with the logo, and no amount or heading wraps.
+- With a throwaway listener module installed in the local container only (it logged instead of sending): checking in the first room of a booking produced the welcome text and an email with `#IN000004.pdf` (486 KB) attached; checking in a second room of another booking produced nothing more; marking a booking paid produced the payment text and the platform's payment email with `#IN000007.pdf` attached. No PHP errors or warnings logged. `docker/smoke-test.sh` passes.
+- **Not tested:** real delivery of any email (this machine has no mail server; the send step itself failed with a sendmail error after the message was built); a real SMS provider; the invoice with discounts, extra services, refunds or several pages of rooms; the credit slip and other PDFs with the new shared header and footer; the guest's own download from the website; the live server.

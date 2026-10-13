@@ -240,7 +240,7 @@ class Salisbergfrontdesk extends Module
             Mail::Send(
                 (int) $order->id_lang,
                 'checkin',
-                sprintf(Mail::l('Welcome to %s', (int) $order->id_lang), $shopName),
+                Mail::l('You are checked in', (int) $order->id_lang),
                 array(
                     '{firstname}' => $customer->firstname,
                     '{lastname}' => $customer->lastname,

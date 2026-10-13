@@ -11,6 +11,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Added
 
+- **Redesigned invoice, which doubles as the receipt.** Logo, who it is from and for, the stay (room numbers, dates, nights, guests, rate), each payment received, total, paid and balance due, and how to pay the balance (the details from Salisberg Pay). Headed Receipt once nothing is owed. Dates are written as 13 Oct 2026. Fits one page.
+- **Check-in email** with the invoice or receipt attached, and **text messages** at check-in and when a booking is paid in full. Texts are handed to a hook and go nowhere until an SMS provider is connected.
 - **Bookings › Today.** One page for the front desk: arrivals, departures, rooms in house and unpaid bookings, with Check in and Check out buttons.
 - **Bookings › Housekeeping.** Every room as clean, dirty or out of service. A room turns dirty when its guest is checked out; out of service takes it off sale.
 - **Warning for room types with no rooms.** Manage Room Types marks them "No rooms" and names them in a warning; they cannot be booked.
@@ -34,6 +36,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Fixed
 
+- Invoice PDF: the logo was missing (it was fetched over the web instead of read from disk), the footer printed "Tel: %s", and a hidden "Powered by TCPDF" line was added.
 - Two warnings logged whenever an invoice PDF was made (a missing PDF translation file, and an unset day count for items not priced per night).
 - **Front desk staff could not finish a booking in Book Now.** The rooms stayed in the cart and nothing was recorded. The last step (Bookings › Add new) attaches the guest to the cart through the Booking Carts page, which needs Add and Edit rights there; Hotel Staff and Hotel Manager had been created with View only. Both are now given those rights automatically on deploy, and the Admin Guide lists the three things a profile needs to take bookings.
 

@@ -218,6 +218,20 @@
 		<p>{l s='Booking confirmations and password resets are sent by email. Set how they are sent in' mod='salisbergguide'} <span class="sb-path">Advanced Parameters &rsaquo; E-mail</span>.</p>
 		<p>{l s='That one setting is used for every email the system sends: booking confirmations, payment and status notices, password resets, Contact form notices and replies written in Inbox. There is no second mail server or mailbox to configure anywhere else.' mod='salisbergguide'}</p>
 		<p>{l s='A guest recorded at the desk without an email address is stored with a placeholder ending in guest.invalid. Nothing is ever sent to those addresses.' mod='salisbergguide'}</p>
+		<h4>{l s='What a guest is sent' mod='salisbergguide'}</h4>
+		<table>
+			<tr><th>{l s='When' mod='salisbergguide'}</th><th>{l s='Email' mod='salisbergguide'}</th><th>{l s='Text message' mod='salisbergguide'}</th></tr>
+			<tr><td>{l s='Booking made' mod='salisbergguide'}</td><td>{l s='Confirmation, with the invoice as a PDF' mod='salisbergguide'}</td><td>{l s='None' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Part payment recorded' mod='salisbergguide'}</td><td>{l s='Notice, with the invoice showing what is still due' mod='salisbergguide'}</td><td>{l s='None' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Paid in full' mod='salisbergguide'}</td><td>{l s='Notice, with the receipt as a PDF' mod='salisbergguide'}</td><td>{l s='Payment received, with the amount and booking reference' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Checked in (first room of the booking)' mod='salisbergguide'}</td><td>{l s='Welcome, with the invoice or receipt as a PDF' mod='salisbergguide'}</td><td>{l s='Welcome, with the room number and check-out date' mod='salisbergguide'}</td></tr>
+		</table>
+		<p>{l s='The invoice and the receipt are one document: it is headed Invoice while money is owed and Receipt once it is settled. It carries the hotel logo, the stay, the payments received, the balance due, and the payment details entered in Salisberg Pay.' mod='salisbergguide'}</p>
+		{if $sb_is_admin}
+		<p class="sb-tip">{l s='Text messages are prepared but not sent until a text provider is connected. The system hands each message to the hook actionSalisbergSendSms (phone, message, id_order, reference); a small module for the chosen provider listens to that hook and sends it.' mod='salisbergguide'}</p>
+		{else}
+		<p class="sb-tip">{l s='Text messages start once the developer team has connected a text provider.' mod='salisbergguide'}</p>
+		{/if}
 		<ol>
 			<li>{l s='Choose to send through your own SMTP server and enter the details from your email provider (server, port, username, password, encryption).' mod='salisbergguide'}</li>
 			<li>{l s='Use the Test your email configuration box at the bottom to send yourself a test.' mod='salisbergguide'}</li>
