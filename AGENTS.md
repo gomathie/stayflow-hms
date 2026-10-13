@@ -1566,3 +1566,9 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - Admin Guide section 16, CHANGELOG and What's New updated.
 - **Verification (local, hot-patched):** the import page loads with 0 `.csv` links and 8 `.xlsx` links and the `xlsx` filter; uploading a `.csv` returns "Please upload an Excel (.xlsx) file."; uploading `hotels_import.xlsx` is converted and accepted; a `.csv` sample URL returns 404.
 - **Not tested:** the upload box in a real browser (the filter text was read from the page, not exercised); completing an import of a converted file; the live server.
+
+### 2026-10-13 — Webmaster contact removed
+
+- Owner: remove the Webmaster option totally. The content step (`CONTENT_VERSION=5`, `docker/entrypoint.sh`) finds the contact named Webmaster by name (not id), moves its conversations (`customer_thread.id_contact`) and the `PS_CUSTOMER_SERVICE_CONTACT` setting to the contact that stays (Customer service, else the first other one), then deletes its `contact`, `contact_lang` and `contact_shop` rows. It does nothing if there is no Webmaster or no other contact to keep, and logs the result.
+- **Verification (local):** the same statements were run by hand on the running database: contact 1 removed, contact 2 kept, both conversations now on contact 2, setting still 2; Contact page, Customers › Contacts and Customer Service load with no errors and no mention of Webmaster.
+- **Not tested:** the step through a rebuilt image (statements run by hand); the live server, where the contact ids and any hand edits are unknown.
