@@ -1518,3 +1518,33 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - The sidebar section "Catalog" (Manage Room Types, Manage Service Products, Categories, Features, Bed Types) is now "Rooms & Services" — e-commerce terminology replaced with what the section actually is, matching the direction already applied to "Orders" → "Bookings" and "Hotel Reservation System" → "Manage Hotel".
 - Added to the same `$menuLabels` mechanism (rule 25/26) in `modules/salisbergguide/salisbergguide.php`; `MODULES_VERSION` stayed at 14 (bundled with the `htl_access` fix above, both deployed by the same version bump). Admin Guide's two `Catalog ›` paths (section 3, section on paid extras) updated to match; What's New given a line.
 - **Verification:** ran `setup-modules.php` locally, confirmed `qlo_tab_lang` for `AdminCatalog` reads "Rooms & Services"; Admin Guide page reloaded with the new path text and no errors; `docker/smoke-test.sh` 29 of 29.
+
+### 2026-10-13 — Staff still could not finish a booking: Booking Carts needs Add and Edit
+
+**Report**
+
+- After the hotel was ticked for Hotel Staff in Hotel Permissions (previous entry), the owner reported that a Hotel Manager could book but Hotel Staff still could not: the rooms stayed in the cart.
+
+**Why the previous entry missed it**
+
+- The local reproduction on 2026-10-12 attached the guest to the test cart with an SQL `UPDATE` to save time, then submitted the order. That skipped the one step that fails. The order submit worked, so the flow was wrongly recorded as working for staff apart from the view step.
+
+**Cause, reproduced without the shortcut**
+
+- Book Now's cart button opens `AdminOrders&addorder&cart_id=N`. That form (`admin/themes/default/template/controllers/orders/form.tpl`) does all its cart work by AJAX against `AdminCarts`: choosing the guest, addresses, vouchers, occupancy, extra services. `AdminCartsController::ajaxPreProcess()`, which sets `id_customer` and `secure_key` on the cart, runs only when `tabAccess['edit'] === 1`; the service calls need `add`. With view only, every call returns a normal-looking JSON summary and changes nothing.
+- `$staffAccess` and `$managerAccess` both had `'AdminCarts' => array(1, 0, 0, 0)`.
+- Run as a Hotel Staff test account with those defaults: add to cart succeeded; after the form's AdminCarts call the cart still had `id_customer = 0`; `submitAddOrder` returned HTTP 500 (`Column 'secure_key' cannot be null`, from `validateOrder()` on a cart with no customer); no order row. With `edit` set on AdminCarts and nothing else changed: `id_customer = 2`, order created, the booking page opened.
+- The owner's Hotel Manager works on the live site although its default is the same; that profile's rights on the live server were presumably widened by hand. It is not known from here.
+
+**Fix**
+
+- `modules/salisbergguide/salisbergguide.php`: `AdminCarts` is `array(1, 1, 1, 0)` in both access lists, for new installs. New `grantCartEditing()`, called from `ensureSetup()` after `grantHotelAccess()`, raises `add` and `edit` on `AdminCarts` for both profiles where either is still off (existing profiles are never reset by `installProfile()`, so the defaults alone would not reach the live site). It never lowers a right and logs each profile it changed. `MODULES_VERSION=15`.
+- Guide (rule 23): Admin Guide section 1, "Change what a profile can do", has a warning listing the three things a profile needs to take bookings (Bookings, Booking Carts, Hotel Permissions). SuperAdmin only, as Permissions is. What's New and `CHANGELOG.md` have 13 October entries.
+
+**Verification (local, running stack)**
+
+- Reset `add` and `edit` to 0 for both profiles, copied the module in, ran `setup-modules.php`: both rows became `1,1,1,0` and two lines were logged. A second run changed nothing and logged nothing.
+- The full flow as the staff test account (sign in, add to cart, open Add new, the form's AdminCarts call, submit): guest attached, order created, "Bookings > View" opened. Three runs in all: broken defaults (fails as reported), right granted by hand (works), right granted by the new method (works).
+- Admin Guide and What's New pages load with the new text; `docker/smoke-test.sh`: 29 of 29.
+- **Not tested:** the flow in a real browser (the calls were made with `curl`, in the order the form makes them); vouchers, extra services and occupancy changes on the form as staff; a new guest created from the form; the live server.
+- Local test data: employee `staff.test@example.com` and bookings for December 2026 exist only in the local database.

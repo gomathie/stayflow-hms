@@ -49,6 +49,7 @@
 		{if $sb_is_admin}
 		<p>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Permissions</span>, {l s='pick the profile on the left, and tick View, Add, Edit or Delete for each page. To create another role (for example Housekeeping), add it in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Profiles</span> {l s='first.' mod='salisbergguide'}</p>
 		<p>{l s='The What is New page under Guides is one of those pages: tick or untick View on its row to decide which profiles can read it. Hotel Staff and Hotel Manager have it to begin with.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='Anyone who takes bookings in Book Now needs three things on this page, not one: View, Add and Edit on Bookings; View, Add and Edit on Booking Carts (under Customers); and the hotel ticked in the Hotel Permissions panel beside the grid. Without Add and Edit on Booking Carts the guest is never attached to the booking and the rooms stay in the cart. Without the hotel ticked, the booking is made but cannot be opened, and the dashboard shows no figures. Hotel Staff and Hotel Manager are given all three on every update.' mod='salisbergguide'}</p>
 		{else}
 		<p>{l s='What each profile may open is set by the developer team. Tell them if a member of staff needs a page they cannot see, or should lose one.' mod='salisbergguide'}</p>
 		{/if}
