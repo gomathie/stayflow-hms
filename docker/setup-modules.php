@@ -42,7 +42,7 @@ if ($idGhana) {
     }
 }
 
-foreach (array('salisbergpay', 'salisbergguide', 'salisbergreports') as $name) {
+foreach (array('salisbergpay', 'salisbergguide', 'salisbergreports', 'salisbergfrontdesk') as $name) {
     $module = Module::getInstanceByName($name);
     if (!$module) {
         sb_log("ERROR: module $name not found");
@@ -94,6 +94,17 @@ if ($reports && Module::isInstalled('salisbergreports')) {
         sb_log('reports page in place');
     } else {
         sb_log('ERROR: reports page could not be created');
+        $failed = true;
+    }
+}
+
+// Bookings > Today and Housekeeping: after the profiles exist, so staff and manager can be given the pages
+$desk = Module::getInstanceByName('salisbergfrontdesk');
+if ($desk && Module::isInstalled('salisbergfrontdesk')) {
+    if ($desk->ensureSetup()) {
+        sb_log('front desk pages in place');
+    } else {
+        sb_log('ERROR: front desk pages could not be created');
         $failed = true;
     }
 }

@@ -132,6 +132,20 @@ class Salisbergguide extends Module
     /** The vendor's own store pages, kept out of the menu: class names */
     public static $vendorMenus = array('AdminModulesCatalog');
 
+    /**
+     * Shop features a hotel does not use, taken out of the product: their menu
+     * entries are deleted, with every profile's rights to them. Class names.
+     */
+    public static $removedMenus = array(
+        'AdminWarehouses',
+        'AdminStockManagement',
+        'AdminStockMvt',
+        'AdminStockInstantState',
+        'AdminStockCover',
+        'AdminStockConfiguration',
+        'AdminStock',
+    );
+
     public function __construct()
     {
         $this->name = 'salisbergguide';
@@ -173,6 +187,7 @@ class Salisbergguide extends Module
             && $this->grantCartEditing()
             && $this->renameMenuEntries()
             && $this->hideVendorMenus()
+            && $this->removeMenus()
             && $this->registerHook('header')
             && $this->registerHook('footer')
             && $this->registerHook('actionAdminControllerSetMedia')
@@ -296,6 +311,21 @@ class Salisbergguide extends Module
                     array('name' => pSQL($names[1])),
                     'id_tab = '.$idTab.' AND name = \''.pSQL($names[0]).'\''
                 );
+            }
+        }
+
+        return true;
+    }
+
+    /** Deletes the menu entries in $removedMenus that still exist. Safe to repeat. */
+    protected function removeMenus()
+    {
+        foreach (self::$removedMenus as $className) {
+            $idTab = (int) Tab::getIdFromClassName($className);
+            if ($idTab) {
+                $tab = new Tab($idTab);
+                $tab->delete();
+                PrestaShopLogger::addLog('salisbergguide: removed the menu entry '.$className, 1);
             }
         }
 
