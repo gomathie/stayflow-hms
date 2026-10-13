@@ -23,10 +23,6 @@ Every change to Salisberg, newest first, in plain words.
 - **1-Click Upgrade module** (`modules/qloautoupgrade`). It was never installed and must not be used here.
 - **IMAP mailbox sync under Inbox.** All email uses the one mail server under Advanced Parameters › E-mail.
 
-### Fixed
-
-- Two warnings logged whenever an invoice PDF was made (a missing PDF translation file, and an unset day count for items not priced per night).
-
 ### Changed
 
 - **Book Now and Add new order are both "Add new booking"** in the back office (menu page under Manage Hotel, and the button on Bookings). The website's Book Now button is unchanged.
@@ -38,6 +34,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Fixed
 
+- Two warnings logged whenever an invoice PDF was made (a missing PDF translation file, and an unset day count for items not priced per night).
 - **Front desk staff could not finish a booking in Book Now.** The rooms stayed in the cart and nothing was recorded. The last step (Bookings › Add new) attaches the guest to the cart through the Booking Carts page, which needs Add and Edit rights there; Hotel Staff and Hotel Manager had been created with View only. Both are now given those rights automatically on deploy, and the Admin Guide lists the three things a profile needs to take bookings.
 
 ### Security
