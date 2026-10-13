@@ -7,6 +7,12 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
+## 2026-10-13
+
+### Fixed
+
+- **Front desk staff could not finish a booking in Book Now.** The rooms stayed in the cart and nothing was recorded. The last step (Bookings › Add new) attaches the guest to the cart through the Booking Carts page, which needs Add and Edit rights there; Hotel Staff and Hotel Manager had been created with View only. Both are now given those rights automatically on deploy, and the Admin Guide lists the three things a profile needs to take bookings.
+
 ## 2026-10-12
 
 ### Added

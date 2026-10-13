@@ -30,7 +30,8 @@ class Salisbergguide extends Module
         'AdminInvoices' => array(1, 0, 0, 0),
         'AdminCustomers' => array(1, 1, 1, 0),
         'AdminAddresses' => array(1, 1, 1, 0),
-        'AdminCarts' => array(1, 0, 0, 0),
+        // add and edit, not only view: see grantCartEditing()
+        'AdminCarts' => array(1, 1, 1, 0),
         'AdminCustomerThreads' => array(1, 1, 1, 0),
         'AdminOrderRefundRequests' => array(1, 0, 1, 0),
         // look, do not change
@@ -82,7 +83,8 @@ class Salisbergguide extends Module
         // guests
         'AdminCustomers' => array(1, 1, 1, 1),
         'AdminAddresses' => array(1, 1, 1, 1),
-        'AdminCarts' => array(1, 0, 0, 0),
+        // add and edit, not only view: see grantCartEditing()
+        'AdminCarts' => array(1, 1, 1, 0),
         'AdminCustomerThreads' => array(1, 1, 1, 1),
         'AdminContacts' => array(1, 1, 1, 1),
         // the hotel and what the website says about it
@@ -167,6 +169,7 @@ class Salisbergguide extends Module
             && $this->installProfile(self::MANAGER_PROFILE, self::$managerAccess)
             && (!$whatsNewIsNew || $this->grantWhatsNew())
             && $this->grantHotelAccess()
+            && $this->grantCartEditing()
             && $this->renameMenuEntries()
             && $this->hideVendorMenus()
             && $this->registerHook('header')
@@ -232,6 +235,51 @@ class Salisbergguide extends Module
 
         if ($changed) {
             PrestaShopLogger::addLog("salisbergguide: granted hotel access to $changed profile/hotel row(s) for Hotel Staff/Hotel Manager", 1);
+        }
+
+        return true;
+    }
+
+    /**
+     * Book Now ends on Bookings > Add new, and that form does all its work
+     * on the cart (choosing the guest, the address, vouchers, extra services)
+     * by calling the Booking Carts page behind the scenes. Each of those
+     * calls is refused without a word unless the profile may add and edit
+     * Booking Carts; with view only the guest is never attached, creating
+     * the booking fails, and the rooms stay in the cart. Both profiles were
+     * first created with view only, and an existing profile is never reset,
+     * so this raises those two rights where they are still off. It never
+     * lowers anything.
+     */
+    protected function grantCartEditing()
+    {
+        $idTab = (int) Tab::getIdFromClassName('AdminCarts');
+        if (!$idTab) {
+            return true;
+        }
+
+        foreach (array(self::STAFF_PROFILE, self::MANAGER_PROFILE) as $name) {
+            $idProfile = (int) $this->getProfileId($name);
+            if (!$idProfile) {
+                continue;
+            }
+            $where = '`id_profile` = '.$idProfile.' AND `id_tab` = '.$idTab;
+            $row = Db::getInstance()->getRow('SELECT `add`, `edit` FROM `'._DB_PREFIX_.'access` WHERE '.$where);
+            if (!$row) {
+                Db::getInstance()->insert('access', array(
+                    'id_profile' => $idProfile,
+                    'id_tab' => $idTab,
+                    'view' => 1,
+                    'add' => 1,
+                    'edit' => 1,
+                    'delete' => 0,
+                ));
+            } elseif (!$row['add'] || !$row['edit']) {
+                Db::getInstance()->update('access', array('view' => 1, 'add' => 1, 'edit' => 1), $where);
+            } else {
+                continue;
+            }
+            PrestaShopLogger::addLog('salisbergguide: '.$name.' may now add and edit Booking Carts, needed to finish a booking', 1);
         }
 
         return true;

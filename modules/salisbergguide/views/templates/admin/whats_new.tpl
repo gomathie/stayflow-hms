@@ -19,6 +19,19 @@
 	</div>
 
 	<section>
+		<h3>{l s='13 October 2026' mod='salisbergguide'}</h3>
+		<ul>
+			<li><strong>{l s='Fixed: front desk staff could not finish a booking in Book Now.' mod='salisbergguide'}</strong> {l s='The rooms stayed in the cart and no booking was made. Staff accounts were missing a right on Booking Carts that the last step depends on. It is now given automatically.' mod='salisbergguide'}</li>
+		</ul>
+		{if $sb_is_admin}
+		<h4>{l s='For the developer team' mod='salisbergguide'}</h4>
+		<ul>
+			<li>{l s='Bookings, Add new attaches the guest to the cart through AdminCarts, which needs add and edit there. Hotel Staff and Hotel Manager were created with view only. Raised in salisbergguide::grantCartEditing(), called from ensureSetup(). The three things a booking profile needs are listed in the Admin Guide, section 1.' mod='salisbergguide'}</li>
+		</ul>
+		{/if}
+	</section>
+
+	<section>
 		<h3>{l s='12 October 2026' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='Manage Hotel menu.' mod='salisbergguide'}</strong> {l s='The Hotel Reservation System section of the menu is now called Manage Hotel.' mod='salisbergguide'}</li>
