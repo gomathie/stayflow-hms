@@ -155,4 +155,18 @@ if (!Configuration::get('PS_REWRITING_SETTINGS')) {
     sb_log('Friendly URLs already on');
 }
 
+// The installer stored the "Our Properties" menu link as an absolute
+// index.php address of the domain it was installed on. Make it the plain
+// relative path, so it has no .php and follows a change of domain (rule 22:
+// only rows that still hold the old form are touched).
+$propertiesPath = parse_url(Context::getContext()->link->getPageLink('our-properties'), PHP_URL_PATH);
+if ($propertiesPath && strpos($propertiesPath, 'index.php') === false) {
+    Db::getInstance()->execute(
+        'UPDATE `'._DB_PREFIX_.'htl_custom_navigation_link`
+        SET `link` = \''.pSQL($propertiesPath).'\'
+        WHERE `link` LIKE \'%index.php?controller=our-properties%\''
+    );
+    sb_log('Our Properties menu link set to '.$propertiesPath.' ('.(int) Db::getInstance()->Affected_Rows().' row(s))');
+}
+
 exit($failed ? 1 : 0);
