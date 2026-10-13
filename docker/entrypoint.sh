@@ -11,7 +11,7 @@ ADMIN_DIR="${ADMIN_DIR:-admin-salisberg}"
 BRANDING_VERSION=1
 BRAND_NAME="Salisberg Hotels"
 # Bump CONTENT_VERSION to re-run the demo-content replacement below.
-CONTENT_VERSION=5
+CONTENT_VERSION=6
 BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
 CURRENCY_VERSION=2
@@ -239,8 +239,16 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         db_query "UPDATE qlo_configuration SET value='0' WHERE name='PS_CUSTOMER_SERVICE_FILE_UPLOAD'"
         # ...and no "Send To" choice: every message goes to the one contact
         db_query "UPDATE qlo_configuration SET value='0' WHERE name='PS_CUSTOMER_SERVICE_DISPLAY_CONTACT'"
+        # Shop pages a hotel does not have (their code is gone): drop their
+        # address and title records, and switch the product comparison off
+        shop_pages="'best-sales','new-products','prices-drop','manufacturer','supplier','products-comparison'"
+        shop_pages_gone=$(db_query "SELECT COUNT(*) FROM qlo_meta WHERE page IN ($shop_pages)")
+        db_query "DELETE FROM qlo_theme_meta WHERE id_meta IN (SELECT id_meta FROM qlo_meta WHERE page IN ($shop_pages))"
+        db_query "DELETE FROM qlo_meta_lang WHERE id_meta IN (SELECT id_meta FROM qlo_meta WHERE page IN ($shop_pages))"
+        db_query "DELETE FROM qlo_meta WHERE page IN ($shop_pages)"
+        db_query "UPDATE qlo_configuration SET value='0' WHERE name='PS_COMPARATOR_MAX_ITEM'"
         echo "$CONTENT_VERSION" > /data/.content-version
-        echo "Content v$CONTENT_VERSION applied (demo identity replaced; sample guest accounts retired: ${demo_guests:-0}; contact form file upload switched off: ${uploads_on:-0}; footer: ${footer_note}, links added: ${footer_links:-0})"
+        echo "Content v$CONTENT_VERSION applied (demo identity replaced; sample guest accounts retired: ${demo_guests:-0}; contact form file upload switched off: ${uploads_on:-0}; footer: ${footer_note}, links added: ${footer_links:-0}; shop pages removed: ${shop_pages_gone:-0})"
     fi
 
     # Schema and settings our security backports rely on. This must run before
