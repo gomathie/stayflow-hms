@@ -126,6 +126,7 @@ class Salisbergguide extends Module
         'AdminHotelReservationSystemManagement' => array('Hotel Reservation System', 'Manage Hotel'),
         'AdminAddHotel' => array('Manage Hotel', 'Hotel Details'),
         'AdminCatalog' => array('Catalog', 'Rooms & Services'),
+        'AdminCustomerThreads' => array('Customer Service', 'Inbox'),
     );
 
     /** The vendor's own store pages, kept out of the menu: class names */

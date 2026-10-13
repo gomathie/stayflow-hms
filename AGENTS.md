@@ -1567,8 +1567,12 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - **Verification (local, hot-patched):** the import page loads with 0 `.csv` links and 8 `.xlsx` links and the `xlsx` filter; uploading a `.csv` returns "Please upload an Excel (.xlsx) file."; uploading `hotels_import.xlsx` is converted and accepted; a `.csv` sample URL returns 404.
 - **Not tested:** the upload box in a real browser (the filter text was read from the page, not exercised); completing an import of a converted file; the live server.
 
-### 2026-10-13 — Webmaster contact removed
 
-- Owner: remove the Webmaster option totally. The content step (`CONTENT_VERSION=5`, `docker/entrypoint.sh`) finds the contact named Webmaster by name (not id), moves its conversations (`customer_thread.id_contact`) and the `PS_CUSTOMER_SERVICE_CONTACT` setting to the contact that stays (Customer service, else the first other one), then deletes its `contact`, `contact_lang` and `contact_shop` rows. It does nothing if there is no Webmaster or no other contact to keep, and logs the result.
-- **Verification (local):** the same statements were run by hand on the running database: contact 1 removed, contact 2 kept, both conversations now on contact 2, setting still 2; Contact page, Customers › Contacts and Customer Service load with no errors and no mention of Webmaster.
-- **Not tested:** the step through a rebuilt image (statements run by hand); the live server, where the contact ids and any hand edits are unknown.
+### 2026-10-13 — Contact form: links refused and never clickable; Customer Service renamed Inbox; Webmaster kept
+
+- **Owner:** links must not be sendable through the Contact form, and any that exist must not be clickable, so non-technical staff cannot click a malicious link. Webmaster stays as a contact (the earlier removal step was dropped before deploy); the Customer Service page is renamed Inbox.
+- `override/controllers/front/ContactController.php`: markup is stripped from message, name, phone and subject, then anything that looks like an address (a scheme such as http:// or javascript:, `www.`, or a bare name ending in a common domain suffix) refuses the submission with a form error. Plain email addresses are allowed. Short suffixes that are ordinary words after a missing space (`.to`, `.us`, `.me`, `.co`, `.de`) are deliberately not in the list.
+- `controllers/admin/AdminCustomerThreadsController.php` (inherited, fixed at the source per rule 11): the stock code wrapped URLs in `<a>` tags when showing a message; that is removed, so stored links show as text. The template escapes the text.
+- `$menuLabels` in `modules/salisbergguide/salisbergguide.php`: `AdminCustomerThreads` Customer Service to Inbox (`MODULES_VERSION=16`). The page's own heading and some vendor sentences may still say Customer Service.
+- Guides: Staff Guide menu table and messages section, Admin Guide section 9 rows; What's New and CHANGELOG updated.
+- **Verification (local, hot-patched):** detector unit-tested on 11 samples; real form posts with `http://` and `www.` links were refused with the message; a plain message was not seen stored (likely the 6-per-hour rate limit, not confirmed). **Not tested:** the rename and the plain-message path after rebuild; email client behaviour for bare text in staff notification mails.

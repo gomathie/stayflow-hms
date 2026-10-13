@@ -21,8 +21,10 @@
 	<section>
 		<h3>{l s='13 October 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='Customer Service is now Inbox.' mod='salisbergguide'}</strong> {l s='Messages from the website Contact form arrive under Customers, Inbox. Nothing else changed.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Links cannot be sent through the Contact form.' mod='salisbergguide'}</strong> {l s='A message that contains a web address is refused with a short note to the guest, and any link that is already in a message is shown as plain text that cannot be clicked.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Import uses Excel only.' mod='salisbergguide'}</strong> {l s='Under Advanced Parameters, CSV Import, upload an Excel .xlsx file. The sample files are Excel files too.' mod='salisbergguide'}</li>
-			<li><strong>{l s='Simpler Contact form.' mod='salisbergguide'}</strong> {l s='The website Contact page no longer asks guests for a Title or who to send to. Messages arrive under Customers, Customer Service, titled with the start of the message.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Simpler Contact form.' mod='salisbergguide'}</strong> {l s='The website Contact page no longer asks guests for a Title or who to send to. Messages arrive under Customers, Inbox, titled with the start of the message.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Fixed: front desk staff could not finish a booking in Book Now.' mod='salisbergguide'}</strong> {l s='The rooms stayed in the cart and no booking was made. Staff accounts were missing a right on Booking Carts that the last step depends on. It is now given automatically.' mod='salisbergguide'}</li>
 		</ul>
 		{if $sb_is_admin}

@@ -44,7 +44,7 @@
 			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Book Now</span></td><td>{l s='See which rooms are free and make a booking for a guest.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Bookings</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records and their booking history.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Customers &rsaquo; Customer Service</span></td><td>{l s='Messages guests send through the website.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Customers &rsaquo; Inbox</span></td><td>{l s='Messages guests send through the website.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Requests</span></td><td>{l s='Cancellation and refund requests from guests.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Guides</span></td><td>{l s='This guide.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Guides &rsaquo; What's New</span></td><td>{l s='Recent changes to the system, newest first. Look here when something looks different.' mod='salisbergguide'}</td></tr>
@@ -149,7 +149,7 @@
 	<section id="sb-s9">
 		<h3>9. {l s='Messages and refund requests' mod='salisbergguide'}</h3>
 		<h4>{l s='Messages from the website' mod='salisbergguide'}</h4>
-		<p>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Customers &rsaquo; Customer Service</span>. {l s='Open a message to read it and reply. Reply the same day where you can.' mod='salisbergguide'}</p>
+		<p>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Customers &rsaquo; Inbox</span>. {l s='Open a message to read it and reply. Reply the same day where you can.' mod='salisbergguide'}</p>
 		<h4>{l s='Refund and cancellation requests' mod='salisbergguide'}</h4>
 		<ol>
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Requests</span>.</li>

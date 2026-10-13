@@ -16,7 +16,7 @@ BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
 CURRENCY_VERSION=2
 # Bump MODULES_VERSION whenever docker/setup-modules.php changes.
-MODULES_VERSION=15
+MODULES_VERSION=16
 # Bump ROOM_TYPES_VERSION whenever docker/setup-room-types.php changes.
 ROOM_TYPES_VERSION=1
 # Bump SCHEMA_VERSION when a schema/settings step below is added or changed.
@@ -239,21 +239,8 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         db_query "UPDATE qlo_configuration SET value='0' WHERE name='PS_CUSTOMER_SERVICE_FILE_UPLOAD'"
         # ...and no "Send To" choice: every message goes to the one contact
         db_query "UPDATE qlo_configuration SET value='0' WHERE name='PS_CUSTOMER_SERVICE_DISPLAY_CONTACT'"
-        # ...and no Webmaster contact: only Customer service is kept. Looked up by
-        # name, not id (rule 22). Its old conversations move to the contact that stays.
-        webmaster_id=$(db_query "SELECT c.id_contact FROM qlo_contact c JOIN qlo_contact_lang cl ON cl.id_contact=c.id_contact WHERE cl.name='Webmaster' ORDER BY c.id_contact LIMIT 1")
-        keep_id=$(db_query "SELECT c.id_contact FROM qlo_contact c JOIN qlo_contact_lang cl ON cl.id_contact=c.id_contact WHERE cl.name<>'Webmaster' ORDER BY (cl.name='Customer service') DESC, c.id_contact LIMIT 1")
-        webmaster_note="none found"
-        if [ -n "$webmaster_id" ] && [ -n "$keep_id" ]; then
-            db_query "UPDATE qlo_customer_thread SET id_contact=$keep_id WHERE id_contact=$webmaster_id"
-            db_query "UPDATE qlo_configuration SET value='$keep_id' WHERE name='PS_CUSTOMER_SERVICE_CONTACT' AND value='$webmaster_id'"
-            db_query "DELETE FROM qlo_contact_lang WHERE id_contact=$webmaster_id"
-            db_query "DELETE FROM qlo_contact_shop WHERE id_contact=$webmaster_id"
-            db_query "DELETE FROM qlo_contact WHERE id_contact=$webmaster_id"
-            webmaster_note="removed (id $webmaster_id), conversations moved to contact $keep_id"
-        fi
         echo "$CONTENT_VERSION" > /data/.content-version
-        echo "Content v$CONTENT_VERSION applied (demo identity replaced; sample guest accounts retired: ${demo_guests:-0}; contact form file upload switched off: ${uploads_on:-0}; footer: ${footer_note}, links added: ${footer_links:-0}; webmaster contact: ${webmaster_note})"
+        echo "Content v$CONTENT_VERSION applied (demo identity replaced; sample guest accounts retired: ${demo_guests:-0}; contact form file upload switched off: ${uploads_on:-0}; footer: ${footer_note}, links added: ${footer_links:-0})"
     fi
 
     # Schema and settings our security backports rely on. This must run before

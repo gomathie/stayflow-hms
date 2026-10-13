@@ -1080,12 +1080,9 @@ class AdminCustomerThreadsControllerCore extends AdminController
         }
         $message['date_add'] = Tools::displayDate($message['date_add'], null, true);
         $message['user_agent'] = strip_tags($message['user_agent']);
-        $message['message'] = preg_replace(
-            '/(https?:\/\/[a-z0-9#%&_=\(\)\.\? \+\-@\/]{6,1000})([\s\n<])/Uui',
-            '<a href="\1">\1</a>\2',
-            html_entity_decode($message['message'],
-            ENT_QUOTES, 'UTF-8')
-        );
+        // Links in a customer's message stay plain text: staff must not be one
+        // click from a link a stranger sent. The template escapes the text.
+        $message['message'] = html_entity_decode($message['message'], ENT_QUOTES, 'UTF-8');
 
         $is_valid_order_id = true;
         $order = new Order((int)$message['id_order']);
