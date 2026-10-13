@@ -16,11 +16,13 @@ class ContactController extends ContactControllerCore
         // A form value sent as a list (message[]=x) would stop the page with an
         // error; the form only ever sends text, so such values are emptied.
         foreach (array('message', 'user_name', 'phone', 'subject', 'from', 'token', 'contactKey', 'id_contact', 'id_product', 'id_order', 'url') as $field) {
-            foreach (array('_POST', '_GET') as $source) {
-                if (isset($GLOBALS[$source][$field]) && !is_string($GLOBALS[$source][$field])) {
-                    $GLOBALS[$source][$field] = '';
-                    $listSent = true;
-                }
+            if (isset($_POST[$field]) && !is_string($_POST[$field])) {
+                $_POST[$field] = '';
+                $listSent = true;
+            }
+            if (isset($_GET[$field]) && !is_string($_GET[$field])) {
+                $_GET[$field] = '';
+                $listSent = true;
             }
         }
 

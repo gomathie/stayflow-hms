@@ -20,6 +20,11 @@ Every change to Salisberg, newest first, in plain words.
 
 - **Front desk staff could not finish a booking in Book Now.** The rooms stayed in the cart and nothing was recorded. The last step (Bookings › Add new) attaches the guest to the cart through the Booking Carts page, which needs Add and Edit rights there; Hotel Staff and Hotel Manager had been created with View only. Both are now given those rights automatically on deploy, and the Admin Guide lists the three things a profile needs to take bookings.
 
+### Security
+
+- **Contact form checked against injection.** Review of the stock code found every value already escaped or cast before it reaches the database. As a second line of defence, each field must now have the shape the form can send (token, keys and ids letters and digits only, email without quotes or markup, no list values), anything else is refused with a plain message, and a list value no longer causes a server error.
+
+
 ## 2026-10-12
 
 ### Added
