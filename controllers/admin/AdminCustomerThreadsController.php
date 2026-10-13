@@ -61,11 +61,11 @@ class AdminCustomerThreadsControllerCore extends AdminController
             ),
             CustomerThread::QLO_CUSTOMER_THREAD_STATUS_PENDING1 => array(
                 'class' => 'icon-circle text-warning',
-                'alt' => $this->l('Pending 1')
+                'alt' => $this->l('In progress')
             ),
             CustomerThread::QLO_CUSTOMER_THREAD_STATUS_PENDING2 => array(
                 'class' => 'icon-circle text-warning',
-                'alt' => $this->l('Pending 2')
+                'alt' => $this->l('Waiting for guest')
             ),
         );
 
@@ -85,13 +85,8 @@ class AdminCustomerThreadsControllerCore extends AdminController
         }
 
         $this->fields_list = array(
-            'id_customer_thread' => array(
-                'title' => $this->l('ID'),
-                'align' => 'center',
-                'class' => 'fixed-width-xs'
-            ),
             'customer' => array(
-                'title' => $this->l('Customer'),
+                'title' => $this->l('From'),
                 'filter_key' => 'customer',
                 'callback' => 'getCustomerLink',
                 'tmpTableFilter' => true,
@@ -106,28 +101,11 @@ class AdminCustomerThreadsControllerCore extends AdminController
                 'optional' => true,
                 'visible_default' => true,
             ),
-            'contact' => array(
-                'title' => $this->l('Contact'),
-                'type' => 'select',
-                'list' => $contact_array,
-                'filter_key' => 'cl!id_contact',
-                'filter_type' => 'int',
-            ),
             'subject' => array(
-                'title' => $this->l('Title'),
+                'title' => $this->l('Message'),
                 'filter_key' => 'a!subject',
                 'tmpTableFilter' => true,
-                'maxlength' => 30,
-                'optional' => true,
-                'visible_default' => true,
-            ),
-            'language' => array(
-                'title' => $this->l('Language'),
-                'type' => 'select',
-                'list' => $language_array,
-                'filter_key' => 'l!id_lang',
-                'filter_type' => 'int',
-                'optional' => true,
+                'callback' => 'getMessageLink',
             ),
             'status' => array(
                 'title' => $this->l('Status'),
@@ -139,35 +117,14 @@ class AdminCustomerThreadsControllerCore extends AdminController
                 'filter_type' => 'string',
             ),
             'employee' => array(
-                'title' => $this->l('Employee'),
+                'title' => $this->l('Handled by'),
                 'filter_key' => 'employee',
                 'tmpTableFilter' => true,
                 'optional' => true,
                 'hint' => $this->l('The first employee to reply becomes responsible. They can then forward the message to another employee if needed.')
             ),
-            'last_employee' => array(
-                'title' => $this->l('Last Reply by'),
-                'filter_key' => 'employee',
-                'tmpTableFilter' => true,
-                'optional' => true,
-            ),
-            'messages' => array(
-                'title' => $this->l('Messages'),
-                'filter_key' => 'messages',
-                'tmpTableFilter' => true,
-                'maxlength' => 30,
-                'optional' => true,
-            ),
-            'has_private' => array(
-                'title' => $this->l('Has Private'),
-                'type' => 'bool',
-                'havingFilter' => true,
-                'filter_key' => 'has_private',
-                'align' => 'center',
-                'callback' => 'printOptinIcon',
-            ),
             'date_upd' => array(
-                'title' => $this->l('Last message'),
+                'title' => $this->l('Received'),
                 'havingFilter' => true,
                 'type' => 'datetime',
                 'optional' => true,
@@ -199,7 +156,7 @@ class AdminCustomerThreadsControllerCore extends AdminController
 
         $this->fields_options = array(
             'contact' => array(
-                'title' => $this->l('Contact options'),
+                'title' => $this->l('Contact form settings'),
                 'fields' => array(
                     'PS_CUSTOMER_SERVICE_SIGNATURE' => array(
                         'title' => $this->l('Default message'),
@@ -262,7 +219,7 @@ class AdminCustomerThreadsControllerCore extends AdminController
                 )
             ),
             'general' => array(
-                'title' =>    $this->l('Customer service options'),
+                'title' =>    $this->l('Email sync (IMAP)'),
                 'fields' =>    array(
                     'PS_SAV_IMAP_URL' => array(
                         'title' => $this->l('IMAP URL'),
@@ -333,6 +290,11 @@ class AdminCustomerThreadsControllerCore extends AdminController
             ),
         );
 
+        // Mail server (IMAP) settings are for the developer team only
+        if (!$this->context->employee->isSuperAdmin()) {
+            unset($this->fields_options['general']);
+        }
+
         parent::__construct();
         $this->_new_list_header_design = true;
         $this->list_no_link = true;
@@ -340,11 +302,21 @@ class AdminCustomerThreadsControllerCore extends AdminController
 
     public function getCustomerLink($customer, $tr)
     {
+        $customer = Tools::safeOutput(html_entity_decode($customer, ENT_QUOTES, 'UTF-8'));
         if ($tr['id_customer']) {
-            return '<a href="'.$this->context->link->getAdminLink('AdminCustomers').'&viewcustomer&id_customer='.$tr['id_customer'].'">'.$customer.' (#'.$tr['id_customer'].')</a>';
+            return '<a href="'.$this->context->link->getAdminLink('AdminCustomers').'&viewcustomer&id_customer='.(int) $tr['id_customer'].'">'.$customer.'</a>';
         }
 
         return $customer;
+    }
+
+    /** The message title opens the conversation; shown as text, never as a link inside */
+    public function getMessageLink($subject, $tr)
+    {
+        $text = Tools::safeOutput(html_entity_decode($subject, ENT_QUOTES, 'UTF-8'));
+        $url = self::$currentIndex.'&id_customer_thread='.(int) $tr['id_customer_thread'].'&viewcustomer_thread&token='.$this->token;
+
+        return '<a href="'.$url.'"><strong>'.$text.'</strong></a>';
     }
 
     public function setMedia()

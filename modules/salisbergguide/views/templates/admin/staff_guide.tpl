@@ -150,6 +150,12 @@
 		<h3>9. {l s='Messages and refund requests' mod='salisbergguide'}</h3>
 		<h4>{l s='Messages from the website' mod='salisbergguide'}</h4>
 		<p>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Customers &rsaquo; Inbox</span>. {l s='Open a message to read it and reply. Reply the same day where you can.' mod='salisbergguide'}</p>
+		<ol>
+			<li>{l s='Each row is one conversation: who it is from, their email and phone, the start of the message, its status, who is handling it, and when it arrived.' mod='salisbergguide'}</li>
+			<li>{l s='Click the message text, or View at the end of the row, to read it all and reply.' mod='salisbergguide'}</li>
+			<li>{l s='Status: Open is new and waiting for a reply, In progress means someone is on it, Waiting for guest means we asked them something, Closed means it is finished. Change it on the conversation page.' mod='salisbergguide'}</li>
+			<li>{l s='Messages can only contain text. Web addresses are never clickable here: if a message mentions a link, do not type it into a browser; tell your manager.' mod='salisbergguide'}</li>
+		</ol>
 		<h4>{l s='Refund and cancellation requests' mod='salisbergguide'}</h4>
 		<ol>
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Requests</span>.</li>

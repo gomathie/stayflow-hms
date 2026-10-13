@@ -37,11 +37,13 @@ class ContactController extends ContactControllerCore
             // contact (or the first contact), which staff read under
             // Customers > Customer Service.
             if (!trim((string) Tools::getValue('subject'))) {
-                $_POST['subject'] = Tools::substr(
-                    trim(preg_replace('/\s+/', ' ', strip_tags((string) Tools::getValue('message')))),
-                    0,
-                    60
-                );
+                $text = trim(preg_replace('/\s+/', ' ', strip_tags((string) Tools::getValue('message'))));
+                $title = Tools::substr($text, 0, 70);
+                if (Tools::strlen($text) > 70) {
+                    // end on a whole word
+                    $title = preg_replace('/\s+\S*$/u', '', $title).'...';
+                }
+                $_POST['subject'] = $title;
             }
             if (!(int) Configuration::get('PS_CUSTOMER_SERVICE_DISPLAY_CONTACT')
                 && !Validate::isLoadedObject(new Contact((int) Configuration::get('PS_CUSTOMER_SERVICE_CONTACT')))
