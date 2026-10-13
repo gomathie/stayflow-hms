@@ -23,11 +23,11 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
-{assign var=color_header value="#F0F0F0"}
-{assign var=color_border value="#000000"}
-{assign var=color_border_lighter value="#CCCCCC"}
+{assign var=color_header value="#F3EFE6"}
+{assign var=color_border value="#12352C"}
+{assign var=color_border_lighter value="#D9D4C7"}
 {assign var=color_line_even value="#FFFFFF"}
-{assign var=color_line_odd value="#F9F9F9"}
+{assign var=color_line_odd value="#FAF8F3"}
 {assign var=font_size_text value="9pt"}
 {assign var=font_size_header value="9pt"}
 {assign var=font_size_product value="9pt"}
@@ -49,24 +49,58 @@
 	}
 
 	table#addresses-tab tr td {
-		font-size: large;
+		font-size: 10pt;
+		line-height: 140%;
 	}
 
 	table#summary-tab {
 		padding: {$table_padding};
-		border: 1px solid {$color_border};
+		border: 1px solid {$color_border_lighter};
 	}
 	table#total-tab {
 		padding: {$table_padding};
-		border: 1px solid {$color_border};
+		border: 1px solid {$color_border_lighter};
 	}
 	table#tax-tab {
 		padding: {$table_padding};
-		border: 1px solid {$color_border};
+		border: 1px solid {$color_border_lighter};
 	}
-	table#payment-tab {
+	table#payment-tab, table#pay-tab {
 		padding: {$table_padding};
-		border: 1px solid {$color_border};
+		border: 1px solid {$color_border_lighter};
+	}
+	/* Section titles: the brand green band */
+	th.section {
+		background-color: #12352C;
+		color: #FFFFFF;
+		font-size: 9pt;
+	}
+	.label {
+		color: #B98A2F;
+		font-size: 8pt;
+		font-weight: bold;
+	}
+	.muted {
+		color: #6B7280;
+	}
+	td.total-line {
+		background-color: #12352C;
+		color: #FFFFFF;
+	}
+	/* What is owed: red while money is due, green once settled */
+	td.due-unpaid, td.due-part {
+		background-color: #FBEAE8;
+		color: #B42318;
+	}
+	td.due-paid {
+		background-color: #E7F4EC;
+		color: #1E6B3C;
+	}
+	td.status-unpaid, td.status-part {
+		color: #B42318;
+	}
+	td.status-paid {
+		color: #1E6B3C;
 	}
 	table.bordered-table td, table.bordered-table th {
 		border: 1px solid {$color_border_lighter};

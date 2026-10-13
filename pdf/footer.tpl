@@ -22,35 +22,16 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
-<table>
+
+{* Foot of every PDF: who issued it and how to reach them *}
+<table style="width: 100%">
 	<tr>
-		<td style="text-align: center; font-size: 6pt; color: #444">
-			{if $available_in_your_account}
-				{l s='An electronic version of this invoice is available in your account. To access it, log in to our website using your e-mail address and password (which you created when placing your first order).' pdf='true'}
-				<br />
-			{/if}
+		<td style="border-top: 1px solid #d9d4c7; text-align: center; font-size: 7pt; color: #6b7280; line-height: 140%;">
+			<span style="color: #12352c; font-weight: bold;">{$shop_name|escape:'html':'UTF-8'}</span><br />
 			{$shop_address|escape:'html':'UTF-8'}<br />
-
-			{if !empty($shop_phone) OR !empty($shop_fax)}
-				{l s='For more assistance, contact Support:' pdf='true'}<br />
-				{if !empty($shop_phone)}
-					{l s='Tel: %s' sprintf=[$shop_phone|escape:'html':'UTF-8'] pdf='true'}
-				{/if}
-
-				{if !empty($shop_fax)}
-					{l s='Fax: %s' sprintf=[$shop_fax|escape:'html':'UTF-8'] pdf='true'}
-				<br />
-				{/if}
-			{/if}
-			
-			{if isset($shop_details)}
-				{$shop_details|escape:'html':'UTF-8'}<br />
-			{/if}
-
-			{if isset($free_text)}
-				{$free_text|escape:'html':'UTF-8'}<br />
-			{/if}
+			{if !empty($shop_phone)}{l s='Tel: %s' sprintf=[$shop_phone|escape:'html':'UTF-8'] pdf='true'}{/if}{if !empty($shop_phone) && !empty($shop_email)} &nbsp;|&nbsp; {/if}{if !empty($shop_email)}{$shop_email|escape:'html':'UTF-8'}{/if}
+			{if isset($shop_details) && $shop_details}<br />{$shop_details|escape:'html':'UTF-8'}{/if}
+			{if isset($free_text) && $free_text}<br />{$free_text|escape:'html':'UTF-8'}{/if}
 		</td>
 	</tr>
 </table>
-

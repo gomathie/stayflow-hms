@@ -55,7 +55,7 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
         }
 
         // header informations
-        $this->date = Tools::displayDate($order_invoice->date_add);
+        $this->date = self::dateInWords($order_invoice->date_add);
 
         $id_lang = Context::getContext()->language->id;
         $this->title = $order_invoice->getInvoiceNumberFormatted($id_lang, (int)$this->order->id_shop);

@@ -22,18 +22,38 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
-<table id="payment-tab" width="100%">
+<table id="payment-tab" width="100%" cellpadding="5" cellspacing="0">
 	<tr>
-		<td class="payment center small grey bold" width="44%">{l s='Payment Method' pdf='true'}</td>
-		<td class="payment left white" width="56%">
-			<table width="100%" border="0">
-				{foreach from=$order_invoice->getOrderPaymentDetail() item=payment}
-					<tr>
-						<td class="right small">{$payment['payment_method']}</td>
-						<td class="right small">{displayPrice currency=$payment['id_currency'] price=$payment['amount']}</td>
-					</tr>
-				{/foreach}
-			</table>
-		</td>
+		<th colspan="3" class="header-left section">{l s='Payments received' pdf='true'}</th>
 	</tr>
+	{foreach from=$sb.payments item=payment}
+		<tr>
+			<td class="white small" width="30%">{$payment.date|escape:'html':'UTF-8'}</td>
+			<td class="white small" width="40%">{$payment.method|escape:'html':'UTF-8'}{if $payment.reference}<br /><span class="muted">{$payment.reference|escape:'html':'UTF-8'}</span>{/if}</td>
+			<td class="white small right" width="30%">{displayPrice currency=$payment.id_currency price=$payment.amount}</td>
+		</tr>
+	{foreachelse}
+		<tr>
+			<td colspan="3" class="white small muted">{l s='No payment has been received yet.' pdf='true'}</td>
+		</tr>
+	{/foreach}
 </table>
+{if $sb.how_to_pay}
+	<br /><br />
+	<table id="pay-tab" width="100%" cellpadding="5" cellspacing="0">
+		<tr>
+			<th class="header-left section">{l s='How to pay the balance' pdf='true'}</th>
+		</tr>
+		{foreach from=$sb.how_to_pay item=way}
+			<tr>
+				<td class="white small">
+					<span class="bold">{$way.title|escape:'html':'UTF-8'}</span><br />
+					{foreach from=$way.lines item=line name=lines}{$line|escape:'html':'UTF-8'}{if !$smarty.foreach.lines.last}<br />{/if}{/foreach}
+				</td>
+			</tr>
+		{/foreach}
+		<tr>
+			<td class="white small muted">{l s='Please quote your booking reference:' pdf='true'} {$sb.booking_reference|escape:'html':'UTF-8'}</td>
+		</tr>
+	</table>
+{/if}

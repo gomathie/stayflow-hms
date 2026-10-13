@@ -66,6 +66,7 @@ abstract class HTMLTemplateCore
         $this->smarty->assign(array(
             'available_in_your_account' => $this->available_in_your_account,
             'shop_address' => $shop_address,
+            'shop_name' => Configuration::get('PS_SHOP_NAME', null, null, $id_shop),
             'shop_fax' => Configuration::get('PS_SHOP_FAX', null, null, $id_shop),
             'shop_phone' => Configuration::get('PS_SHOP_PHONE', null, null, $id_shop),
             'shop_email' => Configuration::get('PS_SHOP_EMAIL', null, null, $id_shop),
