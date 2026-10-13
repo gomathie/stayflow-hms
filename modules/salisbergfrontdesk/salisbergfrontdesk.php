@@ -329,6 +329,10 @@ class Salisbergfrontdesk extends Module
             if ((int) $booking->id_status != HotelBookingDetail::STATUS_CHECKED_IN) {
                 return $this->l('Check the room in before checking it out.');
             }
+            if (!Validate::isDate($booking->check_in) || strtotime($booking->check_in) <= 0) {
+                // an arrival time was never recorded: the stay began on its first day
+                $booking->check_in = $booking->date_from;
+            }
             if (strtotime($booking->check_in) > strtotime($when)) {
                 $when = $booking->check_in;
             }
@@ -337,8 +341,15 @@ class Salisbergfrontdesk extends Module
             return $this->l('This booking could not be found.');
         }
         $booking->id_status = (int) $newStatus;
-        if (!$booking->save()) {
-            return $this->l('The change could not be saved. Please try again.');
+        try {
+            $saved = $booking->save();
+        } catch (Exception $e) {
+            // a stored value the platform no longer accepts: say so, never an error page
+            PrestaShopLogger::addLog('salisbergfrontdesk: booking room '.(int) $booking->id.' not saved: '.$e->getMessage(), 3);
+            $saved = false;
+        }
+        if (!$saved) {
+            return $this->l('The change could not be saved. Open the booking and change the room status there.');
         }
         // the same hook the booking page fires, so everything that follows a
         // status change (a dirty room after check-out) happens here too
