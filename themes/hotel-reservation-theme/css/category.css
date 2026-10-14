@@ -173,6 +173,7 @@ p.capa_txt {
 
 .rm_price_txt
 {
+    white-space: nowrap;
     color: #333;
     font-size: 16px;
     font-weight: 400;

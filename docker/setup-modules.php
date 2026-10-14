@@ -42,7 +42,7 @@ if ($idGhana) {
     }
 }
 
-foreach (array('salisbergpay', 'salisbergguide', 'salisbergreports') as $name) {
+foreach (array('salisbergpay', 'salisbergguide', 'salisbergreports', 'salisbergfrontdesk') as $name) {
     $module = Module::getInstanceByName($name);
     if (!$module) {
         sb_log("ERROR: module $name not found");
@@ -98,6 +98,27 @@ if ($reports && Module::isInstalled('salisbergreports')) {
     }
 }
 
+// Bookings > Today and Housekeeping: after the profiles exist, so staff and manager can be given the pages
+$desk = Module::getInstanceByName('salisbergfrontdesk');
+if ($desk && Module::isInstalled('salisbergfrontdesk')) {
+    if ($desk->ensureSetup()) {
+        sb_log('front desk pages in place');
+    } else {
+        sb_log('ERROR: front desk pages could not be created');
+        $failed = true;
+    }
+}
+
+// Rooms & Services > Charges & Tax: after the profiles exist, so the Hotel Manager can be given it
+if ($pay && Module::isInstalled('salisbergpay')) {
+    if ($pay->ensureChargesPage()) {
+        sb_log('Charges & Tax page in place');
+    } else {
+        sb_log('ERROR: Charges & Tax page could not be created');
+        $failed = true;
+    }
+}
+
 // A payment module only shows to guests from countries it is granted to
 $idPay = (int) Module::getModuleIdByName('salisbergpay');
 if ($idPay && $idGhana) {
@@ -143,8 +164,8 @@ if (!file_exists($testimonialsFlag)) {
 
 // Friendly URLs: website links read example.com/room-name instead of
 // example.com/index.php?controller=product&id_product=12, with no .php in
-// sight. Back office links are unaffected (they always use index.php by
-// design). Only the database setting is set here, once; the .htaccess file
+// sight. The back office keeps its index.php links; docker/apache.conf
+// takes index.php out of its address bar. Only the database setting is set here, once; the .htaccess file
 // itself is regenerated on every start by docker/generate-htaccess.php,
 // because it lives in the code filesystem, not a persisted volume, and does
 // not survive a redeploy.
@@ -153,6 +174,20 @@ if (!Configuration::get('PS_REWRITING_SETTINGS')) {
     sb_log('Friendly URLs switched on');
 } else {
     sb_log('Friendly URLs already on');
+}
+
+// The installer stored the "Our Properties" menu link as an absolute
+// index.php address of the domain it was installed on. Make it the plain
+// relative path, so it has no .php and follows a change of domain (rule 22:
+// only rows that still hold the old form are touched).
+$propertiesPath = parse_url(Context::getContext()->link->getPageLink('our-properties'), PHP_URL_PATH);
+if ($propertiesPath && strpos($propertiesPath, 'index.php') === false) {
+    Db::getInstance()->execute(
+        'UPDATE `'._DB_PREFIX_.'htl_custom_navigation_link`
+        SET `link` = \''.pSQL($propertiesPath).'\'
+        WHERE `link` LIKE \'%index.php?controller=our-properties%\''
+    );
+    sb_log('Our Properties menu link set to '.$propertiesPath.' ('.(int) Db::getInstance()->Affected_Rows().' row(s))');
 }
 
 exit($failed ? 1 : 0);

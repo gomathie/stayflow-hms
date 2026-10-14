@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Welcome to {shop_name}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f3efe6;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+	<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f3efe6;">
+		<tr>
+			<td align="center" style="padding:24px 12px;">
+				<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background-color:#ffffff;border:1px solid #d9d4c7;">
+					<tr>
+						<td align="center" style="padding:24px 24px 16px;border-bottom:3px solid #12352c;">
+							<img src="{shop_logo}" alt="{shop_name}" style="max-width:200px;height:auto;" />
+						</td>
+					</tr>
+					<tr>
+						<td style="padding:24px;">
+							<p style="margin:0 0 12px;font-size:20px;color:#12352c;font-weight:bold;">Welcome, {firstname}</p>
+							<p style="margin:0 0 16px;font-size:14px;line-height:22px;">You are checked in at {shop_name}. Here are the details of your stay.</p>
+							<table width="100%" cellpadding="8" cellspacing="0" style="font-size:14px;border:1px solid #d9d4c7;">
+								<tr>
+									<td width="40%" style="background-color:#f3efe6;color:#6b7280;">Room</td>
+									<td style="font-weight:bold;">{room}</td>
+								</tr>
+								<tr>
+									<td style="background-color:#f3efe6;color:#6b7280;border-top:1px solid #d9d4c7;">Check-out</td>
+									<td style="font-weight:bold;border-top:1px solid #d9d4c7;">{check_out}</td>
+								</tr>
+								<tr>
+									<td style="background-color:#f3efe6;color:#6b7280;border-top:1px solid #d9d4c7;">Booking reference</td>
+									<td style="font-weight:bold;border-top:1px solid #d9d4c7;">{order_name}</td>
+								</tr>
+							</table>
+							<p style="margin:16px 0 0;font-size:14px;line-height:22px;">{balance_line}</p>
+							<p style="margin:16px 0 0;font-size:14px;line-height:22px;">If you need anything during your stay, please ask at reception.</p>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" style="padding:16px 24px;background-color:#12352c;color:#ffffff;font-size:12px;">{shop_name}</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

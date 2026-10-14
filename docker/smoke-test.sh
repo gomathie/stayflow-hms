@@ -75,7 +75,7 @@ if [ -n "$ADMIN_EMAIL" ] && [ -n "$ADMIN_PASSWORD" ]; then
         ok "administrator sign-in"
         page "dashboard" "$ADMIN_DIR/$target" "Dashboard"
         # every other page is reached through the menu links on the dashboard, which carry their tokens
-        for controller in AdminOrders AdminProducts AdminCustomers AdminHotelRoomsBooking AdminSalisbergReports AdminEmployees AdminModules AdminSalisbergStaffGuide AdminInformation; do
+        for controller in AdminOrders AdminProducts AdminCustomers AdminHotelRoomsBooking AdminSalisbergReports AdminSalisbergToday AdminSalisbergHousekeeping AdminEmployees AdminModules AdminSalisbergStaffGuide AdminInformation; do
             link=$(grep -o "index.php?controller=$controller&amp;token=[a-f0-9]*" "$BODY.dash" 2>/dev/null | head -1)
             [ -z "$link" ] && { cp "$BODY" "$BODY.dash" 2>/dev/null; link=$(grep -o "index.php?controller=$controller&amp;token=[a-f0-9]*" "$BODY.dash" | head -1); }
             if [ -z "$link" ]; then bad "$controller (no menu link found)"; continue; fi

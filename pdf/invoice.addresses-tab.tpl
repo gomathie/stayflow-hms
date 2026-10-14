@@ -22,30 +22,24 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
-<table id="addresses-tab" cellspacing="0" cellpadding="0">
+<table id="addresses-tab" cellspacing="0" cellpadding="0" width="100%">
 	<tr>
-		<!-- <td width="33%"><span class="bold"> </span><br/><br/>
-			{if isset($order_invoice)}{$order_invoice->shop_address}{/if}
-		</td> -->
-		<!-- <td width="33%">{if $delivery_address}<span class="bold">{l s='Delivery Address' pdf='true'}</span><br/><br/>
-				{$delivery_address}
-			{/if}
-		</td> -->
-		<td width="33%">
+		<td width="48%">
+			<span class="label">{l s='From' pdf='true'}</span><br/>
 			{if !empty($hotel_address)}
-				<span class="bold">{l s='Hotel Detail' pdf='true'}</span><br/><br/>
 				{$hotel_address}
+			{elseif isset($order_invoice)}
+				{$order_invoice->shop_address}
 			{/if}
 		</td>
-		<td  width="33%"></td>
-		<td width="33%">
-			<span class="bold">{l s='Customer Detail' pdf='true'}</span><br/><br/>
-			{if $invoice_address}
-				{$invoice_address}
-			{else}
-				{$customer->firstname} {$customer->lastname}
-				<br>
-				{$customer->phone}
+		<td width="4%"></td>
+		<td width="48%">
+			<span class="label">{l s='Billed to' pdf='true'}</span><br/>
+			<span class="bold">{$sb.guest_name|escape:'html':'UTF-8'}</span><br/>
+			{if $sb.guest_phone}{$sb.guest_phone|escape:'html':'UTF-8'}<br/>{/if}
+			{if $sb.guest_email}{$sb.guest_email|escape:'html':'UTF-8'}<br/>{/if}
+			{if $invoice_address && isset($addresses.invoice) && $addresses.invoice->address1}
+				{$addresses.invoice->address1|escape:'html':'UTF-8'}{if $addresses.invoice->city}, {$addresses.invoice->city|escape:'html':'UTF-8'}{/if}
 			{/if}
 		</td>
 	</tr>

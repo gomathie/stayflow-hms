@@ -283,7 +283,7 @@ class AdminHotelRoomsBookingController extends ModuleAdminController
 
     public function initContent()
     {
-        $this->toolbar_title = $this->l('Book Now');
+        $this->toolbar_title = $this->l('Add new booking');
         $this->display = 'view';
 
         parent::initContent();

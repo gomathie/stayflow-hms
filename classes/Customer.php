@@ -26,6 +26,15 @@
 
 class CustomerCore extends ObjectModel
 {
+    /** Ending of the placeholder address given to a guest recorded without an email */
+    const NO_EMAIL_DOMAIN = 'guest.invalid';
+
+    /** True when $email is such a placeholder: nothing can be sent to it */
+    public static function hasNoEmail($email)
+    {
+        return (bool) preg_match('/@'.preg_quote(self::NO_EMAIL_DOMAIN, '/').'$/i', trim((string) $email));
+    }
+
     public $id;
 
     public $id_shop;

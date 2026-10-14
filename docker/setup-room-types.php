@@ -56,7 +56,8 @@ function sb_description_html(array $amenities)
 function sb_apply_lang_fields(Product $product, $name, array $amenities)
 {
     $description = sb_description_html($amenities);
-    $shortDescription = sb_description_html($amenities);
+    // the short description is plain text: a list here would lose its separators ("FanTV")
+    $shortDescription = implode(', ', $amenities);
     foreach (Language::getLanguages(false) as $language) {
         $idLang = (int) $language['id_lang'];
         $product->name[$idLang] = $name;
@@ -202,6 +203,28 @@ $ok = sb_update_existing_room(1, 'Standard Room 1', 200.00, array(SB_BED_FULL), 
     && sb_create_room_from_template(1, 'Standard Room 2', 250.00, array(SB_BED_FULL), array('Fan', 'Breakfast included', 'Wi-Fi', 'TV'))
     && sb_create_room_from_template(1, 'Standard Room 3', 250.00, array(SB_BED_TWIN, SB_BED_TWIN), array('Twin room (2 single beds)', 'Fan', 'Breakfast included', 'Wi-Fi', 'TV'))
     && sb_create_room_from_template(2, 'Deluxe Room 2', 350.00, array(SB_BED_QUEEN), array('Fan', 'Air Conditioning', 'Breakfast included', 'Water heater', 'Wi-Fi'));
+
+// Room types created by version 1 got their short description as a list,
+// which the platform stores without tags ("FanTV"). Rewrite those, and only
+// those still holding exactly that text (rule 22).
+foreach (array(
+    'Standard Room 1' => array('Fan', 'TV'),
+    'Deluxe Room 1' => array('Fan', 'Air Conditioning', 'Breakfast included', 'Wi-Fi', 'TV'),
+    'Executive Room 1' => array('Fan', 'Air Conditioning', 'Breakfast included', 'Water heater', 'Wi-Fi', 'Snacks'),
+    'Standard Room 2' => array('Fan', 'Breakfast included', 'Wi-Fi', 'TV'),
+    'Standard Room 3' => array('Twin room (2 single beds)', 'Fan', 'Breakfast included', 'Wi-Fi', 'TV'),
+    'Deluxe Room 2' => array('Fan', 'Air Conditioning', 'Breakfast included', 'Water heater', 'Wi-Fi'),
+) as $name => $amenities) {
+    Db::getInstance()->execute(
+        'UPDATE `'._DB_PREFIX_.'product_lang` pl
+        INNER JOIN `'._DB_PREFIX_.'product_lang` named ON named.`id_product` = pl.`id_product` AND named.`name` = \''.pSQL($name).'\'
+        SET pl.`description_short` = \''.pSQL(implode(', ', $amenities)).'\'
+        WHERE pl.`description_short` = \''.pSQL(implode('', $amenities)).'\''
+    );
+    if ($changed = Db::getInstance()->Affected_Rows()) {
+        sb_log("$name: short description now reads ".implode(', ', $amenities));
+    }
+}
 
 if (!$ok) {
     $failed = true;

@@ -19,14 +19,52 @@
 	</div>
 
 	<section>
+		<h3>{l s='14 October 2026' mod='salisbergguide'}</h3>
+		<ul>
+			<li><strong>{l s='Charge tax switch on the booking form.' mod='salisbergguide'}</strong> {l s='It is on Yes. Choose No for a guest who is not to be charged tax, and only that booking is made without tax.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Tidier on tablets and smaller laptops.' mod='salisbergguide'}</strong> {l s='Page titles are no longer covered by the buttons beside them, wide lists scroll inside their box instead of pushing the page sideways, and the figure tiles at the top of Bookings no longer overlap. On the website, search filters and the booking panel sit above the content on tablets.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Payments cannot be counted twice.' mod='salisbergguide'}</strong> {l s='A payment more than what is still owed is refused, and marking a booking Complete payment received records only what was still owed. The booking page now says Paid so far and Still to pay in plain words.' mod='salisbergguide'}</li>
+		</ul>
+		{if $sb_can_read_admin_guide}
+		<h4>{l s='For the hotel manager' mod='salisbergguide'}</h4>
+		<ul>
+			<li><strong>{l s='Charge tax switch: yours to allow.' mod='salisbergguide'}</strong> {l s='Rooms & Services, Charges & Tax has a new tick, Let staff leave tax off a single booking. It is on; untick it and every booking is charged tax.' mod='salisbergguide'}</li>
+			<li><strong>{l s='New: Rooms & Services, Charges & Tax.' mod='salisbergguide'}</strong> {l s='Tick or untick the charges added to every booking by themselves, and switch tax on or off. Two sample charges and a United States sample tax came switched on; see Admin Guide section 5.' mod='salisbergguide'}</li>
+		</ul>
+		{/if}
+	</section>
+
+	<section>
 		<h3>{l s='13 October 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='New invoice and receipt.' mod='salisbergguide'}</strong> {l s='The invoice has the hotel logo and shows the stay, each payment received and the balance still due, with how to pay it. Every booking now has one from the moment it is made, and it becomes a Receipt once it is paid.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Invoices page lists the invoices.' mod='salisbergguide'}</strong> {l s='Bookings, Invoices now shows every invoice with the guest, the stay, total, paid and still to pay. Search by number, booking, guest or phone, filter by status, and open the PDF from the row.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Guests are told at check-in and when they pay.' mod='salisbergguide'}</strong> {l s='A guest with an email gets a welcome email at check-in and a receipt when payment is confirmed, each with the PDF attached. Text messages will follow once the text service is connected.' mod='salisbergguide'}</li>
+			<li><strong>{l s='New: Bookings, Today.' mod='salisbergguide'}</strong> {l s='One page for the front desk: arrivals and departures for today, rooms with a guest in them and unpaid bookings, with Check in and Check out buttons on the rows.' mod='salisbergguide'}</li>
+			<li><strong>{l s='New: Bookings, Housekeeping.' mod='salisbergguide'}</strong> {l s='Every room with its state: clean, dirty or out of service. A room turns dirty when its guest is checked out. Out of service takes the room off sale until it is put back.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Book Now is now Add new booking.' mod='salisbergguide'}</strong> {l s='The menu page under Manage Hotel and the button on the Bookings page are both called Add new booking.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Guest details on the booking form.' mod='salisbergguide'}</strong> {l s='Type the first name, last name, phone and email of the guest on the booking form itself. A guest already on record is used; a new one is added. Email can be left empty for a guest who has none.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Cleaner addresses.' mod='salisbergguide'}</strong> {l s='The address bar no longer shows index.php, in the back office or on the website. Old bookmarks still work.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Customer Service is now Inbox, and easier to read.' mod='salisbergguide'}</strong> {l s='Messages from the website Contact form arrive under Customers, Inbox. The list shows who it is from, their email and phone, the start of the message, its status, who is handling it and when it arrived; click the message to open it. Statuses are Open, In progress, Waiting for guest and Closed.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Links cannot be sent through the Contact form.' mod='salisbergguide'}</strong> {l s='A message that contains a web address is refused with a short note to the guest, and any link that is already in a message is shown as plain text that cannot be clicked.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Import uses Excel only.' mod='salisbergguide'}</strong> {l s='Under Advanced Parameters, CSV Import, upload an Excel .xlsx file. The sample files are Excel files too.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Simpler Contact form.' mod='salisbergguide'}</strong> {l s='The website Contact page no longer asks guests for a Title or who to send to. Messages arrive under Customers, Inbox, titled with the start of the message.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Fixed: front desk staff could not finish a booking in Book Now.' mod='salisbergguide'}</strong> {l s='The rooms stayed in the cart and no booking was made. Staff accounts were missing a right on Booking Carts that the last step depends on. It is now given automatically.' mod='salisbergguide'}</li>
 		</ul>
 		{if $sb_is_admin}
 		<h4>{l s='For the developer team' mod='salisbergguide'}</h4>
 		<ul>
 			<li>{l s='Bookings, Add new attaches the guest to the cart through AdminCarts, which needs add and edit there. Hotel Staff and Hotel Manager were created with view only. Raised in salisbergguide::grantCartEditing(), called from ensureSetup(). The three things a booking profile needs are listed in the Admin Guide, section 1.' mod='salisbergguide'}</li>
+			<li>{l s='New module salisbergfrontdesk (Today, Housekeeping; table sb_room_status; hook actionRoomBookingStatusUpdateAfter). Out of service is the room status Inactive, not a separate flag.' mod='salisbergguide'}</li>
+			<li>{l s='Removed from the code: the Stock menu and its six pages, the shop pages Suppliers, Manufacturers, Best sales, New products, Prices drop and Products Comparison, the 1-Click Upgrade module, and the IMAP mailbox sync under Inbox. All mail goes through Mail::Send and the E-mail settings.' mod='salisbergguide'}</li>
+		</ul>
+		{/if}
+		{if $sb_can_read_admin_guide}
+		<h4>{l s='For the hotel manager' mod='salisbergguide'}</h4>
+		<ul>
+			<li><strong>{l s='Room types with no rooms are flagged.' mod='salisbergguide'}</strong> {l s='Manage Room Types shows No rooms in red and a warning at the top for any room type that is switched on but has no room in service. Guests see such a room type as sold out.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Stock menu removed.' mod='salisbergguide'}</strong> {l s='Warehouses and stock pages belonged to the shop software this system grew from; a hotel does not use them.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Old shop pages removed from the website.' mod='salisbergguide'}</strong> {l s='Suppliers, Manufacturers, Best sales, New products, Prices drop and Products Comparison no longer exist; their addresses show the Page not found page.' mod='salisbergguide'}</li>
 		</ul>
 		{/if}
 	</section>

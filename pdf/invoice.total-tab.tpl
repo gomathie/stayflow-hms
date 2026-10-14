@@ -22,128 +22,57 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
-<table id="total-tab" width="100%">
-
+<table id="total-tab" width="100%" cellpadding="5" cellspacing="0">
 	{if isset($footer.room_price_tax_excl) && $footer.room_price_tax_excl}
 		<tr>
-			<td class="grey" width="70%">
-				{l s='Total Rooms Cost (tax excl.)' pdf='true'}
-			</td>
-			<td class="white" width="30%">
-				{displayPrice currency=$order->id_currency price=$footer.room_price_tax_excl}
-			</td>
+			<td class="grey" width="50%">{l s='Rooms' pdf='true'}</td>
+			<td class="white right" width="50%">{displayPrice currency=$order->id_currency price=$footer.room_price_tax_excl}</td>
 		</tr>
 	{/if}
-    {if isset($footer.service_products_price_tax_excl) && $footer.service_products_price_tax_excl}
+	{if isset($footer.service_products_price_tax_excl) && $footer.service_products_price_tax_excl}
 		<tr>
-			<td class="grey" width="70%">
-				{l s='Total Products cost (tax excl.)' pdf='true'}
-			</td>
-			<td class="white" width="30%">
-				{displayPrice currency=$order->id_currency price=$footer.service_products_price_tax_excl}
-			</td>
+			<td class="grey" width="50%">{l s='Other items' pdf='true'}</td>
+			<td class="white right" width="50%">{displayPrice currency=$order->id_currency price=$footer.service_products_price_tax_excl}</td>
 		</tr>
 	{/if}
 	{if isset($footer.additional_service_price_tax_excl) && $footer.additional_service_price_tax_excl}
 		<tr>
-			<td class="grey" width="70%">
-				{l s='Extra Services Cost (tax excl.)' pdf='true'}
-			</td>
-			<td class="white" width="30%">
-				{displayPrice currency=$order->id_currency price=($footer.additional_service_price_tax_excl)}
-			</td>
+			<td class="grey" width="50%">{l s='Extra services' pdf='true'}</td>
+			<td class="white right" width="50%">{displayPrice currency=$order->id_currency price=($footer.additional_service_price_tax_excl)}</td>
 		</tr>
 	{/if}
 	{if isset($footer.total_convenience_fee_te) && $footer.total_convenience_fee_te}
 		<tr>
-			<td class="grey" width="70%">
-				{l s='Convenience Fee (tax excl.)' pdf='true'}
-			</td>
-			<td class="white" width="30%">
-				{displayPrice currency=$order->id_currency price=$footer.total_convenience_fee_te}
-			</td>
+			<td class="grey" width="50%">{l s='Fees' pdf='true'}</td>
+			<td class="white right" width="50%">{displayPrice currency=$order->id_currency price=$footer.total_convenience_fee_te}</td>
 		</tr>
 	{/if}
-	{* {if isset($footer.product_taxes) && $footer.product_taxes}
-		<tr>
-			<td class="grey" width="70%">
-				{l s='Rooms Tax' pdf='true'}
-			</td>
-			<td class="white" width="30%">
-				{displayPrice currency=$order->id_currency price=($footer.room_price_tax_incl - $footer.room_price_tax_excl)}
-			</td>
-		</tr>
-	{/if}
-	{if isset($footer.additional_service_price_tax_excl) && $footer.additional_service_price_tax_excl}
-		<tr>
-			<td class="grey" width="70%">
-				{l s='Additional service Tax' pdf='true'}
-			</td>
-			<td class="white" width="30%">
-				{displayPrice currency=$order->id_currency price=($footer.additional_service_price_tax_incl - $footer.additional_service_price_tax_excl)}
-			</td>
-		</tr>
-	{/if} *}
-
-
-
-	{* {if isset($footer.service_products_price_tax_excl) && $footer.service_products_price_tax_excl}
-		<tr>
-			<td class="grey" width="70%">
-				{l s='Service Products Tax' pdf='true'}
-			</td>
-			<td class="white" width="30%">
-				{displayPrice currency=$order->id_currency price=($footer.service_products_price_tax_incl - $footer.service_products_price_tax_excl)}
-			</td>
-		</tr>
-	{/if} *}
-
-	<tr class="bold">
-		<td class="grey">
-			{l s='Total (Tax excl.)' pdf='true'}
-		</td>
-		<td class="white">
-			{displayPrice currency=$order->id_currency price=$footer.total_without_discount_te}
-		</td>
+	<tr>
+		<td class="grey" width="50%">{l s='Subtotal' pdf='true'}</td>
+		<td class="white right" width="50%">{displayPrice currency=$order->id_currency price=$footer.total_without_discount_te}</td>
 	</tr>
 	{if $footer.total_tax_without_discount > 0}
-	<tr class="bold">
-		<td class="grey">
-			{l s='Total Tax' pdf='true'}
-		</td>
-		<td class="white">
-			{displayPrice currency=$order->id_currency price=$footer.total_tax_without_discount}
-		</td>
-	</tr>
+		<tr>
+			<td class="grey" width="50%">{l s='Tax' pdf='true'}</td>
+			<td class="white right" width="50%">{displayPrice currency=$order->id_currency price=$footer.total_tax_without_discount}</td>
+		</tr>
 	{/if}
-
 	{if $footer.product_discounts_tax_incl > 0}
-		<tr class="bold">
-			<td class="grey" width="70%">
-				{l s='Total Discounts' pdf='true'}
-			</td>
-			<td class="white" width="30%">
-				- {displayPrice currency=$order->id_currency price=$footer.product_discounts_tax_incl}
-			</td>
+		<tr>
+			<td class="grey" width="50%">{l s='Discount' pdf='true'}</td>
+			<td class="white right" width="50%">- {displayPrice currency=$order->id_currency price=$footer.product_discounts_tax_incl}</td>
 		</tr>
 	{/if}
-	<tr class="bold big">
-		<td class="grey">
-			{l s='Final Booking Amount' pdf='true'}
-		</td>
-		<td class="white">
-			{displayPrice currency=$order->id_currency price=$footer.total_paid_tax_incl}
-		</td>
+	<tr class="bold">
+		<td class="total-line" width="50%">{l s='Total' pdf='true'}</td>
+		<td class="total-line right" width="50%">{displayPrice currency=$order->id_currency price=$sb.total}</td>
 	</tr>
-
-	{if $order->total_paid - $order->total_paid_real > 0}
-		<tr class="bold big">
-			<td class="grey">
-				{l s='Due Amount' pdf='true'}
-			</td>
-			<td class="white">
-				{displayPrice currency=$order->id_currency price=($footer.total_paid_tax_incl - $footer.total_paid_real)}
-			</td>
-		</tr>
-	{/if}
+	<tr>
+		<td class="grey" width="50%">{l s='Paid' pdf='true'}</td>
+		<td class="white right" width="50%">{displayPrice currency=$order->id_currency price=$sb.paid}</td>
+	</tr>
+	<tr class="bold">
+		<td class="due-{$sb.status|escape:'html':'UTF-8'}" width="50%">{l s='Balance due' pdf='true'}</td>
+		<td class="due-{$sb.status|escape:'html':'UTF-8'} right" width="50%">{displayPrice currency=$order->id_currency price=$sb.balance}</td>
+	</tr>
 </table>

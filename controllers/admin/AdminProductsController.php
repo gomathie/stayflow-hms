@@ -326,6 +326,7 @@ class AdminProductsControllerCore extends AdminController
             'align' => 'center',
             'type' => 'range',
             'havingFilter' => true,
+            'callback' => 'printRoomCount',
         );
         $this->fields_list['price'] = array(
             'title' => $this->l('Base Price'),
@@ -2676,6 +2677,16 @@ class AdminProductsControllerCore extends AdminController
         return parent::renderKpis();
     }
 
+    /** A room type with no rooms cannot be booked: say so in the list */
+    public function printRoomCount($count, $row)
+    {
+        if ((int) $count > 0) {
+            return (int) $count;
+        }
+
+        return '<span class="badge badge-danger">'.$this->l('No rooms').'</span>';
+    }
+
     public function renderList()
     {
         $this->addRowAction('edit');
@@ -2684,6 +2695,34 @@ class AdminProductsControllerCore extends AdminController
         $this->addRowAction('delete');
 
         $this->tpl_list_vars['title'] = $this->l('Room Types');
+
+        // A room type guests can see but that has no room to give them is
+        // shown as sold out on the website for every date
+        if (isset($this->fields_list['num_rooms'])) {
+            $unbookable = Db::getInstance()->executeS(
+                'SELECT pl.`name`
+                FROM `'._DB_PREFIX_.'product` p
+                INNER JOIN `'._DB_PREFIX_.'product_lang` pl
+                    ON pl.`id_product` = p.`id_product` AND pl.`id_lang` = '.(int) $this->context->language->id.'
+                    AND pl.`id_shop` = '.(int) $this->context->shop->id.'
+                WHERE p.`booking_product` = 1 AND p.`active` = 1
+                    AND NOT EXISTS (
+                        SELECT 1 FROM `'._DB_PREFIX_.'htl_room_information` hri
+                        WHERE hri.`id_product` = p.`id_product` AND hri.`id_status` != '.(int) HotelRoomInformation::STATUS_INACTIVE.'
+                    )
+                ORDER BY pl.`name`'
+            );
+            if ($unbookable) {
+                $names = array();
+                foreach ($unbookable as $row) {
+                    $names[] = Tools::safeOutput($row['name']);
+                }
+                $this->warnings[] = sprintf(
+                    $this->l('These room types are switched on but have no room in service, so guests see them as sold out and cannot book them: %s. Open the room type, add its rooms in the Rooms tab, or switch the room type off.'),
+                    implode(', ', $names)
+                );
+            }
+        }
 
         $this->_new_list_header_design = true;
 

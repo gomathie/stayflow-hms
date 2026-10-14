@@ -36,7 +36,7 @@
 	<table class="bordered-table" id="tax-tab" width="100%">
 		<thead>
 			<tr>
-				<th colspan="{$th_rows}" class="header">{l s='Tax Details' pdf='true'}</th>
+				<th colspan="{$th_rows}" class="header-left section">{l s='Tax' pdf='true'}</th>
 			</tr>
 			<tr>
 				<th class="header-left small">{l s='Taxable category' pdf='true'}</th>

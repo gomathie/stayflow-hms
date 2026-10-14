@@ -467,7 +467,8 @@ class AdminCustomersControllerCore extends AdminController
                     'label' => $this->l('Email address'),
                     'name' => 'email',
                     'col' => '4',
-                    'required' => true,
+                    'required' => (bool) $obj->id,
+                    'desc' => $obj->id ? null : $this->l('Leave empty for a guest with no email address. They will not receive booking emails.'),
                     'autocomplete' => false
                 ),
                 array(
@@ -606,6 +607,19 @@ class AdminCustomersControllerCore extends AdminController
                 )
             )
         );
+
+        // Recording a new guest asks only for what the desk has in front of it:
+        // title, name, email, phone. The other fields get their usual defaults
+        // (see processAdd and processSave) and can be changed by editing the guest.
+        if (!$obj->id) {
+            $later = array('passwd', 'birthday', 'newsletter', 'optin', 'groupBox', 'id_default_group');
+            foreach ($this->fields_form['input'] as $k => $field) {
+                if (in_array($field['name'], $later)) {
+                    unset($this->fields_form['input'][$k]);
+                }
+            }
+            $this->fields_form['input'] = array_values($this->fields_form['input']);
+        }
 
         // if customer is a guest customer, password hasn't to be there
         if ($obj->id && ($obj->is_guest && $obj->id_default_group == Configuration::get('PS_GUEST_GROUP'))) {
@@ -1147,6 +1161,13 @@ class AdminCustomersControllerCore extends AdminController
         }
         // Check that the new email is not already in use
         $customer_email = trim(strval(Tools::getValue('email')));
+        if ($customer_email == '') {
+            // A guest with no email address still needs a unique one on record.
+            // The .invalid ending is reserved for addresses that do not exist,
+            // and the mailer skips it (override/classes/Mail.php).
+            $customer_email = 'guest-'.date('YmdHis').'-'.Tools::passwdGen(4, 'NUMERIC').'@'.Customer::NO_EMAIL_DOMAIN;
+            $_POST['email'] = $customer_email;
+        }
         $customer = new Customer();
         if (trim(Tools::getValue('passwd')) == '') {
             $_POST['passwd'] = md5(time()._COOKIE_KEY_);
@@ -1210,6 +1231,12 @@ class AdminCustomersControllerCore extends AdminController
 
     public function processSave()
     {
+        // The short form for a new guest has no group fields: the usual customer group applies
+        if (!Tools::getValue('id_customer') && !Tools::getIsset('groupBox')) {
+            $_POST['groupBox'] = array((int) Configuration::get('PS_CUSTOMER_GROUP'));
+            $_POST['id_default_group'] = (int) Configuration::get('PS_CUSTOMER_GROUP');
+        }
+
         // Check that default group is selected
         if (!is_array(Tools::getValue('groupBox')) || !in_array(Tools::getValue('id_default_group'), Tools::getValue('groupBox'))) {
             $this->errors[] = Tools::displayError('A default customer group must be selected in group box.');

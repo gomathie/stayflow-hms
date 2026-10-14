@@ -25,7 +25,7 @@
 <div class="leadin">{block name="leadin"}{/block}</div>
 {if $module_confirmation}
 <div class="alert alert-success clearfix">
-	{l s='Your .CSV file has been successfully imported to your website.'}
+	{l s='Your Excel file has been successfully imported to your website.'}
 </div>
 {/if}
 <div class="row">
@@ -70,7 +70,7 @@
 				</div>
 				<hr />
 				<div class="form-group" id="csv_file_uploader">
-					<label for="file" class="control-label col-lg-4">{l s='Select a CSV file to import'}</label>
+					<label for="file" class="control-label col-lg-4">{l s='Select an Excel (.xlsx) file to import'}</label>
 					<div class="col-lg-8">
 						<input id="file" type="file" name="file" data-url="{$current|escape:'html':'UTF-8'}&amp;token={$token|escape:'html':'UTF-8'}&amp;ajax=1&amp;action=uploadCsv" class="hide" />
 						<button class="ladda-button btn btn-default" data-style="expand-right" data-size="s" type="button" id="file-add-button">
@@ -92,7 +92,7 @@
 				<div class="form-group" id="csv_files_history" style="display:none;" >
 					<div class="panel">
 						<div class="panel-heading">
-							{l s='History of uploaded .CSV'}
+							{l s='History of uploaded Excel files'}
 							<span class="csv-history-nb badge">{$files_to_import|count}</span>
 							<button type="button" class="btn btn-link pull-right csv-history-btn">
 								<i class="icon-remove"></i>
@@ -282,7 +282,7 @@
 				{*if empty($files_to_import)*}
 				<div class="alert alert-info">{l s='You must upload a file in order to proceed to the next step'}</div>
 				{*if !count($files_to_import)*}
-				<p>{l s='There is no CSV file available. Please upload one using the \'Upload\' button above.'}</p>
+				<p>{l s='There is no Excel file available. Please upload one using the \'Upload\' button above.'}</p>
 	-->
 				<div class="panel-footer">
 					<button type="submit" name="submitImportFile" id="submitImportFile" class="btn btn-default pull-right" >
@@ -307,63 +307,34 @@
 		<div class="panel">
 			<div class="panel-heading">
 				<i class="icon-download"></i>
-				{l s='Download sample csv files'}
+				{l s='Download sample Excel files'}
 			</div>
 
 			<div class="list-group">
-				<a class="list-group-item _blank" href="../docs/csv_import/hotels_import.csv">
-					{l s='Sample Hotels file'}
-				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/hotels_import.xlsx">
-					{l s='Sample Hotels file, simple (.xlsx)'}
-				</a>
-				<a class="list-group-item _blank" href="../docs/csv_import/room_types_import.csv">
-					{l s='Sample Room Types file'}
+					{l s='Sample Hotels file, simple'}
 				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/room_types_import_simple.xlsx">
-					{l s='Sample Room Types file, simple (.xlsx)'}
+					{l s='Sample Room Types file, simple'}
 				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/room_types_import_example_simple.xlsx">
-					{l s='Example: Salisberg Room Types, filled in, simple (.xlsx)'}
-				</a>
-				<a class="list-group-item _blank" href="../docs/csv_import/rooms_import.csv">
-					{l s='Sample Rooms file'}
+					{l s='Example: Salisberg Room Types, filled in, simple'}
 				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/rooms_import.xlsx">
-					{l s='Sample Rooms file (.xlsx)'}
-				</a>
-				<a class="list-group-item _blank" href="../docs/csv_import/service_products_import.csv">
-					{l s='Sample Service Products file'}
+					{l s='Sample Rooms file'}
 				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/service_products_import.xlsx">
-					{l s='Sample Service Products file, simple (.xlsx)'}
-				</a>
-				<a class="list-group-item _blank" href="../docs/csv_import/categories_import.csv">
-					{l s='Sample Categories file'}
+					{l s='Sample Service Products file, simple'}
 				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/categories_import.xlsx">
-					{l s='Sample Categories file (.xlsx)'}
-				</a>
-				<a class="list-group-item _blank" href="../docs/csv_import/customers_import.csv">
-					{l s='Sample Customers file'}
+					{l s='Sample Categories file'}
 				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/customers_import.xlsx">
-					{l s='Sample Customers file, simple (.xlsx)'}
-				</a>
-				<a class="list-group-item _blank" href="../docs/csv_import/bookings_import.csv">
-					{l s='Sample Bookings file'}
+					{l s='Sample Customers file, simple'}
 				</a>
 				<a class="list-group-item _blank" href="../docs/csv_import/bookings_import.xlsx">
-					{l s='Sample Bookings file (.xlsx)'}
+					{l s='Sample Bookings file'}
 				</a>
-				{if $PS_ADVANCED_STOCK_MANAGEMENT}
-				<a class="list-group-item _blank" href="../docs/csv_import/supply_orders_import.csv">
-					{l s='Sample Supply Orders file'}
-				</a>
-				<a class="list-group-item _blank" href="../docs/csv_import/supply_orders_details_import.csv">
-					{l s='Sample Supply Order Details file'}
-				</a>
-				{/if}
 			</div>
 		</div>
 	</div>
@@ -411,7 +382,7 @@
 		$('#file').fileupload({
 			dataType: 'json',
 			autoUpload: true,
-			acceptFileTypes: /(\.|\/)(csv)$/i,
+			acceptFileTypes: /(\.|\/)(xlsx)$/i,
 			singleFileUploads: true,
 			{if isset ($post_max_size)}maxFileSize: {$post_max_size},{/if}
 			start: function (e) {

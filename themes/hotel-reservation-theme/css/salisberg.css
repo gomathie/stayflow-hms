@@ -341,6 +341,7 @@ header .header-top .ajax_cart_quantity {
 #index #hotelRoomsBlock .home_block_content > div > .row > [class*="col-"] {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   margin-bottom: 32px;
 }
 #index #hotelRoomsBlock .home_block_content > div > .row > [class*="col-"] > a {
@@ -674,10 +675,9 @@ input.account_input, input.is_required {
    logo is the Home link, and the other pages stay reachable from the footer
    and from the full menu on phones and tablets. */
 
-#menu_cont {
-  background-color: var(--sb-green-ink);
-  box-shadow: -20px 0 40px -20px rgba(0, 0, 0, .5);
-}
+#menu_cont { background-color: var(--sb-green-ink); }
+/* only while open: a shadow on the closed panel shows as a strip at the window's edge */
+#menu_cont.menu_cont_left { box-shadow: -20px 0 40px -20px rgba(0, 0, 0, .5); }
 #menu_cont .close_navbar {
   background-color: transparent;
   color: var(--sb-gold-2);

@@ -123,14 +123,6 @@
 							</div>
 						</div>
 					{/if}
-						<div class="form-group row">
-							<div class="col-sm-12">
-								<label for="subject" class="control-label">
-									{l s='Title'}*
-								</label>
-								<input class="form-control contact_input" type="text" id="subject" name="subject" value="{if isset($smarty.post.subject)}{$smarty.post.subject}{else if isset($customerThread.subject)}{$customerThread.subject|escape:'html':'UTF-8'}{/if}" {if isset($customerThread.subject)}readonly="readonly"{/if}/>
-							</div>
-						</div>
 						{if !isset($customerThread.id_contact) && isset($allowContactSelection) && $allowContactSelection}
 							<div class="form-group row">
 								<div class="col-sm-12">

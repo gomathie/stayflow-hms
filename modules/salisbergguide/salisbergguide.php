@@ -126,10 +126,26 @@ class Salisbergguide extends Module
         'AdminHotelReservationSystemManagement' => array('Hotel Reservation System', 'Manage Hotel'),
         'AdminAddHotel' => array('Manage Hotel', 'Hotel Details'),
         'AdminCatalog' => array('Catalog', 'Rooms & Services'),
+        'AdminCustomerThreads' => array('Customer Service', 'Inbox'),
+        'AdminHotelRoomsBooking' => array('Book Now', 'Add new booking'),
     );
 
     /** The vendor's own store pages, kept out of the menu: class names */
     public static $vendorMenus = array('AdminModulesCatalog');
+
+    /**
+     * Shop features a hotel does not use, taken out of the product: their menu
+     * entries are deleted, with every profile's rights to them. Class names.
+     */
+    public static $removedMenus = array(
+        'AdminWarehouses',
+        'AdminStockManagement',
+        'AdminStockMvt',
+        'AdminStockInstantState',
+        'AdminStockCover',
+        'AdminStockConfiguration',
+        'AdminStock',
+    );
 
     public function __construct()
     {
@@ -172,6 +188,7 @@ class Salisbergguide extends Module
             && $this->grantCartEditing()
             && $this->renameMenuEntries()
             && $this->hideVendorMenus()
+            && $this->removeMenus()
             && $this->registerHook('header')
             && $this->registerHook('footer')
             && $this->registerHook('actionAdminControllerSetMedia')
@@ -301,6 +318,21 @@ class Salisbergguide extends Module
         return true;
     }
 
+    /** Deletes the menu entries in $removedMenus that still exist. Safe to repeat. */
+    protected function removeMenus()
+    {
+        foreach (self::$removedMenus as $className) {
+            $idTab = (int) Tab::getIdFromClassName($className);
+            if ($idTab) {
+                $tab = new Tab($idTab);
+                $tab->delete();
+                PrestaShopLogger::addLog('salisbergguide: removed the menu entry '.$className, 1);
+            }
+        }
+
+        return true;
+    }
+
     protected function hideVendorMenus()
     {
         foreach (self::$vendorMenus as $className) {
@@ -336,6 +368,7 @@ class Salisbergguide extends Module
             Media::addJsDef(array('sbThemeScope' => 'site'));
         } else {
             $controller->addJS($this->_path.'views/js/side-menu.js');
+            $controller->addJS($this->_path.'views/js/page-head.js');
         }
         $controller->addJS($this->_path.'views/js/theme-toggle.js');
     }
@@ -563,7 +596,7 @@ class Salisbergguide extends Module
     public function renderGuide($template)
     {
         $pages = array(
-            'AdminDashboard', 'AdminHotelRoomsBooking', 'AdminOrders', 'AdminInvoices', 'AdminCustomers', 'AdminCarts',
+            'AdminDashboard', 'AdminSalisbergToday', 'AdminSalisbergHousekeeping', 'AdminSalisbergCharges', 'AdminHotelRoomsBooking', 'AdminOrders', 'AdminInvoices', 'AdminCustomers', 'AdminCarts',
             'AdminCustomerThreads', 'AdminOrderRefundRequests', 'AdminProducts', 'AdminNormalProducts', 'AdminAddHotel',
             'AdminHotelFeatures', 'AdminHotelFeaturePricesSettings', 'AdminHotelGeneralSettings', 'AdminOrderRefundRules',
             'AdminCartRules', 'AdminModules', 'AdminPayment', 'AdminCurrencies', 'AdminTaxes', 'AdminTaxRulesGroup',

@@ -8,6 +8,9 @@
  *
  * Bookings are created in the "Awaiting payment" state. Modelled on the bundled bankwire module.
  *
+ * Also the page Rooms & Services > Charges & Tax: the charges added to every
+ * booking by themselves, and whether tax is charged (AdminSalisbergCharges).
+ *
  * @license https://opensource.org/license/osl-3-0-php Open Software License version 3.0
  */
 
@@ -35,6 +38,8 @@ class Salisbergpay extends PaymentModule
         'SBPAY_BANK_ACCOUNT_NAME' => '',
         'SBPAY_BANK_ACCOUNT' => '',
         'SBPAY_BANK_NOTE' => '',
+        // the booking form offers a "Charge tax" switch (Rooms & Services > Charges & Tax)
+        'SBPAY_TAX_PER_BOOKING' => 1,
     );
 
     protected $_html = '';
@@ -90,8 +95,126 @@ class Salisbergpay extends PaymentModule
         return $ok;
     }
 
+    const CHARGES_TAB = 'AdminSalisbergCharges';
+
+    /**
+     * Creates the Charges & Tax page if it is missing. The Hotel Manager is
+     * given it once, when it is first created, so that taking the right away
+     * later in Permissions is not undone. Safe to call on every deploy.
+     */
+    public function ensureChargesPage()
+    {
+        if (Tab::getIdFromClassName(self::CHARGES_TAB)) {
+            return true;
+        }
+        $tab = new Tab();
+        $tab->class_name = self::CHARGES_TAB;
+        $tab->module = $this->name;
+        $tab->id_parent = (int) Tab::getIdFromClassName('AdminCatalog');
+        $tab->active = 1;
+        foreach (Language::getLanguages(false) as $lang) {
+            $tab->name[(int) $lang['id_lang']] = 'Charges & Tax';
+        }
+        // add() also reports failure when only its permission bookkeeping fails
+        // (no employee in context), so judge by whether the tab now exists
+        $tab->add();
+        $idTab = (int) Tab::getIdFromClassName(self::CHARGES_TAB);
+        if (!$idTab) {
+            return false;
+        }
+        $idProfile = (int) Db::getInstance()->getValue(
+            'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+            WHERE `name` = \'Hotel Manager\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+        );
+        if ($idProfile) {
+            Db::getInstance()->execute(
+                'INSERT INTO `'._DB_PREFIX_.'access` (`id_profile`, `id_tab`, `view`, `add`, `edit`, `delete`)
+                VALUES ('.$idProfile.', '.$idTab.', 1, 0, 1, 0)
+                ON DUPLICATE KEY UPDATE `view` = 1, `edit` = 1'
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * Charges a guest does not choose: the service products added to a booking
+     * by themselves, and hidden ones that were (so they can be switched on again).
+     *
+     * @return array
+     */
+    public function getAutoCharges()
+    {
+        $rows = Db::getInstance()->executeS(
+            'SELECT p.`id_product`, pl.`name`, ps.`price`, ps.`auto_add_to_cart`, p.`price_addition_type`, p.`price_calculation_method`
+            FROM `'._DB_PREFIX_.'product` p
+            INNER JOIN `'._DB_PREFIX_.'product_shop` ps ON ps.`id_product` = p.`id_product` AND ps.`id_shop` = '.(int) $this->context->shop->id.'
+            INNER JOIN `'._DB_PREFIX_.'product_lang` pl ON pl.`id_product` = p.`id_product`
+                AND pl.`id_lang` = '.(int) $this->context->language->id.' AND pl.`id_shop` = '.(int) $this->context->shop->id.'
+            WHERE p.`booking_product` = 0 AND ps.`active` = 1 AND (ps.`auto_add_to_cart` = 1 OR p.`show_at_front` = 0)
+            ORDER BY pl.`name`'
+        );
+        $charges = array();
+        foreach ((array) $rows as $row) {
+            $perNight = (int) $row['price_calculation_method'] == Product::PRICE_CALCULATION_METHOD_PER_DAY;
+            $inRate = (int) $row['price_addition_type'] == Product::PRICE_ADDITION_TYPE_WITH_ROOM;
+            $charges[] = array(
+                'id_product' => (int) $row['id_product'],
+                'name' => $row['name'],
+                'price' => Tools::displayPrice((float) $row['price'], (int) Configuration::get('PS_CURRENCY_DEFAULT')),
+                'how' => ($perNight ? $this->l('Per room, per night') : $this->l('Per room, once per stay'))
+                    .', '.($inRate ? $this->l('included in the room rate the guest sees') : $this->l('shown as a separate fee')),
+                'on' => (bool) $row['auto_add_to_cart'],
+            );
+        }
+
+        return $charges;
+    }
+
+    /** Switches one of getAutoCharges() on or off for new bookings */
+    public function setChargeAutoAdded($idProduct, $on)
+    {
+        foreach ($this->getAutoCharges() as $charge) {
+            if ($charge['id_product'] == (int) $idProduct) {
+                $value = array('auto_add_to_cart' => $on ? 1 : 0);
+
+                return Db::getInstance()->update('product', $value, '`id_product` = '.(int) $idProduct)
+                    && Db::getInstance()->update('product_shop', $value, '`id_product` = '.(int) $idProduct);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether the booking form may offer "Charge tax": only while tax is
+     * charged at all, and while the manager allows it.
+     */
+    public function taxChoiceAllowed()
+    {
+        return (bool) Configuration::get('PS_TAX') && (bool) Configuration::get('SBPAY_TAX_PER_BOOKING');
+    }
+
+    /** The tax rule groups room types and charges use, with how many use each */
+    public function getTaxesInUse()
+    {
+        return (array) Db::getInstance()->executeS(
+            'SELECT trg.`name`, COUNT(*) AS `count`
+            FROM `'._DB_PREFIX_.'product_shop` ps
+            INNER JOIN `'._DB_PREFIX_.'tax_rules_group` trg ON trg.`id_tax_rules_group` = ps.`id_tax_rules_group`
+            WHERE ps.`id_shop` = '.(int) $this->context->shop->id.' AND ps.`active` = 1
+            GROUP BY trg.`id_tax_rules_group`
+            ORDER BY `count` DESC'
+        );
+    }
+
     public function uninstall()
     {
+        $idTab = (int) Tab::getIdFromClassName(self::CHARGES_TAB);
+        if ($idTab) {
+            $tab = new Tab($idTab);
+            $tab->delete();
+        }
         foreach (array_keys(self::$settings) as $key) {
             Configuration::deleteByName($key);
         }

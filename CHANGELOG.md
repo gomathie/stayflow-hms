@@ -7,11 +7,59 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
-## 2026-10-13
+## 2026-10-14
+
+### Added
+
+- **Charge tax switch on the booking form.** On Yes by default; staff choose No for a guest who is not to be charged tax, and only that booking is made without tax. A tick on Rooms & Services › Charges & Tax lets the manager remove the switch.
+- **Rooms & Services › Charges & Tax.** Tick or untick each charge added to every booking by itself, see how it is charged, and switch tax on or off. For the Hotel Manager and the developer team.
 
 ### Fixed
 
+- **Layout on tablets, small laptops and phones.** Website: the location field's icon no longer covers its text; the search filters and the room booking panel sit above the content below 992px instead of being squeezed beside it; a room card no longer makes the phone homepage scroll sideways; the closed menu panel no longer shows as a dark strip at the right edge; "/Per Night" no longer splits over two lines. Back office: page titles are no longer covered by their buttons (the buttons move under the title when both do not fit); wide lists and tables scroll inside their box instead of pushing the page sideways; the figure tiles at the top of Bookings and a booking no longer overlap; the fold arrows are hidden in the phone menu rail; the Staff Guide's tables and the occupancy chart fit a phone.
+- **Room amenities ran together** ("FanTV") in the room lists: the short descriptions written on 12 October now read "Fan, TV".
+- **Payments can no longer be counted twice.** A payment larger than what is still owed is refused with a plain message, and marking a booking Complete payment received records only the amount still owed, even if earlier payments were not linked to the invoice.
+- The booking page said "Warning: X paid instead of Y" in red for every part payment. It now says "Paid so far: X of Y. Still to pay: Z", and is red only when more than the total was recorded.
+
+## 2026-10-13
+
+### Added
+
+- **Bookings › Invoices lists the invoices.** Number, date, booking, guest, stay, total, paid, still to pay and status, with search, a status filter, dates and a PDF button per row. Totals for what is shown. The numbering and layout settings are shown to SuperAdmins only.
+- **Redesigned invoice, which doubles as the receipt.** Logo, who it is from and for, the stay (room numbers, dates, nights, guests, rate), each payment received, total, paid and balance due, and how to pay the balance (the details from Salisberg Pay). Headed Receipt once nothing is owed. Dates are written as 13 Oct 2026. Fits one page.
+- **Check-in email** with the invoice or receipt attached, and **text messages** at check-in and when a booking is paid in full. Texts are handed to a hook and go nowhere until an SMS provider is connected.
+- **Bookings › Today.** One page for the front desk: arrivals, departures, rooms in house and unpaid bookings, with Check in and Check out buttons.
+- **Bookings › Housekeeping.** Every room as clean, dirty or out of service. A room turns dirty when its guest is checked out; out of service takes it off sale.
+- **Warning for room types with no rooms.** Manage Room Types marks them "No rooms" and names them in a warning; they cannot be booked.
+- **Guest details on the booking form.** The form asks for first name, last name, phone and email. A guest already on record (same email, or same phone) is used; anyone else is added. Email may be left empty. The separate Add new customer form is also shorter.
+
+### Removed
+
+- **Stock menu** (Warehouses, Stock Management, Stock Movement, Instant Stock Status, Stock Coverage, Configuration): menu entries and their pages.
+- **Shop pages on the website:** Suppliers, Manufacturers, Best sales, New products, Prices drop, Products Comparison. Their addresses now show Page not found.
+- **1-Click Upgrade module** (`modules/qloautoupgrade`). It was never installed and must not be used here.
+- **IMAP mailbox sync under Inbox.** All email uses the one mail server under Advanced Parameters › E-mail.
+
+### Changed
+
+- **Every booking gets its invoice when it is made**, not only once money has come in. The part-payment email now carries the PDF as well.
+- **Book Now and Add new order are both "Add new booking"** in the back office (menu page under Manage Hotel, and the button on Bookings). The website's Book Now button is unchanged.
+- **No index.php in the address bar, website and back office.** Back office pages now show as /admin-name/?controller=... instead of /admin-name/index.php?controller=.... On the website the last link that still showed index.php, Our Properties, now reads /our-properties.
+- **Customer Service renamed Inbox and simplified.** The Customers menu page is now Inbox. The list keeps From, Email, Phone, Message, Status, Handled by and Received (ID, Contact, Language, Last Reply by, Has Private and the full message text columns are gone); the message start is a link that opens the conversation; statuses read Open, In progress, Waiting for guest, Closed. The mail-server (IMAP) settings are shown to SuperAdmins only. Message titles end on a whole word.
+- **Contact form refuses links.** A message with a web address in it is not sent, and the guest is asked to remove it. Links already stored are shown as plain text in the back office instead of clickable ones, so front desk staff cannot click one by accident.
+- **Import is Excel only.** Advanced Parameters › CSV Import now accepts .xlsx files only. All the .csv sample files and their download links are removed; the samples are Excel files. The upload box on that page now also accepts .xlsx in the browser (it was still filtering for .csv there, which would have blocked an Excel file).
+- **Contact form simplified.** The website Contact page no longer asks for a Title or a Send To choice: it takes name, email, phone and the message. Every message goes to the one contact set in Customers › Contacts and appears under Customers › Customer Service, titled with the start of the message.
+
+### Fixed
+
+- Invoice PDF: the logo was missing (it was fetched over the web instead of read from disk), the footer printed "Tel: %s", and a hidden "Powered by TCPDF" line was added.
+- Two warnings logged whenever an invoice PDF was made (a missing PDF translation file, and an unset day count for items not priced per night).
 - **Front desk staff could not finish a booking in Book Now.** The rooms stayed in the cart and nothing was recorded. The last step (Bookings › Add new) attaches the guest to the cart through the Booking Carts page, which needs Add and Edit rights there; Hotel Staff and Hotel Manager had been created with View only. Both are now given those rights automatically on deploy, and the Admin Guide lists the three things a profile needs to take bookings.
+
+### Security
+
+- **Contact form checked against injection.** Review of the stock code found every value already escaped or cast before it reaches the database. As a second line of defence, each field must now have the shape the form can send (token, keys and ids letters and digits only, email without quotes or markup, no list values), anything else is refused with a plain message, and a list value no longer causes a server error.
+
 
 ## 2026-10-12
 

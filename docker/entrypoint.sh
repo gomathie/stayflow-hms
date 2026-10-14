@@ -11,14 +11,14 @@ ADMIN_DIR="${ADMIN_DIR:-admin-salisberg}"
 BRANDING_VERSION=1
 BRAND_NAME="Salisberg Hotels"
 # Bump CONTENT_VERSION to re-run the demo-content replacement below.
-CONTENT_VERSION=4
+CONTENT_VERSION=8
 BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
 CURRENCY_VERSION=2
 # Bump MODULES_VERSION whenever docker/setup-modules.php changes.
-MODULES_VERSION=15
+MODULES_VERSION=22
 # Bump ROOM_TYPES_VERSION whenever docker/setup-room-types.php changes.
-ROOM_TYPES_VERSION=1
+ROOM_TYPES_VERSION=2
 # Bump SCHEMA_VERSION when a schema/settings step below is added or changed.
 SCHEMA_VERSION=1
 
@@ -237,8 +237,25 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         # The contact form takes messages only, no attached files
         uploads_on=$(db_query "SELECT COUNT(*) FROM qlo_configuration WHERE name='PS_CUSTOMER_SERVICE_FILE_UPLOAD' AND value='1'")
         db_query "UPDATE qlo_configuration SET value='0' WHERE name='PS_CUSTOMER_SERVICE_FILE_UPLOAD'"
+        # ...and no "Send To" choice: every message goes to the one contact
+        db_query "UPDATE qlo_configuration SET value='0' WHERE name='PS_CUSTOMER_SERVICE_DISPLAY_CONTACT'"
+        # Shop pages a hotel does not have (their code is gone): drop their
+        # address and title records, and switch the product comparison off
+        shop_pages="'best-sales','new-products','prices-drop','manufacturer','supplier','products-comparison'"
+        shop_pages_gone=$(db_query "SELECT COUNT(*) FROM qlo_meta WHERE page IN ($shop_pages)")
+        db_query "DELETE FROM qlo_theme_meta WHERE id_meta IN (SELECT id_meta FROM qlo_meta WHERE page IN ($shop_pages))"
+        db_query "DELETE FROM qlo_meta_lang WHERE id_meta IN (SELECT id_meta FROM qlo_meta WHERE page IN ($shop_pages))"
+        db_query "DELETE FROM qlo_meta WHERE page IN ($shop_pages)"
+        db_query "UPDATE qlo_configuration SET value='0' WHERE name='PS_COMPARATOR_MAX_ITEM'"
+        # A booking gets its invoice as soon as it is made, not only once money
+        # has come in: the invoice is the bill, and shows what is paid and what is
+        # still owed. (Orders > Statuses, "Awaiting payment", is where to undo it.)
+        invoice_states=$(db_query "SELECT COUNT(*) FROM qlo_order_state WHERE invoice=0 AND id_order_state IN (SELECT value FROM qlo_configuration WHERE name='PS_OS_AWAITING_PAYMENT')")
+        db_query "UPDATE qlo_order_state SET invoice=1 WHERE invoice=0 AND id_order_state IN (SELECT value FROM (SELECT value FROM qlo_configuration WHERE name='PS_OS_AWAITING_PAYMENT') v)"
+        # The PDF goes out with the payment emails: full payment already did, part payment now does
+        db_query "UPDATE qlo_order_state SET pdf_invoice=1 WHERE pdf_invoice=0 AND id_order_state IN (SELECT value FROM (SELECT value FROM qlo_configuration WHERE name IN ('PS_OS_PAYMENT','PS_OS_PAYMENT_ACCEPTED','PS_OS_PARTIAL_PAYMENT_ACCEPTED')) v)"
         echo "$CONTENT_VERSION" > /data/.content-version
-        echo "Content v$CONTENT_VERSION applied (demo identity replaced; sample guest accounts retired: ${demo_guests:-0}; contact form file upload switched off: ${uploads_on:-0}; footer: ${footer_note}, links added: ${footer_links:-0})"
+        echo "Content v$CONTENT_VERSION applied (demo identity replaced; sample guest accounts retired: ${demo_guests:-0}; contact form file upload switched off: ${uploads_on:-0}; footer: ${footer_note}, links added: ${footer_links:-0}; shop pages removed: ${shop_pages_gone:-0}; states now issuing an invoice: ${invoice_states:-0})"
     fi
 
     # Schema and settings our security backports rely on. This must run before

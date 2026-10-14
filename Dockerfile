@@ -16,6 +16,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY docker/php.ini /usr/local/etc/php/conf.d/zz-salisberg.ini
 COPY docker/apache.conf /etc/apache2/conf-enabled/zz-salisberg.conf
+# The rewrite rules in that file are server-wide; the stock virtual host only
+# applies them when it is told to inherit them
+RUN sed -i 's#</VirtualHost>#RewriteEngine On\nRewriteOptions Inherit\n</VirtualHost>#' /etc/apache2/sites-available/000-default.conf
 COPY docker/entrypoint.sh /usr/local/bin/salisberg-entrypoint
 COPY docker/setup-modules.php /usr/local/share/salisberg/setup-modules.php
 COPY docker/setup-room-types.php /usr/local/share/salisberg/setup-room-types.php
