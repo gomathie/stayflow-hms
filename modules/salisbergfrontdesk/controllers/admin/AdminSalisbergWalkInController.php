@@ -179,6 +179,7 @@ class AdminSalisbergWalkInController extends ModuleAdminController
             'sb_room' => $service->currentRoomSummary($draft),
             'sb_rooms' => $rooms,
             'sb_methods' => $service->paymentMethods(),
+            'sb_payment' => $service->getPaymentSummary($draft['state']),
             'sb_tax_choice' => $taxChoice,
             'sb_success' => $success,
             'sb_price_changed' => !empty($draft['state']['price_changed']),

@@ -260,6 +260,13 @@ class SalisbergWalkIn
 
         return array(
             'nightly' => $nightly,
+            'nightly_text' => implode(' | ', array_map(function ($night) {
+                return Tools::displayDate($night['date']).': '.$night['amount_text'];
+            }, $nightly)),
+            'varies' => count(array_unique(array_map(function ($night) {
+                return number_format($night['amount'], 2, '.', '');
+            }, $nightly))) > 1,
+            'from_text' => $this->money($nightly ? min(array_column($nightly, 'amount')) : 0),
             'total' => $totalIncl,
             'total_text' => $this->money($totalIncl),
             'taxes' => max(0, $totalIncl - $totalExcl),
@@ -764,6 +771,7 @@ class SalisbergWalkIn
             $totalExcl = (float) $cart->getOrderTotal(false, Cart::BOTH);
             $currency = (int) $cart->id_currency;
             $result = array(
+                'id_currency' => $currency,
                 'accommodation' => $roomIncl,
                 'accommodation_text' => $this->money($roomIncl, $currency),
                 'extras' => $extrasIncl,
@@ -786,6 +794,30 @@ class SalisbergWalkIn
         }
 
         return $result;
+    }
+
+    public function getPaymentSummary(array $state)
+    {
+        $total = isset($state['quote']['total']) ? (float) $state['quote']['total'] : 0;
+        $confirmed = isset($state['payment']['confirmed_amount'])
+            ? (float) $state['payment']['confirmed_amount']
+            : 0;
+        $currency = isset($state['quote']['id_currency'])
+            ? (int) $state['quote']['id_currency']
+            : (int) Configuration::get('PS_CURRENCY_DEFAULT');
+        $balance = max(0, $total - $confirmed);
+
+        return array(
+            'confirmed' => $confirmed,
+            'confirmed_text' => $this->money($confirmed, $currency),
+            'balance' => $balance,
+            'balance_text' => $this->money($balance, $currency),
+            'change_due' => isset($state['payment']['change_due']) ? (float) $state['payment']['change_due'] : 0,
+            'change_due_text' => $this->money(
+                isset($state['payment']['change_due']) ? (float) $state['payment']['change_due'] : 0,
+                $currency
+            ),
+        );
     }
 
     public function currentRoomSummary(array $draft)

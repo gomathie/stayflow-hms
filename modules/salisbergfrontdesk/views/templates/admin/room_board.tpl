@@ -72,6 +72,7 @@
                                         data-ready="{if $room.readiness.ready}1{else}0{/if}"
                                         data-available="{if $room.available}1{else}0{/if}"
                                         data-rate="{$room.quote.average_text|escape:'html':'UTF-8'}"
+                                        data-nightly="{$room.quote.nightly_text|escape:'html':'UTF-8'}"
                                         data-total="{$room.quote.total_text|escape:'html':'UTF-8'}"
                                         data-taxes="{$room.quote.taxes_text|escape:'html':'UTF-8'}"
                                         data-capacity="{$room.max_adults|intval} adults, {$room.max_children|intval} children"
@@ -81,7 +82,7 @@
                                         <span class="sb-status sb-status-{$room.readiness.code|escape:'html':'UTF-8'}"><i></i>{$room.readiness.label|escape:'html':'UTF-8'}</span>
                                         <span class="sb-availability{if !$room.available} is-no{/if}">{if $room.available}{l s='Available for selected stay' mod='salisbergfrontdesk'}{else}{l s='Not available for selected stay' mod='salisbergfrontdesk'}{/if}</span>
                                         <span class="sb-capacity">{$room.max_adults|intval} {l s='adults' mod='salisbergfrontdesk'} · {$room.max_children|intval} {l s='children' mod='salisbergfrontdesk'}</span>
-                                        <span class="sb-room-rate"><strong>{$room.quote.average_text|escape:'html':'UTF-8'}</strong><small>{l s='average per night' mod='salisbergfrontdesk'}</small></span>
+                                        <span class="sb-room-rate"><strong>{if $room.quote.varies}{l s='From' mod='salisbergfrontdesk'} {$room.quote.from_text|escape:'html':'UTF-8'}{else}{$room.quote.average_text|escape:'html':'UTF-8'}{/if}</strong><small>{if $room.quote.varies}{l s='rates vary by night' mod='salisbergfrontdesk'}{else}{l s='per night' mod='salisbergfrontdesk'}{/if}</small></span>
                                     </button>
                                 {/foreach}
                             </div>
@@ -112,6 +113,7 @@
                 <hr>
                 <dl class="sb-summary-list">
                     <dt>{l s='Average nightly rate' mod='salisbergfrontdesk'}</dt><dd id="sb-selected-rate">{if $sb_selected_room}{$sb_selected_room.quote.average_text|escape:'html':'UTF-8'}{/if}</dd>
+                    <dt>{l s='Nightly rates' mod='salisbergfrontdesk'}</dt><dd id="sb-selected-nightly">{if $sb_selected_room}{$sb_selected_room.quote.nightly_text|escape:'html':'UTF-8'}{/if}</dd>
                     <dt>{l s='Taxes' mod='salisbergfrontdesk'}</dt><dd id="sb-selected-taxes">{if $sb_selected_room}{$sb_selected_room.quote.taxes_text|escape:'html':'UTF-8'}{/if}</dd>
                     <dt class="sb-summary-total">{l s='Estimated stay total' mod='salisbergfrontdesk'}</dt><dd class="sb-summary-total" id="sb-selected-total">{if $sb_selected_room}{$sb_selected_room.quote.total_text|escape:'html':'UTF-8'}{/if}</dd>
                 </dl>

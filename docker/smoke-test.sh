@@ -17,7 +17,10 @@
 set -u
 cd "$(dirname "$0")/.." || exit 2
 
-env_value() { grep -E "^$1=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '\r'; }
+env_value() {
+    value="$(printenv "$1" 2>/dev/null || true)"
+    if [ -n "$value" ]; then printf '%s' "$value"; else grep -E "^$1=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '\r'; fi
+}
 BASE="${1:-http://localhost:$(env_value HTTP_PORT)}"; BASE="${BASE%/}"
 [ "$BASE" = "http://localhost:" ] && BASE="http://localhost:8080"
 ADMIN_DIR="$(env_value ADMIN_DIR)"; ADMIN_DIR="${ADMIN_DIR:-admin-salisberg}"

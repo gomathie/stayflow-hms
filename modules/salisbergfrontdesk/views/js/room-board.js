@@ -53,6 +53,7 @@
         byId('sb-selected-type').textContent = card.getAttribute('data-room-type');
         byId('sb-selected-capacity').textContent = card.getAttribute('data-capacity');
         byId('sb-selected-rate').textContent = card.getAttribute('data-rate');
+        byId('sb-selected-nightly').textContent = card.getAttribute('data-nightly');
         byId('sb-selected-taxes').textContent = card.getAttribute('data-taxes');
         byId('sb-selected-total').textContent = card.getAttribute('data-total');
         status.className = 'sb-status sb-status-' + card.getAttribute('data-ready-code');
