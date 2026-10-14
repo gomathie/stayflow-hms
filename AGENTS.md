@@ -1714,3 +1714,29 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - Guides: Staff Guide menu table and section 5; Admin Guide section 10; What's New; CHANGELOG.
 - **Verification (local, image rebuilt):** as SuperAdmin the page lists the 7 local invoices with correct totals; filters by status, by guest name and by invoice number return the right rows; a script tag as status, an impossible date and a quote and percent sign as search text give an empty list with no error. As Hotel Staff the list shows and the options block does not.
 - **Not tested:** more than 200 invoices; a profile limited to one of several hotels; the two bulk-print forms after the change (their code is untouched); a real browser.
+
+### 2026-10-14 — Charges & Tax page; payments cannot be counted twice
+
+#### Charges & Tax (Rooms & Services)
+
+- **Owner:** provide a way to tick or untick the two sample charges and the sample tax.
+- **What the samples really do** (read from the database): "Room Maintenance Fees" GH₵250 per room per night, `price_addition_type` 1, i.e. added inside the room rate the guest sees (a GH₵200 room shows and is charged GH₵450); "Internet Handling Charges" GH₵250 per room per stay, shown as a separate fee. Both `auto_add_to_cart = 1`, hidden from guests (`show_at_front = 0`). The tax is the installer's "US-AL Rate (4%)" rule group on 12 room types and charges; it applies because the hotel address is still the sample Alabama one.
+- **Where (rule 25):** a new page in the existing `modules/salisbergpay`, because it is about what the guest pays. `controllers/admin/AdminSalisbergChargesController.php`, `views/templates/admin/charges.tpl`, and in `salisbergpay.php`: `ensureChargesPage()` (menu entry under Rooms & Services; Hotel Manager given view and edit once, when created), `getAutoCharges()`, `setChargeAutoAdded()`, `getTaxesInUse()`. Created by `docker/setup-modules.php` after the profiles exist (`MODULES_VERSION=21`).
+- **What the switches change:** a charge's tick is `auto_add_to_cart` on `product` and `product_shop`, and only for products the page lists (service products that are added by themselves or hidden from guests); optional extras are refused. The tax tick is the platform's own `PS_TAX` (Localization > Taxes, "Enable tax"). New bookings only; bookings already made keep their lines.
+- **Left as they were:** both sample charges and tax are still ticked. Removing them is a pricing decision for the owner.
+
+#### Payments counted twice
+
+- **How it could happen:** marking a booking Complete payment received records a payment for what the *invoice* has not been paid (`OrderInvoice::getRestPaid()`), counting only payments linked to that invoice. A payment recorded before the invoice existed, or without the link, was then taken a second time. Recording the same payment twice by hand was also possible.
+- **Fixed at the source:** `classes/order/OrderHistory.php` caps that automatic payment at what the booking still owes (`total_paid_tax_incl - total_paid_real`); `controllers/admin/AdminOrdersController.php` (Add payment) refuses an amount above what is still owed, converted to the booking's currency, with a message naming the amount. Refunds (negative amounts) are unchanged. Since 13 October every booking has its invoice from the start, so payments are linked as they are recorded.
+- `admin/themes/default/template/controllers/orders/helpers/view/view.tpl`: the red "Warning X paid instead of Y" shown for every part payment now reads "Paid so far: X of Y. Still to pay: Z" in amber, and is red only when more than the total has been recorded.
+
+#### Guides (rule 23)
+
+- Admin Guide section 5 (new "Charges added to every booking, and tax", with the sample charges spelled out) and section 7 (managers pointed to the switch). Staff Guide section 5 (the double-count warning replaced by what the system now does). What's New 14 October (everyone, and manager); CHANGELOG.
+
+#### Verification (local, image rebuilt)
+
+- Charges & Tax as SuperAdmin: lists the two charges with how each is charged and the tax group in use. Unticking Room Maintenance Fees changed the website price of Standard Room 1 from GH₵450 to GH₵200; ticking it again restored GH₵450. Trying to switch an optional extra (Airport Shuttle) was refused. The tax switch saved and showed its message; its effect on a booking total was not checked. Everything was put back as it was.
+- As the Hotel Staff test account: a new unpaid booking (GH₵832) got invoice #IN000008 at once; a GH₵100 payment was recorded and linked to it; a GH₵999,999 payment was refused ("more than the GH₵732.00 still owed"); marking it Complete payment received recorded exactly GH₵732, total paid GH₵832.
+- **Not tested:** the tax switch on a real booking total; the Charges & Tax page as Hotel Manager; a booking in another currency; the new booking-page notice in a browser.

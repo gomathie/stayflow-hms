@@ -421,11 +421,13 @@
                         <i class="icon-credit-card"></i> &nbsp;{l s="Payment"} <span class="badge">{$order->getOrderPayments()|@count}</span>
                     </div>
                     {if count($order->getOrderPayments()) > 0}
-                        <p class="alert alert-danger"{if round($order->total_paid_tax_incl, 2) == round($total_paid, 2) || (isset($currentState) && $currentState->id == 6)} style="display: none;"{/if}>
-                            {l s='Warning'}
+                        {* Part payment is normal for a hotel: say what is paid and what is left, in plain words. Red only when more than the total has been taken. *}
+                        <p class="alert {if round($total_paid, 2) > round($order->total_paid_tax_incl, 2)}alert-danger{else}alert-warning{/if}"{if round($order->total_paid_tax_incl, 2) == round($total_paid, 2) || (isset($currentState) && $currentState->id == 6)} style="display: none;"{/if}>
+                            {if round($total_paid, 2) > round($order->total_paid_tax_incl, 2)}{l s='More has been recorded than this booking costs:'}{else}{l s='Paid so far:'}{/if}
                             <strong>{displayPrice price=$total_paid currency=$currency->id}</strong>
-                            {l s='paid instead of'}
-                            <strong class="total_paid">{displayPrice price=$order->total_paid_tax_incl currency=$currency->id}</strong>
+                            {l s='of'}
+                            <strong class="total_paid">{displayPrice price=$order->total_paid_tax_incl currency=$currency->id}</strong>.
+                            {if round($total_paid, 2) < round($order->total_paid_tax_incl, 2)}{l s='Still to pay:'} <strong>{displayPrice price=($order->total_paid_tax_incl - $total_paid) currency=$currency->id}</strong>{/if}
                             {* {foreach $order->getBrother() as $brother_order}
                                 {if $brother_order@first}
                                     {if count($order->getBrother()) == 1}

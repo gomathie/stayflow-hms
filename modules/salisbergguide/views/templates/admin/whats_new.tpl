@@ -19,6 +19,19 @@
 	</div>
 
 	<section>
+		<h3>{l s='14 October 2026' mod='salisbergguide'}</h3>
+		<ul>
+			<li><strong>{l s='Payments cannot be counted twice.' mod='salisbergguide'}</strong> {l s='A payment more than what is still owed is refused, and marking a booking Complete payment received records only what was still owed. The booking page now says Paid so far and Still to pay in plain words.' mod='salisbergguide'}</li>
+		</ul>
+		{if $sb_can_read_admin_guide}
+		<h4>{l s='For the hotel manager' mod='salisbergguide'}</h4>
+		<ul>
+			<li><strong>{l s='New: Rooms & Services, Charges & Tax.' mod='salisbergguide'}</strong> {l s='Tick or untick the charges added to every booking by themselves, and switch tax on or off. Two sample charges and a United States sample tax came switched on; see Admin Guide section 5.' mod='salisbergguide'}</li>
+		</ul>
+		{/if}
+	</section>
+
+	<section>
 		<h3>{l s='13 October 2026' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='New invoice and receipt.' mod='salisbergguide'}</strong> {l s='The invoice has the hotel logo and shows the stay, each payment received and the balance still due, with how to pay it. Every booking now has one from the moment it is made, and it becomes a Receipt once it is paid.' mod='salisbergguide'}</li>

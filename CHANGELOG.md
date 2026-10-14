@@ -7,6 +7,17 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
+## 2026-10-14
+
+### Added
+
+- **Rooms & Services › Charges & Tax.** Tick or untick each charge added to every booking by itself, see how it is charged, and switch tax on or off. For the Hotel Manager and the developer team.
+
+### Fixed
+
+- **Payments can no longer be counted twice.** A payment larger than what is still owed is refused with a plain message, and marking a booking Complete payment received records only the amount still owed, even if earlier payments were not linked to the invoice.
+- The booking page said "Warning: X paid instead of Y" in red for every part payment. It now says "Paid so far: X of Y. Still to pay: Z", and is red only when more than the total was recorded.
+
 ## 2026-10-13
 
 ### Added

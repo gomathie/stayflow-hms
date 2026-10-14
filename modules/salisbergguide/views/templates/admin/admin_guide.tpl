@@ -132,6 +132,12 @@
 			<li><strong>{l s='Room add-ons' mod='salisbergguide'}</strong> {l s='such as an extra bed:' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; Additional Facilities</span>.</li>
 		</ul>
 		<p>{l s='Attach them to room types in that type\'s Service Products and Additional Facilities tabs.' mod='salisbergguide'}</p>
+		<h4>{l s='Charges added to every booking, and tax' mod='salisbergguide'}</h4>
+		<p>{l s='Some charges are added to every booking by themselves, without the guest choosing them. Go to' mod='salisbergguide'} <span class="sb-path">Rooms &amp; Services &rsaquo; Charges &amp; Tax</span> {l s='to see them and untick any you do not want. The page also says how each is charged: per night or once per stay, and whether it is hidden inside the room rate the guest sees or shown as a separate fee.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='The system came with two sample charges switched on: Room Maintenance Fees (GH₵250 per room per night, added inside the room rate, so a GH₵200 room is charged GH₵450) and Internet Handling Charges (GH₵250 per room per stay). Untick them unless the hotel means to charge them.' mod='salisbergguide'}</p>
+		<p>{l s='On the same page, Charge tax on bookings switches tax on or off for new bookings. The tax rates that came with the system are United States rates, not Ghana VAT and levies; leave tax off until the right ones are set up with your accountant.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='Changes apply to new bookings. Bookings already made keep what they were charged.' mod='salisbergguide'}</p>
+		<a class="sb-go" href="{$sb_links.AdminSalisbergCharges|escape:'html':'UTF-8'}">{l s='Open Charges & Tax' mod='salisbergguide'} &rarr;</a>
 	</section>
 
 	<section id="sb-a6">
@@ -151,7 +157,7 @@
 		<p class="sb-tip">{l s='Card payments are not set up. They need an account with a payment company (for example Paystack or Hubtel in Ghana), which then has to be connected to the site by the developer team.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminModules|escape:'html':'UTF-8'}&amp;configure=salisbergpay">{l s='Open Salisberg Pay settings' mod='salisbergguide'} &rarr;</a>
 		{else}
-		<p class="sb-tip">{l s='This is looked after by the developer team. Ask them when it needs to change.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='Setting up tax rates is looked after by the developer team. You can switch tax on or off yourself under Rooms & Services, Charges & Tax (see section 5).' mod='salisbergguide'}</p>
 		{/if}
 	</section>
 

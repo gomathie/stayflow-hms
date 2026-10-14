@@ -595,7 +595,7 @@ class Salisbergguide extends Module
     public function renderGuide($template)
     {
         $pages = array(
-            'AdminDashboard', 'AdminSalisbergToday', 'AdminSalisbergHousekeeping', 'AdminHotelRoomsBooking', 'AdminOrders', 'AdminInvoices', 'AdminCustomers', 'AdminCarts',
+            'AdminDashboard', 'AdminSalisbergToday', 'AdminSalisbergHousekeeping', 'AdminSalisbergCharges', 'AdminHotelRoomsBooking', 'AdminOrders', 'AdminInvoices', 'AdminCustomers', 'AdminCarts',
             'AdminCustomerThreads', 'AdminOrderRefundRequests', 'AdminProducts', 'AdminNormalProducts', 'AdminAddHotel',
             'AdminHotelFeatures', 'AdminHotelFeaturePricesSettings', 'AdminHotelGeneralSettings', 'AdminOrderRefundRules',
             'AdminCartRules', 'AdminModules', 'AdminPayment', 'AdminCurrencies', 'AdminTaxes', 'AdminTaxRulesGroup',
