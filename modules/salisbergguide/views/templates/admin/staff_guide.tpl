@@ -45,6 +45,7 @@
 			<tr><td><span class="sb-path">Bookings &rsaquo; Housekeeping</span></td><td>{l s='Every room and whether it is clean, dirty or out of service.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Add new booking</span></td><td>{l s='See which rooms are free and make a booking for a guest.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Bookings</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Bookings &rsaquo; Invoices</span></td><td>{l s='Every invoice and receipt, with what is paid and what is still owed.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records and their booking history.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Inbox</span></td><td>{l s='Messages guests send through the website.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Requests</span></td><td>{l s='Cancellation and refund requests from guests.' mod='salisbergguide'}</td></tr>
@@ -96,6 +97,7 @@
 		<h3>5. {l s='Record a cash, Mobile Money or bank transfer payment' mod='salisbergguide'}</h3>
 		<p>{l s='Bookings made on the website with Cash at hotel, Mobile Money or Bank transfer arrive as Awaiting payment. Nothing is confirmed automatically: a member of staff must record the money.' mod='salisbergguide'}</p>
 		<p>{l s='Every booking has an invoice from the moment it is made. It shows the stay, the total, each payment received, and the balance still due, with the ways to pay it. Once nothing is owed the same document is headed Receipt. Open the booking and use the invoice button to print it or save it as a PDF.' mod='salisbergguide'}</p>
+		<p>{l s='To find an invoice without opening the booking, go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Invoices</span>. {l s='The page lists every invoice, newest first, with the guest, the stay, the total, what is paid and what is still to pay. Type an invoice number, a booking reference, a guest name or a phone number in Find, or choose Not yet paid in Status to see who still owes money. The button at the end of a row opens the PDF.' mod='salisbergguide'}</p>
 		<p class="sb-tip">{l s='What the guest is sent, if they have an email address: the booking confirmation with the invoice when the booking is made, the receipt when payment is confirmed, and a welcome email with the invoice or receipt when you check them in. Text messages for check-in and payment will start once the text service is connected.' mod='salisbergguide'}</p>
 		<p class="sb-warn">{l s='Record a payment once only. Changing the status to Complete payment received records the full amount by itself, so do not also add that payment by hand, or the money is counted twice.' mod='salisbergguide'}</p>
 		<h4>{l s='Mobile Money' mod='salisbergguide'}</h4>

@@ -227,6 +227,7 @@
 			<tr><td>{l s='Checked in (first room of the booking)' mod='salisbergguide'}</td><td>{l s='Welcome, with the invoice or receipt as a PDF' mod='salisbergguide'}</td><td>{l s='Welcome, with the room number and check-out date' mod='salisbergguide'}</td></tr>
 		</table>
 		<p>{l s='The invoice and the receipt are one document: it is headed Invoice while money is owed and Receipt once it is settled. It carries the hotel logo, the stay, the payments received, the balance due, and the payment details entered in Salisberg Pay.' mod='salisbergguide'}</p>
+		<p>{l s='All invoices are listed under' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Invoices</span>{l s=', with totals for what is billed, paid and still to pay. Filter by status or dates, then use the two forms underneath to print many invoices in one PDF. The numbering and layout settings at the bottom of that page are shown to the developer team only.' mod='salisbergguide'}</p>
 		{if $sb_is_admin}
 		<p class="sb-tip">{l s='Text messages are prepared but not sent until a text provider is connected. The system hands each message to the hook actionSalisbergSendSms (phone, message, id_order, reference); a small module for the chosen provider listens to that hook and sends it.' mod='salisbergguide'}</p>
 		{else}

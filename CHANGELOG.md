@@ -11,6 +11,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Added
 
+- **Bookings › Invoices lists the invoices.** Number, date, booking, guest, stay, total, paid, still to pay and status, with search, a status filter, dates and a PDF button per row. Totals for what is shown. The numbering and layout settings are shown to SuperAdmins only.
 - **Redesigned invoice, which doubles as the receipt.** Logo, who it is from and for, the stay (room numbers, dates, nights, guests, rate), each payment received, total, paid and balance due, and how to pay the balance (the details from Salisberg Pay). Headed Receipt once nothing is owed. Dates are written as 13 Oct 2026. Fits one page.
 - **Check-in email** with the invoice or receipt attached, and **text messages** at check-in and when a booking is paid in full. Texts are handed to a hook and go nowhere until an SMS provider is connected.
 - **Bookings › Today.** One page for the front desk: arrivals, departures, rooms in house and unpaid bookings, with Check in and Check out buttons.
