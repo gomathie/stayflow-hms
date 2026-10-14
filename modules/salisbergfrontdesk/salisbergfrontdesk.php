@@ -32,8 +32,12 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+require_once dirname(__FILE__).'/classes/SalisbergWalkIn.php';
+
 class Salisbergfrontdesk extends Module
 {
+    const TAB_ROOM_BOARD = 'AdminSalisbergRoomBoard';
+    const TAB_WALK_IN = 'AdminSalisbergWalkIn';
     const TAB_TODAY = 'AdminSalisbergToday';
     const TAB_HOUSEKEEPING = 'AdminSalisbergHousekeeping';
     const TAB_PARENT = 'AdminParentOrders';
@@ -81,6 +85,7 @@ class Salisbergfrontdesk extends Module
                 PRIMARY KEY (`id_room`)
             ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8'
         );
+        $ok = SalisbergWalkIn::ensureTable() && $ok;
         foreach (array('actionRoomBookingStatusUpdateAfter', 'actionOrderStatusPostUpdate') as $hook) {
             if (!$this->isRegisteredInHook($hook)) {
                 $ok = $this->registerHook($hook) && $ok;
@@ -88,15 +93,17 @@ class Salisbergfrontdesk extends Module
         }
 
         return $ok
-            && $this->installTab(self::TAB_TODAY, 'Today', true)
-            && $this->installTab(self::TAB_HOUSEKEEPING, 'Housekeeping', false);
+            && $this->installTab(self::TAB_ROOM_BOARD, 'Room board', true)
+            && $this->installTab(self::TAB_TODAY, 'Today', false)
+            && $this->installTab(self::TAB_HOUSEKEEPING, 'Housekeeping', false)
+            && $this->installTab(self::TAB_WALK_IN, 'Walk-in booking', false, true);
     }
 
     /**
      * The listed profiles are given the page once, when it is first created,
      * so that a right taken away later in Permissions is not given back.
      */
-    protected function installTab($className, $name, $first)
+    protected function installTab($className, $name, $first, $hidden = false)
     {
         if (Tab::getIdFromClassName($className)) {
             return true;
@@ -105,8 +112,8 @@ class Salisbergfrontdesk extends Module
         $tab = new Tab();
         $tab->class_name = $className;
         $tab->module = $this->name;
-        $tab->id_parent = $idParent;
-        $tab->active = 1;
+        $tab->id_parent = $hidden ? -1 : $idParent;
+        $tab->active = $hidden ? 0 : 1;
         foreach (Language::getLanguages(false) as $lang) {
             $tab->name[(int) $lang['id_lang']] = $name;
         }
@@ -117,7 +124,7 @@ class Salisbergfrontdesk extends Module
         if (!$idTab) {
             return false;
         }
-        if ($first) {
+        if ($first && !$hidden) {
             // the desk opens this page first, so it leads its menu section
             Db::getInstance()->execute(
                 'UPDATE `'._DB_PREFIX_.'tab` SET `position` = `position` + 1
@@ -145,7 +152,7 @@ class Salisbergfrontdesk extends Module
 
     public function uninstall()
     {
-        foreach (array(self::TAB_TODAY, self::TAB_HOUSEKEEPING) as $className) {
+        foreach (array(self::TAB_ROOM_BOARD, self::TAB_WALK_IN, self::TAB_TODAY, self::TAB_HOUSEKEEPING) as $className) {
             $idTab = (int) Tab::getIdFromClassName($className);
             if ($idTab) {
                 $tab = new Tab($idTab);
@@ -154,6 +161,11 @@ class Salisbergfrontdesk extends Module
         }
 
         return parent::uninstall();
+    }
+
+    public function getWalkInService()
+    {
+        return new SalisbergWalkIn($this);
     }
 
     /** A room whose guest has just been checked out needs cleaning */
