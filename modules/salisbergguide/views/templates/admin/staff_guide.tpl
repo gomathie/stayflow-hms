@@ -45,7 +45,7 @@
 			<tr><td><span class="sb-path">Bookings &rsaquo; Today</span></td><td>{l s='Start here each day: arrivals, departures, guests in house and unpaid bookings, with Check in and Check out buttons.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Housekeeping</span></td><td>{l s='Every room and whether it is clean, dirty or out of service.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Add new booking</span></td><td>{l s='See which rooms are free and make a booking for a guest.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Bookings &rsaquo; Bookings</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Bookings &rsaquo; Reservations</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Invoices</span></td><td>{l s='Every invoice and receipt, with what is paid and what is still owed.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records and their booking history.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Inbox</span></td><td>{l s='Messages guests send through the website.' mod='salisbergguide'}</td></tr>
@@ -77,7 +77,7 @@
 	<section id="sb-s4">
 		<h3>4. {l s='Find and open a booking' mod='salisbergguide'}</h3>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Bookings</span>.</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Reservations</span>.</li>
 			<li>{l s='Search by booking reference (the nine-letter code the guest received), by guest name, or by status.' mod='salisbergguide'}</li>
 			<li>{l s='Click the row to open the booking.' mod='salisbergguide'}</li>
 		</ol>

@@ -120,13 +120,14 @@ class Salisbergguide extends Module
     );
 
     /**
-     * Stock menu entries shown under a clearer name: class name => array(stock
-     * name, new name). An entry is renamed only while it still carries the
-     * stock name, so a name changed by hand in the back office is kept.
+     * Stock menu entries shown under a clearer name: class name => array(the
+     * name or list of names it may still carry, new name). An entry is renamed
+     * only while it carries one of those names, so a name changed by hand in
+     * the back office is kept.
      */
     protected $menuLabels = array(
         'AdminParentOrders' => array('Orders', 'Bookings'),
-        'AdminOrders' => array('Orders', 'Bookings'),
+        'AdminOrders' => array(array('Orders', 'Bookings'), 'Reservations'),
         'AdminHotelReservationSystemManagement' => array('Hotel Reservation System', 'Manage Hotel'),
         'AdminAddHotel' => array('Manage Hotel', 'Hotel Details'),
         'AdminCatalog' => array('Catalog', 'Rooms & Services'),
@@ -311,10 +312,11 @@ class Salisbergguide extends Module
         foreach ($this->menuLabels as $className => $names) {
             $idTab = (int) Tab::getIdFromClassName($className);
             if ($idTab) {
+                $old = array_map('pSQL', (array) $names[0]);
                 Db::getInstance()->update(
                     'tab_lang',
                     array('name' => pSQL($names[1])),
-                    'id_tab = '.$idTab.' AND name = \''.pSQL($names[0]).'\''
+                    'id_tab = '.$idTab.' AND name IN (\''.implode('\', \'', $old).'\')'
                 );
             }
         }
