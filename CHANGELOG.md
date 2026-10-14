@@ -11,6 +11,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Added
 
+- **Quicker Add new booking.** After Search the page scrolls to the free rooms; Add To Cart adds a room at the first click with the guests from the Booking Form (it used to open a second guest box and add nothing); a bar at the bottom of the screen shows the rooms chosen, the total, and a Continue to guest and payment button (the small Cart button in the calendar's corner was easy to miss). The cart window's Book Now button is now called Continue to guest and payment too.
 - **Charge tax switch on the booking form.** On Yes by default; staff choose No for a guest who is not to be charged tax, and only that booking is made without tax. A tick on Rooms & Services › Charges & Tax lets the manager remove the switch.
 - **Rooms & Services › Charges & Tax.** Tick or untick each charge added to every booking by itself, see how it is charged, and switch tax on or off. For the Hotel Manager and the developer team.
 

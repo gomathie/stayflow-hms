@@ -60,10 +60,10 @@
 		<p>{l s='Use this for walk-in guests and bookings taken by phone. The Add new booking button on the Bookings page opens the same thing.' mod='salisbergguide'}</p>
 		<ol>
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Add new booking</span>.</li>
-			<li>{l s='In the Booking Form, choose the check-in and check-out dates, the room type and the number of guests, then click' mod='salisbergguide'} <span class="sb-btn">Search</span>.</li>
-			<li>{l s='The calendar and room lists show what is free. Rooms are grouped as Available Rooms, Partially Available, Booked Rooms and Unavailable Rooms.' mod='salisbergguide'}</li>
-			<li>{l s='Pick a room, set the occupancy and click' mod='salisbergguide'} <span class="sb-btn">Add To Cart</span>. {l s='Repeat if the guest needs more than one room.' mod='salisbergguide'}</li>
-			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Book Now</span> {l s='to continue to the order form.' mod='salisbergguide'}</li>
+			<li>{l s='In the Booking Form, choose the check-in and check-out dates and the number of guests (Occupancy), then click' mod='salisbergguide'} <span class="sb-btn">Search</span>. {l s='The page moves down to the free rooms.' mod='salisbergguide'}</li>
+			<li>{l s='Pick a room and click' mod='salisbergguide'} <span class="sb-btn">Add To Cart</span>. {l s='The room is added at once with the guests you chose in the Booking Form; you do not need to enter them again. To give one room different guests, change its Guests box before clicking.' mod='salisbergguide'}</li>
+			<li>{l s='A bar appears at the bottom of the screen with how many rooms are chosen and the total. Add more rooms if the guest needs them; Review selection shows the list, where a room can be removed.' mod='salisbergguide'}</li>
+			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Continue to guest and payment</span> {l s='in that bar.' mod='salisbergguide'}</li>
 			<li>{l s='In the Guest box, type the first name, last name, phone and email of the guest and click' mod='salisbergguide'} <span class="sb-btn">Continue with this guest</span>. {l s='A phone number or an email is enough; give both when you can.' mod='salisbergguide'}</li>
 			<li>{l s='If the guest has stayed before (same email, or same phone number), their record is used and the page tells you so: check that the name shown is the right person, and click Change if it is not. If they are new, they are added.' mod='salisbergguide'}</li>
 			<li>{l s='You can also find a guest by name in Or search for a guest on record, and click Choose.' mod='salisbergguide'}</li>

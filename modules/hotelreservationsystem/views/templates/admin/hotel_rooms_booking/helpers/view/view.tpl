@@ -203,7 +203,13 @@
 		</div>
 		{if !isset($booking_product) || (isset($booking_product) && $booking_product == 1)}
 			{if isset($booking_data) && $booking_data}
-				{include file="./_partials/booking-rooms.tpl"}
+				<div id="sb-room-results" class="col-sm-12">{include file="./_partials/booking-rooms.tpl"}</div>
+				{if isset($smarty.get.date_from)}
+					{* Salisberg: after a search, bring the rooms into view *}
+					<script type="text/javascript">
+						$(function () { var r = $('#sb-room-results'); if (r.length) { $('html, body').animate({ scrollTop: r.offset().top - 90 }, 300); } });
+					</script>
+				{/if}
 			{/if}
 		{/if}
 	{else}
@@ -222,6 +228,18 @@
 
 <div class="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 	{include file="./_partials/booking-cart.tpl"}
+</div>
+
+{* Salisberg: the next step stays on screen once a room is chosen (hotel_rooms_booking.js, updateBookingBar) *}
+<div id="sb-booking-bar" class="sb-booking-bar" {if !$total_products_in_cart}style="display: none;"{/if}>
+	<div class="sb-booking-bar-text">
+		<strong><span class="sb-booking-bar-count">{$total_products_in_cart|intval}</span> {l s='selected for this booking' mod='hotelreservationsystem'}</strong>
+		<span class="sb-booking-bar-sub">{l s='Total before tax:' mod='hotelreservationsystem'} <span class="sb-booking-bar-total">{if isset($cart_tamount)}{convertPrice price=$cart_tamount}{/if}</span></span>
+	</div>
+	<div class="sb-booking-bar-actions">
+		<button type="button" class="btn btn-default" data-toggle="modal" data-target="#cartModal"><i class="icon-list"></i> {l s='Review selection' mod='hotelreservationsystem'}</button>
+		<a href="{$link->getAdminLink('AdminOrders')}&amp;addorder&amp;cart_id={$id_cart|intval}" class="btn btn-primary btn-lg sb-booking-bar-continue">{l s='Continue to guest and payment' mod='hotelreservationsystem'} <i class="icon-arrow-right"></i></a>
+	</div>
 </div>
 
 <div id="date-stats-tooltop" style="display:none">
