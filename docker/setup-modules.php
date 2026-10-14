@@ -109,6 +109,16 @@ if ($desk && Module::isInstalled('salisbergfrontdesk')) {
     }
 }
 
+// Rooms & Services > Charges & Tax: after the profiles exist, so the Hotel Manager can be given it
+if ($pay && Module::isInstalled('salisbergpay')) {
+    if ($pay->ensureChargesPage()) {
+        sb_log('Charges & Tax page in place');
+    } else {
+        sb_log('ERROR: Charges & Tax page could not be created');
+        $failed = true;
+    }
+}
+
 // A payment module only shows to guests from countries it is granted to
 $idPay = (int) Module::getModuleIdByName('salisbergpay');
 if ($idPay && $idGhana) {
