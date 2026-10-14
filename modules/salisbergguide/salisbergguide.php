@@ -25,6 +25,8 @@ class Salisbergguide extends Module
         'AdminHotelReservationSystemManagement' => array(1, 0, 0, 0),
         'AdminSalisbergGuide' => array(1, 0, 0, 0),
         // daily work
+        'AdminSalisbergRoomBoard' => array(1, 0, 1, 0),
+        'AdminSalisbergWalkIn' => array(1, 0, 1, 0),
         'AdminHotelRoomsBooking' => array(1, 1, 1, 0),
         'AdminOrders' => array(1, 1, 1, 0),
         'AdminInvoices' => array(1, 0, 0, 0),
@@ -71,6 +73,8 @@ class Salisbergguide extends Module
         'AdminHotelFeaturePricesSettings' => array(1, 1, 1, 1),
         'AdminRoomTypeGlobalDemand' => array(1, 1, 1, 1),
         // bookings and money
+        'AdminSalisbergRoomBoard' => array(1, 0, 1, 0),
+        'AdminSalisbergWalkIn' => array(1, 0, 1, 0),
         'AdminHotelRoomsBooking' => array(1, 1, 1, 1),
         'AdminOrders' => array(1, 1, 1, 1),
         'AdminSalisbergReports' => array(1, 0, 0, 0),
@@ -596,7 +600,7 @@ class Salisbergguide extends Module
     public function renderGuide($template)
     {
         $pages = array(
-            'AdminDashboard', 'AdminSalisbergToday', 'AdminSalisbergHousekeeping', 'AdminSalisbergCharges', 'AdminHotelRoomsBooking', 'AdminOrders', 'AdminInvoices', 'AdminCustomers', 'AdminCarts',
+            'AdminDashboard', 'AdminSalisbergRoomBoard', 'AdminSalisbergWalkIn', 'AdminSalisbergToday', 'AdminSalisbergHousekeeping', 'AdminSalisbergCharges', 'AdminHotelRoomsBooking', 'AdminOrders', 'AdminInvoices', 'AdminCustomers', 'AdminCarts',
             'AdminCustomerThreads', 'AdminOrderRefundRequests', 'AdminProducts', 'AdminNormalProducts', 'AdminAddHotel',
             'AdminHotelFeatures', 'AdminHotelFeaturePricesSettings', 'AdminHotelGeneralSettings', 'AdminOrderRefundRules',
             'AdminCartRules', 'AdminModules', 'AdminPayment', 'AdminCurrencies', 'AdminTaxes', 'AdminTaxRulesGroup',

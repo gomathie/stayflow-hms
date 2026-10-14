@@ -41,6 +41,7 @@
 		<table>
 			<tr><th>{l s='Menu' mod='salisbergguide'}</th><th>{l s='What it is for' mod='salisbergguide'}</th></tr>
 			<tr><td><span class="sb-path">Dashboard</span></td><td>{l s='Today at a glance: recent bookings and activity.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Bookings &rsaquo; Room board</span></td><td>{l s='See availability for a complete stay, choose a room and guide a walk-in guest through check-in.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Today</span></td><td>{l s='Start here each day: arrivals, departures, guests in house and unpaid bookings, with Check in and Check out buttons.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Housekeeping</span></td><td>{l s='Every room and whether it is clean, dirty or out of service.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Add new booking</span></td><td>{l s='See which rooms are free and make a booking for a guest.' mod='salisbergguide'}</td></tr>
@@ -57,23 +58,20 @@
 
 	<section id="sb-s3">
 		<h3>3. {l s='Make a booking for a guest' mod='salisbergguide'}</h3>
-		<p>{l s='Use this for walk-in guests and bookings taken by phone. The Add new booking button on the Bookings page opens the same thing.' mod='salisbergguide'}</p>
+		<p>{l s='Use the Room board for a guest arriving now. It keeps room availability, readiness and the booking steps together without opening the old booking cart screens.' mod='salisbergguide'}</p>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Add new booking</span>.</li>
-			<li>{l s='In the Booking Form, choose the check-in and check-out dates and the number of guests (Occupancy), then click' mod='salisbergguide'} <span class="sb-btn">Search</span>. {l s='The page moves down to the free rooms.' mod='salisbergguide'}</li>
-			<li>{l s='Pick a room and click' mod='salisbergguide'} <span class="sb-btn">Add To Cart</span>. {l s='The room is added at once with the guests you chose in the Booking Form; you do not need to enter them again. To give one room different guests, change its Guests box before clicking.' mod='salisbergguide'}</li>
-			<li>{l s='A bar appears at the bottom of the screen with how many rooms are chosen and the total. Add more rooms if the guest needs them; Review selection shows the list, where a room can be removed.' mod='salisbergguide'}</li>
-			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Continue to guest and payment</span> {l s='in that bar.' mod='salisbergguide'}</li>
-			<li>{l s='In the Guest box, type the first name, last name, phone and email of the guest and click' mod='salisbergguide'} <span class="sb-btn">Continue with this guest</span>. {l s='A phone number or an email is enough; give both when you can.' mod='salisbergguide'}</li>
-			<li>{l s='If the guest has stayed before (same email, or same phone number), their record is used and the page tells you so: check that the name shown is the right person, and click Change if it is not. If they are new, they are added.' mod='salisbergguide'}</li>
-			<li>{l s='You can also find a guest by name in Or search for a guest on record, and click Choose.' mod='salisbergguide'}</li>
-			<li>{l s='A guest with no email address is fine: leave Email address empty. They simply get no booking emails.' mod='salisbergguide'}</li>
-			<li>{l s='Charge tax is on Yes. Leave it there unless the guest is not to be charged tax; then choose No. Only that booking is made without tax. The totals shown above the switch still include tax; the booking and its invoice will not. If the switch is not on the form, every booking is charged tax.' mod='salisbergguide'}</li>
-			<li>{l s='Check the rooms, dates and total. Choose the payment method (Cash at hotel, Mobile Money or Bank transfer) and the status, then create the order.' mod='salisbergguide'}</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Room board</span>.</li>
+			<li>{l s='Choose arrival, departure, adults and children, then click' mod='salisbergguide'} <span class="sb-btn">Update availability</span>. {l s='Availability means the room is free for the whole stay. Ready, Needs cleaning and Occupied describe the room right now.' mod='salisbergguide'}</li>
+			<li>{l s='Select a room card. Check the dates, guests and estimated total in Selected room, then click' mod='salisbergguide'} <span class="sb-btn">Book walk-in</span>.</li>
+			<li>{l s='Guest opens first because the room and stay are already complete. Search by name, phone or email and use the existing guest when there is a match. Otherwise enter first name, last name and phone; email is optional.' mod='salisbergguide'}</li>
+			<li>{l s='Choose the payment method and whether payment is full, partial or later. Cash is paid only after you tick that it was received. For Mobile Money or bank transfer, enter the transaction reference and tick confirmation only after the money is visible in the hotel account.' mod='salisbergguide'}</li>
+			<li>{l s='Review the guest, stay, room readiness, charges, confirmed payment and balance. Use an Edit link if anything is wrong.' mod='salisbergguide'}</li>
+			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Confirm &amp; check in</span>. {l s='The system checks the room again before creating anything. If it needs cleaning or is occupied, save the reservation awaiting the room instead; it is not checked in.' mod='salisbergguide'}</li>
+			<li>{l s='The success page shows the booking reference, payment and balance. Open the stay, print its receipt when payment was confirmed, return to the room board, or start another walk-in.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-tip">{l s='A guest with an email address is sent the booking confirmation by email when you create the booking, as long as Send mails is left on Yes on the order form.' mod='salisbergguide'}</p>
-		<p class="sb-tip">{l s='If the guest has not paid yet, leave the status as Awaiting payment. Change it only when the money has actually been received (see section 5).' mod='salisbergguide'}</p>
-		<a class="sb-go" href="{$sb_links.AdminHotelRoomsBooking|escape:'html':'UTF-8'}">{l s='Open Add new booking' mod='salisbergguide'} &rarr;</a>
+		<p class="sb-tip">{l s='For a future arrival the Room board button changes to Create reservation and hands the selected room and stay to the normal reservation completion page. A guest with an email receives the usual booking messages.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='A typed payment reference is not proof of payment. Leave it unconfirmed until the money has actually arrived.' mod='salisbergguide'}</p>
+		<a class="sb-go" href="{$sb_links.AdminSalisbergRoomBoard|escape:'html':'UTF-8'}">{l s='Open Room board' mod='salisbergguide'} &rarr;</a>
 	</section>
 
 	<section id="sb-s4">

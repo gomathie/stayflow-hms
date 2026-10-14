@@ -2,8 +2,9 @@
 /**
  * Salisberg Front Desk
  *
- * Two pages for the people at the desk and in housekeeping:
+ * Front-desk pages for the people at the desk and in housekeeping:
  *
+ *  - Bookings > Room board: stay-wide availability and guided walk-ins.
  *  - Bookings > Today: today's arrivals, departures, guests in house and
  *    unpaid balances, with Check in and Check out buttons.
  *  - Bookings > Housekeeping: every room with its state (clean, dirty, out of
@@ -55,14 +56,14 @@ class Salisbergfrontdesk extends Module
     {
         $this->name = 'salisbergfrontdesk';
         $this->tab = 'administration';
-        $this->version = '1.0.0';
+        $this->version = '1.1.0';
         $this->author = 'Salisberg Hotels';
         $this->bootstrap = true;
 
         parent::__construct();
 
         $this->displayName = $this->l('Salisberg Front Desk');
-        $this->description = $this->l('Today at the desk (arrivals, departures, guests in house, unpaid balances) and housekeeping status for every room.');
+        $this->description = $this->l('Room availability, guided walk-in booking, today at the desk and housekeeping status.');
     }
 
     public function install()
@@ -113,7 +114,9 @@ class Salisbergfrontdesk extends Module
         $tab->class_name = $className;
         $tab->module = $this->name;
         $tab->id_parent = $hidden ? -1 : $idParent;
-        $tab->active = $hidden ? 0 : 1;
+        // Hidden workflow pages stay active so their controllers can be
+        // opened directly; id_parent = -1 alone keeps them out of the menu.
+        $tab->active = 1;
         foreach (Language::getLanguages(false) as $lang) {
             $tab->name[(int) $lang['id_lang']] = $name;
         }

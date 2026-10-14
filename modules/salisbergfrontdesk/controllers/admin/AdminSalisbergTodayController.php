@@ -66,7 +66,7 @@ class AdminSalisbergTodayController extends ModuleAdminController
             'sb_action' => $this->context->link->getAdminLink('AdminSalisbergToday'),
             'sb_booking_link' => $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order=',
             'sb_housekeeping_link' => $this->context->link->getAdminLink('AdminSalisbergHousekeeping'),
-            'sb_book_link' => $this->context->link->getAdminLink('AdminHotelRoomsBooking'),
+            'sb_book_link' => $this->context->link->getAdminLink('AdminSalisbergRoomBoard'),
             'sb_expected' => HotelBookingDetail::STATUS_ALLOTED,
             'sb_in' => HotelBookingDetail::STATUS_CHECKED_IN,
             'sb_css' => $this->module->getPathUri().'views/css/frontdesk.css',

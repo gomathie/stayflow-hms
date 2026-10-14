@@ -746,40 +746,43 @@ class SalisbergWalkIn
         $oldCart = $this->context->cart;
         $oldCurrency = $this->context->currency;
         $oldCustomer = $this->context->customer;
-        $this->context->cart = $cart;
-        $this->context->currency = new Currency((int) $cart->id_currency);
-        if ((int) $cart->id_customer) {
-            $this->context->customer = new Customer((int) $cart->id_customer);
-        }
-        Cache::clear();
-        $roomIncl = (float) $cart->getOrderTotal(true, Cart::ONLY_ROOMS);
-        $roomExcl = (float) $cart->getOrderTotal(false, Cart::ONLY_ROOMS);
-        $extrasIncl = (float) $cart->getOrderTotal(true, Cart::ONLY_ROOM_SERVICES)
-            + (float) $cart->getOrderTotal(true, Cart::ONLY_STANDALONE_PRODUCTS);
-        $extrasExcl = (float) $cart->getOrderTotal(false, Cart::ONLY_ROOM_SERVICES)
-            + (float) $cart->getOrderTotal(false, Cart::ONLY_STANDALONE_PRODUCTS);
-        $discounts = abs((float) $cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS));
-        $totalIncl = (float) $cart->getOrderTotal(true, Cart::BOTH);
-        $totalExcl = (float) $cart->getOrderTotal(false, Cart::BOTH);
-        $currency = (int) $cart->id_currency;
-        $result = array(
-            'accommodation' => $roomIncl,
-            'accommodation_text' => $this->money($roomIncl, $currency),
-            'extras' => $extrasIncl,
-            'extras_text' => $this->money($extrasIncl, $currency),
-            'discounts' => $discounts,
-            'discounts_text' => $this->money($discounts, $currency),
-            'taxes' => max(0, $totalIncl - $totalExcl),
-            'taxes_text' => $this->money(max(0, $totalIncl - $totalExcl), $currency),
-            'total' => $totalIncl,
-            'total_text' => $this->money($totalIncl, $currency),
-            'tax_included' => $chargeTax && ($roomIncl > $roomExcl || $extrasIncl > $extrasExcl),
-        );
-        $this->context->cart = $oldCart;
-        $this->context->currency = $oldCurrency;
-        $this->context->customer = $oldCustomer;
-        if (!$chargeTax) {
-            Configuration::set('PS_TAX', $oldTax);
+        try {
+            $this->context->cart = $cart;
+            $this->context->currency = new Currency((int) $cart->id_currency);
+            if ((int) $cart->id_customer) {
+                $this->context->customer = new Customer((int) $cart->id_customer);
+            }
+            Cache::clear();
+            $roomIncl = (float) $cart->getOrderTotal(true, Cart::ONLY_ROOMS);
+            $roomExcl = (float) $cart->getOrderTotal(false, Cart::ONLY_ROOMS);
+            $extrasIncl = (float) $cart->getOrderTotal(true, Cart::ONLY_ROOM_SERVICES)
+                + (float) $cart->getOrderTotal(true, Cart::ONLY_STANDALONE_PRODUCTS);
+            $extrasExcl = (float) $cart->getOrderTotal(false, Cart::ONLY_ROOM_SERVICES)
+                + (float) $cart->getOrderTotal(false, Cart::ONLY_STANDALONE_PRODUCTS);
+            $discounts = abs((float) $cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS));
+            $totalIncl = (float) $cart->getOrderTotal(true, Cart::BOTH);
+            $totalExcl = (float) $cart->getOrderTotal(false, Cart::BOTH);
+            $currency = (int) $cart->id_currency;
+            $result = array(
+                'accommodation' => $roomIncl,
+                'accommodation_text' => $this->money($roomIncl, $currency),
+                'extras' => $extrasIncl,
+                'extras_text' => $this->money($extrasIncl, $currency),
+                'discounts' => $discounts,
+                'discounts_text' => $this->money($discounts, $currency),
+                'taxes' => max(0, $totalIncl - $totalExcl),
+                'taxes_text' => $this->money(max(0, $totalIncl - $totalExcl), $currency),
+                'total' => $totalIncl,
+                'total_text' => $this->money($totalIncl, $currency),
+                'tax_included' => $chargeTax && ($roomIncl > $roomExcl || $extrasIncl > $extrasExcl),
+            );
+        } finally {
+            $this->context->cart = $oldCart;
+            $this->context->currency = $oldCurrency;
+            $this->context->customer = $oldCustomer;
+            if (!$chargeTax) {
+                Configuration::set('PS_TAX', $oldTax);
+            }
         }
 
         return $result;

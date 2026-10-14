@@ -98,7 +98,7 @@ if ($reports && Module::isInstalled('salisbergreports')) {
     }
 }
 
-// Bookings > Today and Housekeeping: after the profiles exist, so staff and manager can be given the pages
+// Bookings > Room board, guided walk-in, Today and Housekeeping: after the profiles exist
 $desk = Module::getInstanceByName('salisbergfrontdesk');
 if ($desk && Module::isInstalled('salisbergfrontdesk')) {
     if ($desk->ensureSetup()) {

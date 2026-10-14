@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='14 October 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='New Room board and guided walk-in check-in.' mod='salisbergguide'}</strong> {l s='Bookings, Room board shows whether every room is free for the whole stay and whether it is ready now. Choose a room, then complete Guest, Payment and Review in one workspace. The final button creates the normal booking and checks the guest in; pending money is never shown as paid.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Quicker Add new booking.' mod='salisbergguide'}</strong> {l s='After Search the page moves to the free rooms. Add To Cart adds a room at the first click, with the guests chosen in the Booking Form. A bar at the bottom of the screen shows the rooms chosen and the total, with a Continue to guest and payment button.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Charge tax switch on the booking form.' mod='salisbergguide'}</strong> {l s='It is on Yes. Choose No for a guest who is not to be charged tax, and only that booking is made without tax.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Tidier on tablets and smaller laptops.' mod='salisbergguide'}</strong> {l s='Page titles are no longer covered by the buttons beside them, wide lists scroll inside their box instead of pushing the page sideways, and the figure tiles at the top of Bookings no longer overlap. On the website, search filters and the booking panel sit above the content on tablets.' mod='salisbergguide'}</li>
