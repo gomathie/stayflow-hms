@@ -38,6 +38,8 @@ class Salisbergpay extends PaymentModule
         'SBPAY_BANK_ACCOUNT_NAME' => '',
         'SBPAY_BANK_ACCOUNT' => '',
         'SBPAY_BANK_NOTE' => '',
+        // the booking form offers a "Charge tax" switch (Rooms & Services > Charges & Tax)
+        'SBPAY_TAX_PER_BOOKING' => 1,
     );
 
     protected $_html = '';
@@ -182,6 +184,15 @@ class Salisbergpay extends PaymentModule
         }
 
         return false;
+    }
+
+    /**
+     * Whether the booking form may offer "Charge tax": only while tax is
+     * charged at all, and while the manager allows it.
+     */
+    public function taxChoiceAllowed()
+    {
+        return (bool) Configuration::get('PS_TAX') && (bool) Configuration::get('SBPAY_TAX_PER_BOOKING');
     }
 
     /** The tax rule groups room types and charges use, with how many use each */

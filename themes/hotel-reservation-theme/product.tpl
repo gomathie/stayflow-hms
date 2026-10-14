@@ -68,7 +68,7 @@
 				{/if}
 				<!-- left infos-->
 				{block name='product_left_column'}
-					<div class="pb-left-column col-xs-12 col-sm-8 col-md-8">
+					<div class="pb-left-column col-xs-12 col-md-8">
 						<div class="room_type_img_containter card">
 							<div class="room_hotel_name_block {if isset($language_is_rtl) && $language_is_rtl}rtl{/if}">
 								{block name='product_name'}
@@ -433,7 +433,7 @@
 				{/block}
 
 				{block name='product_right_column'}
-					<div class="pb-right-column col-xs-12 col-sm-4 col-md-4">
+					<div class="pb-right-column col-xs-12 col-md-4">
 						{if ($product->show_price && !isset($restricted_country_mode)) || isset($groups) || $product->reference || (isset($HOOK_PRODUCT_ACTIONS) && $HOOK_PRODUCT_ACTIONS)}
 
 							{block name='booking_form'}

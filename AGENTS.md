@@ -1740,3 +1740,49 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - Charges & Tax as SuperAdmin: lists the two charges with how each is charged and the tax group in use. Unticking Room Maintenance Fees changed the website price of Standard Room 1 from GH₵450 to GH₵200; ticking it again restored GH₵450. Trying to switch an optional extra (Airport Shuttle) was refused. The tax switch saved and showed its message; its effect on a booking total was not checked. Everything was put back as it was.
 - As the Hotel Staff test account: a new unpaid booking (GH₵832) got invoice #IN000008 at once; a GH₵100 payment was recorded and linked to it; a GH₵999,999 payment was refused ("more than the GH₵732.00 still owed"); marking it Complete payment received recorded exactly GH₵732, total paid GH₵832.
 - **Not tested:** the tax switch on a real booking total; the Charges & Tax page as Hotel Manager; a booking in another currency; the new booking-page notice in a browser.
+
+### 2026-10-14 — Layout on tablets, laptops and phones; Charge tax switch on the booking form
+
+#### How the faults were found
+
+- A checker (outside the repository) opens pages in headless Chrome at 390, 768 and 1024 wide, lists elements that run past the right edge (not inside a scrolling or clipped box) and visible elements that overlap, and saves a screenshot of each. Run over 7 website pages and 14 back office pages, before and after. Overlaps that are by design were set aside after looking at the screenshots: the password eye inside its field, the menu fold arrows on their rows, the switch knobs, the gallery's scroll button on its thumbnails, calendar day numbers under booking bars.
+- **Lesson:** the browser profile used by the checker cached the back office stylesheet between runs (it is served with no version in its address), so one run showed old rules. Start each run with a clean profile. Returning staff will see the same for a while after a deploy, until their browser refetches `overrides.css`.
+
+#### Website (`salisberg.css` `?v=15` and inherited theme files)
+
+| Fault | Fix |
+|---|---|
+| Location field: the pin icon covered "Hotel Location" | `css/global.css`: `.input-location`'s left padding was out-ranked by `.form-control`; the selector is now `.form-control.input-location` (rule 11) |
+| Search filters and the room booking panel squeezed into a third of a tablet screen (dates cut off, prices wrapping) | `header.tpl` (left and centre columns) and `product.tpl` (room page columns): `col-sm-*` became `col-md-*`, so below 992px they stack, filters and booking panel first |
+| Phone homepage scrolled sideways by 16px | a room card's flex item took its content's width; `min-width: 0` on it |
+| A dark strip along the right edge at every width | the closed menu panel's shadow; the shadow is now only on the open panel |
+| "/Per Night" split over two lines beside the price | `css/category.css`: `.rm_price_txt` does not wrap |
+| Amenities ran together ("FanTV") | `docker/setup-room-types.php` wrote the amenity list as HTML into the short description, which the platform stores as plain text. It now writes "Fan, TV"; a pass rewrites the six room types where the text is still in the run-together form (`ROOM_TYPES_VERSION=2`, logged per room) |
+
+#### Back office
+
+| Fault | Fix |
+|---|---|
+| Page titles covered by the buttons beside them ("Order PBSTLDFNA - Salis[View Hotel]", "Edit: Sta[Preview]") | New `modules/salisbergguide/views/js/page-head.js` (loaded by `addInterfaceAssets()`): measures each title bar (a booking draws two, one over the other) and, when the title's text and the buttons would meet, adds `sb-head-stacked` to that bar and moves the content down by the extra height. `overrides.css` section 6 puts the buttons on a row under the title. The stock rule holds the button list as `display:block !important`, so the buttons are inline blocks rather than flex items |
+| Lists and tables wider than the space beside the menu pushed the whole page sideways (Bookings 1733px at a 1024px window, Customers 1865px, Room types 1602px) | `overrides.css` section 7: the existing Stats-only rule generalised to `.table-responsive`, tables directly in a panel, and, from 992px, `.table-responsive-row`; each scrolls inside its box. Below 992px the stock theme already turns lists into stacked cards |
+| Figure tiles at the top of Bookings and of a booking overlapped ("GH₵22,200.00" outside its tile, "Today"/"30 Days" over the labels) | `admin-theme.css` (inherited): tiles were a fifth of the width each whatever the space; now `flex: 1 1 190px` with wrapping, and the two width-by-window media rules removed |
+| Phone (below 768px): fold arrows drawn in the icon rail; Staff Guide tables and the dashboard occupancy chart wider than the screen | arrows hidden in that range (`overrides.css` section 11); `guide.css` lets a guide table scroll inside itself on phones; the chart's SVG is limited to its box |
+
+#### Charge tax switch on the booking form
+
+- **Owner:** a tick for tax, on by default, that staff can untick for a booking; the manager or admin can turn it off.
+- **Booking form** (`admin/themes/default/template/controllers/orders/form.tpl`, beside Send mails): "Charge tax" Yes/No, Yes by default, shown only when `sb_tax_choice` is set.
+- **New `override/controllers/admin/AdminOrdersController.php`:** `renderForm()` sets `sb_tax_choice`; `postProcess()`, when the booking is submitted with `sb_charge_tax=0` and the choice is allowed, sets `PS_TAX` to 0 for that request only with `Configuration::set()` (nothing saved). The platform's own tax code (`TaxRulesTaxManager::getTaxCalculator()`, `Tax::excludeTaxeOption()`) then builds the booking without tax.
+- **Who controls it:** `Salisbergpay::taxChoiceAllowed()` is true while tax is on (`PS_TAX`) and the new setting `SBPAY_TAX_PER_BOOKING` (default 1, created by `ensureSettings()`) is on. Rooms & Services › Charges & Tax has the tick "Let staff leave tax off a single booking", shown while tax is on. `MODULES_VERSION=22`.
+- **Known limit:** the totals shown on the form above the switch still include tax; the help text says so. The booking, the full-payment amount and the invoice do not.
+
+#### Guides (rule 23)
+
+- Staff Guide section 3 (the Charge tax switch). Admin Guide section 5 (the new tick). What's New 14 October (everyone: the switch and the layout; manager: the tick). CHANGELOG.
+
+#### Verification (local, image rebuilt)
+
+- **Checker after the fixes:** website at 390, 768 and 1024: no page scrolls sideways, no unexpected overlaps; screenshots reviewed (search results at 768 and 1024, room page at 768). Back office at 768 and 1024 on 14 pages: no page scrolls sideways and no unexpected overlaps; screenshots reviewed (Bookings, a booking, the room type form). At 390, left as they are: the booking page's "Menu" button over its status badge, and the dashboard date button over its hidden field.
+- **Tax switch, as the Hotel Staff test account:** the switch is on the form; the same room type booked with Yes came to GH₵728 (GH₵700 + GH₵28 tax), with No to GH₵700, invoice GH₵700 / GH₵700; `PS_TAX` was still 1 afterwards. With the manager's tick off (set as SuperAdmin on Charges & Tax) the switch was gone from the form, and a booking posted with No anyway was charged tax (GH₵728). The tick was put back on.
+- `docker/smoke-test.sh` 31 of 31.
+- **Not tested:** a real browser on a real tablet or phone; Safari and Firefox; right-to-left; back office pages outside the 14 checked; the switch as Hotel Manager; the live server.

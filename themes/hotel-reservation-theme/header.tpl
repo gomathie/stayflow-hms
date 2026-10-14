@@ -80,7 +80,7 @@
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 		{* Salisberg visual layer: must stay the last stylesheet *}
-		<link rel="stylesheet" href="{$css_dir}salisberg.css?v=14" type="text/css" media="all" />
+		<link rel="stylesheet" href="{$css_dir}salisberg.css?v=15" type="text/css" media="all" />
 		{* A visitor who chose dark mode gets it before the page is drawn (see theme-toggle.js) *}
 		<script type="text/javascript">{literal}try{if(localStorage.getItem('sb-site-theme')==='dark'){document.documentElement.setAttribute('data-sb-theme','dark');}}catch(e){}{/literal}</script>
 	</head>
@@ -159,8 +159,8 @@
 					</div>
 					<div class="row">
 						{if isset($left_column_size) && !empty($left_column_size)}
-						<div id="left_column" class="column col-xs-12 col-sm-{$left_column_size|intval}">{$HOOK_LEFT_COLUMN}</div>
+						<div id="left_column" class="column col-xs-12 col-md-{$left_column_size|intval}">{$HOOK_LEFT_COLUMN}</div>
 						{/if}
 						{if isset($left_column_size) && isset($right_column_size)}{assign var='cols' value=(12 - $left_column_size - $right_column_size)}{else}{assign var='cols' value=12}{/if}
-						<div id="center_column" class="center_column col-xs-12 col-sm-{$cols|intval}">
+						<div id="center_column" class="center_column col-xs-12 col-md-{$cols|intval}">
 	{/if}

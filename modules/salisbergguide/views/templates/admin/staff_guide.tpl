@@ -68,6 +68,7 @@
 			<li>{l s='If the guest has stayed before (same email, or same phone number), their record is used and the page tells you so: check that the name shown is the right person, and click Change if it is not. If they are new, they are added.' mod='salisbergguide'}</li>
 			<li>{l s='You can also find a guest by name in Or search for a guest on record, and click Choose.' mod='salisbergguide'}</li>
 			<li>{l s='A guest with no email address is fine: leave Email address empty. They simply get no booking emails.' mod='salisbergguide'}</li>
+			<li>{l s='Charge tax is on Yes. Leave it there unless the guest is not to be charged tax; then choose No. Only that booking is made without tax. The totals shown above the switch still include tax; the booking and its invoice will not. If the switch is not on the form, every booking is charged tax.' mod='salisbergguide'}</li>
 			<li>{l s='Check the rooms, dates and total. Choose the payment method (Cash at hotel, Mobile Money or Bank transfer) and the status, then create the order.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='A guest with an email address is sent the booking confirmation by email when you create the booking, as long as Send mails is left on Yes on the order form.' mod='salisbergguide'}</p>

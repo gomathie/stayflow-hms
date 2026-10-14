@@ -2422,6 +2422,22 @@
                     {else}
                         {assign var=is_full_payment value=true}
                     {/if}
+					{if isset($sb_tax_choice) && $sb_tax_choice}
+					{* Salisberg: leave tax off this one booking (override/controllers/admin/AdminOrdersController.php) *}
+					<div class="form-group" {if $order_total <= 0}style="display: none;"{/if}>
+						<label class="control-label col-lg-3">{l s='Charge tax'}</label>
+						<div class="col-lg-9">
+							<span class="switch prestashop-switch fixed-width-lg">
+								<input type="radio" name="sb_charge_tax" id="sb_charge_tax_on" value="1" checked="checked">
+								<label for="sb_charge_tax_on">{l s='Yes'}</label>
+								<input type="radio" name="sb_charge_tax" id="sb_charge_tax_off" value="0">
+								<label for="sb_charge_tax_off">{l s='No'}</label>
+								<a class="slide-button btn"></a>
+							</span>
+							<p class="help-block">{l s='Choose No only for a guest who is not to be charged tax. The totals above still include tax; the booking, the amount paid in full and the invoice will not.'}</p>
+						</div>
+					</div>
+					{/if}
 					<div class="form-group">
 						<label class="control-label col-lg-3">{l s="Send mails"}</label>
 						<div class="col-lg-9">

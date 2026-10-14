@@ -368,6 +368,7 @@ class Salisbergguide extends Module
             Media::addJsDef(array('sbThemeScope' => 'site'));
         } else {
             $controller->addJS($this->_path.'views/js/side-menu.js');
+            $controller->addJS($this->_path.'views/js/page-head.js');
         }
         $controller->addJS($this->_path.'views/js/theme-toggle.js');
     }

@@ -6533,7 +6533,7 @@ table.table_block td {
   .input-date span i, .form-control .input-date span i {
     transform: scale(0.8, 0.6);}
 
-.input-location, .form-control .input-location {
+.input-location, .form-control.input-location {
   background: url("../img/icon/icon-location.svg") no-repeat 6px 50%;
   padding-left: 35px;
   background-color: #FFF;

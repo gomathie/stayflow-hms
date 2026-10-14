@@ -370,6 +370,15 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .page-head .breadcrumb a,
 .bootstrap .page-head ul.page-breadcrumb li a { color: var(--sb-muted); background-color: transparent; }
 .bootstrap .page-head .page-bar { right: 24px; left: auto; }
+/* When the title and its buttons do not fit on one line, page-head.js sets
+   sb-head-stacked and the buttons go on a line of their own under the title. */
+.page-head.sb-head-stacked { height: auto; }
+.page-head.sb-head-stacked .page-bar { position: static; padding: 0 24px 14px var(--sb-head-pad, 24px); }
+.page-head.sb-head-stacked .page-bar .btn-toolbar { float: none; padding: 0; }
+/* the list is held as display:block by a stock !important rule, so the buttons sit side by side as inline blocks */
+.page-head.sb-head-stacked .page-bar .btn-toolbar ul { float: none; width: auto; margin: 0; }
+.page-head.sb-head-stacked .page-bar .btn-toolbar li { display: inline-block; float: none; margin: 0 8px 8px 0; }
+.page-head.sb-head-stacked .toolbarBox .btn-toolbar .toolbar_btn { margin-left: 0; }
 /* action buttons beside the page title: outlined, and the "Add new ..." one filled */
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn {
   margin-left: 8px;
@@ -628,13 +637,21 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 #dashboard .stat-box .title-wrapper p { color: #1f2937; }   /* the tiles are pastel in both themes */
 #dashboard .stats-list > li:has(> #dash_traffic_source) { flex-wrap: wrap; align-items: flex-start; }
 #dashboard .stats-list > li:has(> #dash_traffic_source) > .item-label { flex: 0 0 100%; margin-bottom: 8px; }
+/* the occupancy chart is drawn at a fixed size; on a phone it shrinks to fit */
+#dashboard #dashoccupancy svg { max-width: 100%; height: auto; }
 #dashboard #dash_traffic_source,
 #dashboard #dash_traffic_chart2 { flex: 0 0 100%; }
 #content.bootstrap #dashboard #dashproducts nav { font-family: inherit; text-transform: none; }
 
-/* Stats: report tables are wider than the space beside the report menu and
-   ran off the right edge of the page. Each one scrolls inside its own box. */
-body.adminstats #content div:has(> table.table) { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
+/* Tables wider than the space beside the menu (lists, bookings, Stats reports)
+   used to push the whole page sideways. Each one scrolls inside its own box.
+   Below 992px the stock theme turns list tables into stacked cards instead. */
+body.adminstats #content div:has(> table.table),
+#content.bootstrap .table-responsive,
+#content.bootstrap .panel div:has(> table.table) { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
+@media (min-width: 992px) {
+  #content.bootstrap .table-responsive-row { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
+}
 
 /* ---------- 8. Stock-blue replacements ----------
    The stock theme's #00aff0 family, found by scanning rendered pages. */
@@ -760,6 +777,8 @@ html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); 
   .bootstrap #nav-sidebar li.searchtab { padding: 8px 4px; }
   .bootstrap .page-head h2.page-title { font-size: 20px; }
   .bootstrap .page-head .page-bar { right: 8px; }
+  /* the icon rail has no room for the fold arrows */
+  .bootstrap #nav-sidebar .sb-menu-arrow { display: none; }
 }
 
 /* ---------- 12. Specificity catch-up ----------

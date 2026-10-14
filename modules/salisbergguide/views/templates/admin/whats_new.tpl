@@ -21,11 +21,14 @@
 	<section>
 		<h3>{l s='14 October 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='Charge tax switch on the booking form.' mod='salisbergguide'}</strong> {l s='It is on Yes. Choose No for a guest who is not to be charged tax, and only that booking is made without tax.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Tidier on tablets and smaller laptops.' mod='salisbergguide'}</strong> {l s='Page titles are no longer covered by the buttons beside them, wide lists scroll inside their box instead of pushing the page sideways, and the figure tiles at the top of Bookings no longer overlap. On the website, search filters and the booking panel sit above the content on tablets.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Payments cannot be counted twice.' mod='salisbergguide'}</strong> {l s='A payment more than what is still owed is refused, and marking a booking Complete payment received records only what was still owed. The booking page now says Paid so far and Still to pay in plain words.' mod='salisbergguide'}</li>
 		</ul>
 		{if $sb_can_read_admin_guide}
 		<h4>{l s='For the hotel manager' mod='salisbergguide'}</h4>
 		<ul>
+			<li><strong>{l s='Charge tax switch: yours to allow.' mod='salisbergguide'}</strong> {l s='Rooms & Services, Charges & Tax has a new tick, Let staff leave tax off a single booking. It is on; untick it and every booking is charged tax.' mod='salisbergguide'}</li>
 			<li><strong>{l s='New: Rooms & Services, Charges & Tax.' mod='salisbergguide'}</strong> {l s='Tick or untick the charges added to every booking by themselves, and switch tax on or off. Two sample charges and a United States sample tax came switched on; see Admin Guide section 5.' mod='salisbergguide'}</li>
 		</ul>
 		{/if}

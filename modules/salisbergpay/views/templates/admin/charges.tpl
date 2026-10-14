@@ -57,6 +57,19 @@
 	{else}
 		<p><strong>{if $sb_tax_on}{l s='Tax is charged on bookings.' mod='salisbergpay'}{else}{l s='Tax is not charged on bookings.' mod='salisbergpay'}{/if}</strong></p>
 	{/if}
+	{if $sb_tax_on}
+		{if $sb_can_edit}
+		<form method="post" action="{$sb_action|escape:'html':'UTF-8'}">
+			<input type="hidden" name="sb_tax_choice" value="1" />
+			<input type="hidden" name="sb_on" value="{if $sb_tax_choice}0{else}1{/if}" />
+			<label style="cursor:pointer;">
+				<input type="checkbox" {if $sb_tax_choice}checked="checked"{/if} onchange="this.form.submit();" />
+				{l s='Let staff leave tax off a single booking' mod='salisbergpay'}
+			</label>
+		</form>
+		{/if}
+		<p class="help-block">{l s='When this is ticked, the booking form shows a Charge tax switch, on by default. Staff turn it off for a guest who is not to be charged tax; only that booking is made without tax.' mod='salisbergpay'}</p>
+	{/if}
 	{if $sb_taxes}
 		<p class="help-block">{l s='Tax rates set on room types and charges now:' mod='salisbergpay'}</p>
 		<ul>

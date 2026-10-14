@@ -27,10 +27,13 @@ class AdminSalisbergChargesController extends ModuleAdminController
 
     public function postProcess()
     {
-        if (Tools::isSubmit('sb_charge') || Tools::isSubmit('sb_tax')) {
+        if (Tools::isSubmit('sb_charge') || Tools::isSubmit('sb_tax') || Tools::isSubmit('sb_tax_choice')) {
             $on = (int) Tools::getValue('sb_on') ? 1 : 0;
             if ((int) $this->tabAccess['edit'] !== 1) {
                 $this->errors[] = $this->l('You do not have permission to change this.');
+            } elseif (Tools::isSubmit('sb_tax_choice')) {
+                Configuration::updateValue('SBPAY_TAX_PER_BOOKING', $on);
+                Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergCharges').'&sb_done='.($on ? 'choice_on' : 'choice_off'));
             } elseif (Tools::isSubmit('sb_tax')) {
                 Configuration::updateValue('PS_TAX', $on);
                 Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergCharges').'&sb_done='.($on ? 'tax_on' : 'tax_off'));
@@ -52,6 +55,8 @@ class AdminSalisbergChargesController extends ModuleAdminController
             'charge_off' => $this->l('The charge will no longer be added to new bookings.'),
             'tax_on' => $this->l('Tax is charged on new bookings.'),
             'tax_off' => $this->l('Tax is no longer charged on new bookings.'),
+            'choice_on' => $this->l('The booking form now offers Charge tax, so staff can leave tax off a single booking.'),
+            'choice_off' => $this->l('The booking form no longer offers Charge tax: every booking is charged tax.'),
         );
         $done = (string) Tools::getValue('sb_done');
         if (isset($messages[$done])) {
@@ -61,6 +66,7 @@ class AdminSalisbergChargesController extends ModuleAdminController
         $this->context->smarty->assign(array(
             'sb_charges' => $this->module->getAutoCharges(),
             'sb_tax_on' => (bool) Configuration::get('PS_TAX'),
+            'sb_tax_choice' => (bool) Configuration::get('SBPAY_TAX_PER_BOOKING'),
             'sb_taxes' => $this->module->getTaxesInUse(),
             'sb_can_edit' => (int) $this->tabAccess['edit'] === 1,
             'sb_action' => $this->context->link->getAdminLink('AdminSalisbergCharges'),

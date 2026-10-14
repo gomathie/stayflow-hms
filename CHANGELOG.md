@@ -11,10 +11,13 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Added
 
+- **Charge tax switch on the booking form.** On Yes by default; staff choose No for a guest who is not to be charged tax, and only that booking is made without tax. A tick on Rooms & Services › Charges & Tax lets the manager remove the switch.
 - **Rooms & Services › Charges & Tax.** Tick or untick each charge added to every booking by itself, see how it is charged, and switch tax on or off. For the Hotel Manager and the developer team.
 
 ### Fixed
 
+- **Layout on tablets, small laptops and phones.** Website: the location field's icon no longer covers its text; the search filters and the room booking panel sit above the content below 992px instead of being squeezed beside it; a room card no longer makes the phone homepage scroll sideways; the closed menu panel no longer shows as a dark strip at the right edge; "/Per Night" no longer splits over two lines. Back office: page titles are no longer covered by their buttons (the buttons move under the title when both do not fit); wide lists and tables scroll inside their box instead of pushing the page sideways; the figure tiles at the top of Bookings and a booking no longer overlap; the fold arrows are hidden in the phone menu rail; the Staff Guide's tables and the occupancy chart fit a phone.
+- **Room amenities ran together** ("FanTV") in the room lists: the short descriptions written on 12 October now read "Fan, TV".
 - **Payments can no longer be counted twice.** A payment larger than what is still owed is refused with a plain message, and marking a booking Complete payment received records only the amount still owed, even if earlier payments were not linked to the invoice.
 - The booking page said "Warning: X paid instead of Y" in red for every part payment. It now says "Paid so far: X of Y. Still to pay: Z", and is red only when more than the total was recorded.
 
