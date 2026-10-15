@@ -14,6 +14,7 @@ class SalisbergWalkIn
 {
     const STATUS_ACTIVE = 'active';
     const STATUS_COMPLETE = 'complete';
+    const STATUS_DISCARDED = 'discarded';
 
     protected $module;
     protected $context;
@@ -196,6 +197,19 @@ class SalisbergWalkIn
             }
             $groups[$idProduct]['rooms'][] = $room;
         }
+
+        foreach ($groups as &$group) {
+            usort($group['rooms'], function ($left, $right) {
+                $leftRank = !$left['available'] ? 2 : ($left['readiness']['ready'] ? 0 : 1);
+                $rightRank = !$right['available'] ? 2 : ($right['readiness']['ready'] ? 0 : 1);
+                if ($leftRank != $rightRank) {
+                    return $leftRank - $rightRank;
+                }
+
+                return strnatcasecmp($left['room_num'], $right['room_num']);
+            });
+        }
+        unset($group);
 
         return array_values($groups);
     }
@@ -421,6 +435,71 @@ class SalisbergWalkIn
         return $row;
     }
 
+    public function getActiveDrafts($limit = 5)
+    {
+        $rows = (array) Db::getInstance()->executeS(
+            'SELECT `id_walkin_draft` FROM `'._DB_PREFIX_.'sb_walkin_draft`
+            WHERE `id_employee` = '.(int) $this->context->employee->id.'
+            AND `status` = \''.pSQL(self::STATUS_ACTIVE).'\'
+            ORDER BY `date_upd` DESC LIMIT '.max(1, (int) $limit)
+        );
+        $drafts = array();
+        foreach ($rows as $row) {
+            $draft = $this->getDraft((int) $row['id_walkin_draft']);
+            if (!$draft || empty($draft['state']['stay'])) {
+                continue;
+            }
+            $room = $this->currentRoomSummary($draft);
+            $drafts[] = array(
+                'id_walkin_draft' => (int) $draft['id_walkin_draft'],
+                'room_num' => $room ? $room['room_num'] : $this->module->l('Unknown room'),
+                'room_type' => $room ? $room['room_type'] : '',
+                'arrival' => $draft['state']['stay']['arrival'],
+                'departure' => $draft['state']['stay']['departure'],
+                'guest' => !empty($draft['state']['guest']['firstname'])
+                    ? trim($draft['state']['guest']['firstname'].' '.$draft['state']['guest']['lastname'])
+                    : $this->module->l('Guest not chosen'),
+                'stage' => (int) $draft['step'] >= 4
+                    ? $this->module->l('Ready to confirm')
+                    : ((int) $draft['step'] >= 3 ? $this->module->l('Payment') : $this->module->l('Guest')),
+                'date_upd' => $draft['date_upd'],
+            );
+        }
+
+        return $drafts;
+    }
+
+    public function discardDraft(array $draft)
+    {
+        if ($draft['status'] != self::STATUS_ACTIVE) {
+            throw new Exception($this->module->l('Only an unfinished booking can be discarded.'));
+        }
+        $cart = new Cart((int) $draft['id_cart']);
+        if (Validate::isLoadedObject($cart) && $cart->orderExists()) {
+            throw new Exception($this->module->l('This booking has already been created and cannot be discarded.'));
+        }
+
+        Db::getInstance()->execute('START TRANSACTION');
+        try {
+            $cartBooking = new HotelCartBookingData();
+            if (!$cartBooking->deleteCartBookingData((int) $draft['id_cart'])) {
+                throw new Exception($this->module->l('The room selection could not be released.'));
+            }
+            if (Validate::isLoadedObject($cart) && !$cart->delete()) {
+                throw new Exception($this->module->l('The unfinished booking cart could not be removed.'));
+            }
+            if (!$this->saveDraft($draft, $draft['state'], null, self::STATUS_DISCARDED)) {
+                throw new Exception($this->module->l('The unfinished booking could not be discarded.'));
+            }
+            Db::getInstance()->execute('COMMIT');
+        } catch (Exception $e) {
+            Db::getInstance()->execute('ROLLBACK');
+            throw $e;
+        }
+
+        return true;
+    }
+
     protected function saveDraft(array $draft, array $state, $step = null, $status = null, $idOrder = null)
     {
         $values = array(
@@ -541,7 +620,53 @@ class SalisbergWalkIn
         }
         unset($row);
 
+        $email = Tools::strtolower($term);
+        usort($rows, function ($left, $right) use ($digits, $email) {
+            $rank = function ($row) use ($digits, $email) {
+                $rowDigits = preg_replace('/\D+/', '', $row['phone']);
+                if (Tools::strlen($digits) >= 7 && $rowDigits === $digits) {
+                    return 0;
+                }
+                if ($email !== '' && Tools::strtolower($row['email']) === $email) {
+                    return 1;
+                }
+
+                return 2;
+            };
+            $leftRank = $rank($left);
+            $rightRank = $rank($right);
+            if ($leftRank != $rightRank) {
+                return $leftRank - $rightRank;
+            }
+
+            return strcasecmp($left['lastname'].' '.$left['firstname'], $right['lastname'].' '.$right['firstname']);
+        });
+
         return $rows;
+    }
+
+    protected function guestSummary($idCustomer)
+    {
+        $customer = new Customer((int) $idCustomer);
+        if (!Validate::isLoadedObject($customer) || $customer->deleted || !$customer->active) {
+            return false;
+        }
+
+        return array(
+            'id_customer' => (int) $customer->id,
+            'firstname' => $customer->firstname,
+            'lastname' => $customer->lastname,
+            'phone' => $customer->phone,
+            'email' => Customer::hasNoEmail($customer->email) ? '' : $customer->email,
+            'company' => $customer->company,
+        );
+    }
+
+    public function findDuplicateGuest($email, $phone)
+    {
+        $idCustomer = $this->duplicateGuest(trim((string) $email), trim((string) $phone));
+
+        return $idCustomer ? $this->guestSummary($idCustomer) : false;
     }
 
     protected function duplicateGuest($email, $phone, $ignoreId = 0)
@@ -570,6 +695,9 @@ class SalisbergWalkIn
 
     public function saveGuest(array $draft, array $values)
     {
+        if ($draft['status'] != self::STATUS_ACTIVE) {
+            throw new Exception($this->module->l('This unfinished booking is no longer available.'));
+        }
         $idCustomer = (int) (isset($values['id_customer']) ? $values['id_customer'] : 0);
         $created = false;
         if ($idCustomer) {
@@ -678,17 +806,20 @@ class SalisbergWalkIn
 
     public function savePayment(array $draft, array $values)
     {
+        if ($draft['status'] != self::STATUS_ACTIVE) {
+            throw new Exception($this->module->l('This unfinished booking is no longer available.'));
+        }
         if (empty($draft['state']['guest']['id_customer'])) {
             throw new Exception($this->module->l('Choose the guest before recording payment.'));
-        }
-        $methods = $this->paymentMethods();
-        $method = (string) (isset($values['method']) ? $values['method'] : '');
-        if (!isset($methods[$method])) {
-            throw new Exception($this->module->l('Choose an available payment method.'));
         }
         $arrangement = (string) (isset($values['arrangement']) ? $values['arrangement'] : 'later');
         if (!in_array($arrangement, array('full', 'partial', 'later'), true)) {
             throw new Exception($this->module->l('Choose full payment, partial payment or pay later.'));
+        }
+        $methods = $this->paymentMethods();
+        $method = $arrangement == 'later' ? '' : (string) (isset($values['method']) ? $values['method'] : '');
+        if ($arrangement != 'later' && !isset($methods[$method])) {
+            throw new Exception($this->module->l('Choose an available payment method.'));
         }
         $breakdown = $this->getCartBreakdown(new Cart((int) $draft['id_cart']), !empty($draft['state']['charge_tax']));
         $amount = 0;
@@ -720,7 +851,7 @@ class SalisbergWalkIn
         $state['quote'] = $breakdown;
         $state['payment'] = array(
             'method' => $method,
-            'method_title' => $methods[$method]['title'],
+            'method_title' => $arrangement == 'later' ? $this->module->l('Pay later') : $methods[$method]['title'],
             'arrangement' => $arrangement,
             'intended_amount' => $amount,
             'confirmed' => $confirmed,
@@ -849,7 +980,7 @@ class SalisbergWalkIn
                 Db::getInstance()->execute('COMMIT');
                 return array('id_order' => (int) $draft['id_order'], 'already_complete' => true);
             }
-            if (empty($draft['state']['guest']['id_customer']) || empty($draft['state']['payment']['method'])) {
+            if (empty($draft['state']['guest']['id_customer']) || empty($draft['state']['payment']['status'])) {
                 throw new Exception($this->module->l('Complete the guest and payment steps first.'));
             }
             $cart = new Cart((int) $draft['id_cart']);
@@ -930,7 +1061,7 @@ class SalisbergWalkIn
             }
             $orderModule = new BoOrder();
             $orderModule->displayName = $payment['method_title'];
-            $orderModule->payment_type = $payment['method'] == 'cash'
+            $orderModule->payment_type = $payment['method'] == 'cash' || $payment['arrangement'] == 'later'
                 ? OrderPayment::PAYMENT_TYPE_PAY_AT_HOTEL
                 : OrderPayment::PAYMENT_TYPE_REMOTE_PAYMENT;
             $extra = ($amount > 0 && $payment['reference'] !== '')

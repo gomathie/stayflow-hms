@@ -51,6 +51,32 @@ class AdminSalisbergWalkInController extends ModuleAdminController
         );
     }
 
+    protected function guestFieldErrors()
+    {
+        if ((int) Tools::getValue('id_customer')) {
+            return array();
+        }
+        $errors = array();
+        $firstname = trim((string) Tools::getValue('firstname'));
+        $lastname = trim((string) Tools::getValue('lastname'));
+        $phone = trim((string) Tools::getValue('phone'));
+        $email = trim((string) Tools::getValue('email'));
+        if ($firstname === '' || !Validate::isName($firstname)) {
+            $errors['firstname'] = $this->l('Enter a valid first name.');
+        }
+        if ($lastname === '' || !Validate::isName($lastname)) {
+            $errors['lastname'] = $this->l('Enter a valid last name.');
+        }
+        if ($phone === '' || !Validate::isPhoneNumber($phone)) {
+            $errors['phone'] = $this->l('Enter a valid phone number.');
+        }
+        if ($email !== '' && !Validate::isEmail($email)) {
+            $errors['email'] = $this->l('Enter a valid email address or leave it blank.');
+        }
+
+        return $errors;
+    }
+
     public function postProcess()
     {
         $draft = $this->loadDraft();
@@ -62,6 +88,7 @@ class AdminSalisbergWalkInController extends ModuleAdminController
             && !Tools::isSubmit('sb_save_guest')
             && !Tools::isSubmit('sb_save_payment')
             && !Tools::isSubmit('sb_finalize')
+            && !Tools::isSubmit('sb_discard_draft')
         ) {
             return parent::postProcess();
         }
@@ -72,6 +99,12 @@ class AdminSalisbergWalkInController extends ModuleAdminController
 
         $service = $this->module->getWalkInService();
         try {
+            if (Tools::isSubmit('sb_discard_draft')) {
+                $service->discardDraft($draft);
+                Tools::redirectAdmin(
+                    $this->context->link->getAdminLink('AdminSalisbergRoomBoard').'&discarded=1'
+                );
+            }
             if (Tools::isSubmit('sb_save_stay')) {
                 $request = $service->normaliseStay(array(
                     'arrival' => Tools::getValue('arrival'),
@@ -172,6 +205,45 @@ class AdminSalisbergWalkInController extends ModuleAdminController
             $this->confirmations[] = $messages[$saved];
         }
 
+        $guestForm = isset($draft['state']['guest']) ? $draft['state']['guest'] : array();
+        $guestFieldErrors = array();
+        $duplicateGuest = false;
+        if (Tools::isSubmit('sb_save_guest')) {
+            $guestForm = array(
+                'id_customer' => (int) Tools::getValue('id_customer'),
+                'firstname' => trim((string) Tools::getValue('firstname')),
+                'lastname' => trim((string) Tools::getValue('lastname')),
+                'phone' => trim((string) Tools::getValue('phone')),
+                'email' => trim((string) Tools::getValue('email')),
+                'company' => trim((string) Tools::getValue('company')),
+                'special_requests' => trim((string) Tools::getValue('special_requests')),
+            );
+            $guestFieldErrors = $this->guestFieldErrors();
+            if (!(int) $guestForm['id_customer']) {
+                $duplicateGuest = $service->findDuplicateGuest($guestForm['email'], $guestForm['phone']);
+            }
+        }
+
+        $paymentForm = isset($draft['state']['payment']) ? $draft['state']['payment'] : array();
+        if (Tools::isSubmit('sb_save_payment')) {
+            $paymentForm = array(
+                'method' => (string) Tools::getValue('method'),
+                'arrangement' => (string) Tools::getValue('arrangement', 'full'),
+                'intended_amount' => (string) Tools::getValue('amount'),
+                'confirmed' => (bool) Tools::getValue('confirmed'),
+                'reference' => trim((string) Tools::getValue('reference')),
+                'cash_tendered' => (string) Tools::getValue('tendered'),
+            );
+        }
+
+        $editStayLink = $this->context->link->getAdminLink('AdminSalisbergRoomBoard')
+            .'&arrival='.urlencode($stay['arrival'])
+            .'&departure='.urlencode($stay['departure'])
+            .'&nights='.(int) $stay['nights']
+            .'&adults='.(int) $stay['adults']
+            .'&children='.(int) $stay['children']
+            .'&id_room='.(int) $stay['id_room'];
+
         $this->context->smarty->assign(array(
             'sb_draft' => $draft,
             'sb_state' => $draft['state'],
@@ -180,6 +252,10 @@ class AdminSalisbergWalkInController extends ModuleAdminController
             'sb_rooms' => $rooms,
             'sb_methods' => $service->paymentMethods(),
             'sb_payment' => $service->getPaymentSummary($draft['state']),
+            'sb_guest_form' => $guestForm,
+            'sb_guest_field_errors' => $guestFieldErrors,
+            'sb_duplicate_guest' => $duplicateGuest,
+            'sb_payment_form' => $paymentForm,
             'sb_tax_choice' => $taxChoice,
             'sb_success' => $success,
             'sb_is_walkin' => $stay['arrival'] == $service->getBusinessDate(),
@@ -187,6 +263,7 @@ class AdminSalisbergWalkInController extends ModuleAdminController
             'sb_action' => $this->context->link->getAdminLink('AdminSalisbergWalkIn').'&id_walkin_draft='.(int) $draft['id_walkin_draft'],
             'sb_search_url' => $this->context->link->getAdminLink('AdminSalisbergWalkIn').'&ajax=1&action=searchGuests',
             'sb_board_link' => $this->context->link->getAdminLink('AdminSalisbergRoomBoard'),
+            'sb_edit_stay_link' => $editStayLink,
             'sb_order_link' => $success ? $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order='.(int) $success['id_order'] : '',
             'sb_pdf_link' => $success ? $this->context->link->getAdminLink('AdminPdf').'&submitAction=generateInvoicePDF&id_order='.(int) $success['id_order'] : '',
         ));

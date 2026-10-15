@@ -44,6 +44,25 @@ class AdminSalisbergRoomBoardController extends ModuleAdminController
 
     public function postProcess()
     {
+        if (Tools::isSubmit('sb_discard_draft')) {
+            if ((int) $this->tabAccess['edit'] !== 1) {
+                $this->errors[] = $this->l('You do not have permission to discard this booking.');
+                return parent::postProcess();
+            }
+            try {
+                $service = $this->module->getWalkInService();
+                $draft = $service->getDraft((int) Tools::getValue('id_walkin_draft'));
+                if (!$draft) {
+                    throw new Exception($this->l('This booking draft could not be found.'));
+                }
+                $service->discardDraft($draft);
+                Tools::redirectAdmin(
+                    $this->context->link->getAdminLink('AdminSalisbergRoomBoard').'&discarded=1'
+                );
+            } catch (Exception $e) {
+                $this->errors[] = $e->getMessage();
+            }
+        }
         if (Tools::isSubmit('sb_start_booking')) {
             if ((int) $this->tabAccess['edit'] !== 1) {
                 $this->errors[] = $this->l('You do not have permission to create a booking.');
@@ -85,15 +104,40 @@ class AdminSalisbergRoomBoardController extends ModuleAdminController
         }
         $selected = (int) Tools::getValue('id_room');
         $selectedRoom = false;
+        $fallbackRoom = false;
+        $recommendedRoom = false;
+        $counts = array('all' => 0, 'available' => 0, 'ready' => 0, 'cleaning' => 0);
         foreach ($groups as $group) {
             foreach ($group['rooms'] as $room) {
-                if (($selected && (int) $room['id_room'] == $selected) || (!$selectedRoom && $room['available'])) {
-                    $selectedRoom = $room;
-                    if ($selected) {
-                        break 2;
+                ++$counts['all'];
+                if ($room['available']) {
+                    ++$counts['available'];
+                }
+                if ($room['available'] && $room['readiness']['ready']) {
+                    ++$counts['ready'];
+                    if (!$recommendedRoom || (float) $room['quote']['total'] < (float) $recommendedRoom['quote']['total']) {
+                        $recommendedRoom = $room;
                     }
                 }
+                if ($room['available'] && $room['readiness']['code'] == 'cleaning') {
+                    ++$counts['cleaning'];
+                }
+                if ($selected && (int) $room['id_room'] == $selected) {
+                    $selectedRoom = $room;
+                } elseif (!$fallbackRoom && $room['available']) {
+                    $fallbackRoom = $room;
+                }
             }
+        }
+        if (!$selectedRoom) {
+            $selectedRoom = $recommendedRoom ? $recommendedRoom : $fallbackRoom;
+        }
+        if (!$recommendedRoom) {
+            $recommendedRoom = $fallbackRoom;
+        }
+
+        if (Tools::getValue('discarded')) {
+            $this->confirmations[] = $this->l('The unfinished booking was discarded and its room was released.');
         }
 
         $this->context->smarty->assign(array(
@@ -101,10 +145,14 @@ class AdminSalisbergRoomBoardController extends ModuleAdminController
             'sb_field_errors' => $request['errors'],
             'sb_groups' => $groups,
             'sb_selected_room' => $selectedRoom,
+            'sb_recommended_room_id' => $recommendedRoom ? (int) $recommendedRoom['id_room'] : 0,
+            'sb_room_counts' => $counts,
+            'sb_active_drafts' => $service->getActiveDrafts(),
             'sb_business_date' => $service->getBusinessDate(),
             'sb_is_walkin' => $request['stay']['arrival'] == $service->getBusinessDate(),
             'sb_can_book' => (int) $this->tabAccess['edit'] === 1,
             'sb_action' => $this->context->link->getAdminLink('AdminSalisbergRoomBoard'),
+            'sb_walkin_link' => $this->context->link->getAdminLink('AdminSalisbergWalkIn'),
             'sb_today_link' => $this->context->link->getAdminLink('AdminDashboard').'#sb-arrivals',
             'sb_housekeeping_link' => $this->context->link->getAdminLink('AdminSalisbergHousekeeping'),
         ));

@@ -42,7 +42,13 @@
         var panel = byId('sb-selected-room');
         var warning = byId('sb-selection-warning');
         var button = byId('sb-book-room');
+        var mobileButton = byId('sb-mobile-book-room');
+        var mobileBar = byId('sb-mobile-booking');
         var i;
+
+        if (!available) {
+            return;
+        }
 
         for (i = 0; i < cards.length; i += 1) {
             cards[i].classList.remove('is-selected');
@@ -69,7 +75,94 @@
         if (button) {
             button.disabled = !available;
         }
+        if (mobileButton) {
+            mobileButton.disabled = !available;
+        }
+        if (mobileBar) {
+            mobileBar.hidden = false;
+            byId('sb-mobile-room').textContent = 'Room ' + card.getAttribute('data-room-num');
+            byId('sb-mobile-total').textContent = card.getAttribute('data-total') + ' total';
+        }
         warning.hidden = available;
+    }
+
+    function setupRoomTools() {
+        var board = document.querySelector('.sb-room-board');
+        var cards = Array.prototype.slice.call(document.querySelectorAll('.sb-room-card'));
+        var groups = Array.prototype.slice.call(document.querySelectorAll('.sb-room-group'));
+        var buttons = Array.prototype.slice.call(document.querySelectorAll('[data-room-filter]'));
+        var search = byId('sb-room-search');
+        var compact = byId('sb-compact-rooms');
+        var empty = byId('sb-filter-empty');
+        var filter = 'available';
+
+        if (!board || !search || !compact) {
+            return;
+        }
+
+        function matches(card) {
+            var term = search.value.trim().toLowerCase();
+            var statusMatch = filter === 'all'
+                || (filter === 'available' && card.getAttribute('data-available') === '1')
+                || (filter === 'ready' && card.getAttribute('data-available') === '1' && card.getAttribute('data-ready') === '1')
+                || (filter === 'cleaning' && card.getAttribute('data-available') === '1' && card.getAttribute('data-ready-code') === 'cleaning');
+            var searchMatch = !term || card.getAttribute('data-room-search').toLowerCase().indexOf(term) !== -1;
+
+            return statusMatch && searchMatch;
+        }
+
+        function applyFilters() {
+            var visible = 0;
+            cards.forEach(function (card) {
+                card.hidden = !matches(card);
+                if (!card.hidden) {
+                    visible += 1;
+                }
+            });
+            groups.forEach(function (group) {
+                group.hidden = !group.querySelector('.sb-room-card:not([hidden])');
+            });
+            if (empty) {
+                empty.hidden = visible !== 0;
+            }
+        }
+
+        buttons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                filter = button.getAttribute('data-room-filter');
+                buttons.forEach(function (item) {
+                    item.classList.toggle('is-active', item === button);
+                });
+                applyFilters();
+            });
+        });
+        search.addEventListener('input', applyFilters);
+        search.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                var first = document.querySelector('.sb-room-card:not([hidden])');
+                if (first) {
+                    selectRoom(first);
+                }
+            }
+        });
+
+        try {
+            compact.checked = window.localStorage.getItem('sb-room-board-compact') !== '0';
+        } catch (ignore) {
+            compact.checked = true;
+        }
+        function applyDensity() {
+            board.classList.toggle('is-compact', compact.checked);
+            try {
+                window.localStorage.setItem('sb-room-board-compact', compact.checked ? '1' : '0');
+            } catch (ignore) {
+                // The view still works when storage is blocked.
+            }
+        }
+        compact.addEventListener('change', applyDensity);
+        applyDensity();
+        applyFilters();
     }
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -95,5 +188,6 @@
                 selectRoom(this);
             });
         }
+        setupRoomTools();
     });
 }());
