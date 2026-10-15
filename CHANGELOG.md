@@ -22,7 +22,7 @@ Every change to Salisberg, newest first, in plain words.
 ### Fixed
 
 - Guest details now remain in the form after validation fails, field errors appear beside the relevant input, exact phone matches rank first, and an existing matching guest can be selected immediately instead of retyping the booking.
-- Guided bookings can now be completed. Final confirmation previously built the locking query as `FOR UPDATE LIMIT 1`, which MySQL rejects; it now uses the required `LIMIT 1 FOR UPDATE` order while keeping the duplicate-confirmation lock.
+- Guided bookings can now be completed. Final confirmation previously built its draft and room locking queries as `FOR UPDATE LIMIT 1`, which MySQL rejects; they now use the required `LIMIT 1 FOR UPDATE` order while keeping the duplicate-confirmation locks.
 
 ### Removed
 

@@ -1003,8 +1003,11 @@ class SalisbergWalkIn
             }
 
             $stay = $draft['state']['stay'];
-            Db::getInstance()->getValue(
-                'SELECT `id` FROM `'._DB_PREFIX_.'htl_room_information` WHERE `id` = '.(int) $stay['id_room'].' FOR UPDATE'
+            Db::getInstance()->executeS(
+                'SELECT `id` FROM `'._DB_PREFIX_.'htl_room_information`
+                WHERE `id` = '.(int) $stay['id_room'].' LIMIT 1 FOR UPDATE',
+                true,
+                false
             );
             if (!$this->roomAvailable((int) $stay['id_room'], $stay)) {
                 throw new Exception($this->module->l('The room became unavailable. No booking or payment was created. Choose another room.'));

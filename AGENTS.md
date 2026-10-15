@@ -1806,7 +1806,7 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 **What**
 
 - `Bookings > Add new booking` is now the `AdminSalisbergRoomBoard` tab. The Reservations toolbar button opens it, and the old `AdminHotelRoomsBooking` tab is hidden. Direct visits to the old room-search controller and `AdminOrders&addorder` redirect to Room board; its AJAX room-reallocation and swap endpoints remain available for existing bookings.
-- Future arrivals now enter the same guided Guest, Payment and Review workspace as walk-ins. Completion uses `reserve`, while only a ready same-day room offers `checkin`. The old visible cart/search/form pipeline is no longer used; the inherited Cart and hotel-cart records remain the booking engine's internal staging model.
+- Future arrivals now enter the same guided Guest, Payment and Confirm workspace as walk-ins. Completion uses `reserve`, while only a ready same-day room offers `checkin`. The old visible cart/search/form pipeline is no longer used; the inherited Cart and hotel-cart records remain the booking engine's internal staging model.
 - The full Today workspace is rendered from `salisbergfrontdesk` on `dashboardTop`. Its hidden `AdminSalisbergToday` controller still validates Check in and Check out posts, then redirects back to Dashboard. The smaller stock `dashguestcycle` Operations Today zone is unhooked; its top summary badges remain.
 - Channel Manager is disabled on every module setup. `AdminQloappsChannelManagerConnector`, `AdminZones` and `AdminSlip` are inactive menu tabs. Zones and credit-slip classes/tables were deliberately retained because country/tax/address and refund/document workflows share them.
 - The CSRF token remains in back-office links. Removing it would weaken the inherited admin request protection and make refreshes/forms unreliable; this request was declined rather than replaced with a cosmetic URL rewrite.
@@ -1833,7 +1833,8 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - The visible guide is three steps: Guest, Payment and Confirm. Stay remains an edit screen reached from the summary, while the existing internal step numbers remain unchanged to avoid a data migration.
 - Guest details survive validation errors and errors appear beside their fields. Search ranks exact phone and email matches first, Enter selects the first result, and a duplicate found while entering a new guest can be used directly. Changing away from an existing guest clears its details instead of silently carrying them into a new record.
 - Payment asks for Paid in full, Part payment or Pay later first. Pay later does not require or store a payment method; received money still requires Cash, Mobile Money or Bank transfer and confirmation. Cash tender follows the full or partial amount until the employee edits it.
-- Confirm and success remove repeated information while keeping the stay, guest, payment, balance and next actions visible. `salisbergfrontdesk` is version 1.3.0. Staff Guide section 3, What's New and `CHANGELOG.md` describe the changes.
+- Confirm and success remove repeated information while keeping the stay, guest, payment, balance and next actions visible. `salisbergfrontdesk` is version 1.3.1. Staff Guide section 3, What's New and `CHANGELOG.md` describe the changes.
+- Hotel Staff testing found that final confirmation could not execute either transaction lock: `Db::getRow()` and `getValue()` appended `LIMIT 1` after the supplied `FOR UPDATE`, producing invalid MySQL `FOR UPDATE LIMIT 1`. Both the draft and room locks now use an explicit uncached `SELECT ... LIMIT 1 FOR UPDATE`, preserving the concurrency protection instead of removing it.
 
 **Why**
 
@@ -1842,12 +1843,15 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 **How / safety**
 
 - Draft listing and discard are restricted to the current employee, and discard is a token-protected POST action through the existing admin controller. Room availability is checked again by the existing finalisation path before a reservation is created.
+- Finalisation locks the employee-owned draft and selected room inside the existing transaction before checking availability and creating the order. Locking selects bypass the query cache.
 - No schema was added: the existing draft JSON and internal cart remain the single staging model. Government ID type and number were not added because collecting sensitive identity data needs an explicit hotel requirement, retention period and access policy first.
 
 **Verification**
 
-- Rebuilt and restarted the local Docker image. The authenticated `docker/smoke-test.sh` suite passed 30 of 30 checks on PHP 8.3.35 and MySQL 8.0.46, including the Dashboard, Room board, guides and application log; no PHP warning or error was logged.
+- Rebuilt and restarted the local Docker image, then rebuilt it again after the locking correction so the fix is in the deployable image. The authenticated `docker/smoke-test.sh` suite passed 30 of 30 checks on PHP 8.3.35 and MySQL 8.0.46, including the Dashboard, Room board, guides and application log; no PHP warning or error was logged.
 - An authenticated UI check opened the Room board, found search, filters and the recommended room, created a draft, rendered Guest/Payment/Confirm, listed the draft under Unfinished bookings, resumed it, then discarded it. The database showed `status=discarded`, no cart and zero hotel-cart room rows.
 - A second draft submitted invalid guest details and retained the typed values and note with inline first-name and phone errors. It then selected an existing search result, saved Pay later without a payment method, reached Confirm with no payment recorded, and was discarded. Its cart and room hold were also absent afterward.
+- The first completion attempt as the Hotel Staff test employee exposed the two invalid locking queries. No order or payment was created; the failed draft was discarded, its cart and room hold were absent, its unused guest was removed, and the employee password hash was restored.
+- After correcting both locks, the same Hotel Staff profile completed future reservation `MJATYEKLB` (order 16) for room GR-105, 12–14 February 2027. The success page rendered, View stay opened without a permission error, and the reference appeared in Reservations. Database checks showed employee 3 (`staff.test@example.com`), complete draft 6, Awaiting payment, Pay later, GH₵416 total, GH₵0 paid, and allotted/reserved booking status. The employee password hash was restored after the test.
 - PHP syntax checks passed for the service, both controllers and module class; JavaScript syntax checks passed for Room board and walk-in scripts; `git diff --check` passed.
-- Not tested: visual interaction in a real browser, Hotel Staff/Hotel Manager profiles instead of SuperAdmin, a completed booking or payment (the targeted tests deliberately stopped at Confirm), or the live server.
+- Not tested: visual interaction in a real browser, the Hotel Manager profile, a same-day check-in or confirmed payment, or the live server.
