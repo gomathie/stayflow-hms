@@ -60,14 +60,15 @@
 		<ol>
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Add new booking</span>.</li>
 			<li>{l s='Choose arrival, departure, adults and children, then click' mod='salisbergguide'} <span class="sb-btn">Update availability</span>. {l s='Availability means the room is free for the whole stay. Ready, Needs cleaning and Occupied describe the room right now.' mod='salisbergguide'}</li>
-			<li>{l s='Select a room card. Check the dates, guests and estimated total in Selected room, then click' mod='salisbergguide'} <span class="sb-btn">Book walk-in</span>.</li>
-			<li>{l s='Guest opens first because the room and stay are already complete. Search by name, phone or email and use the existing guest when there is a match. Otherwise enter first name, last name and phone; email is optional.' mod='salisbergguide'}</li>
-			<li>{l s='Choose the payment method and whether payment is full, partial or later. Cash is paid only after you tick that it was received. For Mobile Money or bank transfer, enter the transaction reference and tick confirmation only after the money is visible in the hotel account.' mod='salisbergguide'}</li>
-			<li>{l s='Review the guest, stay, room readiness, charges, confirmed payment and balance. Use an Edit link if anything is wrong.' mod='salisbergguide'}</li>
+			<li>{l s='Available rooms are shown first. Use Ready now, Needs cleaning or All rooms to narrow the board, or type a room number or room type in Find. Recommended marks the lowest-priced ready room that fits the stay.' mod='salisbergguide'}</li>
+			<li>{l s='Select a room card. Check the dates, guests and estimated total in Selected room, then click Book walk-in or Create reservation. On a tablet or phone the Continue bar stays at the bottom of the screen.' mod='salisbergguide'}</li>
+			<li>{l s='Guest opens first because the room and stay are already complete. Search by name, phone or email and use the existing guest when there is a match. Press Enter to use the first search result. Otherwise enter first name, last name and phone; email is optional.' mod='salisbergguide'}</li>
+			<li>{l s='On Payment, first choose Paid in full, Part payment or Pay later. Pay later needs no payment method. For money received, choose Cash, Mobile Money or Bank transfer and confirm it only after the money is in hand or visible in the hotel account.' mod='salisbergguide'}</li>
+			<li>{l s='Confirm shows the guest, stay, total, confirmed payment and balance. Use an Edit link if anything is wrong.' mod='salisbergguide'}</li>
 			<li>{l s='For a ready room arriving today, click' mod='salisbergguide'} <span class="sb-btn">Confirm &amp; check in</span>. {l s='For a future stay, click Confirm reservation. The system checks the room again before creating anything. A dirty or occupied walk-in room can be saved awaiting the room instead.' mod='salisbergguide'}</li>
-			<li>{l s='The success page shows the booking reference, payment and balance. Open the stay, print its receipt when payment was confirmed, return to the room board, or start another booking.' mod='salisbergguide'}</li>
+			<li>{l s='The success page shows the booking reference, payment and balance. Open the stay, print its receipt when payment was confirmed, or start another booking.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-tip">{l s='For a future arrival the Room board button changes to Create reservation. The same Guest, Payment and Review steps are used, and the final button saves the reservation without checking the guest in.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='If you leave before confirming, the Room board lists the unfinished booking. Resume it without retyping the details, or Discard it to release the room. For a future arrival, the same Guest, Payment and Confirm steps save a reservation without checking the guest in.' mod='salisbergguide'}</p>
 		<p class="sb-warn">{l s='A typed payment reference is not proof of payment. Leave it unconfirmed until the money has actually arrived.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminSalisbergRoomBoard|escape:'html':'UTF-8'}">{l s='Open Add new booking' mod='salisbergguide'} &rarr;</a>
 	</section>

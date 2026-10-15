@@ -21,7 +21,10 @@
 	<section>
 		<h3>{l s='15 October 2026' mod='salisbergguide'}</h3>
 		<ul>
-			<li><strong>{l s='Add new booking now opens the Room board.' mod='salisbergguide'}</strong> {l s='Use the same guided Guest, Payment and Review steps for a walk-in or a future reservation. A walk-in can be checked in at the end; a future stay is saved without checking the guest in.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Add new booking now opens the Room board.' mod='salisbergguide'}</strong> {l s='Use the same guided Guest, Payment and Confirm steps for a walk-in or a future reservation. A walk-in can be checked in at the end; a future stay is saved without checking the guest in.' mod='salisbergguide'}</li>
+			<li><strong>{l s='The Room board is faster to scan.' mod='salisbergguide'}</strong> {l s='Available and ready rooms come first, with status filters, room search, compact cards, a recommended room and a Continue bar that stays visible on smaller screens.' mod='salisbergguide'}</li>
+			<li><strong>{l s='The booking guide is now three clear steps.' mod='salisbergguide'}</strong> {l s='Guest, Payment and Confirm avoid repeating the stay. Typed guest details survive an error, existing matches are easier to use, Pay later asks for no payment method, and unfinished bookings can be resumed or discarded from the Room board.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Final confirmation now completes the booking.' mod='salisbergguide'}</strong> {l s='A database locking query had its clauses in the wrong order, so Confirm could stop with a technical error. The lock and duplicate-booking protection remain in place and the reservation now saves normally.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Today is now on the Dashboard.' mod='salisbergguide'}</strong> {l s='Arrivals, departures, rooms in house, unpaid bookings, Check in and Check out are available where the day starts, without a separate Today menu page.' mod='salisbergguide'}</li>
 		</ul>
 		{if $sb_can_read_admin_guide}

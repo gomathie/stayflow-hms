@@ -57,7 +57,7 @@ class Salisbergfrontdesk extends Module
     {
         $this->name = 'salisbergfrontdesk';
         $this->tab = 'administration';
-        $this->version = '1.2.0';
+        $this->version = '1.3.1';
         $this->author = 'Salisberg Hotels';
         $this->bootstrap = true;
 

@@ -11,8 +11,18 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
-- **Add new booking now opens the Room board.** The Reservations toolbar button and the visible Bookings menu entry both start the guided flow. Walk-ins can be checked in at completion; future stays use the same Guest, Payment and Review steps and are saved as reservations without opening the old cart screens.
+- **Add new booking now opens the Room board.** The Reservations toolbar button and the visible Bookings menu entry both start the guided flow. Walk-ins can be checked in at completion; future stays use the same Guest, Payment and Confirm steps and are saved as reservations without opening the old cart screens.
+- **Faster front-desk booking.** The Room board now puts available and ready rooms first and adds status filters, room search, compact cards, a recommended room and a persistent tablet/phone Continue action. The guide is reduced to Guest, Payment and Confirm; payment starts with Paid in full, Part payment or Pay later, and Pay later no longer asks for a payment method.
 - **Today is on the Dashboard.** Arrivals, departures, rooms in house, unpaid reservations, and the Check in and Check out actions are now part of the Dashboard instead of a separate Bookings menu page.
+
+### Added
+
+- **Resume unfinished bookings.** The Room board lists the current employee's active drafts with Resume and Discard actions. Discard releases the room and removes the unused internal cart.
+
+### Fixed
+
+- Guest details now remain in the form after validation fails, field errors appear beside the relevant input, exact phone matches rank first, and an existing matching guest can be selected immediately instead of retyping the booking.
+- Guided bookings can now be completed. Final confirmation previously built the locking query as `FOR UPDATE LIMIT 1`, which MySQL rejects; it now uses the required `LIMIT 1 FOR UPDATE` order while keeping the duplicate-confirmation lock.
 
 ### Removed
 

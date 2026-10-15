@@ -419,11 +419,17 @@ class SalisbergWalkIn
 
     public function getDraft($idDraft, $lock = false)
     {
-        $row = Db::getInstance()->getRow(
-            'SELECT * FROM `'._DB_PREFIX_.'sb_walkin_draft`
-            WHERE `id_walkin_draft` = '.(int) $idDraft.' AND `id_employee` = '.(int) $this->context->employee->id
-            .($lock ? ' FOR UPDATE' : '')
-        );
+        $sql = 'SELECT * FROM `'._DB_PREFIX_.'sb_walkin_draft`
+            WHERE `id_walkin_draft` = '.(int) $idDraft.' AND `id_employee` = '.(int) $this->context->employee->id;
+        if ($lock) {
+            // Db::getRow() appends LIMIT 1 after the supplied SQL. MySQL
+            // requires LIMIT before FOR UPDATE, so execute the locking form
+            // explicitly and never serve it from the query cache.
+            $rows = Db::getInstance()->executeS($sql.' LIMIT 1 FOR UPDATE', true, false);
+            $row = $rows ? reset($rows) : false;
+        } else {
+            $row = Db::getInstance()->getRow($sql);
+        }
         if (!$row) {
             return false;
         }

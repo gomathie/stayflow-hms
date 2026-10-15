@@ -1823,3 +1823,31 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - Confirmed in the database that Room board is the visible Add new booking tab, Today and the legacy room-booking controller are active but hidden, Channel Manager/Zones/Credit Slips are inactive, `salisbergfrontdesk` owns `dashboardTop`, and `dashguestcycle` is no longer attached to `dashboardZoneTwo`.
 - Authenticated checks confirmed Dashboard renders Today at the desk, both Add new entry points open Room board, direct legacy booking routes redirect to Room board, and the removed menu items do not render.
 - `docker/smoke-test.sh` passed all 30 checks. Repository-wide symbol searches after the cleanup found no code references to `sb-booking-bar`, `sb-room-results`, `useSearchOccupancy`, `updateBookingBar`, `sb_charge_tax`, or `grantCartEditing` outside historical records.
+
+### 2026-10-15 — Front-desk booking navigation simplified
+
+**What**
+
+- The Room board orders available ready rooms first, then other available rooms, and puts unavailable rooms last. It adds Available, Ready now, Needs cleaning and All rooms filters; room-number/type search; compact cards; a lowest-priced ready-room recommendation; availability counts; and a fixed Continue action on tablets and phones.
+- Active guided-booking drafts belonging to the signed-in employee appear on the Room board with Resume and Discard. Discard removes the unused hotel-cart rows and cart in a database transaction, then marks the draft discarded so held room availability is released cleanly.
+- The visible guide is three steps: Guest, Payment and Confirm. Stay remains an edit screen reached from the summary, while the existing internal step numbers remain unchanged to avoid a data migration.
+- Guest details survive validation errors and errors appear beside their fields. Search ranks exact phone and email matches first, Enter selects the first result, and a duplicate found while entering a new guest can be used directly. Changing away from an existing guest clears its details instead of silently carrying them into a new record.
+- Payment asks for Paid in full, Part payment or Pay later first. Pay later does not require or store a payment method; received money still requires Cash, Mobile Money or Bank transfer and confirmation. Cash tender follows the full or partial amount until the employee edits it.
+- Confirm and success remove repeated information while keeping the stay, guest, payment, balance and next actions visible. `salisbergfrontdesk` is version 1.3.0. Staff Guide section 3, What's New and `CHANGELOG.md` describe the changes.
+
+**Why**
+
+- Front-desk staff need to find a suitable room quickly, resume interrupted work without retyping it, and make the fewest decisions needed to complete a correct booking. Releasing abandoned drafts also prevents an unfinished internal cart from making a room appear unavailable.
+
+**How / safety**
+
+- Draft listing and discard are restricted to the current employee, and discard is a token-protected POST action through the existing admin controller. Room availability is checked again by the existing finalisation path before a reservation is created.
+- No schema was added: the existing draft JSON and internal cart remain the single staging model. Government ID type and number were not added because collecting sensitive identity data needs an explicit hotel requirement, retention period and access policy first.
+
+**Verification**
+
+- Rebuilt and restarted the local Docker image. The authenticated `docker/smoke-test.sh` suite passed 30 of 30 checks on PHP 8.3.35 and MySQL 8.0.46, including the Dashboard, Room board, guides and application log; no PHP warning or error was logged.
+- An authenticated UI check opened the Room board, found search, filters and the recommended room, created a draft, rendered Guest/Payment/Confirm, listed the draft under Unfinished bookings, resumed it, then discarded it. The database showed `status=discarded`, no cart and zero hotel-cart room rows.
+- A second draft submitted invalid guest details and retained the typed values and note with inline first-name and phone errors. It then selected an existing search result, saved Pay later without a payment method, reached Confirm with no payment recorded, and was discarded. Its cart and room hold were also absent afterward.
+- PHP syntax checks passed for the service, both controllers and module class; JavaScript syntax checks passed for Room board and walk-in scripts; `git diff --check` passed.
+- Not tested: visual interaction in a real browser, Hotel Staff/Hotel Manager profiles instead of SuperAdmin, a completed booking or payment (the targeted tests deliberately stopped at Confirm), or the live server.

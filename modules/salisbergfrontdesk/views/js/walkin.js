@@ -17,12 +17,17 @@
     }
 
     function setGuest(guest) {
+        var duplicate = document.querySelector('.sb-duplicate-guest');
         byId('sb-guest-id').value = guest.id_customer;
         byId('sb-selected-guest-name').textContent = guest.firstname + ' ' + guest.lastname;
         byId('sb-selected-guest-contact').textContent = [guest.phone, guest.email].filter(Boolean).join(' · ');
         byId('sb-selected-guest').hidden = false;
         byId('sb-new-guest').hidden = true;
         byId('sb-guest-results').innerHTML = '';
+        currentGuests = [];
+        if (duplicate) {
+            duplicate.hidden = true;
+        }
     }
 
     function renderGuests(rows) {
@@ -70,11 +75,13 @@
             window.clearTimeout(timer);
             if (input.value.trim().length < 2) {
                 byId('sb-guest-results').innerHTML = '';
+                currentGuests = [];
                 return;
             }
             timer = window.setTimeout(function () {
+                var query = input.value.trim();
                 var body = new URLSearchParams();
-                body.append('q', input.value.trim());
+                body.append('q', query);
                 fetch(root.getAttribute('data-search-url'), {
                     method: 'POST',
                     credentials: 'same-origin',
@@ -83,7 +90,9 @@
                 }).then(function (response) {
                     return response.json();
                 }).then(function (data) {
-                    renderGuests(data.guests || []);
+                    if (input.value.trim() === query) {
+                        renderGuests(data.guests || []);
+                    }
                 }).catch(function () {
                     byId('sb-guest-results').textContent = 'Guest search could not be loaded. Try again.';
                 });
@@ -101,6 +110,12 @@
                 byId('sb-guest-id').value = '';
                 byId('sb-selected-guest').hidden = true;
                 byId('sb-new-guest').hidden = false;
+                ['guest-firstname', 'guest-lastname', 'guest-phone', 'guest-email', 'guest-company'].forEach(function (id) {
+                    var field = byId(id);
+                    if (field) {
+                        field.value = '';
+                    }
+                });
                 input.focus();
             });
         }
@@ -166,6 +181,7 @@
         var confirmedInput = confirmed.querySelector('input');
         var amount = byId('payment-amount');
         var cashTendered = byId('cash-tendered');
+        var tenderedTouched = cashTendered.value !== '' && parseFloat(cashTendered.value || '0') > 0;
         function selected(name) {
             var field = form.querySelector('input[name="' + name + '"]:checked');
             return field ? field.value : '';
@@ -189,7 +205,7 @@
             if (arrangement === 'full') {
                 amount.value = form.getAttribute('data-total');
             }
-            if (method === 'cash' && !isLater && !cashTendered.value) {
+            if (method === 'cash' && !isLater && !tenderedTouched) {
                 cashTendered.value = arrangement === 'full' ? form.getAttribute('data-total') : amount.value;
             }
             updateChange();
@@ -204,8 +220,16 @@
                 : '';
         }
         form.addEventListener('change', refresh);
-        amount.addEventListener('input', updateChange);
-        cashTendered.addEventListener('input', updateChange);
+        amount.addEventListener('input', function () {
+            if (selected('method') === 'cash' && selected('arrangement') === 'partial' && !tenderedTouched) {
+                cashTendered.value = amount.value;
+            }
+            updateChange();
+        });
+        cashTendered.addEventListener('input', function () {
+            tenderedTouched = true;
+            updateChange();
+        });
         refresh();
     }
 

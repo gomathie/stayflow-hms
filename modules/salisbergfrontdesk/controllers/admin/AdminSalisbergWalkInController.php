@@ -1,6 +1,6 @@
 <?php
 /**
- * Guided booking workspace: Stay, Guest, Payment and Review.
+ * Guided booking workspace: Guest, Payment and Confirm, with Stay available for edits.
  *
  * Copyright (c) Salisberg
  * SPDX-License-Identifier: MIT
