@@ -275,7 +275,7 @@ class SalisbergWalkIn
         return array(
             'nightly' => $nightly,
             'nightly_text' => implode(' | ', array_map(function ($night) {
-                return Tools::displayDate($night['date']).': '.$night['amount_text'];
+                return date('j M Y', strtotime($night['date'])).': '.$night['amount_text'];
             }, $nightly)),
             'varies' => count(array_unique(array_map(function ($night) {
                 return number_format($night['amount'], 2, '.', '');

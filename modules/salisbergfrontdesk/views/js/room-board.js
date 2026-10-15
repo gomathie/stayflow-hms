@@ -38,6 +38,8 @@
         var cards = document.querySelectorAll('.sb-room-card');
         var status = byId('sb-selected-status');
         var image = byId('sb-selected-image');
+        var nightly = byId('sb-selected-nightly');
+        var nightlyLabel = byId('sb-selected-nightly-label');
         var available = card.getAttribute('data-available') === '1';
         var panel = byId('sb-selected-room');
         var warning = byId('sb-selection-warning');
@@ -52,14 +54,18 @@
 
         for (i = 0; i < cards.length; i += 1) {
             cards[i].classList.remove('is-selected');
+            cards[i].setAttribute('aria-pressed', 'false');
         }
         card.classList.add('is-selected');
+        card.setAttribute('aria-pressed', 'true');
         byId('sb-selected-room-id').value = card.getAttribute('data-room-id');
         byId('sb-selected-number').textContent = card.getAttribute('data-room-num');
         byId('sb-selected-type').textContent = card.getAttribute('data-room-type');
         byId('sb-selected-capacity').textContent = card.getAttribute('data-capacity');
         byId('sb-selected-rate').textContent = card.getAttribute('data-rate');
-        byId('sb-selected-nightly').textContent = card.getAttribute('data-nightly');
+        nightly.textContent = card.getAttribute('data-nightly');
+        nightly.hidden = card.getAttribute('data-rate-varies') !== '1';
+        nightlyLabel.hidden = nightly.hidden;
         byId('sb-selected-taxes').textContent = card.getAttribute('data-taxes');
         byId('sb-selected-total').textContent = card.getAttribute('data-total');
         status.className = 'sb-status sb-status-' + card.getAttribute('data-ready-code');
@@ -120,7 +126,19 @@
                 }
             });
             groups.forEach(function (group) {
-                group.hidden = !group.querySelector('.sb-room-card:not([hidden])');
+                var groupCards = Array.prototype.slice.call(group.querySelectorAll('.sb-room-card'));
+                var groupVisible = groupCards.filter(function (card) {
+                    return !card.hidden;
+                }).length;
+                var count = group.querySelector('[data-room-count]');
+
+                group.hidden = groupVisible === 0;
+                if (count) {
+                    count.querySelector('strong').textContent = groupVisible;
+                    count.querySelector('span').textContent = groupVisible === 1
+                        ? count.getAttribute('data-singular')
+                        : count.getAttribute('data-plural');
+                }
             });
             if (empty) {
                 empty.hidden = visible !== 0;

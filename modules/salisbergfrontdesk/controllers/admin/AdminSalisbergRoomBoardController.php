@@ -140,8 +140,13 @@ class AdminSalisbergRoomBoardController extends ModuleAdminController
             $this->confirmations[] = $this->l('The unfinished booking was discarded and its room was released.');
         }
 
+        $stayDisplay = $request['stay'];
+        $stayDisplay['arrival'] = date('j M Y', strtotime($request['stay']['arrival']));
+        $stayDisplay['departure'] = date('j M Y', strtotime($request['stay']['departure']));
+
         $this->context->smarty->assign(array(
             'sb_stay' => $request['stay'],
+            'sb_stay_display' => $stayDisplay,
             'sb_field_errors' => $request['errors'],
             'sb_groups' => $groups,
             'sb_selected_room' => $selectedRoom,
