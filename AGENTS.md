@@ -1810,6 +1810,7 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - The full Today workspace is rendered from `salisbergfrontdesk` on `dashboardTop`. Its hidden `AdminSalisbergToday` controller still validates Check in and Check out posts, then redirects back to Dashboard. The smaller stock `dashguestcycle` Operations Today zone is unhooked; its top summary badges remain.
 - Channel Manager is disabled on every module setup. `AdminQloappsChannelManagerConnector`, `AdminZones` and `AdminSlip` are inactive menu tabs. Zones and credit-slip classes/tables were deliberately retained because country/tax/address and refund/document workflows share them.
 - The CSRF token remains in back-office links. Removing it would weaken the inherited admin request protection and make refreshes/forms unreliable; this request was declined rather than replaced with a cosmetic URL rewrite.
+- Removed the custom sticky cart bar, result auto-scroll, search-occupancy copier, old `AdminOrders` per-booking tax field, and `salisbergguide::grantCartEditing()`. They served only the retired visible cart flow. `AdminCarts`, the hidden room-booking controller, and its base assets remain because dashboard/customer cart links and booking reallocation endpoints still reference them.
 - `MODULES_VERSION=24`. Staff Guide sections 2, 3 and 6, Admin Guide sections 1 and 15, What's New, and `CHANGELOG.md` describe the resulting workflow and menu.
 
 **Why**
@@ -1818,4 +1819,7 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 
 **Verification**
 
-- Pending at implementation time: PHP lint, image rebuild/module setup v24, authenticated menu and redirect checks, Dashboard render, future-reservation guided flow, smoke test and application log review.
+- Built and restarted the local image. Module setup v24 completed and disabled `qlochannelmanagerconnector`; the application log contained no new PHP warning or error.
+- Confirmed in the database that Room board is the visible Add new booking tab, Today and the legacy room-booking controller are active but hidden, Channel Manager/Zones/Credit Slips are inactive, `salisbergfrontdesk` owns `dashboardTop`, and `dashguestcycle` is no longer attached to `dashboardZoneTwo`.
+- Authenticated checks confirmed Dashboard renders Today at the desk, both Add new entry points open Room board, direct legacy booking routes redirect to Room board, and the removed menu items do not render.
+- `docker/smoke-test.sh` passed all 30 checks. Repository-wide symbol searches after the cleanup found no code references to `sb-booking-bar`, `sb-room-results`, `useSearchOccupancy`, `updateBookingBar`, `sb_charge_tax`, or `grantCartEditing` outside historical records.

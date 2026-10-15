@@ -338,36 +338,6 @@ $(document).ready(function() {
         return occupancy;
     }
 
-    // Salisberg: a room row whose guests have not been chosen takes the
-    // guests of the first room in the booking form above, so "Add To Cart"
-    // adds the room at the first click instead of asking for the guests again.
-    // The row's own guest box can still be changed before adding.
-    function useSearchOccupancy(row)
-    {
-        var rowBlock = $(row).find('.booking_occupancy .occupancy_info_block').first();
-        if (!rowBlock.length || $(row).find('.booking_occupancy .occupancy_info_block.selected').length) {
-            return;
-        }
-        var searchBlock = $('#room-search-form .occupancy_info_block').first();
-        var adults = searchBlock.length ? parseInt(searchBlock.find('.num_adults').val()) : 1;
-        var children = searchBlock.length ? parseInt(searchBlock.find('.num_children').val()) : 0;
-        if (!adults) {
-            adults = 1;
-        }
-        rowBlock.find('.num_adults').val(adults).trigger('change');
-        rowBlock.find('.num_children').val(children || 0).trigger('change');
-        if (children) {
-            var ages = searchBlock.find('.guest_child_age').map(function () { return $(this).val(); }).get();
-            rowBlock.find('.guest_child_age').each(function (index) {
-                if (typeof ages[index] !== 'undefined') {
-                    $(this).val(ages[index]);
-                }
-            });
-        }
-        rowBlock.addClass('selected');
-        setRoomTypeGuestOccupancy($(row).find('.booking_occupancy_wrapper'));
-    }
-
     // booking form
     $('body').on('click', '.avai_add_cart', function(e) {
         e.preventDefault();
@@ -387,7 +357,6 @@ $(document).ready(function() {
         var comment = $("#comment_" + id_room).val();
         var btn = $(this);
         $(this).closest('tr').find('.booking_occupancy_wrapper').parent().removeClass('open');
-        useSearchOccupancy($(this).closest('tr'));
         var occupancy = getBookingOccupancyDetails($(this).closest('tr').find('.booking_occupancy'));
 
         if (occupancy) {
@@ -455,7 +424,6 @@ $(document).ready(function() {
         var comment = $("#comment_" + id_room + "_" + sub_key).val();
         var btn = $(this);
         $(this).closest('tr').find('.booking_occupancy_wrapper').parent().removeClass('open');
-        useSearchOccupancy($(this).closest('tr'));
         var occupancy = getBookingOccupancyDetails($(this).closest('tr').find('.booking_occupancy'));
 
         if (occupancy) {
@@ -954,7 +922,6 @@ $(document).ready(function() {
                         $("#cartModal").html(result.cart_content);
                     }
                     $("#cart_record").html(result.total_products_in_cart);
-                    updateBookingBar(parseInt(result.total_products_in_cart));
 
                     if (parseInt(result.total_products_in_cart) > 0) {
                         $('#cart_record').closest('button').removeClass('disabled');
@@ -965,25 +932,6 @@ $(document).ready(function() {
             }
         });
     }
-
-    // Salisberg: the bar at the bottom of the screen with the number of rooms
-    // chosen and the button to the guest and payment step (view.tpl, #sb-booking-bar)
-    function updateBookingBar(count)
-    {
-        var bar = $('#sb-booking-bar');
-        if (!bar.length) {
-            return;
-        }
-        var link = $('#cartModal .cart_booking_btn').attr('href');
-        if (link) {
-            bar.find('.sb-booking-bar-continue').attr('href', link);
-        }
-        bar.find('.sb-booking-bar-count').text(count);
-        bar.find('.sb-booking-bar-total').text($.trim($('#cartModal #cart_total_amt').text()));
-        bar.toggle(count > 0);
-        $('body').toggleClass('sb-has-booking-bar', count > 0);
-    }
-    updateBookingBar(parseInt($('#cart_record').text()) || 0);
 
     function refreshStatsData()
     {

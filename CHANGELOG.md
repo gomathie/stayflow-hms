@@ -17,6 +17,7 @@ Every change to Salisberg, newest first, in plain words.
 ### Removed
 
 - **Unused back-office menu items:** Channel Manager, Zones, Credit Slips, the old cart-based Add new booking page, and the separate Today page no longer appear in navigation. Shared geography, refund, and room-reallocation code remains in place so existing workflows are not broken; the Channel Manager module is disabled.
+- **Dead code from the retired cart booking screen:** removed its sticky selection bar, automatic occupancy copy, result auto-scroll, obsolete per-booking tax field, and the deploy-time permission repair that only the old flow required. Shared Cart and room-reallocation code remains because live back-office pages still use it.
 
 ## 2026-10-14
 

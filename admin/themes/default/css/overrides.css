@@ -653,18 +653,6 @@ body.adminstats #content div:has(> table.table),
   #content.bootstrap .table-responsive-row { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
 }
 
-/* Add new booking: the bar at the bottom of the screen once a room is chosen,
-   with the way on to the guest and payment step (hotel_rooms_booking.js) */
-.sb-booking-bar { position: fixed; right: 0; bottom: 0; left: 0; z-index: 1030; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 24px; background-color: var(--sb-card); border-top: 2px solid var(--sb-accent); box-shadow: 0 -8px 24px -12px rgba(0, 0, 0, .35); }
-.sb-booking-bar-text { display: flex; flex-direction: column; color: var(--sb-ink); }
-.sb-booking-bar-text strong { font-size: 16px; color: var(--sb-heading); }
-.sb-booking-bar-sub { font-size: 13px; color: var(--sb-muted); }
-.sb-booking-bar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-body.sb-has-booking-bar #content.bootstrap { padding-bottom: 110px; }
-@media (min-width: 768px) {
-  body.page-sidebar .sb-booking-bar { left: var(--sb-side); }
-}
-
 /* ---------- 8. Stock-blue replacements ----------
    The stock theme's #00aff0 family, found by scanning rendered pages. */
 .bootstrap [id^="dgc_"] { color: var(--sb-heading); }                               /* dashboard tile figures */
