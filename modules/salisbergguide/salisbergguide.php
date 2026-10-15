@@ -79,7 +79,6 @@ class Salisbergguide extends Module
         'AdminOrders' => array(1, 1, 1, 1),
         'AdminSalisbergReports' => array(1, 0, 0, 0),
         'AdminInvoices' => array(1, 1, 1, 0),
-        'AdminSlip' => array(1, 1, 1, 0),
         'AdminOrderMessage' => array(1, 1, 1, 1),
         'AdminBookingDocument' => array(1, 1, 1, 1),
         'AdminOrderRefundRules' => array(1, 1, 1, 1),
@@ -114,10 +113,7 @@ class Salisbergguide extends Module
     );
 
     /** Menu sections a SuperAdmin can show or hide from the Admin Guide page: class name => name */
-    public static $menuToggles = array(
-        'AdminQloappsChannelManagerConnector' => 'Channel Manager',
-        'AdminParentModules' => 'Modules and Services',
-    );
+    public static $menuToggles = array('AdminParentModules' => 'Modules and Services');
 
     /**
      * Stock menu entries shown under a clearer name: class name => array(the
@@ -132,11 +128,15 @@ class Salisbergguide extends Module
         'AdminAddHotel' => array('Manage Hotel', 'Hotel Details'),
         'AdminCatalog' => array('Catalog', 'Rooms & Services'),
         'AdminCustomerThreads' => array('Customer Service', 'Inbox'),
-        'AdminHotelRoomsBooking' => array('Book Now', 'Add new booking'),
     );
 
-    /** The vendor's own store pages, kept out of the menu: class names */
-    public static $vendorMenus = array('AdminModulesCatalog');
+    /** Pages deliberately kept out of this hotel's back-office menu. */
+    public static $hiddenMenus = array(
+        'AdminModulesCatalog',
+        'AdminQloappsChannelManagerConnector',
+        'AdminZones',
+        'AdminSlip',
+    );
 
     /**
      * Shop features a hotel does not use, taken out of the product: their menu
@@ -192,7 +192,7 @@ class Salisbergguide extends Module
             && $this->grantHotelAccess()
             && $this->grantCartEditing()
             && $this->renameMenuEntries()
-            && $this->hideVendorMenus()
+            && $this->hideUnusedMenus()
             && $this->removeMenus()
             && $this->registerHook('header')
             && $this->registerHook('footer')
@@ -339,9 +339,9 @@ class Salisbergguide extends Module
         return true;
     }
 
-    protected function hideVendorMenus()
+    protected function hideUnusedMenus()
     {
-        foreach (self::$vendorMenus as $className) {
+        foreach (self::$hiddenMenus as $className) {
             $idTab = (int) Tab::getIdFromClassName($className);
             if ($idTab) {
                 Db::getInstance()->update('tab', array('active' => 0), 'id_tab = '.$idTab);
@@ -602,7 +602,7 @@ class Salisbergguide extends Module
     public function renderGuide($template)
     {
         $pages = array(
-            'AdminDashboard', 'AdminSalisbergRoomBoard', 'AdminSalisbergWalkIn', 'AdminSalisbergToday', 'AdminSalisbergHousekeeping', 'AdminSalisbergCharges', 'AdminHotelRoomsBooking', 'AdminOrders', 'AdminInvoices', 'AdminCustomers', 'AdminCarts',
+            'AdminDashboard', 'AdminSalisbergRoomBoard', 'AdminSalisbergWalkIn', 'AdminSalisbergHousekeeping', 'AdminSalisbergCharges', 'AdminHotelRoomsBooking', 'AdminOrders', 'AdminInvoices', 'AdminCustomers', 'AdminCarts',
             'AdminCustomerThreads', 'AdminOrderRefundRequests', 'AdminProducts', 'AdminNormalProducts', 'AdminAddHotel',
             'AdminHotelFeatures', 'AdminHotelFeaturePricesSettings', 'AdminHotelGeneralSettings', 'AdminOrderRefundRules',
             'AdminCartRules', 'AdminModules', 'AdminPayment', 'AdminCurrencies', 'AdminTaxes', 'AdminTaxRulesGroup',

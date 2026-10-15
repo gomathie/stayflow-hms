@@ -40,11 +40,9 @@
 		<p>{l s='The section you are in lists its pages underneath it. For any other section, click the small arrow at the right of its name to list its pages, and click the arrow again to fold them away. Clicking the name itself opens the first page of that section.' mod='salisbergguide'}</p>
 		<table>
 			<tr><th>{l s='Menu' mod='salisbergguide'}</th><th>{l s='What it is for' mod='salisbergguide'}</th></tr>
-			<tr><td><span class="sb-path">Dashboard</span></td><td>{l s='Today at a glance: recent bookings and activity.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Bookings &rsaquo; Room board</span></td><td>{l s='See availability for a complete stay, choose a room and guide a walk-in guest through check-in.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Bookings &rsaquo; Today</span></td><td>{l s='Start here each day: arrivals, departures, guests in house and unpaid bookings, with Check in and Check out buttons.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Dashboard</span></td><td>{l s='Start here each day: arrivals, departures, guests in house and unpaid bookings, with Check in and Check out buttons.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Bookings &rsaquo; Add new booking</span></td><td>{l s='See availability for a complete stay, choose a room and use the guided flow for a walk-in or future reservation.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Housekeeping</span></td><td>{l s='Every room and whether it is clean, dirty or out of service.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Add new booking</span></td><td>{l s='See which rooms are free and make a booking for a guest.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Reservations</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Invoices</span></td><td>{l s='Every invoice and receipt, with what is paid and what is still owed.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records and their booking history.' mod='salisbergguide'}</td></tr>
@@ -58,20 +56,20 @@
 
 	<section id="sb-s3">
 		<h3>3. {l s='Make a booking for a guest' mod='salisbergguide'}</h3>
-		<p>{l s='Use the Room board for a guest arriving now. It keeps room availability, readiness and the booking steps together without opening the old booking cart screens.' mod='salisbergguide'}</p>
+		<p>{l s='Add new booking opens the Room board. It keeps room availability, readiness and every booking step together without opening the old booking cart screens.' mod='salisbergguide'}</p>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Room board</span>.</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Add new booking</span>.</li>
 			<li>{l s='Choose arrival, departure, adults and children, then click' mod='salisbergguide'} <span class="sb-btn">Update availability</span>. {l s='Availability means the room is free for the whole stay. Ready, Needs cleaning and Occupied describe the room right now.' mod='salisbergguide'}</li>
 			<li>{l s='Select a room card. Check the dates, guests and estimated total in Selected room, then click' mod='salisbergguide'} <span class="sb-btn">Book walk-in</span>.</li>
 			<li>{l s='Guest opens first because the room and stay are already complete. Search by name, phone or email and use the existing guest when there is a match. Otherwise enter first name, last name and phone; email is optional.' mod='salisbergguide'}</li>
 			<li>{l s='Choose the payment method and whether payment is full, partial or later. Cash is paid only after you tick that it was received. For Mobile Money or bank transfer, enter the transaction reference and tick confirmation only after the money is visible in the hotel account.' mod='salisbergguide'}</li>
 			<li>{l s='Review the guest, stay, room readiness, charges, confirmed payment and balance. Use an Edit link if anything is wrong.' mod='salisbergguide'}</li>
-			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Confirm &amp; check in</span>. {l s='The system checks the room again before creating anything. If it needs cleaning or is occupied, save the reservation awaiting the room instead; it is not checked in.' mod='salisbergguide'}</li>
-			<li>{l s='The success page shows the booking reference, payment and balance. Open the stay, print its receipt when payment was confirmed, return to the room board, or start another walk-in.' mod='salisbergguide'}</li>
+			<li>{l s='For a ready room arriving today, click' mod='salisbergguide'} <span class="sb-btn">Confirm &amp; check in</span>. {l s='For a future stay, click Confirm reservation. The system checks the room again before creating anything. A dirty or occupied walk-in room can be saved awaiting the room instead.' mod='salisbergguide'}</li>
+			<li>{l s='The success page shows the booking reference, payment and balance. Open the stay, print its receipt when payment was confirmed, return to the room board, or start another booking.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-tip">{l s='For a future arrival the Room board button changes to Create reservation and hands the selected room and stay to the normal reservation completion page. A guest with an email receives the usual booking messages.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='For a future arrival the Room board button changes to Create reservation. The same Guest, Payment and Review steps are used, and the final button saves the reservation without checking the guest in.' mod='salisbergguide'}</p>
 		<p class="sb-warn">{l s='A typed payment reference is not proof of payment. Leave it unconfirmed until the money has actually arrived.' mod='salisbergguide'}</p>
-		<a class="sb-go" href="{$sb_links.AdminSalisbergRoomBoard|escape:'html':'UTF-8'}">{l s='Open Room board' mod='salisbergguide'} &rarr;</a>
+		<a class="sb-go" href="{$sb_links.AdminSalisbergRoomBoard|escape:'html':'UTF-8'}">{l s='Open Add new booking' mod='salisbergguide'} &rarr;</a>
 	</section>
 
 	<section id="sb-s4">
@@ -124,21 +122,21 @@
 
 	<section id="sb-s6">
 		<h3>6. {l s='Check a guest in and out' mod='salisbergguide'}</h3>
-		<h4>{l s='From the Today page (quickest)' mod='salisbergguide'}</h4>
+		<h4>{l s='From the Dashboard (quickest)' mod='salisbergguide'}</h4>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Today</span>.</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Dashboard</span> {l s='and use Today at the desk.' mod='salisbergguide'}</li>
 			<li>{l s='Arrivals lists the rooms due today, and any due earlier that have not arrived (marked Late). Check the Still to pay column and the Room is column: do not give out a room that is Dirty or Out of service.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='on the room. The time is recorded.' mod='salisbergguide'}</li>
 			<li>{l s='Departures lists the rooms due to leave today, and any that should already have left (marked Overdue). If money is still due, click the booking reference and take payment first (section 5).' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Check out</span>{l s='. The room is marked Dirty for housekeeping.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='Rooms in house lists every room with a guest in it right now. Unpaid bookings lists bookings with money still to pay; click Open booking to record a payment.' mod='salisbergguide'}</p>
-		<a class="sb-go" href="{$sb_links.AdminSalisbergToday|escape:'html':'UTF-8'}">{l s='Open Today' mod='salisbergguide'} &rarr;</a>
+		<a class="sb-go" href="{$sb_links.AdminDashboard|escape:'html':'UTF-8'}#sb-arrivals">{l s='Open Dashboard' mod='salisbergguide'} &rarr;</a>
 		<h4>{l s='Housekeeping' mod='salisbergguide'}</h4>
 		<ol>
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Housekeeping</span>. {l s='Click Clean, Dirty or Out of service at the top to list only those rooms.' mod='salisbergguide'}</li>
 			<li>{l s='When a room has been cleaned, click' mod='salisbergguide'} <span class="sb-btn">Mark clean</span>. {l s='Use Mark dirty if a room needs cleaning for any other reason.' mod='salisbergguide'}</li>
-			<li>{l s='For a room that cannot be used (repairs, a fault), click' mod='salisbergguide'} <span class="sb-btn">Out of service</span>. {l s='The room is no longer offered to guests, on the website or in Book Now. Click Back in service when it can be used again.' mod='salisbergguide'}</li>
+			<li>{l s='For a room that cannot be used (repairs, a fault), click' mod='salisbergguide'} <span class="sb-btn">Out of service</span>. {l s='The room is no longer offered to guests, on the website or in Add new booking. Click Back in service when it can be used again.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-warn">{l s='A room with a guest checked in cannot be taken out of service. If a room you take out of service has coming bookings, the page says so in red: tell your manager so those guests can be moved to another room.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminSalisbergHousekeeping|escape:'html':'UTF-8'}">{l s='Open Housekeeping' mod='salisbergguide'} &rarr;</a>

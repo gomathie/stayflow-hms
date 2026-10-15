@@ -93,7 +93,7 @@ class AdminSalisbergHousekeepingController extends ModuleAdminController
             'sb_show' => $show,
             'sb_can_edit' => (int) $this->tabAccess['edit'] === 1,
             'sb_action' => $self,
-            'sb_today_link' => $this->context->link->getAdminLink('AdminSalisbergToday'),
+            'sb_today_link' => $this->context->link->getAdminLink('AdminDashboard').'#sb-arrivals',
             'sb_css' => $this->module->getPathUri().'views/css/frontdesk.css',
         ));
         $this->content .= $this->context->smarty->fetch($this->module->getLocalPath().'views/templates/admin/housekeeping.tpl');

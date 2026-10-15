@@ -19,6 +19,20 @@
 	</div>
 
 	<section>
+		<h3>{l s='15 October 2026' mod='salisbergguide'}</h3>
+		<ul>
+			<li><strong>{l s='Add new booking now opens the Room board.' mod='salisbergguide'}</strong> {l s='Use the same guided Guest, Payment and Review steps for a walk-in or a future reservation. A walk-in can be checked in at the end; a future stay is saved without checking the guest in.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Today is now on the Dashboard.' mod='salisbergguide'}</strong> {l s='Arrivals, departures, rooms in house, unpaid bookings, Check in and Check out are available where the day starts, without a separate Today menu page.' mod='salisbergguide'}</li>
+		</ul>
+		{if $sb_can_read_admin_guide}
+		<h4>{l s='For the hotel manager' mod='salisbergguide'}</h4>
+		<ul>
+			<li><strong>{l s='Unused menu items removed.' mod='salisbergguide'}</strong> {l s='Channel Manager, Zones and Credit Slips are no longer shown. Their shared internal records were kept so countries, refunds and existing bookings continue to work.' mod='salisbergguide'}</li>
+		</ul>
+		{/if}
+	</section>
+
+	<section>
 		<h3>{l s='14 October 2026' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='Bookings, Bookings is now Bookings, Reservations.' mod='salisbergguide'}</strong> {l s='The list of every booking under the Bookings menu is called Reservations, so the section and its first page no longer share a name. The page heading inside still reads Orders for now.' mod='salisbergguide'}</li>

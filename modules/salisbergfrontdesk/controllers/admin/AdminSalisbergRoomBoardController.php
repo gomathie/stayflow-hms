@@ -60,13 +60,6 @@ class AdminSalisbergRoomBoardController extends ModuleAdminController
             if (!$this->errors) {
                 try {
                     $service = $this->module->getWalkInService();
-                    if ($request['stay']['arrival'] > $service->getBusinessDate()) {
-                        $cart = $service->createReservationCart($request['stay'], $idRoom);
-                        Tools::redirectAdmin(
-                            $this->context->link->getAdminLink('AdminOrders')
-                            .'&addorder=1&cart_id='.(int) $cart->id
-                        );
-                    }
                     $draft = $service->createDraft($request['stay'], $idRoom);
                     Tools::redirectAdmin(
                         $this->context->link->getAdminLink('AdminSalisbergWalkIn')
@@ -112,7 +105,7 @@ class AdminSalisbergRoomBoardController extends ModuleAdminController
             'sb_is_walkin' => $request['stay']['arrival'] == $service->getBusinessDate(),
             'sb_can_book' => (int) $this->tabAccess['edit'] === 1,
             'sb_action' => $this->context->link->getAdminLink('AdminSalisbergRoomBoard'),
-            'sb_today_link' => $this->context->link->getAdminLink('AdminSalisbergToday'),
+            'sb_today_link' => $this->context->link->getAdminLink('AdminDashboard').'#sb-arrivals',
             'sb_housekeeping_link' => $this->context->link->getAdminLink('AdminSalisbergHousekeeping'),
         ));
         $this->content .= $this->context->smarty->fetch(

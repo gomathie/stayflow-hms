@@ -4,6 +4,8 @@
 *}
 <link rel="stylesheet" href="{$sb_css|escape:'html':'UTF-8'}" type="text/css" />
 <div class="sb-desk">
+	{if $sb_on_dashboard && $sb_done == 'sb_check_in'}<div class="alert alert-success">{l s='The room is checked in.' mod='salisbergfrontdesk'}</div>{/if}
+	{if $sb_on_dashboard && $sb_done == 'sb_check_out'}<div class="alert alert-success">{l s='The room is checked out and marked for cleaning.' mod='salisbergfrontdesk'}</div>{/if}
 	<div class="sb-desk-head">
 		<div>
 			<h2>{l s='Today at the desk' mod='salisbergfrontdesk'}</h2>

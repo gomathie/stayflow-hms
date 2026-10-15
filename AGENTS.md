@@ -1800,3 +1800,22 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - **Verification (local, image rebuilt, headless Chrome as the Hotel Staff test account):** after Search the page scrolled to the room list (837px down; screenshot reviewed); one click on Add To Cart added the room (cart 0 to 1, row button became Remove) and the bar showed "1 selected for this booking, Total before tax: GH₵700.00"; Continue to guest and payment opened Bookings > Add new for that cart. A search for 2 adults and a 7-year-old, then one click, stored adults 2, children 1, ages ["7"] for the room. Leftover test carts were removed from the local database.
 - **Not tested:** a real browser by hand; a booking form with two rooms of different guests (each row takes the first room's guests; a different second room is set in its own Guests box); partially available rooms (same function, not exercised); phone width; the live server.
 - **Menu: the list of bookings is now "Reservations" (2026-10-14).** `$menuLabels` in `modules/salisbergguide/salisbergguide.php`: `AdminOrders` now lists the names it may still carry (`Orders` or `Bookings`) and becomes `Reservations`; `renameMenuEntries()` accepts a list (`MODULES_VERSION=23`). The section `AdminParentOrders` stays "Bookings". Staff Guide menu table and section 4 and Admin Guide section 14 say `Bookings > Reservations`. The page's own heading still reads "Orders" (vendor controller text, as recorded 2026-10-06). **Verified locally:** after a rebuild and a manual run of `setup-modules.php` the tab reads Reservations in the database and in the menu. **Not tested:** the live server, where the rename acts only while the entry still reads Orders or Bookings.
+
+### 2026-10-15 — Room board is the booking entry; Today moved to Dashboard; unused menus removed
+
+**What**
+
+- `Bookings > Add new booking` is now the `AdminSalisbergRoomBoard` tab. The Reservations toolbar button opens it, and the old `AdminHotelRoomsBooking` tab is hidden. Direct visits to the old room-search controller and `AdminOrders&addorder` redirect to Room board; its AJAX room-reallocation and swap endpoints remain available for existing bookings.
+- Future arrivals now enter the same guided Guest, Payment and Review workspace as walk-ins. Completion uses `reserve`, while only a ready same-day room offers `checkin`. The old visible cart/search/form pipeline is no longer used; the inherited Cart and hotel-cart records remain the booking engine's internal staging model.
+- The full Today workspace is rendered from `salisbergfrontdesk` on `dashboardTop`. Its hidden `AdminSalisbergToday` controller still validates Check in and Check out posts, then redirects back to Dashboard. The smaller stock `dashguestcycle` Operations Today zone is unhooked; its top summary badges remain.
+- Channel Manager is disabled on every module setup. `AdminQloappsChannelManagerConnector`, `AdminZones` and `AdminSlip` are inactive menu tabs. Zones and credit-slip classes/tables were deliberately retained because country/tax/address and refund/document workflows share them.
+- The CSRF token remains in back-office links. Removing it would weaken the inherited admin request protection and make refreshes/forms unreliable; this request was declined rather than replaced with a cosmetic URL rewrite.
+- `MODULES_VERSION=24`. Staff Guide sections 2, 3 and 6, Admin Guide sections 1 and 15, What's New, and `CHANGELOG.md` describe the resulting workflow and menu.
+
+**Why**
+
+- Staff had two competing booking entry points and the visible Add new booking route still opened the cart pipeline the Room board was meant to replace. Daily actions also belonged on the Dashboard instead of a separate Today page. Channel Manager, Zones and Credit Slips add navigation that this hotel does not use, but deleting their shared implementation would create avoidable breakage.
+
+**Verification**
+
+- Pending at implementation time: PHP lint, image rebuild/module setup v24, authenticated menu and redirect checks, Dashboard render, future-reservation guided flow, smoke test and application log review.

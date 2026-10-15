@@ -49,8 +49,8 @@
 		{if $sb_is_admin}
 		<p>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Permissions</span>, {l s='pick the profile on the left, and tick View, Add, Edit or Delete for each page. To create another role (for example Housekeeping), add it in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Profiles</span> {l s='first.' mod='salisbergguide'}</p>
 		<p>{l s='The What is New page under Guides is one of those pages: tick or untick View on its row to decide which profiles can read it. Hotel Staff and Hotel Manager have it to begin with.' mod='salisbergguide'}</p>
-		<p>{l s='The front desk pages are two more rows on this page: Today and Housekeeping (both under Bookings). View lets a profile see the page; Edit lets it check rooms in and out, and change a room to clean, dirty or out of service. Hotel Staff and Hotel Manager are given both when the pages are first created; what you change afterwards is kept.' mod='salisbergguide'}</p>
-		<p class="sb-warn">{l s='Anyone who takes bookings in Add new booking needs three things on this page, not one: View, Add and Edit on Bookings; View, Add and Edit on Booking Carts (under Customers); and the hotel ticked in the Hotel Permissions panel beside the grid. Without Add and Edit on Booking Carts the guest is never attached to the booking and the rooms stay in the cart. Without the hotel ticked, the booking is made but cannot be opened, and the dashboard shows no figures. Hotel Staff and Hotel Manager are given all three on every update.' mod='salisbergguide'}</p>
+		<p>{l s='The front desk permissions are Add new booking, Today and Housekeeping. Today is not a separate menu page: its View right shows Today at the desk on Dashboard, and Edit allows Check in and Check out there. Housekeeping Edit allows room state changes. Hotel Staff and Hotel Manager receive these rights when the pages are first created; later changes are kept.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='Anyone who takes bookings needs View and Edit on Add new booking, and the hotel ticked in the Hotel Permissions panel beside the grid. Without the hotel ticked, room availability and dashboard figures are empty. Hotel Staff and Hotel Manager are given both when the front desk pages are installed.' mod='salisbergguide'}</p>
 		{else}
 		<p>{l s='What each profile may open is set by the developer team. Tell them if a member of staff needs a page they cannot see, or should lose one.' mod='salisbergguide'}</p>
 		{/if}
@@ -315,9 +315,8 @@
 	<section id="sb-a15">
 		<h3>15. {l s='Showing or hiding menu sections' mod='salisbergguide'}</h3>
 		{if $sb_is_admin}
-		<p>{l s='Sections the hotel does not use can be taken out of the menu on the left, for everyone. Nothing is deleted or switched off: a hidden section only disappears from the menu, and its pages still open from the links in this guide for those with permission.' mod='salisbergguide'}</p>
+		<p>{l s='The technical Modules and Services section can be taken out of the menu on the left for everyone. Nothing is deleted or switched off: it only disappears from the menu.' mod='salisbergguide'}</p>
 		<ul>
-			<li><strong>Channel Manager</strong> &ndash; {l s='only needed if rooms are also sold through booking sites such as Booking.com or Expedia, and it does nothing until a channel manager service is bought and connected.' mod='salisbergguide'}</li>
 			<li><strong>Modules and Services</strong> &ndash; {l s='the building blocks of the system. Hide it to keep the menu short once setup is finished.' mod='salisbergguide'}</li>
 		</ul>
 		<form method="post" action="{$sb_links.AdminSalisbergAdminGuide|escape:'html':'UTF-8'}#sb-a15" class="sb-menu-form">
@@ -335,7 +334,7 @@
 			{/foreach}
 			<button type="submit" name="submitSbMenu" class="btn btn-primary">{l s='Save' mod='salisbergguide'}</button>
 		</form>
-		<p class="sb-tip">{l s='Each profile already sees only the sections it has permission for. Hotel Staff and Hotel Manager never see Modules and Services or Channel Manager, whatever is chosen here.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='Each profile already sees only the sections it has permission for. Hotel Staff and Hotel Manager never see Modules and Services, whatever is chosen here.' mod='salisbergguide'}</p>
 		{else}
 		<p class="sb-tip">{l s='This is looked after by the developer team. Ask them when it needs to change.' mod='salisbergguide'}</p>
 		{/if}

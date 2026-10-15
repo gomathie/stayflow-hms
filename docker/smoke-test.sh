@@ -76,9 +76,9 @@ if [ -n "$ADMIN_EMAIL" ] && [ -n "$ADMIN_PASSWORD" ]; then
         bad "administrator sign-in (no redirect returned; wrong ADMIN_EMAIL/ADMIN_PASSWORD in .env, or the sign-in limit was reached)"
     else
         ok "administrator sign-in"
-        page "dashboard" "$ADMIN_DIR/$target" "Dashboard"
+        page "dashboard and Today workspace" "$ADMIN_DIR/$target" "Today at the desk"
         # every other page is reached through the menu links on the dashboard, which carry their tokens
-        for controller in AdminOrders AdminProducts AdminCustomers AdminHotelRoomsBooking AdminSalisbergReports AdminSalisbergRoomBoard AdminSalisbergToday AdminSalisbergHousekeeping AdminEmployees AdminModules AdminSalisbergStaffGuide AdminInformation; do
+        for controller in AdminOrders AdminProducts AdminCustomers AdminSalisbergReports AdminSalisbergRoomBoard AdminSalisbergHousekeeping AdminEmployees AdminModules AdminSalisbergStaffGuide AdminInformation; do
             link=$(grep -o "index.php?controller=$controller&amp;token=[a-f0-9]*" "$BODY.dash" 2>/dev/null | head -1)
             [ -z "$link" ] && { cp "$BODY" "$BODY.dash" 2>/dev/null; link=$(grep -o "index.php?controller=$controller&amp;token=[a-f0-9]*" "$BODY.dash" | head -1); }
             if [ -z "$link" ]; then bad "$controller (no menu link found)"; continue; fi

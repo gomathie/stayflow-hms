@@ -340,7 +340,7 @@ class AdminOrdersControllerCore extends AdminController
     {
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_order'] = array(
-                'href' => self::$currentIndex.'&addorder&token='.$this->token,
+                'href' => $this->context->link->getAdminLink('AdminSalisbergRoomBoard'),
                 'desc' => $this->l('Add new booking', null, null, false),
                 'icon' => 'process-icon-new'
             );
@@ -387,7 +387,7 @@ class AdminOrdersControllerCore extends AdminController
 
                 if (empty($cart_detail_data) && empty($cartHotelProduct)) {
                     // if no rooms added in the cart and user visits add order page then redirect to BOOK NOW page
-                    Tools::redirectAdmin($this->context->link->getAdminLink('AdminHotelRoomsBooking'));
+                    Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergRoomBoard'));
                 }
 
                 $payment_modules = array();
@@ -426,11 +426,11 @@ class AdminOrdersControllerCore extends AdminController
                 ));
 
             } else {
-                Tools::redirectAdmin($this->context->link->getAdminLink('AdminHotelRoomsBooking'));
+                Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergRoomBoard'));
             }
             $this->context->smarty->assign('is_order_created', $cart_order_exists);
         } else {
-            Tools::redirectAdmin($this->context->link->getAdminLink('AdminHotelRoomsBooking'));
+            Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergRoomBoard'));
         }
 
         //end

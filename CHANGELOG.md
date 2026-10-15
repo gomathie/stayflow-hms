@@ -7,6 +7,17 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
+## 2026-10-15
+
+### Changed
+
+- **Add new booking now opens the Room board.** The Reservations toolbar button and the visible Bookings menu entry both start the guided flow. Walk-ins can be checked in at completion; future stays use the same Guest, Payment and Review steps and are saved as reservations without opening the old cart screens.
+- **Today is on the Dashboard.** Arrivals, departures, rooms in house, unpaid reservations, and the Check in and Check out actions are now part of the Dashboard instead of a separate Bookings menu page.
+
+### Removed
+
+- **Unused back-office menu items:** Channel Manager, Zones, Credit Slips, the old cart-based Add new booking page, and the separate Today page no longer appear in navigation. Shared geography, refund, and room-reallocation code remains in place so existing workflows are not broken; the Channel Manager module is disabled.
+
 ## 2026-10-14
 
 ### Added

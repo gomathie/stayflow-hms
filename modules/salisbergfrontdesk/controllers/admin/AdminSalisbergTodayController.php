@@ -1,8 +1,6 @@
 <?php
 /**
- * Bookings > Today: arrivals, departures, guests in house and unpaid
- * balances, with Check in and Check out buttons. Changing anything needs the
- * Edit right on this page.
+ * Hidden action controller for the Today workspace embedded on Dashboard.
  */
 class AdminSalisbergTodayController extends ModuleAdminController
 {
@@ -40,8 +38,9 @@ class AdminSalisbergTodayController extends ModuleAdminController
             } elseif ($error = $this->module->changeBookingStatus((int) Tools::getValue('id_booking'), $status)) {
                 $this->errors[] = $error;
             } else {
-                // back to the page with a plain address, so a refresh cannot repeat the change
-                Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergToday').'&sb_done='.$name);
+                // Return to Dashboard so a refresh cannot repeat the change.
+                $anchor = $name == 'sb_check_in' ? '#sb-arrivals' : '#sb-departures';
+                Tools::redirectAdmin($this->context->link->getAdminLink('AdminDashboard').'&sb_done='.$name.$anchor);
             }
         }
 
@@ -58,19 +57,7 @@ class AdminSalisbergTodayController extends ModuleAdminController
             $this->confirmations[] = $this->l('The room is checked out and marked for cleaning.');
         }
 
-        $today = $this->module->getToday();
-        $this->context->smarty->assign(array(
-            'sb_today' => $today,
-            'sb_date' => Tools::displayDate(date('Y-m-d')),
-            'sb_can_edit' => (int) $this->tabAccess['edit'] === 1,
-            'sb_action' => $this->context->link->getAdminLink('AdminSalisbergToday'),
-            'sb_booking_link' => $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order=',
-            'sb_housekeeping_link' => $this->context->link->getAdminLink('AdminSalisbergHousekeeping'),
-            'sb_book_link' => $this->context->link->getAdminLink('AdminSalisbergRoomBoard'),
-            'sb_expected' => HotelBookingDetail::STATUS_ALLOTED,
-            'sb_in' => HotelBookingDetail::STATUS_CHECKED_IN,
-            'sb_css' => $this->module->getPathUri().'views/css/frontdesk.css',
-        ));
+        $this->module->assignTodayTemplate((int) $this->tabAccess['edit'] === 1);
         $this->content .= $this->context->smarty->fetch($this->module->getLocalPath().'views/templates/admin/today.tpl');
         $this->context->smarty->assign('content', $this->content);
     }

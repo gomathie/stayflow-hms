@@ -372,11 +372,6 @@ class SalisbergWalkIn
         return new Cart((int) $cart->id);
     }
 
-    public function createReservationCart(array $stay, $idRoom)
-    {
-        return $this->createCart($stay, $idRoom);
-    }
-
     public function createDraft(array $stay, $idRoom)
     {
         $cart = $this->createCart($stay, $idRoom);

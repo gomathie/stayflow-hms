@@ -4,9 +4,10 @@
  *
  * Front-desk pages for the people at the desk and in housekeeping:
  *
- *  - Bookings > Room board: stay-wide availability and guided walk-ins.
- *  - Bookings > Today: today's arrivals, departures, guests in house and
- *    unpaid balances, with Check in and Check out buttons.
+ *  - Bookings > Add new booking: stay-wide availability and a guided flow
+ *    for both walk-ins and future reservations.
+ *  - Dashboard: today's arrivals, departures, guests in house and unpaid
+ *    balances, with Check in and Check out buttons.
  *  - Bookings > Housekeeping: every room with its state (clean, dirty, out of
  *    service) and buttons to change it.
  *
@@ -49,14 +50,14 @@ class Salisbergfrontdesk extends Module
     /** How far back an unpaid stay is still listed, in days */
     const UNPAID_DAYS = 30;
 
-    /** Profiles given both pages once, when the pages are first created */
+    /** Profiles given the front-desk pages once, when they are first created */
     protected static $profiles = array('Hotel Staff', 'Hotel Manager');
 
     public function __construct()
     {
         $this->name = 'salisbergfrontdesk';
         $this->tab = 'administration';
-        $this->version = '1.1.0';
+        $this->version = '1.2.0';
         $this->author = 'Salisberg Hotels';
         $this->bootstrap = true;
 
@@ -72,7 +73,7 @@ class Salisbergfrontdesk extends Module
     }
 
     /**
-     * Creates the table, the hook and the two menu entries if any is missing.
+     * Creates the table, hooks and menu entries if any is missing.
      * Safe to call on every deploy.
      */
     public function ensureSetup()
@@ -87,17 +88,69 @@ class Salisbergfrontdesk extends Module
             ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8'
         );
         $ok = SalisbergWalkIn::ensureTable() && $ok;
-        foreach (array('actionRoomBookingStatusUpdateAfter', 'actionOrderStatusPostUpdate') as $hook) {
+        foreach (array('actionRoomBookingStatusUpdateAfter', 'actionOrderStatusPostUpdate', 'dashboardTop') as $hook) {
             if (!$this->isRegisteredInHook($hook)) {
                 $ok = $this->registerHook($hook) && $ok;
             }
         }
 
-        return $ok
-            && $this->installTab(self::TAB_ROOM_BOARD, 'Room board', true)
-            && $this->installTab(self::TAB_TODAY, 'Today', false)
+        $ok = $ok
+            && $this->installTab(self::TAB_ROOM_BOARD, 'Add new booking', true)
+            && $this->installTab(self::TAB_TODAY, 'Today', false, true)
             && $this->installTab(self::TAB_HOUSEKEEPING, 'Housekeeping', false)
             && $this->installTab(self::TAB_WALK_IN, 'Walk-in booking', false, true);
+
+        return $this->configureTabs() && $this->replaceLegacyTodayWidget() && $ok;
+    }
+
+    /** Keep the booking entry visible and the Today action controller hidden. */
+    protected function configureTabs()
+    {
+        $idParent = (int) Tab::getIdFromClassName(self::TAB_PARENT);
+        $idBoard = (int) Tab::getIdFromClassName(self::TAB_ROOM_BOARD);
+        $idToday = (int) Tab::getIdFromClassName(self::TAB_TODAY);
+        $idLegacy = (int) Tab::getIdFromClassName('AdminHotelRoomsBooking');
+        if (!$idParent || !$idBoard || !$idToday) {
+            return false;
+        }
+        $ok = Db::getInstance()->update('tab', array(
+            'id_parent' => $idParent,
+            'active' => 1,
+            'position' => 0,
+        ), 'id_tab = '.$idBoard);
+        $ok = Db::getInstance()->update('tab', array(
+            'id_parent' => -1,
+            'active' => 1,
+        ), 'id_tab = '.$idToday) && $ok;
+        if ($idLegacy) {
+            // Keep the endpoint for room reallocation AJAX, but remove the old
+            // cart-based booking page from navigation.
+            $ok = Db::getInstance()->update('tab', array(
+                'id_parent' => -1,
+                'active' => 1,
+            ), 'id_tab = '.$idLegacy) && $ok;
+        }
+        foreach (Language::getLanguages(false) as $lang) {
+            $ok = Db::getInstance()->update('tab_lang', array(
+                'name' => pSQL($this->l('Add new booking')),
+            ), 'id_tab = '.$idBoard.' AND id_lang = '.(int) $lang['id_lang']) && $ok;
+        }
+
+        return $ok;
+    }
+
+    /** The richer desk view replaces the stock Operations Today dashboard box. */
+    protected function replaceLegacyTodayWidget()
+    {
+        if (!Module::isInstalled('dashguestcycle')) {
+            return true;
+        }
+        $module = Module::getInstanceByName('dashguestcycle');
+        if (!$module || !$module->isRegisteredInHook('dashboardZoneTwo')) {
+            return true;
+        }
+
+        return $module->unregisterHook('dashboardZoneTwo');
     }
 
     /**
@@ -169,6 +222,42 @@ class Salisbergfrontdesk extends Module
     public function getWalkInService()
     {
         return new SalisbergWalkIn($this);
+    }
+
+    /** Today's operational workspace, placed at full width on the Dashboard. */
+    public function hookDashboardTop()
+    {
+        if (Tools::getValue('controller') != 'AdminDashboard') {
+            return '';
+        }
+        $employee = $this->context->employee;
+        $idTab = (int) Tab::getIdFromClassName(self::TAB_TODAY);
+        $access = ($employee && $idTab) ? Profile::getProfileAccess((int) $employee->id_profile, $idTab) : array();
+        if (empty($access['view'])) {
+            return '';
+        }
+
+        $this->assignTodayTemplate((int) !empty($access['edit']), true);
+
+        return $this->context->smarty->fetch($this->local_path.'views/templates/admin/today.tpl');
+    }
+
+    public function assignTodayTemplate($canEdit, $onDashboard = false)
+    {
+        $this->context->smarty->assign(array(
+            'sb_today' => $this->getToday(),
+            'sb_date' => Tools::displayDate(date('Y-m-d')),
+            'sb_can_edit' => (int) $canEdit,
+            'sb_action' => $this->context->link->getAdminLink(self::TAB_TODAY),
+            'sb_booking_link' => $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order=',
+            'sb_housekeeping_link' => $this->context->link->getAdminLink(self::TAB_HOUSEKEEPING),
+            'sb_book_link' => $this->context->link->getAdminLink(self::TAB_ROOM_BOARD),
+            'sb_expected' => HotelBookingDetail::STATUS_ALLOTED,
+            'sb_in' => HotelBookingDetail::STATUS_CHECKED_IN,
+            'sb_css' => $this->getPathUri().'views/css/frontdesk.css',
+            'sb_on_dashboard' => (bool) $onDashboard,
+            'sb_done' => (string) Tools::getValue('sb_done'),
+        ));
     }
 
     /** A room whose guest has just been checked out needs cleaning */

@@ -1,6 +1,6 @@
 <?php
 /**
- * Guided same-day walk-in workspace: Stay, Guest, Payment and Review.
+ * Guided booking workspace: Stay, Guest, Payment and Review.
  *
  * Copyright (c) Salisberg
  * SPDX-License-Identifier: MIT
@@ -13,7 +13,7 @@ class AdminSalisbergWalkInController extends ModuleAdminController
     {
         $this->bootstrap = true;
         parent::__construct();
-        $this->meta_title = $this->l('Walk-in booking');
+        $this->meta_title = $this->l('Guided booking');
     }
 
     public function initToolbar()
@@ -182,6 +182,7 @@ class AdminSalisbergWalkInController extends ModuleAdminController
             'sb_payment' => $service->getPaymentSummary($draft['state']),
             'sb_tax_choice' => $taxChoice,
             'sb_success' => $success,
+            'sb_is_walkin' => $stay['arrival'] == $service->getBusinessDate(),
             'sb_price_changed' => !empty($draft['state']['price_changed']),
             'sb_action' => $this->context->link->getAdminLink('AdminSalisbergWalkIn').'&id_walkin_draft='.(int) $draft['id_walkin_draft'],
             'sb_search_url' => $this->context->link->getAdminLink('AdminSalisbergWalkIn').'&ajax=1&action=searchGuests',

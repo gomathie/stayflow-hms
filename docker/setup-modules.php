@@ -134,7 +134,8 @@ if ($idPay && $idGhana) {
 //  - bankwire, cheque: bank transfer is offered through Salisberg Pay, in the same way as Mobile Money
 //  - qlohotelreview: guest reviews are not in use; keeping it off also keeps its
 //    upload endpoint closed (CVE-2025-67325). Remove it from this list to use reviews.
-foreach (array('bankwire', 'cheque', 'qlohotelreview') as $name) {
+//  - qlochannelmanagerconnector: this hotel does not sell through a channel manager.
+foreach (array('bankwire', 'cheque', 'qlohotelreview', 'qlochannelmanagerconnector') as $name) {
     if (Module::isInstalled($name) && Module::isEnabled($name)) {
         Module::getInstanceByName($name)->disable();
         sb_log("$name disabled");

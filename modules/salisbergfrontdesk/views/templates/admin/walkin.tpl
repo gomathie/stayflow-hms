@@ -20,14 +20,14 @@
                 <a class="btn btn-primary" href="{$sb_order_link|escape:'html':'UTF-8'}">{l s='View stay' mod='salisbergfrontdesk'}</a>
                 {if $sb_success.has_payment}<a class="btn btn-default" href="{$sb_pdf_link|escape:'html':'UTF-8'}" target="_blank">{l s='Print receipt' mod='salisbergfrontdesk'}</a>{/if}
                 <a class="btn btn-default" href="{$sb_board_link|escape:'html':'UTF-8'}">{l s='Return to room board' mod='salisbergfrontdesk'}</a>
-                <a class="btn btn-default" href="{$sb_board_link|escape:'html':'UTF-8'}">{l s='Start another walk-in' mod='salisbergfrontdesk'}</a>
+                <a class="btn btn-default" href="{$sb_board_link|escape:'html':'UTF-8'}">{l s='Start another booking' mod='salisbergfrontdesk'}</a>
             </div>
         </div>
     {else}
         <div class="sb-fd-heading">
             <div>
                 <a class="sb-back-link" href="{$sb_board_link|escape:'html':'UTF-8'}"><i class="icon-arrow-left"></i> {l s='Back to room board' mod='salisbergfrontdesk'}</a>
-                <h2>{l s='Walk-in booking' mod='salisbergfrontdesk'} · {$sb_room.room_num|escape:'html':'UTF-8'}</h2>
+                <h2>{l s='Guided booking' mod='salisbergfrontdesk'} · {$sb_room.room_num|escape:'html':'UTF-8'}</h2>
             </div>
         </div>
 
@@ -118,8 +118,9 @@
                     </div>
                     <form method="post" action="{$sb_action|escape:'html':'UTF-8'}&amp;step=4" id="sb-finalize-form">
                         {if $sb_price_changed}<label class="sb-check sb-accept-price"><input type="checkbox" name="accept_price" value="1" required> <span>{l s='I accept the updated total shown above.' mod='salisbergfrontdesk'}</span></label>{/if}
-                        {if !$sb_room.readiness.ready}<div class="alert alert-warning">{l s='This room is available for the stay but is not ready for immediate check-in. Save the reservation; it will remain awaiting the room and will not mark the room occupied.' mod='salisbergfrontdesk'}</div>{/if}
-                        <div class="sb-step-actions"><a class="btn btn-default" href="{$sb_action|escape:'html':'UTF-8'}&amp;step=3"><i class="icon-arrow-left"></i> {l s='Back to payment' mod='salisbergfrontdesk'}</a>{if $sb_room.readiness.ready}<button class="btn btn-primary" type="submit" name="sb_finalize" value="checkin">{l s='Confirm & check in' mod='salisbergfrontdesk'} <i class="icon-ok"></i></button>{else}<button class="btn btn-primary" type="submit" name="sb_finalize" value="reserve">{l s='Save reservation — awaiting room' mod='salisbergfrontdesk'}</button>{/if}</div>
+                        {if $sb_is_walkin && !$sb_room.readiness.ready}<div class="alert alert-warning">{l s='This room is available for the stay but is not ready for immediate check-in. Save the reservation; it will remain awaiting the room and will not mark the room occupied.' mod='salisbergfrontdesk'}</div>{/if}
+                        {if !$sb_is_walkin}<div class="alert alert-info">{l s='This is a future stay. It will be saved as a reservation and will not be checked in today.' mod='salisbergfrontdesk'}</div>{/if}
+                        <div class="sb-step-actions"><a class="btn btn-default" href="{$sb_action|escape:'html':'UTF-8'}&amp;step=3"><i class="icon-arrow-left"></i> {l s='Back to payment' mod='salisbergfrontdesk'}</a>{if $sb_is_walkin && $sb_room.readiness.ready}<button class="btn btn-primary" type="submit" name="sb_finalize" value="checkin">{l s='Confirm & check in' mod='salisbergfrontdesk'} <i class="icon-ok"></i></button>{else}<button class="btn btn-primary" type="submit" name="sb_finalize" value="reserve">{if $sb_is_walkin}{l s='Save reservation — awaiting room' mod='salisbergfrontdesk'}{else}{l s='Confirm reservation' mod='salisbergfrontdesk'}{/if}</button>{/if}</div>
                     </form>
                 {/if}
             </main>

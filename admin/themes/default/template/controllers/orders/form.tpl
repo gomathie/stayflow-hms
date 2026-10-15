@@ -162,7 +162,7 @@
 							if (data.cart_rooms)
 								window.location.href = "{$link->getAdminLink('AdminOrders',true)}" + '&addorder&cart_id=' + idCart;
 							else
-								window.location.href = "{$link->getAdminLink('AdminHotelRoomsBooking',true)}";
+								window.location.href = "{$link->getAdminLink('AdminSalisbergRoomBoard',true)}";
 						}
 						else
 						{
