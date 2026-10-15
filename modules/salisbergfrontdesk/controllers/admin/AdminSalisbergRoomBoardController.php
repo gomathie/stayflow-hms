@@ -122,7 +122,7 @@ class AdminSalisbergRoomBoardController extends ModuleAdminController
                 if ($room['available'] && $room['readiness']['code'] == 'cleaning') {
                     ++$counts['cleaning'];
                 }
-                if ($selected && (int) $room['id_room'] == $selected) {
+                if ($selected && (int) $room['id_room'] == $selected && $room['available']) {
                     $selectedRoom = $room;
                 } elseif (!$fallbackRoom && $room['available']) {
                     $fallbackRoom = $room;

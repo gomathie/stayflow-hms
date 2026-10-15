@@ -236,14 +236,6 @@ class AdminSalisbergWalkInController extends ModuleAdminController
             );
         }
 
-        $editStayLink = $this->context->link->getAdminLink('AdminSalisbergRoomBoard')
-            .'&arrival='.urlencode($stay['arrival'])
-            .'&departure='.urlencode($stay['departure'])
-            .'&nights='.(int) $stay['nights']
-            .'&adults='.(int) $stay['adults']
-            .'&children='.(int) $stay['children']
-            .'&id_room='.(int) $stay['id_room'];
-
         $this->context->smarty->assign(array(
             'sb_draft' => $draft,
             'sb_state' => $draft['state'],
@@ -263,7 +255,6 @@ class AdminSalisbergWalkInController extends ModuleAdminController
             'sb_action' => $this->context->link->getAdminLink('AdminSalisbergWalkIn').'&id_walkin_draft='.(int) $draft['id_walkin_draft'],
             'sb_search_url' => $this->context->link->getAdminLink('AdminSalisbergWalkIn').'&ajax=1&action=searchGuests',
             'sb_board_link' => $this->context->link->getAdminLink('AdminSalisbergRoomBoard'),
-            'sb_edit_stay_link' => $editStayLink,
             'sb_order_link' => $success ? $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order='.(int) $success['id_order'] : '',
             'sb_pdf_link' => $success ? $this->context->link->getAdminLink('AdminPdf').'&submitAction=generateInvoicePDF&id_order='.(int) $success['id_order'] : '',
         ));

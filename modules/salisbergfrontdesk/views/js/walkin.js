@@ -2,6 +2,8 @@
 (function () {
     'use strict';
 
+    var currentGuests = [];
+
     function byId(id) {
         return document.getElementById(id);
     }
@@ -25,6 +27,7 @@
 
     function renderGuests(rows) {
         var target = byId('sb-guest-results');
+        currentGuests = rows;
         target.innerHTML = '';
         if (!rows.length) {
             var empty = document.createElement('p');
@@ -86,6 +89,12 @@
                 });
             }, 250);
         });
+        input.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' && currentGuests.length) {
+                event.preventDefault();
+                setGuest(currentGuests[0]);
+            }
+        });
         var change = byId('sb-change-guest');
         if (change) {
             change.addEventListener('click', function () {
@@ -94,6 +103,20 @@
                 byId('sb-new-guest').hidden = false;
                 input.focus();
             });
+        }
+        document.querySelectorAll('[data-use-guest]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                setGuest({
+                    id_customer: button.getAttribute('data-id'),
+                    firstname: button.getAttribute('data-firstname'),
+                    lastname: button.getAttribute('data-lastname'),
+                    phone: button.getAttribute('data-phone'),
+                    email: button.getAttribute('data-email')
+                });
+            });
+        });
+        if (!byId('sb-guest-id').value) {
+            input.focus();
         }
     }
 
@@ -136,6 +159,7 @@
             return;
         }
         var partial = byId('sb-partial-field');
+        var methodField = byId('sb-payment-method-field');
         var tendered = byId('sb-tendered-field');
         var reference = byId('sb-reference-field');
         var confirmed = byId('sb-confirmed-field');
@@ -150,16 +174,23 @@
             var method = selected('method');
             var arrangement = selected('arrangement');
             var isLater = arrangement === 'later';
+            methodField.hidden = isLater;
+            methodField.querySelectorAll('input').forEach(function (input) {
+                input.disabled = isLater;
+            });
             partial.hidden = arrangement !== 'partial';
             tendered.hidden = method !== 'cash' || isLater;
             reference.hidden = method === 'cash' || isLater;
             confirmed.hidden = isLater;
             confirmedInput.disabled = isLater;
             byId('sb-confirmed-label').textContent = method === 'cash'
-                ? 'I confirm the cash was received'
-                : 'I confirm this payment was received';
+                ? 'Cash received and verified'
+                : 'Payment received and verified';
             if (arrangement === 'full') {
                 amount.value = form.getAttribute('data-total');
+            }
+            if (method === 'cash' && !isLater && !cashTendered.value) {
+                cashTendered.value = arrangement === 'full' ? form.getAttribute('data-total') : amount.value;
             }
             updateChange();
         }
