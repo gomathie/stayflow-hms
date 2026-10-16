@@ -1531,8 +1531,24 @@ $(document).ready(function() {
     // ======================================
 
     // Start: Room status dropdown
+    $(document).on('click', '.sb-confirm-room-status', function(e) {
+        if (!window.confirm($(this).attr('data-confirm-message'))) {
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('change', '.sb-use-check-in-time', function() {
+        var timeInput = $(this).closest('.sb-room-status-form').find('.sb-check-in-time');
+        timeInput.toggle(this.checked).prop('required', this.checked);
+    });
+
     $(document).on('click', '.sb-room-status-option:not(:disabled)', function() {
-        $(this).closest('.sb-room-status-form').find('[name="status_date"]').val($(this).attr('data-status-date'));
+        var form = $(this).closest('.sb-room-status-form');
+        var statusDate = $(this).attr('data-status-date');
+        if ($(this).attr('data-is-check-in') === '1' && form.find('.sb-use-check-in-time').is(':checked')) {
+            statusDate = form.find('[name="date_from"]').val() + ' ' + form.find('.sb-check-in-time').val();
+        }
+        form.find('[name="status_date"]').val(statusDate);
     });
 
     // End: Room status dropdown

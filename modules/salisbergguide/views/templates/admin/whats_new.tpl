@@ -21,7 +21,7 @@
 	<section>
 		<h3>{l s='16 October 2026' mod='salisbergguide'}</h3>
 		<ul>
-			<li><strong>{l s='Room status changes are simpler.' mod='salisbergguide'}</strong> {l s='Choose a status from the Change room status dropdown beside the room; it is applied immediately with no extra save button. Check in and Check out remain one-click actions, and checking out marks the room Dirty for housekeeping.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Room status changes are simpler.' mod='salisbergguide'}</strong> {l s='Choose a status from the Change room status options beside the room; the Rooms Status section grows to show the complete list together without a scrollbar. The choice applies immediately with no extra save button. Check in and Check out ask for confirmation before changing the room status. For a check-in, optionally tick Set actual check-in time to use or adjust the current time. Checking out marks the room Dirty for housekeeping.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Booking details print as a customer-ready document.' mod='salisbergguide'}</strong> {l s='Use the browser Print command on a booking to print its reference, guest contact, room stay, payments, total and balance without back-office controls or private notes.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Confirm and check in now completes the booking.' mod='salisbergguide'}</strong> {l s='The booking is saved, the room is checked in, and the page shows the confirmation instead of staying on the Confirm step.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Bookings is now the first section after Dashboard.' mod='salisbergguide'}</strong> {l s='It sits above Rooms & Services in the left menu, because the front desk uses it all day.' mod='salisbergguide'}</li>

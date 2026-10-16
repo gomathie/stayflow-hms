@@ -120,7 +120,7 @@
                         <div class="panel-content">
                             <div class="row">
                                 <div class="col-lg-12 table-responsive" id="room_status_info_wrapper">
-                                    <table class="table">
+                                    <table class="table sb-room-status-table">
                                         <thead>
                                             <tr>
                                                 <th>{l s='Room'}</th>
@@ -182,14 +182,14 @@
                                                                 <form method="post" action="{$link->getAdminLink('AdminSalisbergToday')|escape:'html':'UTF-8'}" style="display:inline">
                                                                     <input type="hidden" name="id_booking" value="{$data['id']|intval}">
                                                                     <input type="hidden" name="id_order_back" value="{$data['id_order']|intval}">
-                                                                    <button type="submit" name="sb_check_in" value="1" class="btn btn-success"><i class="icon-signin"></i> {l s='Check in'}</button>
+                                                                    <button type="submit" name="sb_check_in" value="1" class="btn btn-success sb-confirm-room-status" data-confirm-message="{l s='Are you sure you want to check this guest in?'|escape:'html':'UTF-8'}"><i class="icon-signin"></i> {l s='Check in'}</button>
                                                                 </form>
                                                             {/if}
                                                             {if $can_edit && !$data.is_cancelled && !$data.is_refunded && $data['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}
                                                                 <form method="post" action="{$link->getAdminLink('AdminSalisbergToday')|escape:'html':'UTF-8'}" style="display:inline">
                                                                     <input type="hidden" name="id_booking" value="{$data['id']|intval}">
                                                                     <input type="hidden" name="id_order_back" value="{$data['id_order']|intval}">
-                                                                    <button type="submit" name="sb_check_out" value="1" class="btn btn-primary"><i class="icon-signout"></i> {l s='Check out'}</button>
+                                                                    <button type="submit" name="sb_check_out" value="1" class="btn btn-primary sb-confirm-room-status" data-confirm-message="{l s='Are you sure you want to check this guest out?'|escape:'html':'UTF-8'}"><i class="icon-signout"></i> {l s='Check out'}</button>
                                                                 </form>
                                                             {/if}
                                                             {if isset($refundReqBookings) && $refundReqBookings && $data.id|in_array:$refundReqBookings && $data.is_refunded}
@@ -207,9 +207,16 @@
                                                                         <input type="hidden" name="check_in_time" value="{$data['check_in_time']|escape:'html':'UTF-8'}">
                                                                         <input type="hidden" name="check_out_time" value="{$data['check_out_time']|escape:'html':'UTF-8'}">
                                                                         <input type="hidden" name="status_date" value="">
+                                                                        <div class="sb-check-in-time-override">
+                                                                            <label>
+                                                                                <input type="checkbox" class="sb-use-check-in-time">
+                                                                                {l s='Set actual check-in time'|escape:'html':'UTF-8'}
+                                                                            </label>
+                                                                            <input type="time" class="form-control sb-check-in-time" value="{$smarty.now|date_format:'%H:%M'|escape:'html':'UTF-8'}" style="display:none;">
+                                                                        </div>
                                                                         <div class="sb-room-status-options">
                                                                             {foreach from=$hotel_order_status item=state}
-                                                                                <button type="submit" name="booking_order_status" value="{$state['id_status']|intval}" class="sb-room-status-option"{if $state['id_status'] == $data['id_status']} disabled="disabled" aria-current="true"{/if} data-status-date="{if $state['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}{$data['date_from']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'} {$data['check_in_time']|escape:'html':'UTF-8'}{elseif $state['id_status'] == $hotel_order_status['STATUS_CHECKED_OUT']['id_status']}{$data['date_to']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'} {$data['check_out_time']|escape:'html':'UTF-8'}{/if}">{$state.name|escape:'html':'UTF-8'}</button>
+                                                                                <button type="submit" name="booking_order_status" value="{$state['id_status']|intval}" class="sb-room-status-option{if $state['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status'] || $state['id_status'] == $hotel_order_status['STATUS_CHECKED_OUT']['id_status']} sb-confirm-room-status{/if}"{if $state['id_status'] == $data['id_status']} disabled="disabled" aria-current="true"{/if}{if $state['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']} data-confirm-message="{l s='Are you sure you want to check this guest in?'|escape:'html':'UTF-8'}"{elseif $state['id_status'] == $hotel_order_status['STATUS_CHECKED_OUT']['id_status']} data-confirm-message="{l s='Are you sure you want to check this guest out?'|escape:'html':'UTF-8'}"{/if} data-is-check-in="{if $state['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}1{else}0{/if}" data-status-date="{if $state['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}{$data['date_from']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'} {$data['check_in_time']|escape:'html':'UTF-8'}{elseif $state['id_status'] == $hotel_order_status['STATUS_CHECKED_OUT']['id_status']}{$data['date_to']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'} {$data['check_out_time']|escape:'html':'UTF-8'}{/if}">{$state.name|escape:'html':'UTF-8'}</button>
                                                                             {/foreach}
                                                                         </div>
                                                                     </form>
