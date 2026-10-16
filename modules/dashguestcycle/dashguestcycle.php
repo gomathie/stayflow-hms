@@ -145,7 +145,7 @@ class DashGuestCycle extends Module
             'hotel' => array('title' => $this->l('Hotel'), 'class' => 'text-left'),
             'guests' => array('title' => $this->l('Guests'), 'class' => 'text-center'),
             'check_out' => array('title' => $this->l('Check-out (LOS)'), 'class' => 'text-left'),
-            'order_id' => array('title' => $this->l('Order ID'), 'class' => 'text-center'),
+            'order_id' => array('title' => $this->l('Booking ID'), 'class' => 'text-center'),
         );
 
         if ($idHotel != 0) {
@@ -205,7 +205,7 @@ class DashGuestCycle extends Module
             'hotel' => array('title' => $this->l('Hotel'), 'class' => 'text-left'),
             'guests' => array('title' => $this->l('Guests'), 'class' => 'text-center'),
             'check_in' => array('title' => $this->l('Check-in (LOS)'), 'class' => 'text-left'),
-            'order_id' => array('title' => $this->l('Order ID'), 'class' => 'text-center'),
+            'order_id' => array('title' => $this->l('Booking ID'), 'class' => 'text-center'),
         );
 
         if ($idHotel != 0) {
@@ -266,7 +266,7 @@ class DashGuestCycle extends Module
             'guests' => array('title' => $this->l('Guests'), 'class' => 'text-center'),
             'check_in' => array('title' => $this->l('Check-in'), 'class' => 'text-left'),
             'check_out' => array('title' => $this->l('Check-out (LOS)'), 'class' => 'text-left'),
-            'order_id' => array('title' => $this->l('Order ID'), 'class' => 'text-center'),
+            'order_id' => array('title' => $this->l('Booking ID'), 'class' => 'text-center'),
         );
 
         if ($idHotel != 0) {
@@ -324,13 +324,13 @@ class DashGuestCycle extends Module
     public function getNewBookingsTableContentsByDate($date, $idHotel)
     {
         $header = array(
-            'order_id' => array('title' => $this->l('Order ID'), 'class' => 'text-center'),
+            'order_id' => array('title' => $this->l('Booking ID'), 'class' => 'text-center'),
             'name' => array('title' => $this->l('Customer Name'), 'class' => 'text-left'),
             'hotel' => array('title' => $this->l('Hotel'), 'class' => 'text-left'),
             'total' => array('title' => $this->l('Total Rooms'), 'class' => 'text-center'),
             'guests' => array('title' => $this->l('Guests'), 'class' => 'text-center'),
-            'order_total' => array('title' => $this->l('Order Total'), 'class' => 'text-right'),
-            'order_status' => array('title' => $this->l('Order Status'), 'class' => 'text-left'),
+            'order_total' => array('title' => $this->l('Booking total'), 'class' => 'text-right'),
+            'order_status' => array('title' => $this->l('Booking status'), 'class' => 'text-left'),
         );
 
         if ($idHotel != 0) {
@@ -394,7 +394,7 @@ class DashGuestCycle extends Module
             'guests' => array('title' => $this->l('Guests'), 'class' => 'text-center'),
             'check_in' => array('title' => $this->l('Check-in'), 'class' => 'text-left'),
             'check_out' => array('title' => $this->l('Check-out'), 'class' => 'text-left'),
-            'order_id' => array('title' => $this->l('Order ID'), 'class' => 'text-center'),
+            'order_id' => array('title' => $this->l('Booking ID'), 'class' => 'text-center'),
         );
 
         if ($idHotel != 0) {

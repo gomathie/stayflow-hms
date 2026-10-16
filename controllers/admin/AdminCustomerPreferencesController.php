@@ -141,8 +141,8 @@ class AdminCustomerPreferencesControllerCore extends AdminController
                 'icon' => 'icon-cogs',
                 'fields' => array(
                     'PS_KPI_FREQUENT_CUSTOMER_NB_ORDERS' => array(
-                        'title' => $this->l('Number of orders to use to calculate frequent customers'),
-                        'hint' => $this->l('Set the number of orders to use to calculate frequent customers.'),
+                        'title' => $this->l('Number of bookings used to identify frequent guests'),
+                        'hint' => $this->l('Set the number of bookings used to identify frequent guests.'),
                         'validation' => 'isInt',
                         'cast' => 'intval',
                         'type' => 'text',

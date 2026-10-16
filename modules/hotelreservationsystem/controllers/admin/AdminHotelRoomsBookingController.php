@@ -49,6 +49,15 @@ class AdminHotelRoomsBookingController extends ModuleAdminController
     {
         parent::init();
 
+        // The Room board is the sole booking entry. This controller remains
+        // available only for the existing room reallocation/swap endpoints.
+        if (!Tools::getValue('ajax')
+            && !Tools::isSubmit('realloc_allocated_rooms')
+            && !Tools::isSubmit('swap_allocated_rooms')
+        ) {
+            Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergRoomBoard'));
+        }
+
         if (isset($this->context->cookie->id_cart)) {
             $objCart = new Cart($this->context->cookie->id_cart);
             if (Validate::isLoadedObject($objCart) && !$objCart->orderExists()) {

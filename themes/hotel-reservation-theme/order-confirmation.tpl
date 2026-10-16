@@ -24,7 +24,7 @@
 *}
 
 {block name='order_confirmation'}
-	{capture name=path}{l s='Order confirmation'}{/capture}
+	{capture name=path}{l s='Booking confirmation'}{/capture}
 	{block name='order_confirmation_heading'}
 		<h1 class="page-heading">{l s='Booking confirmation'} : <span class="bold">{$order->reference}</span></h1>
 	{/block}
@@ -55,7 +55,7 @@
 		{if isset($order->id) && $order->id}
 			{if $is_guest}
 				<p class="cart_navigation exclusive">
-				<a class="button-exclusive btn btn-default" href="{$link->getPageLink('guest-tracking', true, NULL, "id_order={$reference_order|urlencode}&email={$email|urlencode}")|escape:'html':'UTF-8'}" title="{l s='Follow my order'}"><i class="icon-chevron-left"></i>{l s='Follow my order'}</a>
+				<a class="button-exclusive btn btn-default" href="{$link->getPageLink('guest-tracking', true, NULL, "id_order={$reference_order|urlencode}&email={$email|urlencode}")|escape:'html':'UTF-8'}" title="{l s='Track my booking'}"><i class="icon-chevron-left"></i>{l s='Track my booking'}</a>
 				</p>
 			{else}
 				{if isset($is_free_order) && $is_free_order}
@@ -64,7 +64,7 @@
 				{if $any_back_order}
 					{if $shw_bo_msg}
 						<br>
-						<p class="back_o_msg"><strong><sup>*</sup>{l s='Some of your rooms are on back order. Please read the following message for rooms with status on backorder'}</strong></p>
+						<p class="back_o_msg"><strong><sup>*</sup>{l s='Some rooms are awaiting confirmation. Please read the message shown for those rooms.'}</strong></p>
 						<p>
 							-&nbsp;&nbsp;{$back_ord_msg}
 						</p>
@@ -395,7 +395,7 @@
 													{if isset($order_history[0]) && $order_history[0]}
 														<span{if isset($order_history[0].color) && $order_history[0].color} style="background-color:{$order_history[0].color|escape:'html':'UTF-8'}30; border: 1px solid {$order_history[0].color|escape:'html':'UTF-8'};" {/if} class="label">
 															{if $order_history[0].id_order_state|in_array:$overbooking_order_states}
-																{l s='Order Not Confirmed'}
+														{l s='Booking not confirmed'}
 															{else}
 																{$order_history[0].ostate_name|escape:'html':'UTF-8'}
 															{/if}
@@ -530,7 +530,7 @@
 					<br />{l s='If you have questions, comments or concerns, please contact our'} <a class="cust_serv_lnk" href="{$link->getPageLink('contact', true)|escape:'html'}">{l s='expert customer support team.'}</a>
 				</p>
 				<p class="cart_navigation exclusive">
-					<a class="btn" href="{$link->getPageLink('history', true)|escape:'html':'UTF-8'}" title="{l s='Go to your order history page'}"><i class="icon-chevron-left"></i>{l s='View your order history'}</a>
+					<a class="btn" href="{$link->getPageLink('history', true)|escape:'html':'UTF-8'}" title="{l s='Go to your booking history'}"><i class="icon-chevron-left"></i>{l s='View booking history'}</a>
 				</p>
 			{/if}
 		{/if}
@@ -557,7 +557,7 @@
 			{addJsDefL name=wait_stage_msg}{l s='Waiting' js=1}{/addJsDefL}
 			{addJsDefL name=pending_state_msg}{l s='Pending...' js=1}{/addJsDefL}
 			{addJsDefL name=mail_sending_err}{l s='Some error occurred while sending mail to the customer' js=1}{/addJsDefL}
-			{addJsDefL name=refund_request_sending_error}{l s='Some error occurred while processing request for order cancellation.' js=1}{/addJsDefL}
+			{addJsDefL name=refund_request_sending_error}{l s='An error occurred while processing the booking cancellation request.' js=1}{/addJsDefL}
 		{/strip}
 	{/block}
 {/block}

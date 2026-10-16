@@ -4,6 +4,8 @@
 *}
 <link rel="stylesheet" href="{$sb_css|escape:'html':'UTF-8'}" type="text/css" />
 <div class="sb-desk">
+	{if $sb_on_dashboard && $sb_done == 'sb_check_in'}<div class="alert alert-success">{l s='The room is checked in.' mod='salisbergfrontdesk'}</div>{/if}
+	{if $sb_on_dashboard && $sb_done == 'sb_check_out'}<div class="alert alert-success">{l s='The room is checked out and marked for cleaning.' mod='salisbergfrontdesk'}</div>{/if}
 	<div class="sb-desk-head">
 		<div>
 			<h2>{l s='Today at the desk' mod='salisbergfrontdesk'}</h2>
@@ -11,7 +13,7 @@
 		</div>
 		<div class="sb-desk-links">
 			<a class="btn btn-default" href="{$sb_housekeeping_link|escape:'html':'UTF-8'}"><i class="icon-home"></i> {l s='Housekeeping' mod='salisbergfrontdesk'}</a>
-			<a class="btn btn-primary" href="{$sb_book_link|escape:'html':'UTF-8'}"><i class="icon-plus"></i> {l s='Add new booking' mod='salisbergfrontdesk'}</a>
+			<a class="btn btn-primary" href="{$sb_book_link|escape:'html':'UTF-8'}"><i class="icon-th"></i> {l s='Open room board' mod='salisbergfrontdesk'}</a>
 		</div>
 	</div>
 

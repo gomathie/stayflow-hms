@@ -69,7 +69,7 @@ class AdminOrderMessageControllerCore extends AdminController
 
         $this->fields_form = array(
             'legend' => array(
-                'title' => $this->l('Order messages'),
+                'title' => $this->l('Booking messages'),
                 'icon' => 'icon-mail'
             ),
             'input' => array(
@@ -111,7 +111,7 @@ class AdminOrderMessageControllerCore extends AdminController
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_order_message'] = array(
                 'href' => self::$currentIndex.'&addorder_message&token='.$this->token,
-                'desc' => $this->l('Add new order message'),
+                'desc' => $this->l('Add new booking message'),
                 'icon' => 'process-icon-new'
             );
         }

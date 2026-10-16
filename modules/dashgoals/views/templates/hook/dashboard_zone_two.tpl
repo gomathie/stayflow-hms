@@ -83,9 +83,9 @@
 				</div>
 				<div class="col-xs-6 col-sm-3">
 					<label class="btn btn-default label-tooltip" style="background-color:{$colors[2]};"
-						data-toggle="tooltip" data-original-title="{l s="Average Order Value is the average amount spent on each booking over a given time period." mod='dashgoals'}">
+						data-toggle="tooltip" data-original-title="{l s="Average booking value is the average amount spent on each booking over a given period." mod='dashgoals'}">
 						<input type="radio" name="options" onchange="selectDashgoalsChart('avg_cart_value');"/>
-						{l s="Avg. Order Value" mod='dashgoals'}
+						{l s="Avg. booking value" mod='dashgoals'}
 					</label>
 				</div>
 			</div>

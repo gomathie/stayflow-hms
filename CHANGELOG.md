@@ -7,12 +7,58 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
+## 2026-10-16
+
+### Changed
+
+- **The selected room now comes first on the Room Board.** Its summary is on the left before the room list, and the action is consistently named **Continue to guest** for same-day and future bookings.
+- **Room types and matching counts stay together.** Each heading now reads like `Standard — 5 rooms`; the count updates with the active filter or search.
+- **Bookings is the consistent name.** Back-office menus, page headings, booking details, dashboard figures, the top-bar notification panel, statistics, reports and guest account labels no longer switch between Reservations and Orders. Internal controller, database and integration identifiers remain unchanged.
+- **Room Board summaries are easier to scan.** The selected-room card is wider, uses readable dates and guest wording, highlights the estimated total, and omits a redundant nightly breakdown unless rates vary during the stay.
+- Room cards now label capacity explicitly and show a check mark and accessible pressed state for the selected room. On smaller laptops the board switches to one column and keeps its Continue action visible instead of squeezing the summary beside the room grid.
+
+### Fixed
+
+- Long capacity and nightly-rate values in Selected room now wrap inside the card instead of crossing its divider or being clipped.
+
+### Removed
+
+- **New booking is no longer a permanent sidebar item.** Staff open **Bookings > Bookings** and use the **New booking** button; the hidden Room Board controller and legacy room-reallocation endpoint remain available where the workflow needs them.
+
+## 2026-10-15
+
+### Changed
+
+- **Add new booking now opens the Room board.** The Reservations toolbar button and the visible Bookings menu entry both start the guided flow. Walk-ins can be checked in at completion; future stays use the same Guest, Payment and Confirm steps and are saved as reservations without opening the old cart screens.
+- **Faster front-desk booking.** The Room board now puts available and ready rooms first and adds status filters, room search, compact cards, a recommended room and a persistent tablet/phone Continue action. The guide is reduced to Guest, Payment and Confirm; payment starts with Paid in full, Part payment or Pay later, and Pay later no longer asks for a payment method.
+- **Today is on the Dashboard.** Arrivals, departures, rooms in house, unpaid reservations, and the Check in and Check out actions are now part of the Dashboard instead of a separate Bookings menu page.
+
+### Added
+
+- **Resume unfinished bookings.** The Room board lists the current employee's active drafts with Resume and Discard actions. Discard releases the room and removes the unused internal cart.
+
+### Fixed
+
+- Guest details now remain in the form after validation fails, field errors appear beside the relevant input, exact phone matches rank first, and an existing matching guest can be selected immediately instead of retyping the booking.
+- Guided bookings can now be completed. Final confirmation previously built its draft and room locking queries as `FOR UPDATE LIMIT 1`, which MySQL rejects; they now use the required `LIMIT 1 FOR UPDATE` order while keeping the duplicate-confirmation locks.
+
+### Removed
+
+- **Unused back-office menu items:** Channel Manager, Zones, Credit Slips, the old cart-based Add new booking page, and the separate Today page no longer appear in navigation. Shared geography, refund, and room-reallocation code remains in place so existing workflows are not broken; the Channel Manager module is disabled.
+- **Dead code from the retired cart booking screen:** removed its sticky selection bar, automatic occupancy copy, result auto-scroll, obsolete per-booking tax field, and the deploy-time permission repair that only the old flow required. Shared Cart and room-reallocation code remains because live back-office pages still use it.
+
 ## 2026-10-14
 
 ### Added
 
+- **Bookings > Room board and guided walk-in check-in.** Choose dates and guests, see complete-stay availability separately from current room readiness, select a room, then work through Stay, Guest, Payment and Review without opening the old cart screens. Existing guests can be found by name, phone or email; new guests need no email. Full, part and pay-later arrangements keep pending money separate from confirmed money. Final confirmation checks availability, capacity, readiness and price again, prevents duplicate completion, then creates the normal booking and checks the room in. A future arrival goes to the existing reservation completion flow instead.
+- **Quicker Add new booking.** After Search the page scrolls to the free rooms; Add To Cart adds a room at the first click with the guests from the Booking Form (it used to open a second guest box and add nothing); a bar at the bottom of the screen shows the rooms chosen, the total, and a Continue to guest and payment button (the small Cart button in the calendar's corner was easy to miss). The cart window's Book Now button is now called Continue to guest and payment too.
 - **Charge tax switch on the booking form.** On Yes by default; staff choose No for a guest who is not to be charged tax, and only that booking is made without tax. A tick on Rooms & Services › Charges & Tax lets the manager remove the switch.
 - **Rooms & Services › Charges & Tax.** Tick or untick each charge added to every booking by itself, see how it is charged, and switch tax on or off. For the Hotel Manager and the developer team.
+
+### Changed
+
+- **Bookings › Bookings is now Bookings › Reservations** (the list of every booking), so the section and its first page no longer share a name. The guides use the new path.
 
 ### Fixed
 

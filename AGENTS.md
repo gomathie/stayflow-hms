@@ -1786,3 +1786,117 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - **Tax switch, as the Hotel Staff test account:** the switch is on the form; the same room type booked with Yes came to GH₵728 (GH₵700 + GH₵28 tax), with No to GH₵700, invoice GH₵700 / GH₵700; `PS_TAX` was still 1 afterwards. With the manager's tick off (set as SuperAdmin on Charges & Tax) the switch was gone from the form, and a booking posted with No anyway was charged tax (GH₵728). The tick was put back on.
 - `docker/smoke-test.sh` 31 of 31.
 - **Not tested:** a real browser on a real tablet or phone; Safari and Firefox; right-to-left; back office pages outside the 14 checked; the switch as Hotel Manager; the live server.
+
+### 2026-10-14 — Add new booking: one click per room, and the next step always in view
+
+- **Owner:** the back office booking flow is hard, especially choosing the room and the occupancy, and then having to open the cart, which staff sometimes do not see.
+- **Seen in screenshots taken as the Hotel Staff test account before changing anything:** (1) the guests chosen in the Booking Form were not used by the room rows; clicking Add To Cart on a row only opened that row's own guest box and added nothing, so every room needed the guests entered twice and a second click; (2) after Search the room list sat below the calendar and the counts, out of view; (3) the only way on was a small "Cart" button in the calendar panel's corner, then "Book Now" in a pop-up.
+- **Changes** (inherited `hotelreservationsystem` files, edited in place, rule 11):
+  - `views/js/admin/hotel_rooms_booking.js`: `useSearchOccupancy()`, called by both Add To Cart handlers (available and partially available rooms) before the row's guests are read. A row with no guests chosen takes the first room of the Booking Form's occupancy: adults, children and each child's age (the age boxes are built by triggering the platform's own change handler). A row whose guests were set by hand is left alone. `updateBookingBar()`, called from `refreshCartData()` and on page load, keeps the new bar's count, total and link in step with the cart.
+  - `views/templates/admin/hotel_rooms_booking/helpers/view/view.tpl`: the bar (`#sb-booking-bar`: rooms chosen, total before tax, Review selection opening the existing cart window, Continue to guest and payment going to the same address as the cart's old Book Now button); the room list wrapped in `#sb-room-results`; after a search (the search redirects to an address carrying `date_from`) the page scrolls to it.
+  - `_partials/booking-cart.tpl`: the cart window's "Book Now" now reads "Continue to guest and payment".
+  - Styles in `admin/themes/default/css/overrides.css` (section 7): the bar is fixed to the bottom of the content area, beside the side menu, and the page gets room below so nothing hides under it.
+- **Guide (rule 23):** Staff Guide section 3, steps rewritten. What's New (everyone); CHANGELOG.
+- **Verification (local, image rebuilt, headless Chrome as the Hotel Staff test account):** after Search the page scrolled to the room list (837px down; screenshot reviewed); one click on Add To Cart added the room (cart 0 to 1, row button became Remove) and the bar showed "1 selected for this booking, Total before tax: GH₵700.00"; Continue to guest and payment opened Bookings > Add new for that cart. A search for 2 adults and a 7-year-old, then one click, stored adults 2, children 1, ages ["7"] for the room. Leftover test carts were removed from the local database.
+- **Not tested:** a real browser by hand; a booking form with two rooms of different guests (each row takes the first room's guests; a different second room is set in its own Guests box); partially available rooms (same function, not exercised); phone width; the live server.
+- **Menu: the list of bookings is now "Reservations" (2026-10-14).** `$menuLabels` in `modules/salisbergguide/salisbergguide.php`: `AdminOrders` now lists the names it may still carry (`Orders` or `Bookings`) and becomes `Reservations`; `renameMenuEntries()` accepts a list (`MODULES_VERSION=23`). The section `AdminParentOrders` stays "Bookings". Staff Guide menu table and section 4 and Admin Guide section 14 say `Bookings > Reservations`. The page's own heading still reads "Orders" (vendor controller text, as recorded 2026-10-06). **Verified locally:** after a rebuild and a manual run of `setup-modules.php` the tab reads Reservations in the database and in the menu. **Not tested:** the live server, where the rename acts only while the entry still reads Orders or Bookings.
+
+### 2026-10-15 — Room board is the booking entry; Today moved to Dashboard; unused menus removed
+
+**What**
+
+- `Bookings > Add new booking` is now the `AdminSalisbergRoomBoard` tab. The Reservations toolbar button opens it, and the old `AdminHotelRoomsBooking` tab is hidden. Direct visits to the old room-search controller and `AdminOrders&addorder` redirect to Room board; its AJAX room-reallocation and swap endpoints remain available for existing bookings.
+- Future arrivals now enter the same guided Guest, Payment and Confirm workspace as walk-ins. Completion uses `reserve`, while only a ready same-day room offers `checkin`. The old visible cart/search/form pipeline is no longer used; the inherited Cart and hotel-cart records remain the booking engine's internal staging model.
+- The full Today workspace is rendered from `salisbergfrontdesk` on `dashboardTop`. Its hidden `AdminSalisbergToday` controller still validates Check in and Check out posts, then redirects back to Dashboard. The smaller stock `dashguestcycle` Operations Today zone is unhooked; its top summary badges remain.
+- Channel Manager is disabled on every module setup. `AdminQloappsChannelManagerConnector`, `AdminZones` and `AdminSlip` are inactive menu tabs. Zones and credit-slip classes/tables were deliberately retained because country/tax/address and refund/document workflows share them.
+- The CSRF token remains in back-office links. Removing it would weaken the inherited admin request protection and make refreshes/forms unreliable; this request was declined rather than replaced with a cosmetic URL rewrite.
+- Removed the custom sticky cart bar, result auto-scroll, search-occupancy copier, old `AdminOrders` per-booking tax field, and `salisbergguide::grantCartEditing()`. They served only the retired visible cart flow. `AdminCarts`, the hidden room-booking controller, and its base assets remain because dashboard/customer cart links and booking reallocation endpoints still reference them.
+- `MODULES_VERSION=24`. Staff Guide sections 2, 3 and 6, Admin Guide sections 1 and 15, What's New, and `CHANGELOG.md` describe the resulting workflow and menu.
+
+**Why**
+
+- Staff had two competing booking entry points and the visible Add new booking route still opened the cart pipeline the Room board was meant to replace. Daily actions also belonged on the Dashboard instead of a separate Today page. Channel Manager, Zones and Credit Slips add navigation that this hotel does not use, but deleting their shared implementation would create avoidable breakage.
+
+**Verification**
+
+- Built and restarted the local image. Module setup v24 completed and disabled `qlochannelmanagerconnector`; the application log contained no new PHP warning or error.
+- Confirmed in the database that Room board is the visible Add new booking tab, Today and the legacy room-booking controller are active but hidden, Channel Manager/Zones/Credit Slips are inactive, `salisbergfrontdesk` owns `dashboardTop`, and `dashguestcycle` is no longer attached to `dashboardZoneTwo`.
+- Authenticated checks confirmed Dashboard renders Today at the desk, both Add new entry points open Room board, direct legacy booking routes redirect to Room board, and the removed menu items do not render.
+- `docker/smoke-test.sh` passed all 30 checks. Repository-wide symbol searches after the cleanup found no code references to `sb-booking-bar`, `sb-room-results`, `useSearchOccupancy`, `updateBookingBar`, `sb_charge_tax`, or `grantCartEditing` outside historical records.
+
+### 2026-10-15 — Front-desk booking navigation simplified
+
+**What**
+
+- The Room board orders available ready rooms first, then other available rooms, and puts unavailable rooms last. It adds Available, Ready now, Needs cleaning and All rooms filters; room-number/type search; compact cards; a lowest-priced ready-room recommendation; availability counts; and a fixed Continue action on tablets and phones.
+- Active guided-booking drafts belonging to the signed-in employee appear on the Room board with Resume and Discard. Discard removes the unused hotel-cart rows and cart in a database transaction, then marks the draft discarded so held room availability is released cleanly.
+- The visible guide is three steps: Guest, Payment and Confirm. Stay remains an edit screen reached from the summary, while the existing internal step numbers remain unchanged to avoid a data migration.
+- Guest details survive validation errors and errors appear beside their fields. Search ranks exact phone and email matches first, Enter selects the first result, and a duplicate found while entering a new guest can be used directly. Changing away from an existing guest clears its details instead of silently carrying them into a new record.
+- Payment asks for Paid in full, Part payment or Pay later first. Pay later does not require or store a payment method; received money still requires Cash, Mobile Money or Bank transfer and confirmation. Cash tender follows the full or partial amount until the employee edits it.
+- Confirm and success remove repeated information while keeping the stay, guest, payment, balance and next actions visible. `salisbergfrontdesk` is version 1.3.1. Staff Guide section 3, What's New and `CHANGELOG.md` describe the changes.
+- Hotel Staff testing found that final confirmation could not execute either transaction lock: `Db::getRow()` and `getValue()` appended `LIMIT 1` after the supplied `FOR UPDATE`, producing invalid MySQL `FOR UPDATE LIMIT 1`. Both the draft and room locks now use an explicit uncached `SELECT ... LIMIT 1 FOR UPDATE`, preserving the concurrency protection instead of removing it.
+
+**Why**
+
+- Front-desk staff need to find a suitable room quickly, resume interrupted work without retyping it, and make the fewest decisions needed to complete a correct booking. Releasing abandoned drafts also prevents an unfinished internal cart from making a room appear unavailable.
+
+**How / safety**
+
+- Draft listing and discard are restricted to the current employee, and discard is a token-protected POST action through the existing admin controller. Room availability is checked again by the existing finalisation path before a reservation is created.
+- Finalisation locks the employee-owned draft and selected room inside the existing transaction before checking availability and creating the order. Locking selects bypass the query cache.
+- No schema was added: the existing draft JSON and internal cart remain the single staging model. Government ID type and number were not added because collecting sensitive identity data needs an explicit hotel requirement, retention period and access policy first.
+
+**Verification**
+
+- Rebuilt and restarted the local Docker image, then rebuilt it again after the locking correction so the fix is in the deployable image. The authenticated `docker/smoke-test.sh` suite passed 30 of 30 checks on PHP 8.3.35 and MySQL 8.0.46, including the Dashboard, Room board, guides and application log; no PHP warning or error was logged.
+- An authenticated UI check opened the Room board, found search, filters and the recommended room, created a draft, rendered Guest/Payment/Confirm, listed the draft under Unfinished bookings, resumed it, then discarded it. The database showed `status=discarded`, no cart and zero hotel-cart room rows.
+- A second draft submitted invalid guest details and retained the typed values and note with inline first-name and phone errors. It then selected an existing search result, saved Pay later without a payment method, reached Confirm with no payment recorded, and was discarded. Its cart and room hold were also absent afterward.
+- The first completion attempt as the Hotel Staff test employee exposed the two invalid locking queries. No order or payment was created; the failed draft was discarded, its cart and room hold were absent, its unused guest was removed, and the employee password hash was restored.
+- After correcting both locks, the same Hotel Staff profile completed future reservation `MJATYEKLB` (order 16) for room GR-105, 12–14 February 2027. The success page rendered, View stay opened without a permission error, and the reference appeared in Reservations. Database checks showed employee 3 (`staff.test@example.com`), complete draft 6, Awaiting payment, Pay later, GH₵416 total, GH₵0 paid, and allotted/reserved booking status. The employee password hash was restored after the test.
+- PHP syntax checks passed for the service, both controllers and module class; JavaScript syntax checks passed for Room board and walk-in scripts; `git diff --check` passed.
+- Not tested: visual interaction in a real browser, the Hotel Manager profile, a same-day check-in or confirmed payment, or the live server.
+
+### 2026-10-16 — Room board count and selected-room layout
+
+**What**
+
+- The count for each room type now sits in a small badge immediately beside the type name. `room-board.js` recalculates it after every status filter or room search, so it describes the rooms currently shown rather than the unfiltered total.
+- The selected-room column is 330–360px instead of 290px. Its detail grid now lets both columns shrink and wraps long values, preventing capacity and nightly rates from crossing the centre or right edge.
+- Check-in and check-out dates use `15 Oct 2026` consistently. Guest wording replaces the ambiguous `1 + 0`, Capacity is named on room cards, and a selected card has both a visible check mark and `aria-pressed=true`.
+- The estimated stay total is a separate highlighted row. The nightly-rate breakdown is hidden for a flat-rate stay and shown only when nightly prices differ.
+- Below 1200px the board becomes one column and the existing fixed Continue action appears, instead of squeezing the room grid and summary beside the 304px back-office menu.
+
+**Why**
+
+- At the width shown by the owner, `justify-content: space-between` made a room count look detached from its heading. The 290px summary and its max-content value column also caused long details to collide and overflow.
+
+**Guide**
+
+- Staff Guide section 3 now explains the filtered room-type count, simplified selected-room summary and conditional nightly breakdown. What's New and `CHANGELOG.md` describe the visible change.
+
+**Verification**
+
+- Rebuilt and restarted the local Docker stack after the Room board code change. `docker/smoke-test.sh` passed 30 of 30 checks on PHP 8.3.35 and MySQL 8.0.46, including the authenticated Room board, with no PHP error or warning in the application log.
+- PHP syntax checks passed for `SalisbergWalkIn.php` and `AdminSalisbergRoomBoardController.php`; the Room board JavaScript syntax check and `git diff --check` passed.
+- A temporary headless-Chrome visual checker did not start its debugging endpoint and was removed with its temporary browser profile. The final layout was therefore not claimed as visually checked; a real-browser screenshot at the owner's working width remains to be reviewed.
+- The Staff Guide, What's New and change-record edits were made after that successful build. A second rebuild was attempted, but Docker Desktop was no longer running (`dockerDesktopLinuxEngine` pipe absent), so those documentation-only edits were not rechecked in the container.
+
+### 2026-10-16 — Room board: selected room first; "Bookings" as the one name; New booking out of the side menu
+
+**What**
+
+- **Room board** (`modules/salisbergfrontdesk`): the Selected room panel is now first in the page and first in the grid (`.sb-board-layout` columns swapped, panel moved before `.sb-room-groups` in `room_board.tpl`), so it stays on top when the board collapses to one column. The primary button reads **Continue to guest** in both places (panel and the fixed phone bar) for same-day and future stays, since the next screen is Guest either way; the old "Book walk-in" wording is gone. Room-type headings read `Standard Room 1 — 5 rooms`: heading, dash and count badge on one row, and `room-board.js` still recalculates the count after a filter or search.
+- **Sidebar:** the Room board tab (`AdminSalisbergRoomBoard`, named "New booking") and the legacy `AdminHotelRoomsBooking` tab are active but parented to `-1`, so they are out of the menu and still open by link (`configureTabs()` in `salisbergfrontdesk.php`). The way in is the **New booking** button on Bookings > Bookings (`AdminOrdersController::initPageHeaderToolbar()`), the Today panel and the Staff Guide link. Direct requests to the old cart form (`addorder`, `submitAddOrder`) redirect to the Room board through `override/controllers/admin/AdminOrdersController.php`.
+- **"Bookings" everywhere a person reads it.** `$menuLabels` in `salisbergguide.php` now renames `AdminOrders` from Orders or Reservations to **Bookings** (a list of old names is accepted), and adds Order messages to Booking messages, Preferences > Orders to Bookings, and the refund rule and request pages to Refund rules and Refund requests. Visible text was changed in the inherited booking page heading, the customer view, overbooking panels, refund screens, order statuses and messages, search results, dashboard and statistics modules (`dashgoals`, `dashguestcycle`, `dashproducts`, `dashtrends`, `dashperformance`, `stats*`), the guest account pages of the website, and, found in this pass, the top-bar notification panel (`admin/themes/default/template/header.tpl`: Latest Bookings, Show all bookings, Booking number, View this booking). `MODULES_VERSION=25`.
+- **Left unchanged on purpose:** `AdminOrders`, `id_order`, `qlo_orders`, table, hook, controller and class names, URLs and the `orders` parameter of integrations (rules 12 and 29); renaming them would break the inherited booking engine. The `Order`-named files and hooks are not user-visible.
+- Guides (rule 23): Staff Guide menu table and sections 2, 3, 4, 6; Admin Guide paths (`Bookings > Bookings`, section 14); What's New and `CHANGELOG.md` (16 October).
+
+**Verification (local, image rebuilt, PHP 8.3.35 / MySQL 8.0.46)**
+
+- `docker/smoke-test.sh`: 30 of 30, before and after the notification-panel text change. The changed `header.tpl` was copied into the running container rather than rebuilt; the dashboard then showed Latest Bookings and Show all bookings and no Latest Orders.
+- Tabs after the deploy step (`Modules step v25 done`): AdminOrders "Bookings" (parent 9), AdminParentOrders "Bookings", AdminOrderMessage "Booking messages", AdminOrderRefundRequests "Refund requests"; Room board, Today and the legacy room-booking tab have `id_parent -1`.
+- As the Hotel Staff test account (driven with Node/fetch, every request in the order the page makes it): the sidebar lists no Add new booking, Today or Room board entry; Bookings opens with the heading "Bookings" and the New booking button; the Room board has Selected room before the room list, four headings with count badges and two "Continue to guest" buttons; a **future** booking (room DR-101, 15–17 Dec 2026) went Room board > Guest > Payment (Pay later) > Confirm with "reserve" and a draft marked complete, and a **same-day** booking offered and recorded "checkin" (room status 2); both appear in the Bookings list and the checked-in booking's page opens without a permission error. No PHP error or warning in the pages visited.
+- A scan of the visible text of Dashboard, Bookings, Invoices, Customers, Refund requests, Inbox, Housekeeping and the Staff Guide found "Order" only in the notification panel, since fixed in `header.tpl`.
+- A draft started from the Room board was listed under Unfinished bookings with Resume, then discarded: status `discarded`.
+- **Not tested:** the notification panel text in a rebuilt image; a real browser (visual layout of the Room board at 1200px and below); a part-paid or paid booking in this pass; Hotel Manager; the live server, where the rename acts only while a menu entry still carries one of its old names.
+- Test data left in the local database: bookings DSWMBYAHA and DWCIDNINW (guests "Flow Testerfuture" and "Flow Testertoday"). The Hotel Staff test account's password was set to a temporary value for the test and its old hash restored afterwards.

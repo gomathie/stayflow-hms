@@ -224,7 +224,7 @@ class StatsForecast extends Module
 						<th></th>
 						<th class="text-left"><span class="title_box active">'.$this->l('Visits').'</span></th>
 						<th class="text-left"><span class="title_box active">'.$this->l('Registrations').'</span></th>
-						<th class="text-left"><span class="title_box active">'.$this->l('Orders placed').'</span></th>
+						<th class="text-left"><span class="title_box active">'.$this->l('Bookings made').'</span></th>
 						<th class="text-left"><span class="title_box active">'.$this->l('Booked rooms').'</span></th>
 						<th class="text-left"><span class="title_box active">'.$this->l('Percentage of registrations').'</span></th>
 						<th class="text-left"><span class="title_box active">'.$this->l('Conversion rate').'</span></th>
@@ -282,7 +282,7 @@ class StatsForecast extends Module
 					<th></th>
                     <th class="text-left"><span class="title_box active">'.$this->l('Visits').'</span></th>
                     <th class="text-left"><span class="title_box active">'.$this->l('Registrations').'</span></th>
-                    <th class="text-left"><span class="title_box active">'.$this->l('Orders placed').'</span></th>
+                    <th class="text-left"><span class="title_box active">'.$this->l('Bookings made').'</span></th>
                     <th class="text-left"><span class="title_box active">'.$this->l('Booked rooms').'</span></th>
                     <th class="text-left"><span class="title_box active">'.$this->l('Percentage of registrations').'</span></th>
                     <th class="text-left"><span class="title_box active">'.$this->l('Conversion rate').'</span></th>
@@ -522,7 +522,7 @@ class StatsForecast extends Module
 					<thead>
 						<tr>
 							<th class="text-left"><span class="title_box active">'.$this->l('Module').'</span></th>
-							<th class="text-left"><span class="title_box active">'.$this->l('Orders').'</span></th>
+							<th class="text-left"><span class="title_box active">'.$this->l('Bookings').'</span></th>
 							<th class="text-left"><span class="title_box active">'.$this->l('Payment').'</span></th>
 							<th class="text-left"><span class="title_box active">'.$this->l('Percentage of orders').'</span></th>
 							<th class="text-left"><span class="title_box active">'.$this->l('Percentage of revenue').'</span></th>
@@ -588,7 +588,7 @@ class StatsForecast extends Module
 					<thead>
 						<tr>
 							<th class="text-left"><span class="title_box active">'.$this->l('Zone').'</span></th>
-							<th class="text-left"><span class="title_box active">'.$this->l('Orders').'</span></th>
+							<th class="text-left"><span class="title_box active">'.$this->l('Bookings').'</span></th>
 							<th class="text-left"><span class="title_box active">'.$this->l('Revenue').'</span></th>
 							<th class="text-left"><span class="title_box active">'.$this->l('Percentage of orders').'</span></th>
 							<th class="text-left"><span class="title_box active">'.$this->l('Percentage of revenue').'</span></th>
@@ -639,7 +639,7 @@ class StatsForecast extends Module
 					<thead>
 						<tr>
 							<th class="text-left"><span class="title_box active">'.$this->l('Currency').'</span></th>
-							<th class="text-left"><span class="title_box active">'.$this->l('Orders').'</span></th>
+							<th class="text-left"><span class="title_box active">'.$this->l('Bookings').'</span></th>
 							<th class="text-left"><span class="title_box active">'.$this->l('Revenue (converted)').'</span></th>
 							<th class="text-left"><span class="title_box active">'.$this->l('Percentage of orders').'</span></th>
 							<th class="text-left"><span class="title_box active">'.$this->l('Percentage of revenue').'</span></th>

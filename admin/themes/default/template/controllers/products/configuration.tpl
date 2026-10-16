@@ -510,7 +510,7 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th><span>{l s='Order'}</span></th>
+                                <th><span>{l s='Booking'}</span></th>
                                 <th><span>{l s='Date From'}</span></th>
                                 <th><span>{l s='Date To'}</span></th>
                             </tr>

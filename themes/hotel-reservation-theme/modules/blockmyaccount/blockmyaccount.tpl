@@ -33,8 +33,8 @@
 	<div class="block_content list-block">
 		<ul>
 			<li>
-				<a href="{$link->getPageLink('history', true)|escape:'html':'UTF-8'}" title="{l s='My orders' mod='blockmyaccount'}">
-					{l s='My orders' mod='blockmyaccount'}
+				<a href="{$link->getPageLink('history', true)|escape:'html':'UTF-8'}" title="{l s='My bookings' mod='blockmyaccount'}">
+					{l s='My bookings' mod='blockmyaccount'}
 				</a>
 			</li>
 			{if $returnAllowed}

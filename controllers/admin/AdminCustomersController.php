@@ -127,7 +127,7 @@ class AdminCustomersControllerCore extends AdminController
                 'filter_key' => 'a!id_default_group',
             ),
             'total_orders' => array(
-                'title' => $this->l('Number of orders'),
+                'title' => $this->l('Number of bookings'),
                 'type' => 'range',
                 'optional' => true,
                 'visible_default' => true,
@@ -192,7 +192,7 @@ class AdminCustomersControllerCore extends AdminController
                 'callback' => 'getCustomerStatusLabel',
             ),
             'order_date' => array(
-                'title' => $this->l('Order date'),
+                'title' => $this->l('Booking date'),
                 'type' => 'date',
                 'filter_key' => 'o!date_add',
                 'displayed' => false
@@ -757,10 +757,10 @@ class AdminCustomersControllerCore extends AdminController
         $helper->id = 'box-orders';
         $helper->icon = 'icon-shopping-cart';
         $helper->color = 'color1';
-        $helper->title = $this->l('Orders per Customer', null, null, false);
+        $helper->title = $this->l('Bookings per guest', null, null, false);
         $helper->subtitle = $this->l('All Time', null, null, false);
         $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=orders_per_customer';
-        $helper->tooltip = $this->l('The average number of orders placed per customer in given period of time.', null, null, false);
+        $helper->tooltip = $this->l('The average number of bookings per guest in the selected period.', null, null, false);
         $this->kpis[] = $helper;
 
         $helper = new HelperKpi();
@@ -911,7 +911,7 @@ class AdminCustomersControllerCore extends AdminController
         $orders_ko = array();
         foreach ($orders as $order) {
             if (!isset($order['order_state'])) {
-                $order['order_state'] = $this->l('There is no status defined for this order.');
+                $order['order_state'] = $this->l('There is no status defined for this booking.');
             }
 
             if ($order['valid']) {

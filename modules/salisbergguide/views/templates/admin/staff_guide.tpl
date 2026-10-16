@@ -40,15 +40,13 @@
 		<p>{l s='The section you are in lists its pages underneath it. For any other section, click the small arrow at the right of its name to list its pages, and click the arrow again to fold them away. Clicking the name itself opens the first page of that section.' mod='salisbergguide'}</p>
 		<table>
 			<tr><th>{l s='Menu' mod='salisbergguide'}</th><th>{l s='What it is for' mod='salisbergguide'}</th></tr>
-			<tr><td><span class="sb-path">Dashboard</span></td><td>{l s='Today at a glance: recent bookings and activity.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Bookings &rsaquo; Today</span></td><td>{l s='Start here each day: arrivals, departures, guests in house and unpaid bookings, with Check in and Check out buttons.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Dashboard</span></td><td>{l s='Start here each day: arrivals, departures, guests in house and unpaid bookings, with Check in and Check out buttons.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Housekeeping</span></td><td>{l s='Every room and whether it is clean, dirty or out of service.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Add new booking</span></td><td>{l s='See which rooms are free and make a booking for a guest.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Bookings &rsaquo; Bookings</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Bookings &rsaquo; Bookings</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it. Use New booking at the top of this page to make one.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Invoices</span></td><td>{l s='Every invoice and receipt, with what is paid and what is still owed.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records and their booking history.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Inbox</span></td><td>{l s='Messages guests send through the website.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Requests</span></td><td>{l s='Cancellation and refund requests from guests.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Refund requests</span></td><td>{l s='Cancellation and refund requests from guests.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Guides</span></td><td>{l s='This guide.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Guides &rsaquo; What's New</span></td><td>{l s='Recent changes to the system, newest first. Look here when something looks different.' mod='salisbergguide'}</td></tr>
 		</table>
@@ -57,23 +55,21 @@
 
 	<section id="sb-s3">
 		<h3>3. {l s='Make a booking for a guest' mod='salisbergguide'}</h3>
-		<p>{l s='Use this for walk-in guests and bookings taken by phone. The Add new booking button on the Bookings page opens the same thing.' mod='salisbergguide'}</p>
+		<p>{l s='New booking opens the Room board. It keeps room availability, readiness and every booking step together without opening the old booking cart screens.' mod='salisbergguide'}</p>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Add new booking</span>.</li>
-			<li>{l s='In the Booking Form, choose the check-in and check-out dates, the room type and the number of guests, then click' mod='salisbergguide'} <span class="sb-btn">Search</span>.</li>
-			<li>{l s='The calendar and room lists show what is free. Rooms are grouped as Available Rooms, Partially Available, Booked Rooms and Unavailable Rooms.' mod='salisbergguide'}</li>
-			<li>{l s='Pick a room, set the occupancy and click' mod='salisbergguide'} <span class="sb-btn">Add To Cart</span>. {l s='Repeat if the guest needs more than one room.' mod='salisbergguide'}</li>
-			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Book Now</span> {l s='to continue to the order form.' mod='salisbergguide'}</li>
-			<li>{l s='In the Guest box, type the first name, last name, phone and email of the guest and click' mod='salisbergguide'} <span class="sb-btn">Continue with this guest</span>. {l s='A phone number or an email is enough; give both when you can.' mod='salisbergguide'}</li>
-			<li>{l s='If the guest has stayed before (same email, or same phone number), their record is used and the page tells you so: check that the name shown is the right person, and click Change if it is not. If they are new, they are added.' mod='salisbergguide'}</li>
-			<li>{l s='You can also find a guest by name in Or search for a guest on record, and click Choose.' mod='salisbergguide'}</li>
-			<li>{l s='A guest with no email address is fine: leave Email address empty. They simply get no booking emails.' mod='salisbergguide'}</li>
-			<li>{l s='Charge tax is on Yes. Leave it there unless the guest is not to be charged tax; then choose No. Only that booking is made without tax. The totals shown above the switch still include tax; the booking and its invoice will not. If the switch is not on the form, every booking is charged tax.' mod='salisbergguide'}</li>
-			<li>{l s='Check the rooms, dates and total. Choose the payment method (Cash at hotel, Mobile Money or Bank transfer) and the status, then create the order.' mod='salisbergguide'}</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Bookings</span>, {l s='then click' mod='salisbergguide'} <span class="sb-btn">New booking</span>.</li>
+			<li>{l s='Choose arrival, departure, adults and children, then click' mod='salisbergguide'} <span class="sb-btn">Update availability</span>. {l s='Availability means the room is free for the whole stay. Ready, Needs cleaning and Occupied describe the room right now.' mod='salisbergguide'}</li>
+			<li>{l s='Available rooms are shown first. Use Ready now, Needs cleaning or All rooms to narrow the board, or type a room number or room type in Find. The count beside each room type changes to show how many rooms match. Recommended marks the lowest-priced ready room that fits the stay.' mod='salisbergguide'}</li>
+			<li>{l s='Selected room is on the left so its dates, guests and highlighted estimated total are visible first. Select another room card if needed, then click Continue to guest. A nightly breakdown appears only when the rate changes during the stay. On a smaller laptop, tablet or phone the Continue bar stays at the bottom of the screen.' mod='salisbergguide'}</li>
+			<li>{l s='Guest opens first because the room and stay are already complete. Search by name, phone or email and use the existing guest when there is a match. Press Enter to use the first search result. Otherwise enter first name, last name and phone; email is optional.' mod='salisbergguide'}</li>
+			<li>{l s='On Payment, first choose Paid in full, Part payment or Pay later. Pay later needs no payment method. For money received, choose Cash, Mobile Money or Bank transfer and confirm it only after the money is in hand or visible in the hotel account.' mod='salisbergguide'}</li>
+			<li>{l s='Confirm shows the guest, stay, total, confirmed payment and balance. Use an Edit link if anything is wrong.' mod='salisbergguide'}</li>
+			<li>{l s='For a ready room arriving today, click' mod='salisbergguide'} <span class="sb-btn">Confirm &amp; check in</span>. {l s='For a future stay, click Confirm booking. The system checks the room again before creating anything. A dirty or occupied walk-in room can be saved awaiting the room instead.' mod='salisbergguide'}</li>
+			<li>{l s='The success page shows the booking reference, payment and balance. Open the stay, print its receipt when payment was confirmed, or start another booking.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-tip">{l s='A guest with an email address is sent the booking confirmation by email when you create the booking, as long as Send mails is left on Yes on the order form.' mod='salisbergguide'}</p>
-		<p class="sb-tip">{l s='If the guest has not paid yet, leave the status as Awaiting payment. Change it only when the money has actually been received (see section 5).' mod='salisbergguide'}</p>
-		<a class="sb-go" href="{$sb_links.AdminHotelRoomsBooking|escape:'html':'UTF-8'}">{l s='Open Add new booking' mod='salisbergguide'} &rarr;</a>
+		<p class="sb-tip">{l s='If you leave before confirming, the Room board lists the unfinished booking. Resume it without retyping the details, or Discard it to release the room. For a future arrival, the same Guest, Payment and Confirm steps save a booking without checking the guest in.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='A typed payment reference is not proof of payment. Leave it unconfirmed until the money has actually arrived.' mod='salisbergguide'}</p>
+		<a class="sb-go" href="{$sb_links.AdminSalisbergRoomBoard|escape:'html':'UTF-8'}">{l s='Open New booking' mod='salisbergguide'} &rarr;</a>
 	</section>
 
 	<section id="sb-s4">
@@ -126,21 +122,21 @@
 
 	<section id="sb-s6">
 		<h3>6. {l s='Check a guest in and out' mod='salisbergguide'}</h3>
-		<h4>{l s='From the Today page (quickest)' mod='salisbergguide'}</h4>
+		<h4>{l s='From the Dashboard (quickest)' mod='salisbergguide'}</h4>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Today</span>.</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Dashboard</span> {l s='and use Today at the desk.' mod='salisbergguide'}</li>
 			<li>{l s='Arrivals lists the rooms due today, and any due earlier that have not arrived (marked Late). Check the Still to pay column and the Room is column: do not give out a room that is Dirty or Out of service.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='on the room. The time is recorded.' mod='salisbergguide'}</li>
 			<li>{l s='Departures lists the rooms due to leave today, and any that should already have left (marked Overdue). If money is still due, click the booking reference and take payment first (section 5).' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Check out</span>{l s='. The room is marked Dirty for housekeeping.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='Rooms in house lists every room with a guest in it right now. Unpaid bookings lists bookings with money still to pay; click Open booking to record a payment.' mod='salisbergguide'}</p>
-		<a class="sb-go" href="{$sb_links.AdminSalisbergToday|escape:'html':'UTF-8'}">{l s='Open Today' mod='salisbergguide'} &rarr;</a>
+		<a class="sb-go" href="{$sb_links.AdminDashboard|escape:'html':'UTF-8'}#sb-arrivals">{l s='Open Dashboard' mod='salisbergguide'} &rarr;</a>
 		<h4>{l s='Housekeeping' mod='salisbergguide'}</h4>
 		<ol>
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Housekeeping</span>. {l s='Click Clean, Dirty or Out of service at the top to list only those rooms.' mod='salisbergguide'}</li>
 			<li>{l s='When a room has been cleaned, click' mod='salisbergguide'} <span class="sb-btn">Mark clean</span>. {l s='Use Mark dirty if a room needs cleaning for any other reason.' mod='salisbergguide'}</li>
-			<li>{l s='For a room that cannot be used (repairs, a fault), click' mod='salisbergguide'} <span class="sb-btn">Out of service</span>. {l s='The room is no longer offered to guests, on the website or in Book Now. Click Back in service when it can be used again.' mod='salisbergguide'}</li>
+			<li>{l s='For a room that cannot be used (repairs, a fault), click' mod='salisbergguide'} <span class="sb-btn">Out of service</span>. {l s='The room is no longer offered to guests on the website or in New booking. Click Back in service when it can be used again.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-warn">{l s='A room with a guest checked in cannot be taken out of service. If a room you take out of service has coming bookings, the page says so in red: tell your manager so those guests can be moved to another room.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminSalisbergHousekeeping|escape:'html':'UTF-8'}">{l s='Open Housekeeping' mod='salisbergguide'} &rarr;</a>
@@ -161,7 +157,7 @@
 			<li><strong>{l s='Change dates, move room or add services:' mod='salisbergguide'}</strong> {l s='use' mod='salisbergguide'} <span class="sb-btn">Edit</span> {l s='on the room line. Dates cannot be changed after the guest has checked in or out.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Cancel:' mod='salisbergguide'}</strong> {l s='set the status to Canceled and click Update status. If the guest has already paid, follow the refund steps in section 9 instead.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Send the confirmation again:' mod='salisbergguide'}</strong> {l s='use Resend email in the status history.' mod='salisbergguide'}</li>
-			<li><strong>{l s='Print:' mod='salisbergguide'}</strong> <span class="sb-btn">Print order</span> {l s='at the top of the booking.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Print:' mod='salisbergguide'}</strong> <span class="sb-btn">Print booking</span> {l s='at the top of the booking.' mod='salisbergguide'}</li>
 		</ul>
 		<p class="sb-warn">{l s='You cannot delete bookings. If one was created by mistake, cancel it and add a private note explaining why.' mod='salisbergguide'}</p>
 	</section>
@@ -189,7 +185,7 @@
 		</ol>
 		<h4>{l s='Refund and cancellation requests' mod='salisbergguide'}</h4>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Requests</span>.</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Refund requests</span>.</li>
 			<li>{l s='Open the request to see the booking, the rooms and the reason.' mod='salisbergguide'}</li>
 			<li>{l s='Tell your manager before approving anything. How much is refunded depends on the hotel refund rules, which only an administrator can set.' mod='salisbergguide'}</li>
 		</ol>

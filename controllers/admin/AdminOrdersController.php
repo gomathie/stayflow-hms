@@ -220,7 +220,7 @@ class AdminOrdersControllerCore extends AdminController
                 'visible_default' => true
             ),
             'id_currency' => array(
-                'title' => $this->l('Order Currency'),
+                'title' => $this->l('Currency'),
                 'align' => 'text-center',
                 'type' => 'select',
                 'multiple' => true,
@@ -230,7 +230,7 @@ class AdminOrdersControllerCore extends AdminController
                 'displayed' => false,
             ),
             'total_paid_tax_incl' => array(
-                'title' => $this->l('Order Total'),
+                'title' => $this->l('Booking total'),
                 'align' => 'text-right',
                 'type' => 'range',
                 'validation' => 'isFloat',
@@ -242,7 +242,7 @@ class AdminOrdersControllerCore extends AdminController
                 'title' => $this->l('Payment')
             ),
             'order_source' => array(
-                'title' => $this->l('Order Source'),
+                'title' => $this->l('Booking source'),
                 'type' => 'select',
                 'filter_key' => 'a!source',
                 'list' => $this->all_order_sources,
@@ -262,7 +262,7 @@ class AdminOrdersControllerCore extends AdminController
                 'visible_default' => true
             ),
             'date_add' => array(
-                'title' => $this->l('Order date'),
+                'title' => $this->l('Booking date'),
                 'align' => 'text-right',
                 'type' => 'datetime',
                 'filter_key' => 'a!date_add',
@@ -308,7 +308,7 @@ class AdminOrdersControllerCore extends AdminController
         }
 
         $this->bulk_actions = array(
-            'updateOrderStatus' => array('text' => $this->l('Change Order Status'), 'icon' => 'icon-refresh')
+            'updateOrderStatus' => array('text' => $this->l('Change booking status'), 'icon' => 'icon-refresh')
         );
 
         // START send access query information to the admin controller
@@ -340,8 +340,8 @@ class AdminOrdersControllerCore extends AdminController
     {
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_order'] = array(
-                'href' => self::$currentIndex.'&addorder&token='.$this->token,
-                'desc' => $this->l('Add new booking', null, null, false),
+                'href' => $this->context->link->getAdminLink('AdminSalisbergRoomBoard'),
+                'desc' => $this->l('New booking', null, null, false),
                 'icon' => 'process-icon-new'
             );
         }
@@ -352,7 +352,7 @@ class AdminOrdersControllerCore extends AdminController
     public function renderForm()
     {
         if (Context::getContext()->shop->getContext() != Shop::CONTEXT_SHOP && Shop::isFeatureActive()) {
-            $this->errors[] = $this->l('You have to select a shop before creating new orders.');
+            $this->errors[] = $this->l('You have to select a shop before creating new bookings.');
         }
 
         // check page is new order creation page and cart id is set
@@ -387,7 +387,7 @@ class AdminOrdersControllerCore extends AdminController
 
                 if (empty($cart_detail_data) && empty($cartHotelProduct)) {
                     // if no rooms added in the cart and user visits add order page then redirect to BOOK NOW page
-                    Tools::redirectAdmin($this->context->link->getAdminLink('AdminHotelRoomsBooking'));
+                    Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergRoomBoard'));
                 }
 
                 $payment_modules = array();
@@ -426,11 +426,11 @@ class AdminOrdersControllerCore extends AdminController
                 ));
 
             } else {
-                Tools::redirectAdmin($this->context->link->getAdminLink('AdminHotelRoomsBooking'));
+                Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergRoomBoard'));
             }
             $this->context->smarty->assign('is_order_created', $cart_order_exists);
         } else {
-            Tools::redirectAdmin($this->context->link->getAdminLink('AdminHotelRoomsBooking'));
+            Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergRoomBoard'));
         }
 
         //end
@@ -445,7 +445,7 @@ class AdminOrdersControllerCore extends AdminController
             'toolbar_btn' => $this->toolbar_btn,
             'toolbar_scroll' => $this->toolbar_scroll,
             'PS_CATALOG_MODE' => Configuration::get('PS_CATALOG_MODE'),
-            'title' => array($this->l('Orders'), $this->l('Create order')),
+            'title' => array($this->l('Bookings'), $this->l('Create booking')),
         ));
 
         $this->content .= $this->createTemplate('form.tpl')->fetch();
@@ -479,7 +479,7 @@ class AdminOrdersControllerCore extends AdminController
                 $this->toolbar_btn['print'] = array(
                     'short' => $this->l('Print'),
                     'href' => 'javascript:window.print()',
-                    'desc' => $this->l('Print order'),
+                    'desc' => $this->l('Print booking'),
                     'class' => 'icon-print',
                 );
 
@@ -517,7 +517,7 @@ class AdminOrdersControllerCore extends AdminController
             $this->toolbar_title[] = $this->l('Add new');
         } elseif ($this->display != 'view') {
             array_pop($this->toolbar_title);
-            $this->toolbar_title[] = $this->l('Orders');
+            $this->toolbar_title[] = $this->l('Bookings');
         }
     }
 
@@ -668,7 +668,7 @@ class AdminOrdersControllerCore extends AdminController
             $modal = array(
                 'modal_id' => 'order-payment-modal',
                 'modal_class' => 'order_detail_modal',
-                'modal_title' => '<i class="icon icon-credit-card"></i> &nbsp'.$this->l('Order Payment'),
+                'modal_title' => '<i class="icon icon-credit-card"></i> &nbsp'.$this->l('Booking payment'),
                 'modal_content' => $this->context->smarty->fetch('controllers/orders/modals/_order_payment_form.tpl'),
                 'modal_actions' => array(
                     array(
@@ -1367,7 +1367,7 @@ class AdminOrdersControllerCore extends AdminController
             $this->tpl_list_vars['POST'] = $_POST;
         }
 
-        $this->tpl_list_vars['title'] = $this->l('Orders');
+        $this->tpl_list_vars['title'] = $this->l('Bookings');
 
         $this->_new_list_header_design = true;
 
@@ -1452,7 +1452,7 @@ class AdminOrdersControllerCore extends AdminController
                     'filter_key' => 'hbd!date_to',
                 ),
                 'date_add' => array(
-                    'title' => $this->l('Reservation Date'),
+                    'title' => $this->l('Booking date'),
                     'filter_key' => 'a!date_add',
                 ),
                 'room_status' => array(
@@ -1541,7 +1541,7 @@ class AdminOrdersControllerCore extends AdminController
                     }
                 }
             } else {
-                $this->errors[] = $this->l('You do not have permission to edit this order.');
+                $this->errors[] = $this->l('You do not have permission to edit this booking.');
             }
         }
 
@@ -1583,7 +1583,7 @@ class AdminOrdersControllerCore extends AdminController
                     }
                 }
             } else {
-                $this->errors[] = $this->l('You do not have permission to edit this order.');
+                $this->errors[] = $this->l('You do not have permission to edit this booking.');
             }
         }
         // To update order status when admin changes from order detail page
@@ -1591,7 +1591,7 @@ class AdminOrdersControllerCore extends AdminController
             if ($this->tabAccess['edit'] === 1) {
                 $this->changeRoomStatus();
             } else {
-                $this->errors[] = $this->l('You do not have permission to edit this order.');
+                $this->errors[] = $this->l('You do not have permission to edit this booking.');
             }
         }
 
@@ -2138,7 +2138,7 @@ class AdminOrdersControllerCore extends AdminController
                             $idOrderState,
                             $amountPaid,
                             $objPaymentModule->displayName,
-                            $this->l('Manual order -- Employee:').' '.substr($objEmployee->firstname, 0, 1).'. '.$objEmployee->lastname,
+                            $this->l('Manual booking -- Employee:').' '.substr($objEmployee->firstname, 0, 1).'. '.$objEmployee->lastname,
                             $extraVars,
                             null,
                             false,
@@ -2826,8 +2826,8 @@ class AdminOrdersControllerCore extends AdminController
             $helper->id = 'box-order-date';
             $helper->icon = 'icon-calendar';
             $helper->color = 'color1';
-            $helper->title = $this->l('Order Date');
-            $helper->tooltip = $this->l('The date when the order was placed.');
+            $helper->title = $this->l('Booking date');
+            $helper->tooltip = $this->l('The date when the booking was made.');
             $helper->value = Tools::displayDate($objOrder->date_add);
             $this->kpis[] = $helper;
 
@@ -2836,7 +2836,7 @@ class AdminOrdersControllerCore extends AdminController
             $helper->icon = 'icon-money';
             $helper->color = 'color3';
             $helper->title = $this->l('Bookings Total');
-            $helper->tooltip = $this->l('Total booking amount of this order.');
+            $helper->tooltip = $this->l('Total amount of this booking.');
             $helper->value = Tools::displayPrice($objOrder->total_paid_tax_incl, new Currency($objOrder->id_currency));
             $this->kpis[] = $helper;
 
@@ -2845,7 +2845,7 @@ class AdminOrdersControllerCore extends AdminController
             $helper->icon = 'icon-money';
             $helper->color = 'color4';
             $helper->title = $this->l('Total Paid');
-            $helper->tooltip = $this->l('Total paid is the amount which customer has already paid for this order.');
+            $helper->tooltip = $this->l('Total paid is the amount the guest has already paid for this booking.');
             $helper->value = Tools::displayPrice($objOrder->total_paid_real, new Currency($objOrder->id_currency));
             $this->kpis[] = $helper;
 
@@ -2854,7 +2854,7 @@ class AdminOrdersControllerCore extends AdminController
             $helper->icon = 'icon-money';
             $helper->color = 'color2';
             $helper->title = $this->l('Total Due');
-            $helper->tooltip = $this->l('Total due is the amount which customer has to pay for this order.');
+            $helper->tooltip = $this->l('Total due is the amount the guest still has to pay for this booking.');
             $helper->value = Tools::displayPrice(($objOrder->total_paid_tax_incl - $objOrder->total_paid_real), new Currency($objOrder->id_currency));
             $this->kpis[] = $helper;
 
@@ -2863,8 +2863,8 @@ class AdminOrdersControllerCore extends AdminController
             $helper->id = 'box-order-source';
             $helper->icon = 'icon-globe';
             $helper->color = 'color1';
-            $helper->title = $this->l('Order Source');
-            $helper->tooltip = $this->l('Order source shows from which source the order was placed.');
+            $helper->title = $this->l('Booking source');
+            $helper->tooltip = $this->l('Booking source shows where the booking was made.');
             $helper->subtitle = $orderHistory[0]['id_employee'] ? $this->l('Back office') : $this->l('Front office');
             $helper->value = $objOrder->source;
             $this->kpis[] = $helper;
@@ -2876,7 +2876,7 @@ class AdminOrdersControllerCore extends AdminController
             $helper->icon = 'icon-comments';
             $helper->color = 'color2';
             $helper->title = $this->l('Messages');
-            $helper->tooltip = $this->l('Messages is the number of customer messages for this order.');
+            $helper->tooltip = $this->l('Messages is the number of guest messages for this booking.');
             $helper->href = $this->context->link->getAdminLink('AdminCustomerThreads').((int) $idCustomerThread ? '&viewcustomer_thread&id_customer_thread='.(int) $idCustomerThread : '');
             $helper->value = count(CustomerThread::getCustomerMessages($objOrder->id_customer, null, $objOrder->id, CustomerMessage::QLO_CUSTOMER_MESSAGE_BY_CUSTOMER));
             $this->kpis[] = $helper;
@@ -2888,7 +2888,7 @@ class AdminOrdersControllerCore extends AdminController
             $helper->icon = 'icon-home';
             $helper->color = 'color1';
             $helper->title = $this->l('Total Rooms');
-            $helper->tooltip = $this->l('Total rooms is the number of rooms booked in this order.');
+            $helper->tooltip = $this->l('Total rooms is the number of rooms in this booking.');
             $helper->href = '#start_products';
             $helper->value = $numRooms;
             $this->kpis[] = $helper;
@@ -2904,7 +2904,7 @@ class AdminOrdersControllerCore extends AdminController
                 $helper->icon = 'icon-home';
                 $helper->color = 'color1';
                 $helper->title = $this->l('Total Products');
-                $helper->tooltip = $this->l('Total products is the number of product quantities booked in this order.');
+                $helper->tooltip = $this->l('Total products is the number of product quantities in this booking.');
                 $helper->href = '#start_products';
 
                 $totalProductQuantity = 0;
@@ -2931,7 +2931,7 @@ class AdminOrdersControllerCore extends AdminController
             $helper->icon = 'icon-home';
             $helper->color = 'color3';
             $helper->title = $this->l('Initial Payment Status');
-            $helper->tooltip = $this->l('Initial Payment Status defines whether the order was fully paid, partially paid, or had no payment received at the time the order was placed.');
+            $helper->tooltip = $this->l('Initial payment status shows whether the booking was fully paid, partly paid, or unpaid when it was made.');
             $helper->value = $initialPaymentStatus;
             $this->kpis[] = $helper;
 
@@ -2941,7 +2941,7 @@ class AdminOrdersControllerCore extends AdminController
                 $helper->icon = 'icon-money';
                 $helper->color = 'color4';
                 $helper->title = $this->l('Partial Payment Amount');
-                $helper->tooltip = $this->l('Partial payment amount refers to the amount that customer has to pay as advance payment, if payment type selected as partial payment while placing this order.');
+                $helper->tooltip = $this->l('Partial payment amount is the advance amount due when part payment was selected for this booking.');
                 $helper->value = Tools::displayPrice($objOrder->advance_paid_amount, new Currency($objOrder->id_currency));
                 $this->kpis[] = $helper;
             }
@@ -2956,7 +2956,7 @@ class AdminOrdersControllerCore extends AdminController
                 $helper->icon = 'icon-money';
                 $helper->color = 'color3';
                 $helper->title = $this->l('Refunded Amount');
-                $helper->tooltip = $this->l('Refunded amount refers to the amount that has been refunded for this order.');
+                $helper->tooltip = $this->l('Refunded amount is the amount returned for this booking.');
                 $helper->value = Tools::displayPrice($refundedAmount, new Currency($objOrder->id_currency));
                 $this->kpis[] = $helper;
             }
@@ -2970,7 +2970,7 @@ class AdminOrdersControllerCore extends AdminController
             $helper->color = 'color4';
             $helper->title = $this->l('Total Sales', null, null, false);
             $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_sales';
-            $helper->tooltip = $this->l('Total sales/revenue of all the orders created.', null, null, false);
+            $helper->tooltip = $this->l('Total sales from all bookings created.', null, null, false);
             $this->kpis[] = $helper;
 
             $helper = new HelperKpi();
@@ -2995,7 +2995,7 @@ class AdminOrdersControllerCore extends AdminController
             }
             $helper->href = $this->context->link->getAdminLink('AdminOrders').'&submitResetorder&submitFilterorder=1&orderFilter_amount_due%5B0%5D='.$minValue.$validOrderStatesFilter;
             $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_due_amount';
-            $helper->tooltip = $this->l('Total due amount of all the orders created.', null, null, false);
+            $helper->tooltip = $this->l('Total amount still due across all bookings.', null, null, false);
             $this->kpis[] = $helper;
 
             $arivalDate = date('Y-m-d');
@@ -3060,7 +3060,7 @@ class AdminOrdersControllerCore extends AdminController
                 $helper->subtitle = $daysForConversionRate.' '.$this->l('days', null, null, false);
             }
             $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=conversion_rate';
-            $helper->tooltip = sprintf($this->l('Percentage of visits that resulted in an order/booking in last %s day(s).', null, null, false), $daysForConversionRate);
+            $helper->tooltip = sprintf($this->l('Percentage of visits that resulted in a booking in the last %s day(s).', null, null, false), $daysForConversionRate);
             $this->kpis[] = $helper;
 
             $daysForAvgOrderVal = Configuration::get('PS_ORDER_KPI_AVG_ORDER_VALUE_NB_DAYS');
@@ -3068,14 +3068,14 @@ class AdminOrdersControllerCore extends AdminController
             $helper->id = 'box-average-order';
             $helper->icon = 'icon-money';
             $helper->color = 'color3';
-            $helper->title = $this->l('Average Order Value', null, null, false);
+            $helper->title = $this->l('Average booking value', null, null, false);
             if ($daysForAvgOrderVal == 1) {
                 $helper->subtitle = $daysForAvgOrderVal.' '.$this->l('day', null, null, false);
             } else {
                 $helper->subtitle = $daysForAvgOrderVal.' '.$this->l('days', null, null, false);
             }
             $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=average_order_value';
-            $helper->tooltip = sprintf($this->l('Total average order value without tax in the last %s day(s).', null, null, false), $daysForAvgOrderVal);
+            $helper->tooltip = sprintf($this->l('Average booking value without tax in the last %s day(s).', null, null, false), $daysForAvgOrderVal);
             $this->kpis[] = $helper;
 
             $helper = new HelperKpi();
@@ -3148,9 +3148,9 @@ class AdminOrdersControllerCore extends AdminController
 
         if ($addressTax->id_hotel) {
             $objHotelBranchInformation = new HotelBranchInformation($addressTax->id_hotel, $this->context->language->id);
-            $this->toolbar_title = sprintf($this->l('Order %1$s - %2$s'), $order->reference, $objHotelBranchInformation->hotel_name);
+            $this->toolbar_title = sprintf($this->l('Booking %1$s - %2$s'), $order->reference, $objHotelBranchInformation->hotel_name);
         } else {
-            $this->toolbar_title = sprintf($this->l('Order %1$s'), $order->reference);
+            $this->toolbar_title = sprintf($this->l('Booking %1$s'), $order->reference);
         }
         if (Shop::isFeatureActive()) {
             $shop = new Shop((int)$order->id_shop);
@@ -5558,7 +5558,7 @@ class AdminOrdersControllerCore extends AdminController
                         Configuration::get('PS_OS_AWAITING_PAYMENT'),
                         0,
                         $objPaymentModule->displayName,
-                        $this->l('Manual order -- Employee:').' '.substr($objEmployee->firstname, 0, 1).'. '.$objEmployee->lastname,
+                        $this->l('Manual booking -- Employee:').' '.substr($objEmployee->firstname, 0, 1).'. '.$objEmployee->lastname,
                         null,
                         null,
                         false,
@@ -8301,7 +8301,7 @@ class AdminOrdersControllerCore extends AdminController
             }
         } else {
             $response['hasError'] = true;
-            $response['errors'] = $this->l('You do not have permission to edit this order.');
+            $response['errors'] = $this->l('You do not have permission to edit this booking.');
         }
 
         $this->ajaxDie(json_encode($response));

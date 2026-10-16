@@ -255,9 +255,9 @@ $(function() {
 		<div class="panel">
 			<h3>
 				{if $num_orders == 1}
-					{l s='1 order'}
+					{l s='1 booking'}
 				{else}
-					{l s='%d orders' sprintf=$num_orders}
+					{l s='%d bookings' sprintf=$num_orders}
 				{/if}
 			</h3>
 			{$orders}

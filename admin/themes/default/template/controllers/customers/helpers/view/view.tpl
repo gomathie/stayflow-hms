@@ -198,7 +198,7 @@
 			</div>
 			<div class="panel">
 				<div class="panel-heading">
-					<i class="icon-file"></i> {l s='Orders'} <span class="badge">{count($orders)}</span>
+					<i class="icon-file"></i> {l s='Bookings'} <span class="badge">{count($orders)}</span>
 				</div>
 				{if $orders AND count($orders)}
 					{assign var=count_ok value=count($orders_ok)}
@@ -387,7 +387,7 @@
 									<table class="table">
 										<thead>
 											<tr>
-												<th><span class="title_box">{l s='ID Order'}</span></th>
+												<th><span class="title_box">{l s='Booking ID'}</span></th>
 												<th><span class="title_box">{l s='Name'}</span></th>
 												<th><span class="title_box">{l s='Nights booked'}</span></th>
 												<th><span class="title_box">{l s='Booking Date'}</span></th>
@@ -417,7 +417,7 @@
 									<table class="table">
 										<thead>
 											<tr>
-												<th><span class="title_box">{l s='ID Order'}</span></th>
+												<th><span class="title_box">{l s='Booking ID'}</span></th>
 												<th><span class="title_box">{l s='Name'}</span></th>
 												<th><span class="title_box">{l s='Quantity'}</span></th>
 												<th><span class="title_box">{l s='Booking Date'}</span></th>

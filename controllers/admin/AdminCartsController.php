@@ -61,7 +61,7 @@ class AdminCartsControllerCore extends AdminController
                 'class' => 'fixed-width-xs'
             ),
             'ids_order' => array(
-                'title' => $this->l('Order ID'),
+                'title' => $this->l('Booking ID'),
                 'align' => 'text-center',
                 'havingFilter' => true,
                 'filter_key' => 'filter_ids_order',
@@ -220,7 +220,7 @@ class AdminCartsControllerCore extends AdminController
         $helper->id = 'box-average-order';
         $helper->icon = 'icon-money';
         $helper->color = 'color3';
-        $helper->title = $this->l('Average Order Value', null, null, false);
+        $helper->title = $this->l('Average booking value', null, null, false);
         if ($daysForAvgOrderVal == 1) {
             $helper->subtitle = $daysForAvgOrderVal.' '.$this->l('day', null, null, false);
         } else {

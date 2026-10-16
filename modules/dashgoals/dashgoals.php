@@ -204,7 +204,7 @@ class Dashgoals extends Module
 		$stream_types = array(
 			array('type' => 'traffic', 'title' => $this->l('Traffic')),
 			array('type' => 'conversion', 'title' => $this->l('Conversion rate')),
-			array('type' => 'avg_cart_value', 'title' => $this->l('Average order value')),
+			array('type' => 'avg_cart_value', 'title' => $this->l('Average booking value')),
 			array('type' => 'sales', 'title' => $this->l('Sales')),
 		);
 		$stream_zones = array(

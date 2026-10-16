@@ -318,8 +318,8 @@ class Dashtrends extends Module
 
         $charts = array(
             'sales' => $this->l('Sales'),
-            'orders' => $this->l('Orders'),
-            'average_cart_value' => $this->l('Average Order Value'),
+            'orders' => $this->l('Bookings'),
+            'average_cart_value' => $this->l('Average booking value'),
             'visits' => $this->l('Visits'),
             'conversion_rate' => $this->l('Conversion Rate'),
             'net_profits' => $this->l('Net Profit')

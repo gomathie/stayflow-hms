@@ -25,12 +25,13 @@ class Salisbergguide extends Module
         'AdminHotelReservationSystemManagement' => array(1, 0, 0, 0),
         'AdminSalisbergGuide' => array(1, 0, 0, 0),
         // daily work
+        'AdminSalisbergRoomBoard' => array(1, 0, 1, 0),
+        'AdminSalisbergWalkIn' => array(1, 0, 1, 0),
         'AdminHotelRoomsBooking' => array(1, 1, 1, 0),
         'AdminOrders' => array(1, 1, 1, 0),
         'AdminInvoices' => array(1, 0, 0, 0),
         'AdminCustomers' => array(1, 1, 1, 0),
         'AdminAddresses' => array(1, 1, 1, 0),
-        // add and edit, not only view: see grantCartEditing()
         'AdminCarts' => array(1, 1, 1, 0),
         'AdminCustomerThreads' => array(1, 1, 1, 0),
         'AdminOrderRefundRequests' => array(1, 0, 1, 0),
@@ -71,11 +72,12 @@ class Salisbergguide extends Module
         'AdminHotelFeaturePricesSettings' => array(1, 1, 1, 1),
         'AdminRoomTypeGlobalDemand' => array(1, 1, 1, 1),
         // bookings and money
+        'AdminSalisbergRoomBoard' => array(1, 0, 1, 0),
+        'AdminSalisbergWalkIn' => array(1, 0, 1, 0),
         'AdminHotelRoomsBooking' => array(1, 1, 1, 1),
         'AdminOrders' => array(1, 1, 1, 1),
         'AdminSalisbergReports' => array(1, 0, 0, 0),
         'AdminInvoices' => array(1, 1, 1, 0),
-        'AdminSlip' => array(1, 1, 1, 0),
         'AdminOrderMessage' => array(1, 1, 1, 1),
         'AdminBookingDocument' => array(1, 1, 1, 1),
         'AdminOrderRefundRules' => array(1, 1, 1, 1),
@@ -83,7 +85,6 @@ class Salisbergguide extends Module
         // guests
         'AdminCustomers' => array(1, 1, 1, 1),
         'AdminAddresses' => array(1, 1, 1, 1),
-        // add and edit, not only view: see grantCartEditing()
         'AdminCarts' => array(1, 1, 1, 0),
         'AdminCustomerThreads' => array(1, 1, 1, 1),
         'AdminContacts' => array(1, 1, 1, 1),
@@ -110,28 +111,34 @@ class Salisbergguide extends Module
     );
 
     /** Menu sections a SuperAdmin can show or hide from the Admin Guide page: class name => name */
-    public static $menuToggles = array(
-        'AdminQloappsChannelManagerConnector' => 'Channel Manager',
-        'AdminParentModules' => 'Modules and Services',
-    );
+    public static $menuToggles = array('AdminParentModules' => 'Modules and Services');
 
     /**
-     * Stock menu entries shown under a clearer name: class name => array(stock
-     * name, new name). An entry is renamed only while it still carries the
-     * stock name, so a name changed by hand in the back office is kept.
+     * Stock menu entries shown under a clearer name: class name => array(the
+     * name or list of names it may still carry, new name). An entry is renamed
+     * only while it carries one of those names, so a name changed by hand in
+     * the back office is kept.
      */
     protected $menuLabels = array(
         'AdminParentOrders' => array('Orders', 'Bookings'),
-        'AdminOrders' => array('Orders', 'Bookings'),
+        'AdminOrders' => array(array('Orders', 'Reservations'), 'Bookings'),
+        'AdminOrderMessage' => array('Order messages', 'Booking messages'),
+        'AdminOrderPreferences' => array('Orders', 'Bookings'),
+        'AdminOrderRefundRules' => array('Manage Order Refund Rules', 'Refund rules'),
+        'AdminOrderRefundRequests' => array('Manage Order Refund Requests', 'Refund requests'),
         'AdminHotelReservationSystemManagement' => array('Hotel Reservation System', 'Manage Hotel'),
         'AdminAddHotel' => array('Manage Hotel', 'Hotel Details'),
         'AdminCatalog' => array('Catalog', 'Rooms & Services'),
         'AdminCustomerThreads' => array('Customer Service', 'Inbox'),
-        'AdminHotelRoomsBooking' => array('Book Now', 'Add new booking'),
     );
 
-    /** The vendor's own store pages, kept out of the menu: class names */
-    public static $vendorMenus = array('AdminModulesCatalog');
+    /** Pages deliberately kept out of this hotel's back-office menu. */
+    public static $hiddenMenus = array(
+        'AdminModulesCatalog',
+        'AdminQloappsChannelManagerConnector',
+        'AdminZones',
+        'AdminSlip',
+    );
 
     /**
      * Shop features a hotel does not use, taken out of the product: their menu
@@ -185,9 +192,8 @@ class Salisbergguide extends Module
             && $this->installProfile(self::MANAGER_PROFILE, self::$managerAccess)
             && (!$whatsNewIsNew || $this->grantWhatsNew())
             && $this->grantHotelAccess()
-            && $this->grantCartEditing()
             && $this->renameMenuEntries()
-            && $this->hideVendorMenus()
+            && $this->hideUnusedMenus()
             && $this->removeMenus()
             && $this->registerHook('header')
             && $this->registerHook('footer')
@@ -257,60 +263,16 @@ class Salisbergguide extends Module
         return true;
     }
 
-    /**
-     * Book Now ends on Bookings > Add new, and that form does all its work
-     * on the cart (choosing the guest, the address, vouchers, extra services)
-     * by calling the Booking Carts page behind the scenes. Each of those
-     * calls is refused without a word unless the profile may add and edit
-     * Booking Carts; with view only the guest is never attached, creating
-     * the booking fails, and the rooms stay in the cart. Both profiles were
-     * first created with view only, and an existing profile is never reset,
-     * so this raises those two rights where they are still off. It never
-     * lowers anything.
-     */
-    protected function grantCartEditing()
-    {
-        $idTab = (int) Tab::getIdFromClassName('AdminCarts');
-        if (!$idTab) {
-            return true;
-        }
-
-        foreach (array(self::STAFF_PROFILE, self::MANAGER_PROFILE) as $name) {
-            $idProfile = (int) $this->getProfileId($name);
-            if (!$idProfile) {
-                continue;
-            }
-            $where = '`id_profile` = '.$idProfile.' AND `id_tab` = '.$idTab;
-            $row = Db::getInstance()->getRow('SELECT `add`, `edit` FROM `'._DB_PREFIX_.'access` WHERE '.$where);
-            if (!$row) {
-                Db::getInstance()->insert('access', array(
-                    'id_profile' => $idProfile,
-                    'id_tab' => $idTab,
-                    'view' => 1,
-                    'add' => 1,
-                    'edit' => 1,
-                    'delete' => 0,
-                ));
-            } elseif (!$row['add'] || !$row['edit']) {
-                Db::getInstance()->update('access', array('view' => 1, 'add' => 1, 'edit' => 1), $where);
-            } else {
-                continue;
-            }
-            PrestaShopLogger::addLog('salisbergguide: '.$name.' may now add and edit Booking Carts, needed to finish a booking', 1);
-        }
-
-        return true;
-    }
-
     protected function renameMenuEntries()
     {
         foreach ($this->menuLabels as $className => $names) {
             $idTab = (int) Tab::getIdFromClassName($className);
             if ($idTab) {
+                $old = array_map('pSQL', (array) $names[0]);
                 Db::getInstance()->update(
                     'tab_lang',
                     array('name' => pSQL($names[1])),
-                    'id_tab = '.$idTab.' AND name = \''.pSQL($names[0]).'\''
+                    'id_tab = '.$idTab.' AND name IN (\''.implode('\', \'', $old).'\')'
                 );
             }
         }
@@ -333,9 +295,9 @@ class Salisbergguide extends Module
         return true;
     }
 
-    protected function hideVendorMenus()
+    protected function hideUnusedMenus()
     {
-        foreach (self::$vendorMenus as $className) {
+        foreach (self::$hiddenMenus as $className) {
             $idTab = (int) Tab::getIdFromClassName($className);
             if ($idTab) {
                 Db::getInstance()->update('tab', array('active' => 0), 'id_tab = '.$idTab);
@@ -596,7 +558,7 @@ class Salisbergguide extends Module
     public function renderGuide($template)
     {
         $pages = array(
-            'AdminDashboard', 'AdminSalisbergToday', 'AdminSalisbergHousekeeping', 'AdminSalisbergCharges', 'AdminHotelRoomsBooking', 'AdminOrders', 'AdminInvoices', 'AdminCustomers', 'AdminCarts',
+            'AdminDashboard', 'AdminSalisbergRoomBoard', 'AdminSalisbergWalkIn', 'AdminSalisbergHousekeeping', 'AdminSalisbergCharges', 'AdminHotelRoomsBooking', 'AdminOrders', 'AdminInvoices', 'AdminCustomers', 'AdminCarts',
             'AdminCustomerThreads', 'AdminOrderRefundRequests', 'AdminProducts', 'AdminNormalProducts', 'AdminAddHotel',
             'AdminHotelFeatures', 'AdminHotelFeaturePricesSettings', 'AdminHotelGeneralSettings', 'AdminOrderRefundRules',
             'AdminCartRules', 'AdminModules', 'AdminPayment', 'AdminCurrencies', 'AdminTaxes', 'AdminTaxRulesGroup',

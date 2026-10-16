@@ -34,13 +34,13 @@
 			<tr><th>{l s='Profile' mod='salisbergguide'}</th><th>{l s='Who it is for' mod='salisbergguide'}</th><th>{l s='What it can do' mod='salisbergguide'}</th></tr>
 			<tr><td>SuperAdmin</td><td>{l s='The developer team' mod='salisbergguide'}</td><td>{l s='Everything, including how the system is installed and built: modules, payment settings, currency and taxes, email, maintenance, backups, profiles and permissions.' mod='salisbergguide'}</td></tr>
 			<tr><td>Hotel Manager</td><td>{l s='The person who runs the hotel' mod='salisbergguide'}</td><td>{l s='Everything about the hotel itself: bookings (including deleting), guests, room types, prices and discounts, extra services, refund rules and requests, hotel details, website pages and homepage content, staff accounts, reports, and both guides. Cannot open modules, system settings, profiles or permissions.' mod='salisbergguide'}</td></tr>
-			<tr><td>Hotel Staff</td><td>{l s='Front desk and reservations' mod='salisbergguide'}</td><td>{l s='Make and edit bookings, record payments, check guests in and out, manage guest records, answer messages, view refund requests, read the Staff Guide. Cannot delete anything, and cannot see prices setup, settings, modules, staff accounts or this guide.' mod='salisbergguide'}</td></tr>
+			<tr><td>Hotel Staff</td><td>{l s='Front desk and bookings' mod='salisbergguide'}</td><td>{l s='Make and edit bookings, record payments, check guests in and out, manage guest records, answer messages, view refund requests, read the Staff Guide. Cannot delete anything, and cannot see prices setup, settings, modules, staff accounts or this guide.' mod='salisbergguide'}</td></tr>
 		</table>
 		<h4>{l s='Add a member of staff' mod='salisbergguide'}</h4>
 		<ol>
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Employees</span> {l s='and click Add new employee.' mod='salisbergguide'}</li>
 			<li>{l s='Enter their name, their own email address and a strong password.' mod='salisbergguide'}</li>
-			<li>{l s='Set Permission profile to Hotel Staff for front desk and reservations, or Hotel Manager for someone who runs the hotel. Only the developer team can give out SuperAdmin.' mod='salisbergguide'}</li>
+			<li>{l s='Set Permission profile to Hotel Staff for front desk and bookings, or Hotel Manager for someone who runs the hotel. Only the developer team can give out SuperAdmin.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Save</span> {l s='and give them the back office address. Ask them to change the password on first sign-in.' mod='salisbergguide'}</li>
 		</ol>
 		<h4>{l s='When someone leaves' mod='salisbergguide'}</h4>
@@ -49,8 +49,8 @@
 		{if $sb_is_admin}
 		<p>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Permissions</span>, {l s='pick the profile on the left, and tick View, Add, Edit or Delete for each page. To create another role (for example Housekeeping), add it in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Profiles</span> {l s='first.' mod='salisbergguide'}</p>
 		<p>{l s='The What is New page under Guides is one of those pages: tick or untick View on its row to decide which profiles can read it. Hotel Staff and Hotel Manager have it to begin with.' mod='salisbergguide'}</p>
-		<p>{l s='The front desk pages are two more rows on this page: Today and Housekeeping (both under Bookings). View lets a profile see the page; Edit lets it check rooms in and out, and change a room to clean, dirty or out of service. Hotel Staff and Hotel Manager are given both when the pages are first created; what you change afterwards is kept.' mod='salisbergguide'}</p>
-		<p class="sb-warn">{l s='Anyone who takes bookings in Add new booking needs three things on this page, not one: View, Add and Edit on Bookings; View, Add and Edit on Booking Carts (under Customers); and the hotel ticked in the Hotel Permissions panel beside the grid. Without Add and Edit on Booking Carts the guest is never attached to the booking and the rooms stay in the cart. Without the hotel ticked, the booking is made but cannot be opened, and the dashboard shows no figures. Hotel Staff and Hotel Manager are given all three on every update.' mod='salisbergguide'}</p>
+		<p>{l s='The front desk permissions are New booking, Today and Housekeeping. New booking and Today are workflow pages opened from buttons rather than separate sidebar entries. Today View shows Today at the desk on Dashboard, and Edit allows Check in and Check out there. Housekeeping Edit allows room state changes. Hotel Staff and Hotel Manager receive these rights when the pages are first created; later changes are kept.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='Anyone who takes bookings needs View and Edit on New booking, and the hotel ticked in the Hotel Permissions panel beside the grid. Without the hotel ticked, room availability and dashboard figures are empty. Hotel Staff and Hotel Manager are given both when the front desk pages are installed.' mod='salisbergguide'}</p>
 		{else}
 		<p>{l s='What each profile may open is set by the developer team. Tell them if a member of staff needs a page they cannot see, or should lose one.' mod='salisbergguide'}</p>
 		{/if}
@@ -109,7 +109,7 @@
 			</li>
 			<li>{l s='Save. The room type appears on the website when it is enabled and has at least one available room.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-warn">{l s='A room type that is switched on but has no room in service cannot be booked: the website shows it as sold out for every date and Add new booking offers nothing for it. The Manage Room Types list marks it No rooms in red and shows a warning at the top naming it. Add its rooms in the Rooms tab, or switch the room type off until it is ready.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='A room type that is switched on but has no room in service cannot be booked: the website shows it as sold out for every date and New booking offers nothing for it. The Manage Room Types list marks it No rooms in red and shows a warning at the top naming it. Add its rooms in the Rooms tab, or switch the room type off until it is ready.' mod='salisbergguide'}</p>
 		<p class="sb-tip">{l s='To take one room out of service (repairs, a fault), use' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Housekeeping</span> {l s='and click Out of service on the room; it is the same as setting the room to Inactive in the Rooms tab. To close a room for set dates only, use the Rooms tab.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminProducts|escape:'html':'UTF-8'}">{l s='Open Manage Room Types' mod='salisbergguide'} &rarr;</a>
 	</section>
@@ -178,9 +178,9 @@
 	<section id="sb-a8">
 		<h3>8. {l s='Cancellations and refunds' mod='salisbergguide'}</h3>
 		<ol>
-			<li>{l s='Set the rules in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Rules</span>: {l s='how much is kept depending on how many days before check-in the guest cancels.' mod='salisbergguide'}</li>
+			<li>{l s='Set the rules in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Refund rules</span>: {l s='how much is kept depending on how many days before check-in the guest cancels.' mod='salisbergguide'}</li>
 			<li>{l s='Attach rules to the hotel in Hotel Details, Refund Policies tab.' mod='salisbergguide'}</li>
-			<li>{l s='Guest requests arrive in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Requests</span>. {l s='Open one, decide, and set its status. The system does not send money: return cash or Mobile Money yourself, then record it on the booking.' mod='salisbergguide'}</li>
+			<li>{l s='Guest requests arrive in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Refund requests</span>. {l s='Open one, decide, and set its status. The system does not send money: return cash or Mobile Money yourself, then record it on the booking.' mod='salisbergguide'}</li>
 		</ol>
 	</section>
 
@@ -315,9 +315,8 @@
 	<section id="sb-a15">
 		<h3>15. {l s='Showing or hiding menu sections' mod='salisbergguide'}</h3>
 		{if $sb_is_admin}
-		<p>{l s='Sections the hotel does not use can be taken out of the menu on the left, for everyone. Nothing is deleted or switched off: a hidden section only disappears from the menu, and its pages still open from the links in this guide for those with permission.' mod='salisbergguide'}</p>
+		<p>{l s='The technical Modules and Services section can be taken out of the menu on the left for everyone. Nothing is deleted or switched off: it only disappears from the menu.' mod='salisbergguide'}</p>
 		<ul>
-			<li><strong>Channel Manager</strong> &ndash; {l s='only needed if rooms are also sold through booking sites such as Booking.com or Expedia, and it does nothing until a channel manager service is bought and connected.' mod='salisbergguide'}</li>
 			<li><strong>Modules and Services</strong> &ndash; {l s='the building blocks of the system. Hide it to keep the menu short once setup is finished.' mod='salisbergguide'}</li>
 		</ul>
 		<form method="post" action="{$sb_links.AdminSalisbergAdminGuide|escape:'html':'UTF-8'}#sb-a15" class="sb-menu-form">
@@ -335,7 +334,7 @@
 			{/foreach}
 			<button type="submit" name="submitSbMenu" class="btn btn-primary">{l s='Save' mod='salisbergguide'}</button>
 		</form>
-		<p class="sb-tip">{l s='Each profile already sees only the sections it has permission for. Hotel Staff and Hotel Manager never see Modules and Services or Channel Manager, whatever is chosen here.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='Each profile already sees only the sections it has permission for. Hotel Staff and Hotel Manager never see Modules and Services, whatever is chosen here.' mod='salisbergguide'}</p>
 		{else}
 		<p class="sb-tip">{l s='This is looked after by the developer team. Ask them when it needs to change.' mod='salisbergguide'}</p>
 		{/if}

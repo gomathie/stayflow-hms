@@ -58,11 +58,11 @@
 		var youEditFieldFor = '';
 {/if}
 		var autorefresh_notifications = '{$autorefresh_notifications|@addcslashes:'\''}';
-		var new_order_msg = '{l s='A new order has been placed on your shop.' js=1}';
-		var order_number_msg = '{l s='Order number:' js=1} ';
+		var new_order_msg = '{l s='A new booking has been made.' js=1}';
+		var order_number_msg = '{l s='Booking number:' js=1} ';
 		var total_msg = '{l s='Total:' js=1} ';
 		var from_msg = '{l s='From:' js=1} ';
-		var see_order_msg = '{l s='View this order' js=1}';
+		var see_order_msg = '{l s='View this booking' js=1}';
 		var new_customer_msg = '{l s='A new customer registered on your shop.' js=1}';
 		var customer_name_msg = '{l s='Customer name:' js=1} ';
 		var new_msg = '{l s='A new message was posted on your shop.' js=1}';
@@ -146,15 +146,15 @@
 							<div class="dropdown-menu notifs_dropdown">
 								<section id="orders_notif_wrapper" class="notifs_panel">
 									<div class="notifs_panel_header">
-										<h3>{l s='Latest Orders'}</h3>
+										<h3>{l s='Latest Bookings'}</h3>
 									</div>
 									<div id="list_orders_notif" class="list_notif">
 										<span class="no_notifs">
-											{l s='No new orders have been placed on your shop.'}
+											{l s='No new bookings have been made.'}
 										</span>
 									</div>
 									<div class="notifs_panel_footer">
-										<a href="index.php?controller=AdminOrders&amp;token={getAdminToken tab='AdminOrders'}">{l s='Show all orders'}</a>
+										<a href="index.php?controller=AdminOrders&amp;token={getAdminToken tab='AdminOrders'}">{l s='Show all bookings'}</a>
 									</div>
 								</section>
 							</div>
