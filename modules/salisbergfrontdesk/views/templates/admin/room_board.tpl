@@ -97,7 +97,7 @@
                 <p class="help-block">{l s='The guided workspace shows the final total including configured fees, discounts and tax.' mod='salisbergfrontdesk'}</p>
                 {if $sb_can_book}
                     <button type="submit" name="sb_start_booking" value="1" id="sb-book-room" class="btn btn-primary btn-block"{if !$sb_selected_room || !$sb_selected_room.available} disabled{/if}>
-                        {l s='Continue to guest' mod='salisbergfrontdesk'}
+                        {l s='Book now' mod='salisbergfrontdesk'}
                     </button>
                 {/if}
                 <div class="alert alert-warning" id="sb-selection-warning"{if !$sb_selected_room || $sb_selected_room.available} hidden{/if}>{l s='This room is not available for the complete selected stay.' mod='salisbergfrontdesk'}</div>
@@ -163,7 +163,7 @@
         {if $sb_can_book}
             <div class="sb-mobile-booking" id="sb-mobile-booking"{if !$sb_selected_room} hidden{/if}>
                 <div><strong id="sb-mobile-room">{if $sb_selected_room}{l s='Room' mod='salisbergfrontdesk'} {$sb_selected_room.room_num|escape:'html':'UTF-8'}{/if}</strong><span id="sb-mobile-total">{if $sb_selected_room}{$sb_selected_room.quote.total_text|escape:'html':'UTF-8'} {l s='total' mod='salisbergfrontdesk'}{/if}</span></div>
-                <button type="submit" name="sb_start_booking" value="1" id="sb-mobile-book-room" class="btn btn-primary"{if !$sb_selected_room || !$sb_selected_room.available} disabled{/if}>{l s='Continue to guest' mod='salisbergfrontdesk'}</button>
+                <button type="submit" name="sb_start_booking" value="1" id="sb-mobile-book-room" class="btn btn-primary"{if !$sb_selected_room || !$sb_selected_room.available} disabled{/if}>{l s='Book now' mod='salisbergfrontdesk'}</button>
             </div>
         {/if}
     </form>

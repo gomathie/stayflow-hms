@@ -11,7 +11,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
-- **The selected room now comes first on the Room Board.** Its summary is on the left before the room list, and the action is consistently named **Continue to guest** for same-day and future bookings.
+- **The selected room now comes first on the Room Board.** Its summary is on the left before the room list, and the action is consistently named **Book now** for same-day and future bookings.
 - **Room types and matching counts stay together.** Each heading now reads like `Standard Room 1 — [5 rooms]` on one row, with the count as a badge; it updates with the active filter or search.
 - **New booking page is easier to scan.** The Selected room panel is one third of the width and the room list two thirds, both starting at the same height; the panel now stays in view while you scroll the rooms. The duplicate "Front desk / Room board" heading, the blue availability banner and the sentence under Unfinished bookings are gone, so the rooms start higher on the screen. The search box icon no longer covers the placeholder text.
 - **Bookings is the consistent name.** Back-office menus, page headings, booking details, dashboard figures, the top-bar notification panel, statistics, reports and guest account labels no longer switch between Reservations and Orders. Internal controller, database and integration identifiers remain unchanged.
