@@ -4,10 +4,6 @@
  *}
 <div class="sb-frontdesk sb-room-board">
     <div class="sb-fd-heading">
-        <div>
-            <h2>{l s='Front desk' mod='salisbergfrontdesk'}</h2>
-            <p>{l s='Room board' mod='salisbergfrontdesk'}</p>
-        </div>
         <div class="sb-fd-links">
             <a class="btn btn-default" href="{$sb_today_link|escape:'html':'UTF-8'}">{l s='Today' mod='salisbergfrontdesk'}</a>
             <a class="btn btn-default" href="{$sb_housekeeping_link|escape:'html':'UTF-8'}">{l s='Housekeeping' mod='salisbergfrontdesk'}</a>
@@ -17,7 +13,7 @@
     {if $sb_active_drafts}
         <section class="panel sb-draft-panel">
             <div class="sb-draft-panel-heading">
-                <div><h3>{l s='Unfinished bookings' mod='salisbergfrontdesk'}</h3><p>{l s='Resume work already started or discard it to release the room.' mod='salisbergfrontdesk'}</p></div>
+                <h3>{l s='Unfinished bookings' mod='salisbergfrontdesk'}</h3>
                 <span class="sb-chip">{count($sb_active_drafts)|intval}</span>
             </div>
             <div class="sb-draft-list">
@@ -65,14 +61,6 @@
             </div>
             <button type="submit" class="btn btn-primary sb-update-board">{l s='Update availability' mod='salisbergfrontdesk'}</button>
         </div>
-
-        {if !$sb_field_errors}
-            <div class="alert alert-info sb-board-note">
-                <strong>{l s='Availability for the complete selected stay' mod='salisbergfrontdesk'}</strong>
-                <span>{$sb_stay_display.arrival|escape:'html':'UTF-8'} – {$sb_stay_display.departure|escape:'html':'UTF-8'} · {$sb_stay.nights|intval} {if $sb_stay.nights == 1}{l s='night' mod='salisbergfrontdesk'}{else}{l s='nights' mod='salisbergfrontdesk'}{/if} · {$sb_stay.adults|intval} {if $sb_stay.adults == 1}{l s='adult' mod='salisbergfrontdesk'}{else}{l s='adults' mod='salisbergfrontdesk'}{/if}{if $sb_stay.children}, {$sb_stay.children|intval} {if $sb_stay.children == 1}{l s='child' mod='salisbergfrontdesk'}{else}{l s='children' mod='salisbergfrontdesk'}{/if}{/if}.
-                <small>{l s='Availability and current room readiness are shown separately.' mod='salisbergfrontdesk'}</small>
-            </div>
-        {/if}
 
         <div class="panel sb-board-tools">
             <div class="sb-room-search"><i class="icon-search"></i><label class="sr-only" for="sb-room-search">{l s='Find a room number or type' mod='salisbergfrontdesk'}</label><input type="search" id="sb-room-search" placeholder="{l s='Find room number or type' mod='salisbergfrontdesk'}" autocomplete="off"></div>
