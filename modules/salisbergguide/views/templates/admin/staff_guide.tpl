@@ -162,7 +162,7 @@
 			<li><strong>{l s='Send the confirmation again:' mod='salisbergguide'}</strong> {l s='use Resend email in the status history.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Print:' mod='salisbergguide'}</strong> <span class="sb-btn">Print booking</span> {l s='at the top of the booking.' mod='salisbergguide'}</li>
 		</ul>
-		<p class="sb-warn">{l s='You cannot delete bookings. If one was created by mistake, cancel it and add a private note explaining why.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='If a booking was created by mistake, use Delete in the Bookings list and enter a clear reason. The booking is moved out of active bookings and room availability, so check the guest and booking before deleting.' mod='salisbergguide'}</p>
 	</section>
 
 	<section id="sb-s8">

@@ -215,6 +215,10 @@ class Salisbergreports extends Module
                 ON osl.`id_order_state` = o.`current_state` AND osl.`id_lang` = '.(int) $this->context->language->id.'
             LEFT JOIN `'._DB_PREFIX_.'htl_booking_detail` b ON b.`id_order` = o.`id_order`
             WHERE o.`date_add` BETWEEN \''.pSQL($from).' 00:00:00\' AND \''.pSQL($to).' 23:59:59\'
+                AND NOT EXISTS (
+                    SELECT 1 FROM `'._DB_PREFIX_.'sb_deleted_booking` archived
+                    WHERE archived.`id_order` = o.`id_order`
+                )
             GROUP BY o.`id_order`
             ORDER BY o.`date_add` ASC'
         );
@@ -288,6 +292,10 @@ class Salisbergreports extends Module
                 LEFT JOIN `'._DB_PREFIX_.'customer` c ON c.`id_customer` = o.`id_customer`
                 WHERE b.`'.bqSQL($column).'` BETWEEN \''.pSQL($from).' 00:00:00\' AND \''.pSQL($to).' 23:59:59\'
                     AND b.`is_cancelled` = 0 AND b.`is_refunded` = 0
+                    AND NOT EXISTS (
+                        SELECT 1 FROM `'._DB_PREFIX_.'sb_deleted_booking` archived
+                        WHERE archived.`id_order` = o.`id_order`
+                    )
                 ORDER BY b.`'.bqSQL($column).'` ASC, b.`room_num` ASC'
             );
             $lines = array();
@@ -349,6 +357,10 @@ class Salisbergreports extends Module
                 SUM(o.`total_paid_tax_incl`) AS `value`, SUM(o.`total_paid_real`) AS `paid`
             FROM `'._DB_PREFIX_.'orders` o
             WHERE o.`date_add` BETWEEN \''.pSQL($from).' 00:00:00\' AND \''.pSQL($to).' 23:59:59\''
+            .' AND NOT EXISTS (
+                SELECT 1 FROM `'._DB_PREFIX_.'sb_deleted_booking` archived
+                WHERE archived.`id_order` = o.`id_order`
+            )'
             .($dead ? ' AND o.`current_state` NOT IN ('.implode(',', $dead).')' : '').'
             GROUP BY DATE(o.`date_add`)
             ORDER BY `day` ASC'

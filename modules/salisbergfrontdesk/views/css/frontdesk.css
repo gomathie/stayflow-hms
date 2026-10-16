@@ -276,3 +276,13 @@
     .sb-fd-links .btn { flex: 1; }
     .sb-mobile-booking { left: 0; }
 }
+
+/* Booking recycle bin */
+.sb-recycle-bin .help-block { margin-bottom: 14px; color: var(--sb-muted); }
+.sb-recycle-totals { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.sb-recycle-total { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid var(--sb-line); border-radius: 8px; background: var(--sb-card-alt); }
+.sb-recycle-total span { color: var(--sb-muted); font-size: 12px; }
+.sb-recycle-total strong { color: var(--sb-heading); font-size: 15px; }
+.sb-recycle-bin td { vertical-align: middle !important; }
+.sb-recycle-bin td form { margin: 0; }
+.sb-recycle-bin td:nth-child(6) { min-width: 180px; max-width: 360px; white-space: normal; }

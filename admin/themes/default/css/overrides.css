@@ -188,6 +188,7 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   .bootstrap #header_infos > .navbar-header {
     display: flex;
     align-items: center;
+    position: relative;
     float: none;
     width: 100%;
     height: var(--sb-top);
@@ -215,7 +216,16 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   #header_infos .navbar-header > ul > li > a:hover { background-color: var(--sb-canvas); }
   #header_infos #header_notifs_icon_wrapper,
   #header_infos #header_quick { margin-left: 8px; }
-  #header_infos #header_employee_box { gap: 6px; margin-left: auto; padding-right: 16px; }
+  #header_infos #header_employee_box {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    transform: translateY(-50%);
+    z-index: 5;
+  }
   #header_infos #header_employee_box #header_foaccess { display: inline-flex; color: var(--sb-muted); }
   #header_infos #header_employee_box #employee_infos > a { height: 44px; padding: 0 10px 0 6px; border-radius: 999px; }
   #header_infos #header_employee_box #employee_infos .caret { margin-left: 8px; }
@@ -809,6 +819,39 @@ html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); 
 #content.bootstrap .table thead > tr.filter > td { background-color: var(--sb-subtle); border-color: var(--sb-line); }
 #content.bootstrap .box-stats .title, #content.bootstrap .box-stats .title span { color: var(--sb-muted); }
 #content.bootstrap .box-stats .value, #content.bootstrap .box-stats .value span { color: var(--sb-heading); }
+#content.bootstrap .panel.kpi-container.sb-booking-kpis {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  box-shadow: none;
+}
+#content.bootstrap .sb-booking-kpis .kpis-wrap {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 0;
+  min-width: 0;
+}
+#content.bootstrap .sb-booking-kpis .kpi-wrap { flex: 1 1 145px; min-width: 125px; }
+#content.bootstrap .sb-booking-kpis .box-stats {
+  min-height: 0;
+  padding: 5px 10px;
+  border: 0;
+  border-right: 1px solid var(--sb-line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+#content.bootstrap .sb-booking-kpis .kpi-icon { display: none; }
+#content.bootstrap .sb-booking-kpis .kpi-content { display: block; padding: 0; }
+#content.bootstrap .sb-booking-kpis .title { font-size: 11px; line-height: 1.3; }
+#content.bootstrap .sb-booking-kpis .value { font-size: 15px; line-height: 1.3; }
+#content.bootstrap .sb-booking-kpis .subtitle-container { margin-top: 1px; font-size: 10px; }
+#content.bootstrap .sb-booking-kpis .actions-wrap { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; }
+#content.bootstrap .sb-booking-kpis .actions-wrap .btn { width: 32px; height: 32px; padding: 0; border-radius: 7px; }
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn span,
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn div { color: inherit; font-weight: inherit; }
 #dashboard .avail-pie-label-container p { color: #fff; }

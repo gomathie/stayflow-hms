@@ -203,6 +203,9 @@ class AdminEmployeesControllerCore extends AdminController
         $this->_join = 'LEFT JOIN `'._DB_PREFIX_.'profile` p ON a.`id_profile` = p.`id_profile`
 		LEFT JOIN `'._DB_PREFIX_.'profile_lang` pl ON (pl.`id_profile` = p.`id_profile` AND pl.`id_lang` = '
             .(int)$this->context->language->id.')';
+        if (!$this->context->employee->isSuperAdmin()) {
+            $this->_where = (string) $this->_where.' AND a.`id_profile` != '.(int) _PS_ADMIN_PROFILE_;
+        }
         $this->_use_found_rows = false;
 
         return parent::renderList();
@@ -429,6 +432,12 @@ class AdminEmployeesControllerCore extends AdminController
             return false;
         }
 
+        if (Validate::isLoadedObject($obj) && $obj->id_profile == _PS_ADMIN_PROFILE_
+            && !$this->context->employee->isSuperAdmin()) {
+            $this->errors[] = Tools::displayError('You cannot edit a SuperAdmin account.');
+            return false;
+        }
+
         if (Tools::getValue('id_profile') == _PS_ADMIN_PROFILE_ && $this->context->employee->id_profile != _PS_ADMIN_PROFILE_) {
             $this->errors[] = Tools::displayError('The provided profile is invalid');
         }
@@ -460,6 +469,9 @@ class AdminEmployeesControllerCore extends AdminController
 
     protected function processBulkDelete()
     {
+        if (!$this->canModifySelectedEmployees()) {
+            return false;
+        }
         if (is_array($this->boxes) && !empty($this->boxes)) {
             foreach ($this->boxes as $id_employee) {
                 if ((int)$this->context->employee->id == (int)$id_employee) {
@@ -472,6 +484,39 @@ class AdminEmployeesControllerCore extends AdminController
         return parent::processBulkDelete();
     }
 
+    protected function processBulkStatusSelection($status)
+    {
+        if (!$this->canModifySelectedEmployees((int) $status)) {
+            return false;
+        }
+
+        return parent::processBulkStatusSelection($status);
+    }
+
+    protected function canModifySelectedEmployees($status = null)
+    {
+        if (!is_array($this->boxes)) {
+            return true;
+        }
+
+        foreach ($this->boxes as $idEmployee) {
+            $employee = new Employee((int) $idEmployee);
+            if (!Validate::isLoadedObject($employee)) {
+                continue;
+            }
+            if ($employee->id_profile == _PS_ADMIN_PROFILE_ && !$this->context->employee->isSuperAdmin()) {
+                $this->errors[] = Tools::displayError('You cannot change a SuperAdmin account.');
+                return false;
+            }
+            if ($status === 0 && (int) $employee->id == (int) $this->context->employee->id) {
+                $this->errors[] = Tools::displayError('You cannot disable your own account.');
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     protected function canModifyEmployee()
     {
         if ($this->restrict_edition) {
@@ -480,6 +525,14 @@ class AdminEmployeesControllerCore extends AdminController
         }
 
         $employee = new Employee(Tools::getValue('id_employee'));
+        if (!Validate::isLoadedObject($employee)) {
+            $this->errors[] = Tools::displayError('The employee account could not be loaded.');
+            return false;
+        }
+        if ($employee->id_profile == _PS_ADMIN_PROFILE_ && !$this->context->employee->isSuperAdmin()) {
+            $this->errors[] = Tools::displayError('You cannot disable or delete a SuperAdmin account.');
+            return false;
+        }
         if ($employee->isLastAdmin()) {
             $this->errors[] = Tools::displayError('You cannot disable or delete the administrator account.');
             return false;
@@ -498,6 +551,11 @@ class AdminEmployeesControllerCore extends AdminController
     public function processSave()
     {
         $employee = new Employee((int)Tools::getValue('id_employee'));
+        if (Validate::isLoadedObject($employee) && $employee->id_profile == _PS_ADMIN_PROFILE_
+            && !$this->context->employee->isSuperAdmin()) {
+            $this->errors[] = Tools::displayError('You cannot edit a SuperAdmin account.');
+            return false;
+        }
 
         // If the employee is editing its own account
         if ($this->restrict_edition) {

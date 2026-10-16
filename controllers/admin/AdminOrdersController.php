@@ -4,6 +4,8 @@
 /**
  * @property Order $object
  */
+require_once _PS_MODULE_DIR_.'salisbergfrontdesk/classes/SalisbergBookingArchive.php';
+
 class AdminOrdersControllerCore extends AdminController
 {
     public $toolbar_title;
@@ -23,6 +25,7 @@ class AdminOrdersControllerCore extends AdminController
         $this->className = 'Order';
         $this->lang = false;
         $this->addRowAction('view');
+        $this->addRowAction('delete');
         $this->explicitSelect = true;
         $this->allow_export = true;
         $this->deleted = false;
@@ -80,6 +83,10 @@ class AdminOrdersControllerCore extends AdminController
             }
             $this->_where = ' AND a.`id_order` IN ('.implode(',', $resolvableOrders).')';
         }
+        $this->_where = (string) $this->_where.' AND NOT EXISTS (
+            SELECT 1 FROM `'._DB_PREFIX_.'sb_deleted_booking` sbdb
+            WHERE sbdb.`id_order` = a.`id_order`
+        )';
 
 
         $statuses = OrderState::getOrderStates((int)$this->context->language->id);
@@ -1230,6 +1237,11 @@ class AdminOrdersControllerCore extends AdminController
             // $this->addJS(_PS_JS_DIR_.'admin/orders-room-event.js');
             $this->addJS(_PS_JS_DIR_.'tools.js');
             $this->addJqueryPlugin('autocomplete');
+        } else {
+            $module = Module::getInstanceByName('salisbergfrontdesk');
+            if ($module) {
+                $this->addJS($module->getPathUri().'views/js/archive-booking.js');
+            }
         }
     }
 
@@ -1309,6 +1321,10 @@ class AdminOrdersControllerCore extends AdminController
 
     public function renderList()
     {
+        if (Tools::getValue('sb_archived')) {
+            $this->confirmations[] = $this->l('The booking was moved to the recycle bin.');
+        }
+
         // Show all resolvable overbookings if available
         $objHotelBookingDetail = new HotelBookingDetail();
         if ($resolvableOverBookings = $objHotelBookingDetail->getOverbookedRooms(0, 0, '', '', 0, 0, 2)) {
@@ -1456,6 +1472,11 @@ class AdminOrdersControllerCore extends AdminController
 
     public function postProcess()
     {
+        if (Tools::isSubmit('deleteorder')) {
+            $this->processDelete();
+            return;
+        }
+
         // Process reallocation of rooms
         if (Tools::isSubmit('realloc_allocated_rooms')) {
             if ($this->tabAccess['edit'] === 1) {
@@ -2776,6 +2797,36 @@ class AdminOrdersControllerCore extends AdminController
         parent::postProcess();
     }
 
+    public function processDelete()
+    {
+        if (strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST') {
+            $this->errors[] = $this->l('Bookings must be moved to the recycle bin using the confirmation form.');
+            return false;
+        }
+        if (empty($this->tabAccess['delete'])) {
+            $this->errors[] = $this->l('You do not have permission to delete bookings.');
+            return false;
+        }
+
+        $reason = (string) Tools::getValue('sb_delete_reason');
+        if (trim(strip_tags($reason)) === '' || Tools::strlen(trim(strip_tags($reason))) > 1000) {
+            $this->errors[] = $this->l('Enter a reason of no more than 1000 characters.');
+            return false;
+        }
+
+        try {
+            SalisbergBookingArchive::archive(
+                (int) Tools::getValue('id_order'),
+                (int) $this->context->employee->id,
+                $reason
+            );
+            Tools::redirectAdmin(self::$currentIndex.'&token='.$this->token.'&sb_archived=1');
+        } catch (Exception $exception) {
+            $this->errors[] = $exception->getMessage();
+            return false;
+        }
+    }
+
     // KPIs on view page
     public function renderKpis()
     {
@@ -3066,6 +3117,11 @@ class AdminOrdersControllerCore extends AdminController
 
     public function renderView()
     {
+        if (SalisbergBookingArchive::isArchived((int) Tools::getValue('id_order'))) {
+            $this->errors[] = $this->l('This booking is in the recycle bin. Restore it before opening or changing it.');
+            return;
+        }
+
         if (!Validate::isLoadedObject($order = new Order(Tools::getValue('id_order')))) {
             return;
         }

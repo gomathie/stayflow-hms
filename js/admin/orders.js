@@ -29,6 +29,7 @@ var ajaxQueries = new Array();
 $(document).ready(function() {
 	// Init all events
 	init();
+	$('#box-order-date').closest('.kpi-container').addClass('sb-booking-kpis');
     $(document).on('click', '#view_convenience_services', function(e) {
         $('#convenience_services').toggle(100);
         $('#view_convenience_services .icon-angle-up').toggle();

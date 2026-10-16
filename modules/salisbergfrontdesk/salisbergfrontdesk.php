@@ -35,6 +35,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 require_once dirname(__FILE__).'/classes/SalisbergWalkIn.php';
+require_once dirname(__FILE__).'/classes/SalisbergBookingArchive.php';
 
 class Salisbergfrontdesk extends Module
 {
@@ -42,6 +43,7 @@ class Salisbergfrontdesk extends Module
     const TAB_WALK_IN = 'AdminSalisbergWalkIn';
     const TAB_TODAY = 'AdminSalisbergToday';
     const TAB_HOUSEKEEPING = 'AdminSalisbergHousekeeping';
+    const TAB_RECYCLE_BIN = 'AdminSalisbergRecycleBin';
     const TAB_PARENT = 'AdminParentOrders';
 
     const ROOM_CLEAN = 1;
@@ -88,6 +90,7 @@ class Salisbergfrontdesk extends Module
             ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8'
         );
         $ok = SalisbergWalkIn::ensureTable() && $ok;
+        $ok = SalisbergBookingArchive::ensureTable() && $ok;
         foreach (array('actionRoomBookingStatusUpdateAfter', 'actionOrderStatusPostUpdate', 'dashboardTop') as $hook) {
             if (!$this->isRegisteredInHook($hook)) {
                 $ok = $this->registerHook($hook) && $ok;
@@ -100,7 +103,89 @@ class Salisbergfrontdesk extends Module
             && $this->installTab(self::TAB_HOUSEKEEPING, 'Housekeeping', false)
             && $this->installTab(self::TAB_WALK_IN, 'Walk-in booking', false, true);
 
-        return $this->configureTabs() && $this->replaceLegacyTodayWidget() && $ok;
+        return $this->installRecycleBinTab()
+            && $this->grantStaffBookingDeletion()
+            && $this->configureTabs()
+            && $this->replaceLegacyTodayWidget()
+            && $ok;
+    }
+
+    /**
+     * The Manager gets access when this page is first created. Its permission
+     * can then be removed in Administration > Permissions and will stay removed.
+     */
+    protected function installRecycleBinTab()
+    {
+        $idTab = (int) Tab::getIdFromClassName(self::TAB_RECYCLE_BIN);
+        if (!$idTab) {
+            $tab = new Tab();
+            $tab->class_name = self::TAB_RECYCLE_BIN;
+            $tab->module = $this->name;
+            $tab->id_parent = (int) Tab::getIdFromClassName(self::TAB_PARENT);
+            $tab->active = 1;
+            foreach (Language::getLanguages(false) as $language) {
+                $tab->name[(int) $language['id_lang']] = $this->l('Recycle bin');
+            }
+            $tab->add();
+            $idTab = (int) Tab::getIdFromClassName(self::TAB_RECYCLE_BIN);
+            if (!$idTab) {
+                return false;
+            }
+
+            $idManager = (int) Db::getInstance()->getValue(
+                'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+                WHERE `name` = \''.pSQL('Hotel Manager').'\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+            );
+            if ($idManager) {
+                Db::getInstance()->execute(
+                    'INSERT IGNORE INTO `'._DB_PREFIX_.'access`
+                        (`id_profile`, `id_tab`, `view`, `add`, `edit`, `delete`)
+                    VALUES ('.$idManager.', '.$idTab.', 1, 0, 1, 0)'
+                );
+            }
+        }
+
+        $idStaff = (int) Db::getInstance()->getValue(
+            'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+            WHERE `name` = \''.pSQL('Hotel Staff').'\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+        );
+        if ($idStaff) {
+            Db::getInstance()->execute(
+                'INSERT IGNORE INTO `'._DB_PREFIX_.'access`
+                    (`id_profile`, `id_tab`, `view`, `add`, `edit`, `delete`)
+                VALUES ('.$idStaff.', '.$idTab.', 0, 0, 0, 0)'
+            );
+        }
+
+        return true;
+    }
+
+    /** Grant Hotel Staff booking deletion once; later permission edits are respected. */
+    protected function grantStaffBookingDeletion()
+    {
+        if (Configuration::get('SBFD_STAFF_DELETE_GRANTED')) {
+            return true;
+        }
+
+        $idStaff = (int) Db::getInstance()->getValue(
+            'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+            WHERE `name` = \''.pSQL('Hotel Staff').'\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+        );
+        $idOrders = (int) Tab::getIdFromClassName('AdminOrders');
+        if ($idStaff && $idOrders) {
+            $ok = Db::getInstance()->execute(
+                'INSERT INTO `'._DB_PREFIX_.'access`
+                    (`id_profile`, `id_tab`, `view`, `add`, `edit`, `delete`)
+                VALUES ('.$idStaff.', '.$idOrders.', 1, 1, 1, 1)
+                ON DUPLICATE KEY UPDATE `delete` = 1'
+            );
+            if (!$ok) {
+                return false;
+            }
+            PrestaShopLogger::addLog('salisbergfrontdesk: granted Hotel Staff booking deletion access', 1);
+        }
+
+        return Configuration::updateValue('SBFD_STAFF_DELETE_GRANTED', 1);
     }
 
     /** Keep workflow controllers active but out of the side menu. */
@@ -207,7 +292,7 @@ class Salisbergfrontdesk extends Module
 
     public function uninstall()
     {
-        foreach (array(self::TAB_ROOM_BOARD, self::TAB_WALK_IN, self::TAB_TODAY, self::TAB_HOUSEKEEPING) as $className) {
+        foreach (array(self::TAB_ROOM_BOARD, self::TAB_WALK_IN, self::TAB_TODAY, self::TAB_HOUSEKEEPING, self::TAB_RECYCLE_BIN) as $className) {
             $idTab = (int) Tab::getIdFromClassName($className);
             if ($idTab) {
                 $tab = new Tab($idTab);

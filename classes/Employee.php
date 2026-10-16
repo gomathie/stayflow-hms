@@ -255,10 +255,16 @@ class EmployeeCore extends ObjectModel
      */
     public static function getEmployees($active_only = true)
     {
+        $employee = Context::getContext()->employee;
+        $where = $active_only ? ' WHERE `active` = 1' : '';
+        if ($employee instanceof Employee && Validate::isLoadedObject($employee) && !$employee->isSuperAdmin()) {
+            $where .= ($where ? ' AND' : ' WHERE').' `id_profile` != '.(int) _PS_ADMIN_PROFILE_;
+        }
+
         return Db::getInstance()->executeS('
 			SELECT `id_employee`, `firstname`, `lastname`
 			FROM `'._DB_PREFIX_.'employee`
-			'.($active_only ? ' WHERE `active` = 1' : '').'
+			'.$where.'
 			ORDER BY `lastname` ASC
 		');
     }

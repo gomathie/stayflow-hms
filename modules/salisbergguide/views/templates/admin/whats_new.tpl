@@ -21,6 +21,8 @@
 	<section>
 		<h3>{l s='16 October 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='Booking details are less cluttered.' mod='salisbergguide'}</strong> {l s='The summary figures use a compact strip that keeps the booking information visible. The account, theme and website controls sit at the far right of the top bar.' mod='salisbergguide'}</li>
+			<li><strong>{l s='A mistaken booking can be archived.' mod='salisbergguide'}</strong> {l s='Use Delete in the Bookings list and enter a reason. The booking is removed from active bookings and room availability, not permanently erased. Hotel Staff cannot open the Recycle bin or restore a booking.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Room status changes are simpler.' mod='salisbergguide'}</strong> {l s='Choose a status from the Change room status options beside the room; the Rooms Status section grows to show the complete list together without a scrollbar. The choice applies immediately with no extra save button. Check in and Check out ask for confirmation before changing the room status. For a check-in, optionally tick Set actual check-in time to use or adjust the current time. Checking out marks the room Dirty for housekeeping.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Booking details print as a customer-ready document.' mod='salisbergguide'}</strong> {l s='Use the browser Print command on a booking to print its reference, guest contact, room stay, payments, total and balance without back-office controls or private notes.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Confirm and check in now completes the booking.' mod='salisbergguide'}</strong> {l s='The booking is saved, the room is checked in, and the page shows the confirmation instead of staying on the Confirm step.' mod='salisbergguide'}</li>
@@ -33,6 +35,18 @@
 			<li><strong>{l s='Bookings is now the one name used across the back office.' mod='salisbergguide'}</strong> {l s='Menus, page headings, booking details, dashboard figures, the notification panel at the top, statistics and reports no longer switch between Reservations and Orders. Technical database and controller names stay unchanged so existing bookings and integrations keep working.' mod='salisbergguide'}</li>
 			<li><strong>{l s='New booking no longer takes a permanent menu row.' mod='salisbergguide'}</strong> {l s='Open Bookings and use the New booking button at the top. The Room board remains available without crowding the side menu.' mod='salisbergguide'}</li>
 		</ul>
+		{if $sb_can_read_admin_guide}
+		<h4>{l s='For the hotel manager' mod='salisbergguide'}</h4>
+		<ul>
+			<li><strong>{l s='Review deleted bookings in the Recycle bin.' mod='salisbergguide'}</strong> {l s='See who deleted each booking, when and why, with saved guest contact details and the full booking value. Totals show deletion count and value by currency. Restore is available when your Recycle bin permission includes Edit, and the system checks room availability first.' mod='salisbergguide'}</li>
+		</ul>
+		{/if}
+		{if $sb_is_admin}
+		<h4>{l s='For the developer team' mod='salisbergguide'}</h4>
+		<ul>
+			<li><strong>{l s='Employee visibility and recycle-bin permissions.' mod='salisbergguide'}</strong> {l s='Only SuperAdmins can see SuperAdmin employee accounts. Hotel Staff receive Delete on Bookings once; Hotel Managers receive View and Edit on Recycle bin when its menu page is created. Permission changes made later are kept.' mod='salisbergguide'}</li>
+		</ul>
+		{/if}
 	</section>
 
 	<section>

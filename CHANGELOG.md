@@ -9,6 +9,10 @@ Every change to Salisberg, newest first, in plain words.
 
 ## 2026-10-16
 
+### Added
+
+- **Booking Recycle bin:** deleting a booking now requires a reason and archives it instead of permanently removing it. The archive records who deleted it and when, the reason, guest contact details, full booking value and original room states. Hotel Managers with access can review deletion counts and value by currency, and restore a booking when its rooms are still available. Archived bookings are excluded from active bookings, room availability and booking reports.
+
 ### Fixed
 
 - **Confirm & check in now submits its selected action.** The submit handler disabled both confirmation buttons before the browser collected form values, so clicking either option could leave the staff member on the Confirm step without creating the booking. The selected action is now preserved while duplicate submissions are blocked.
@@ -18,6 +22,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Booking details and back-office access:** the booking summary figures are shown in a compact strip, and the employee, theme and website controls sit at the far right of the top bar. SuperAdmin employee accounts are hidden from non-SuperAdmins. Hotel Staff can archive a mistaken booking with a reason but cannot view or restore the archive.
 - **Room status editing stays beside the room.** On a booking, **Change room status** expands the Rooms Status section to show the complete status list together, without a scrollbar or pop-up. Choose a status to apply it immediately; there is no separate save button. Check-in and check-out actions ask for confirmation first. When checking in, staff can optionally set or adjust the actual check-in time.
 - **Check in and check out are now direct actions on the booking.** Each room row in Rooms Status shows a clear status badge and the action available for that room, so staff no longer need to open Edit to check a guest in or out. Check-out still triggers the normal housekeeping update.
 - **Printing a booking now gives a customer-ready document.** The browser printout has Salisberg branding and the booking reference, guest contact, room and stay, payments, total and balance. Back-office navigation, editing controls and private notes are omitted.
