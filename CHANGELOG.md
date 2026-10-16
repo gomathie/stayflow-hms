@@ -18,7 +18,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
-- **Room status editing stays beside the room.** On a booking, **Change room status** now opens an inline dropdown beside the room row instead of a pop-up. Choose a status and save; check-in and check-out dates appear only when needed.
+- **Room status editing stays beside the room.** On a booking, **Change room status** opens a compact list of statuses beside the room row instead of a pop-up. Choose a status to apply it immediately; there is no separate save button or scrolling panel.
 - **Check in and check out are now direct actions on the booking.** Each room row in Rooms Status shows a clear status badge and the action available for that room, so staff no longer need to open Edit to check a guest in or out. Check-out still triggers the normal housekeeping update.
 - **Printing a booking now gives a customer-ready document.** The browser printout has Salisberg branding and the booking reference, guest contact, room and stay, payments, total and balance. Back-office navigation, editing controls and private notes are omitted.
 - **Bookings now comes straight after Dashboard in the side menu**, ahead of Rooms & Services. The same order is used by a fresh install, which also names that section Rooms & Services from the start instead of renaming it afterwards.

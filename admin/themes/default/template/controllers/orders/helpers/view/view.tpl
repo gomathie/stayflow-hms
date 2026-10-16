@@ -197,7 +197,8 @@
                                                             {elseif $can_edit}
                                                                 <details class="sb-room-status-dropdown">
                                                                     <summary class="btn btn-default">{l s='Change room status'} <i class="icon-angle-down"></i></summary>
-                                                                    <form action="{$current_index|escape:'html':'UTF-8'}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}" method="post" class="room_status_info_form">
+                                                                    <form action="{$current_index|escape:'html':'UTF-8'}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}" method="post" class="sb-room-status-form">
+                                                                        <input type="hidden" name="submitbookingOrderStatus" value="1">
                                                                         <input type="hidden" name="id_hotel_booking_detail" value="{$data['id']|intval}">
                                                                         <input type="hidden" name="id_order" value="{$data['id_order']|intval}">
                                                                         <input type="hidden" name="id_room" value="{$data['id_room']|intval}">
@@ -205,19 +206,12 @@
                                                                         <input type="hidden" name="date_to" value="{$data['date_to']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'}">
                                                                         <input type="hidden" name="check_in_time" value="{$data['check_in_time']|escape:'html':'UTF-8'}">
                                                                         <input type="hidden" name="check_out_time" value="{$data['check_out_time']|escape:'html':'UTF-8'}">
-                                                                        <div class="form-group">
-                                                                            <label class="control-label">{l s='New room status'}</label>
-                                                                            <select name="booking_order_status" class="form-control booking_order_status" required>
-                                                                                {foreach from=$hotel_order_status item=state}
-                                                                                    <option value="{$state['id_status']|intval}"{if $state['id_status'] == $data['id_status']} selected="selected" disabled="disabled"{/if}>{$state.name|escape:'html':'UTF-8'}</option>
-                                                                                {/foreach}
-                                                                            </select>
+                                                                        <input type="hidden" name="status_date" value="">
+                                                                        <div class="sb-room-status-options">
+                                                                            {foreach from=$hotel_order_status item=state}
+                                                                                <button type="submit" name="booking_order_status" value="{$state['id_status']|intval}" class="sb-room-status-option"{if $state['id_status'] == $data['id_status']} disabled="disabled" aria-current="true"{/if} data-status-date="{if $state['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}{$data['date_from']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'} {$data['check_in_time']|escape:'html':'UTF-8'}{elseif $state['id_status'] == $hotel_order_status['STATUS_CHECKED_OUT']['id_status']}{$data['date_to']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'} {$data['check_out_time']|escape:'html':'UTF-8'}{/if}">{$state.name|escape:'html':'UTF-8'}</button>
+                                                                            {/foreach}
                                                                         </div>
-                                                                        <div class="form-group" style="display:none;">
-                                                                            <label class="control-label">{l s='Check-in or check-out date and time'}</label>
-                                                                            <input type="text" name="status_date" class="form-control room_status_date wk-input-date" value="" autocomplete="off">
-                                                                        </div>
-                                                                        <button type="submit" name="submitbookingOrderStatus" class="btn btn-primary">{l s='Save room status'}</button>
                                                                     </form>
                                                                 </details>
                                                             {/if}

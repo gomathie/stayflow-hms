@@ -1531,36 +1531,8 @@ $(document).ready(function() {
     // ======================================
 
     // Start: Room status dropdown
-    // toggle date input of check-in checkout dates as per status selected
-    $(document).on('change', '.booking_order_status', function() {
-        var status = $(this).val();
-        var form = $(this).closest('.room_status_info_form');
-        var dateGroup = form.find('.room_status_date').closest('.form-group');
-        if (status == ROOM_STATUS_CHECKED_IN || status == ROOM_STATUS_CHECKED_OUT) {
-            dateGroup.show();
-            var date = status == ROOM_STATUS_CHECKED_IN
-                ? form.find('[name="date_from"]').val() + ' ' + form.find('[name="check_in_time"]').val()
-                : form.find('[name="date_to"]').val() + ' ' + form.find('[name="check_out_time"]').val();
-            form.find('.room_status_date').val(date);
-        } else {
-            dateGroup.hide();
-        }
-    });
-
-    // open date picker for the date input of check-in checkout dates
-    $(document).on('focus', '.room_status_date', function() {
-        var dateFrom = $(this).closest('.room_status_info_form').find('[name="date_from"]').val();
-        minDate = new Date(dateFrom+'T00:00:00');
-
-        var dateTo = $(this).closest('.room_status_info_form').find('[name="date_to"]').val();
-        maxDate = new Date(dateTo+'T23:59:59');
-
-        $(this).datetimepicker({
-            dateFormat: 'dd-mm-yy',
-            minDate: minDate,
-            maxDate: maxDate,
-            dayNamesMin: [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-        });
+    $(document).on('click', '.sb-room-status-option:not(:disabled)', function() {
+        $(this).closest('.sb-room-status-form').find('[name="status_date"]').val($(this).attr('data-status-date'));
     });
 
     // End: Room status dropdown
