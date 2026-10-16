@@ -11,6 +11,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Date boxes open the calendar wherever you click.** On the New booking page and the guided booking's stay screen (Arrival and Departure), clicking the empty part of the box opens the calendar; you no longer have to find the small icon.
 - **The selected room now comes first on the Room Board.** Its summary is on the left before the room list, and the action is consistently named **Book now** for same-day and future bookings.
 - **Room types and matching counts stay together.** Each heading now reads like `Standard Room 1 — [5 rooms]` on one row, with the count as a badge; it updates with the active filter or search.
 - **New booking page is easier to scan.** The Selected room panel is one third of the width and the room list two thirds, both starting at the same height; the panel now stays in view while you scroll the rooms. The duplicate "Front desk / Room board" heading, the blue availability banner and the sentence under Unfinished bookings are gone, so the rooms start higher on the screen. The search box icon no longer covers the placeholder text.

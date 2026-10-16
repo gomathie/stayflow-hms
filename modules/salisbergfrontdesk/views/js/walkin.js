@@ -135,6 +135,24 @@
         }
     }
 
+    // A click anywhere in a date box opens the calendar, not only the small icon at
+    // its right edge (the browser already handles the icon itself).
+    function openCalendarOnClick(field) {
+        if (typeof field.showPicker !== 'function') {
+            return;
+        }
+        field.addEventListener('click', function (event) {
+            if (event.clientX > field.getBoundingClientRect().right - 34) {
+                return;
+            }
+            try {
+                field.showPicker();
+            } catch (e) {
+                // already open or refused by the browser: nothing to do
+            }
+        });
+    }
+
     function setupStayDates() {
         var arrival = byId('walkin-arrival');
         var departure = byId('walkin-departure');
@@ -157,6 +175,8 @@
                 departure.value = formatDate(start);
             }
         }
+        openCalendarOnClick(arrival);
+        openCalendarOnClick(departure);
         arrival.addEventListener('change', function () {
             if (departure.value <= arrival.value) {
                 nightsToDeparture();
