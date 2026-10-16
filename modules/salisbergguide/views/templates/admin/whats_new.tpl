@@ -22,7 +22,7 @@
 		<h3>{l s='16 October 2026' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='Selected room now comes first.' mod='salisbergguide'}</strong> {l s='It is on the left before the room list, and Continue to guest replaces the different walk-in and future-stay button names. Room types show their matching count on the same row.' mod='salisbergguide'}</li>
-			<li><strong>{l s='Bookings is now the one name used across the back office.' mod='salisbergguide'}</strong> {l s='Menus, page headings, booking details, dashboard figures, statistics and reports no longer switch between Reservations and Orders. Technical database and controller names stay unchanged so existing bookings and integrations keep working.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Bookings is now the one name used across the back office.' mod='salisbergguide'}</strong> {l s='Menus, page headings, booking details, dashboard figures, the notification panel at the top, statistics and reports no longer switch between Reservations and Orders. Technical database and controller names stay unchanged so existing bookings and integrations keep working.' mod='salisbergguide'}</li>
 			<li><strong>{l s='New booking no longer takes a permanent menu row.' mod='salisbergguide'}</strong> {l s='Open Bookings and use the New booking button at the top. The Room board remains available without crowding the side menu.' mod='salisbergguide'}</li>
 		</ul>
 	</section>
