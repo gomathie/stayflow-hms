@@ -1983,6 +1983,19 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - **Left unchanged:** the Today panel's Departures list shows only guests due out today or earlier, so an early leaver is checked out from the booking page (noted on 2026-10-16 earlier).
 - **Not tested:** the Hotel Manager through a real browser; two people booking the same room at the same moment; the manager and staff on the website's own booking (they use the same public pages as any guest); the live server. The three test accounts' original passwords were restored (hashes compared). Local test data: many bookings for guests named Checkin, Flow, Stayedit or Screen.
 
+### 2026-10-16 — Confirm & check in submits the selected action
+
+- **Report:** clicking **Confirm & check in** left the employee on the Confirm step.
+- **Reproduced in the local app before the fix, using a real Edge form click:** the submit handler disabled every submit button before the browser serialized the form, including the clicked button that carried `sb_finalize=checkin`. The POST body had no fields, the success view did not appear, and the page remained on Confirm.
+- **Fix** (`modules/salisbergfrontdesk/views/js/walkin.js`): track the clicked submitter, preserve its `name` and `value` in a hidden input during submit, then disable the buttons as before to prevent duplicate submissions. The browser's `SubmitEvent.submitter` is used when available; the click-tracked button is the fallback.
+- What's New (everyone) and `CHANGELOG.md` updated.
+- **Verification (local, rebuilt image, real Edge browser):**
+  - `node --check modules/salisbergfrontdesk/views/js/walkin.js` and `git diff --check` passed; the rebuilt app container is healthy.
+  - **Confirm & check in:** completed a same-day booking through Room board, Guest, Payment and Confirm. The browser POST included `sb_finalize=checkin`; the success view said **Guest checked in** for booking `HRWFMUGBD` in room ER-102. **Bookings** listed both the guest and reference, and the booking detail showed checked-in status.
+  - **Confirm booking — check in later:** completed another same-day booking using `sb_finalize=reserve`, then clicked **Check in now** on the success view. It changed to **Guest checked in** for `GBJEJVLTI` in ER-103, and the guest and reference both appeared in **Bookings**.
+  - The two completed test bookings and their test guest records remain in the local database. No production data was changed.
+- **Not tested:** Hotel Staff and Hotel Manager roles in the browser for this specific button fix; the live server.
+
 ### 2026-10-16 — Side menu: Bookings after Dashboard; the "Catalog" rename rule retired
 
 - **Owner:** after Dashboard the menu should list Bookings before Rooms & Services; and since the hotel does not use the name Catalog any more, the Catalog rule can go.

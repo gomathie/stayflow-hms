@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='16 October 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='Confirm and check in now completes the booking.' mod='salisbergguide'}</strong> {l s='The booking is saved, the room is checked in, and the page shows the confirmation instead of staying on the Confirm step.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Bookings is now the first section after Dashboard.' mod='salisbergguide'}</strong> {l s='It sits above Rooms & Services in the left menu, because the front desk uses it all day.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Confirm a booking now, check the guest in when they arrive.' mod='salisbergguide'}</strong> {l s='For a room that is ready today, New booking offers Confirm and check in, or Confirm booking, check in later. After confirming, the page shows Check in now. A guest who paid by phone or has not arrived stays Not checked in, and you can check them in later with the Check in button on the booking (Bookings, then search the name or reference) or from Today on the Dashboard.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Editing the stay of a booking you have started works again.' mod='salisbergguide'}</strong> {l s='In New booking, Edit stay details showed a database error when saved. You can now change dates, guests and room before confirming.' mod='salisbergguide'}</li>

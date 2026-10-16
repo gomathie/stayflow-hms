@@ -264,7 +264,22 @@
         });
         var finalForm = byId('sb-finalize-form');
         if (finalForm) {
-            finalForm.addEventListener('submit', function () {
+            var lastSubmitter = null;
+            finalForm.addEventListener('click', function (event) {
+                var button = event.target.closest('button[type="submit"]');
+                if (button && finalForm.contains(button)) {
+                    lastSubmitter = button;
+                }
+            });
+            finalForm.addEventListener('submit', function (event) {
+                var submitter = event.submitter || lastSubmitter;
+                if (submitter && submitter.name) {
+                    var submittedAction = document.createElement('input');
+                    submittedAction.type = 'hidden';
+                    submittedAction.name = submitter.name;
+                    submittedAction.value = submitter.value;
+                    finalForm.appendChild(submittedAction);
+                }
                 finalForm.querySelectorAll('button[type="submit"]').forEach(function (button) {
                     button.disabled = true;
                 });
