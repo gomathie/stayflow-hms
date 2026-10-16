@@ -1145,6 +1145,30 @@ class SalisbergWalkIn
         );
         $balance = max(0, (float) $order->total_paid_tax_incl - (float) $order->total_paid_real);
 
+        // Not checked in yet: say whether the guest can be checked in from this page
+        // now, and if not why, so the front desk knows where to do it later.
+        $canCheckIn = false;
+        $checkInNote = '';
+        if ((int) $booking['id_status'] == HotelBookingDetail::STATUS_ALLOTED) {
+            if (substr($booking['date_from'], 0, 10) > $this->getBusinessDate()) {
+                $checkInNote = sprintf(
+                    $this->module->l('Arriving %s. Check the guest in on the day from Today on the Dashboard, or find the booking under Bookings and click Check in.'),
+                    Tools::displayDate($booking['date_from'])
+                );
+            } else {
+                $room = $this->currentRoomSummary($draft);
+                if ($room && !empty($room['readiness']['ready'])) {
+                    $canCheckIn = true;
+                } else {
+                    $checkInNote = sprintf(
+                        $this->module->l('Room %s is not ready for check-in (%s). Check the guest in later from Today on the Dashboard, or from the booking under Bookings, once the room is ready.'),
+                        $booking['room_num'],
+                        $room ? $room['readiness']['label'] : $this->module->l('not available')
+                    );
+                }
+            }
+        }
+
         return array(
             'id_order' => (int) $order->id,
             'reference' => $order->reference,
@@ -1158,6 +1182,36 @@ class SalisbergWalkIn
             'paid' => $this->money($order->total_paid_real, $order->id_currency),
             'balance' => $this->money($balance, $order->id_currency),
             'has_payment' => (float) $order->total_paid_real > 0.009,
+            'can_check_in' => $canCheckIn,
+            'check_in_note' => $checkInNote,
         );
+    }
+
+    /**
+     * "Check in now" on the success page of a booking that was confirmed without
+     * checking the guest in. Same rule and same status change as everywhere else
+     * (Salisbergfrontdesk::changeBookingStatus()); the room must be ready.
+     */
+    public function checkInNow(array $draft)
+    {
+        $success = $this->success($draft);
+        if (!$success) {
+            throw new Exception($this->module->l('This booking is not complete yet.'));
+        }
+        if ($success['checked_in']) {
+            throw new Exception($this->module->l('The guest is already checked in.'));
+        }
+        if (!$success['can_check_in']) {
+            throw new Exception($success['check_in_note'] ?: $this->module->l('This guest cannot be checked in now.'));
+        }
+        $bookings = (array) Db::getInstance()->executeS(
+            'SELECT `id` FROM `'._DB_PREFIX_.'htl_booking_detail`
+            WHERE `id_order` = '.(int) $draft['id_order'].' AND `id_status` = '.(int) HotelBookingDetail::STATUS_ALLOTED
+        );
+        foreach ($bookings as $booking) {
+            if ($error = $this->module->changeBookingStatus((int) $booking['id'], HotelBookingDetail::STATUS_CHECKED_IN)) {
+                throw new Exception($error);
+            }
+        }
     }
 }

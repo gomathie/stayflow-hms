@@ -88,6 +88,7 @@ class AdminSalisbergWalkInController extends ModuleAdminController
             && !Tools::isSubmit('sb_save_guest')
             && !Tools::isSubmit('sb_save_payment')
             && !Tools::isSubmit('sb_finalize')
+            && !Tools::isSubmit('sb_check_in_now')
             && !Tools::isSubmit('sb_discard_draft')
         ) {
             return parent::postProcess();
@@ -148,6 +149,10 @@ class AdminSalisbergWalkInController extends ModuleAdminController
                 ));
                 $this->redirectStep(4, '&saved=payment');
             }
+            if (Tools::isSubmit('sb_check_in_now')) {
+                $service->checkInNow($draft);
+                $this->redirectStep(4, '&success=1&checked_in=1');
+            }
             if (Tools::isSubmit('sb_finalize')) {
                 $result = $service->finalize(
                     $draft,
@@ -203,6 +208,9 @@ class AdminSalisbergWalkInController extends ModuleAdminController
         );
         if (isset($messages[$saved])) {
             $this->confirmations[] = $messages[$saved];
+        }
+        if (Tools::getValue('checked_in')) {
+            $this->confirmations[] = $this->l('The guest is checked in.');
         }
 
         $guestForm = isset($draft['state']['guest']) ? $draft['state']['guest'] : array();

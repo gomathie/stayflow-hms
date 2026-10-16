@@ -221,6 +221,13 @@
 .sb-success-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; max-width: 460px; margin: 24px auto; text-align: left; }
 .sb-success-details dt { color: var(--sb-muted); font-weight: 400; }
 .sb-success-details dd { margin: 0; color: var(--sb-heading); text-align: right; }
+.sb-confirm-options { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+#sb-finalize-form .help-block { margin: 12px 0 0; text-align: right; }
+.sb-checkin-box { max-width: 560px; margin: 18px auto 6px; padding: 14px 16px; border: 1px solid var(--sb-line-strong); border-radius: 9px; background: var(--sb-card-alt); color: var(--sb-text); text-align: center; }
+.sb-checkin-box.is-ready { border-color: var(--sb-success); }
+.sb-checkin-box p { margin: 0 0 12px; }
+.sb-checkin-box p:last-child { margin-bottom: 0; }
+.sb-checkin-box form { margin: 0; }
 .sb-success-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .sb-summary-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 #content.bootstrap .sb-frontdesk .sb-summary-heading h3:not(.modal-title) { height: auto; line-height: 1.3; margin-bottom: 0; }

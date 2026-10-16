@@ -64,8 +64,8 @@
 			<li>{l s='Guest opens first because the room and stay are already complete. Search by name, phone or email and use the existing guest when there is a match. Press Enter to use the first search result. Otherwise enter first name, last name and phone; email is optional.' mod='salisbergguide'}</li>
 			<li>{l s='On Payment, first choose Paid in full, Part payment or Pay later. Pay later needs no payment method. For money received, choose Cash, Mobile Money or Bank transfer and confirm it only after the money is in hand or visible in the hotel account.' mod='salisbergguide'}</li>
 			<li>{l s='Confirm shows the guest, stay, total, confirmed payment and balance. Use an Edit link, or Edit stay in the Stay summary, to change the dates, guests or room; the system checks the room is free for the new dates, recalculates the total and tells you plainly if it is not available.' mod='salisbergguide'}</li>
-			<li>{l s='For a ready room arriving today, click' mod='salisbergguide'} <span class="sb-btn">Confirm &amp; check in</span>. {l s='For a future stay, click Confirm booking. The system checks the room again before creating anything. A dirty or occupied walk-in room can be saved awaiting the room instead.' mod='salisbergguide'}</li>
-			<li>{l s='The success page shows the booking reference, payment and balance. Open the stay, print its receipt when payment was confirmed, or start another booking.' mod='salisbergguide'}</li>
+			<li>{l s='For a ready room arriving today there are two choices:' mod='salisbergguide'} <span class="sb-btn">Confirm &amp; check in</span> {l s='when the guest is here, or' mod='salisbergguide'} <span class="sb-btn">Confirm booking &mdash; check in later</span> {l s='when the guest has paid by phone or has not arrived yet. For a future stay, or a room that is not ready, the only button is Confirm booking. The system checks the room again before creating anything.' mod='salisbergguide'}</li>
+			<li>{l s='The success page shows the booking reference, payment and balance. If the guest is not checked in yet and the room is ready, it shows' mod='salisbergguide'} <span class="sb-btn">Check in now</span> {l s='; click it when the guest is at the desk. If you leave it, the guest simply stays Not checked in: see section 6 for checking them in later. For a future stay or a room that is not ready the page says so and where to check in later. You can also open the stay, print its receipt when payment was confirmed, or start another booking.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='If you leave before confirming, the Room board lists the unfinished booking. Resume it without retyping the details, or Discard it to release the room. For a future arrival, the same Guest, Payment and Confirm steps save a booking without checking the guest in.' mod='salisbergguide'}</p>
 		<p class="sb-warn">{l s='A typed payment reference is not proof of payment. Leave it unconfirmed until the money has actually arrived.' mod='salisbergguide'}</p>
@@ -140,11 +140,13 @@
 		</ol>
 		<p class="sb-warn">{l s='A room with a guest checked in cannot be taken out of service. If a room you take out of service has coming bookings, the page says so in red: tell your manager so those guests can be moved to another room.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminSalisbergHousekeeping|escape:'html':'UTF-8'}">{l s='Open Housekeeping' mod='salisbergguide'} &rarr;</a>
+		<h4>{l s='A guest who booked or paid in advance and arrives later' mod='salisbergguide'}</h4>
+		<p>{l s='The booking stays confirmed and the guest stays Not checked in until you check them in. On the day, use Today on the Dashboard (Arrivals), or find the booking: go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Bookings</span>, {l s='type the guest name or the booking reference in the filter at the top of the list, open the booking and follow the steps below.' mod='salisbergguide'}</p>
 		<h4>{l s='From the booking itself' mod='salisbergguide'}</h4>
 		<ol>
 			<li>{l s='Open the booking (section 4) and confirm the guest name and dates. Ask for ID if hotel policy requires it.' mod='salisbergguide'}</li>
 			<li>{l s='If money is still due, take payment first (section 5).' mod='salisbergguide'}</li>
-			<li>{l s='In Rooms Booking Detail, use the status option on the room to mark it as checked in. The date and time are recorded.' mod='salisbergguide'}</li>
+			<li>{l s='In Rooms Booking Detail, click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='on the room. The button shows once the stay has started and the guest is not yet checked in. The date and time are recorded and you stay on the booking.' mod='salisbergguide'}</li>
 			<li>{l s='When the guest leaves, open the booking again, settle any extra services, and mark the room as checked out.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='A booking with several rooms is checked in and out one room at a time.' mod='salisbergguide'}</p>

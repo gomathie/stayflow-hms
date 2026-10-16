@@ -145,6 +145,13 @@
                                                                 <span class="badge badge-info">{if $data.num_checkin_documents > 0}{$data.num_checkin_documents}{else}0{/if}</span> <i class="icon-file-text"></i>
                                                             </a>
 
+                                                            {if $can_edit && !$data.is_cancelled && !$data.is_refunded && $data['id_status'] == $hotel_order_status['STATUS_ALLOTED']['id_status'] && $data['date_from']|date_format:'%Y-%m-%d' <= $smarty.now|date_format:'%Y-%m-%d'}
+                                                                <form method="post" action="{$link->getAdminLink('AdminSalisbergToday')|escape:'html':'UTF-8'}" style="display:inline">
+                                                                    <input type="hidden" name="id_booking" value="{$data['id']|intval}">
+                                                                    <input type="hidden" name="id_order_back" value="{$data['id_order']|intval}">
+                                                                    <button type="submit" name="sb_check_in" value="1" class="btn btn-success"><i class="icon-signin"></i> {l s='Check in'}</button>
+                                                                </form>
+                                                            {/if}
                                                             {if isset($refundReqBookings) && $refundReqBookings && $data.id|in_array:$refundReqBookings && $data.is_refunded}
                                                                 <span class="badge badge-danger">{if $data.is_cancelled}{l s='Cancelled'}{else}{l s='Refunded'}{/if}</span>
                                                             {elseif $can_edit}
