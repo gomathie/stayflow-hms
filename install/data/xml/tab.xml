@@ -30,11 +30,11 @@
     <tab id="Shop_URLs" id_parent="-1" active="1" hide_host_mode="0">
       <class_name>AdminShopUrl</class_name>
     </tab>
-    <tab id="Catalog" id_parent="" active="1" hide_host_mode="0">
-      <class_name>AdminCatalog</class_name>
-    </tab>
     <tab id="Orders" id_parent="" active="1" hide_host_mode="0">
       <class_name>AdminParentOrders</class_name>
+    </tab>
+    <tab id="Catalog" id_parent="" active="1" hide_host_mode="0">
+      <class_name>AdminCatalog</class_name>
     </tab>
     <tab id="Customers" id_parent="" active="1" hide_host_mode="0">
       <class_name>AdminParentCustomer</class_name>

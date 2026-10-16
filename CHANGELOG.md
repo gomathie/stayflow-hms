@@ -17,6 +17,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Bookings now comes straight after Dashboard in the side menu**, ahead of Rooms & Services. The same order is used by a fresh install, which also names that section Rooms & Services from the start instead of renaming it afterwards.
 - **Confirm now, check in later.** On New booking, a room that is ready today offers two ways to finish: **Confirm & check in**, or **Confirm booking — check in later** for a guest who paid by phone or has not arrived. After confirming, the page shows **Check in now** (or says why it cannot: the stay is on a later day, or the room is not ready). A guest who is not checked in can be found under Bookings (by name or reference) and checked in with the new **Check in** button on the booking, or from Today on the Dashboard.
 - **Date boxes open the calendar wherever you click.** On the New booking page and the guided booking's stay screen (Arrival and Departure), clicking the empty part of the box opens the calendar; you no longer have to find the small icon.
 - **The selected room now comes first on the Room Board.** Its summary is on the left before the room list, and the action is consistently named **Book now** for same-day and future bookings.

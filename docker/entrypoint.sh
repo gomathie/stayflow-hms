@@ -16,7 +16,7 @@ BRAND_EMAIL="booking@salisberg.com"
 # Bump CURRENCY_VERSION to re-run the currency step below.
 CURRENCY_VERSION=2
 # Bump MODULES_VERSION whenever docker/setup-modules.php changes.
-MODULES_VERSION=25
+MODULES_VERSION=26
 # Bump ROOM_TYPES_VERSION whenever docker/setup-room-types.php changes.
 ROOM_TYPES_VERSION=2
 # Bump SCHEMA_VERSION when a schema/settings step below is added or changed.

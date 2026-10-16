@@ -128,7 +128,6 @@ class Salisbergguide extends Module
         'AdminOrderRefundRequests' => array('Manage Order Refund Requests', 'Refund requests'),
         'AdminHotelReservationSystemManagement' => array('Hotel Reservation System', 'Manage Hotel'),
         'AdminAddHotel' => array('Manage Hotel', 'Hotel Details'),
-        'AdminCatalog' => array('Catalog', 'Rooms & Services'),
         'AdminCustomerThreads' => array('Customer Service', 'Inbox'),
     );
 
@@ -193,6 +192,7 @@ class Salisbergguide extends Module
             && (!$whatsNewIsNew || $this->grantWhatsNew())
             && $this->grantHotelAccess()
             && $this->renameMenuEntries()
+            && $this->orderMenus()
             && $this->hideUnusedMenus()
             && $this->removeMenus()
             && $this->registerHook('header')
@@ -278,6 +278,37 @@ class Salisbergguide extends Module
         }
 
         return true;
+    }
+
+    /**
+     * Side menu order: Bookings comes straight after Dashboard, ahead of Rooms &
+     * Services (the installer lists them the other way round). Done once, tracked
+     * by SBGUIDE_MENU_ORDER, so an order set later in Administration > Menus is
+     * not undone by a deploy. Fresh installs get this order from the installer
+     * data (install/data/xml/tab.xml), so for them the step finds nothing to move.
+     */
+    protected function orderMenus()
+    {
+        if (Configuration::get('SBGUIDE_MENU_ORDER')) {
+            return true;
+        }
+        $idCatalog = (int) Tab::getIdFromClassName('AdminCatalog');
+        $idOrders = (int) Tab::getIdFromClassName('AdminParentOrders');
+        if ($idCatalog && $idOrders) {
+            $db = Db::getInstance();
+            $catalogAt = (int) $db->getValue('SELECT `position` FROM `'._DB_PREFIX_.'tab` WHERE `id_tab` = '.$idCatalog);
+            $ordersAt = (int) $db->getValue('SELECT `position` FROM `'._DB_PREFIX_.'tab` WHERE `id_tab` = '.$idOrders);
+            if ($ordersAt > $catalogAt) {
+                $db->execute(
+                    'UPDATE `'._DB_PREFIX_.'tab` SET `position` = `position` + 1
+                    WHERE `id_parent` = 0 AND `position` >= '.$catalogAt.' AND `position` < '.$ordersAt
+                );
+                $db->update('tab', array('position' => $catalogAt), 'id_tab = '.$idOrders);
+                PrestaShopLogger::addLog('salisbergguide: Bookings moved ahead of Rooms & Services in the side menu', 1);
+            }
+        }
+
+        return Configuration::updateValue('SBGUIDE_MENU_ORDER', 1);
     }
 
     /** Deletes the menu entries in $removedMenus that still exist. Safe to repeat. */
