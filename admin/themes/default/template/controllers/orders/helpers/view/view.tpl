@@ -83,13 +83,37 @@
 	{/if}
 
     <div id="order_detail_view">
+        <header class="sb-print-header">
+            <img src="{$img_dir|escape:'html':'UTF-8'}logo.jpg" alt="Salisberg Hotels">
+            <div>
+                <strong>{l s='Booking details'}</strong>
+                <span>{l s='Booking reference'}</span>
+                <b>{$order->reference|escape:'html':'UTF-8'}</b>
+            </div>
+        </header>
+        <section class="sb-print-guest">
+            <div>
+                <span>{l s='Guest'}</span>
+                <strong>{if $customerGuestDetail}{$customerGuestDetail->firstname|escape:'html':'UTF-8'} {$customerGuestDetail->lastname|escape:'html':'UTF-8'}{else}{$customer->firstname|escape:'html':'UTF-8'} {$customer->lastname|escape:'html':'UTF-8'}{/if}</strong>
+            </div>
+            {if $customerGuestDetail && $customerGuestDetail->email}
+                <div><span>{l s='Email'}</span><strong>{$customerGuestDetail->email|escape:'html':'UTF-8'}</strong></div>
+            {elseif $customer->email && !Customer::hasNoEmail($customer->email)}
+                <div><span>{l s='Email'}</span><strong>{$customer->email|escape:'html':'UTF-8'}</strong></div>
+            {/if}
+            {if $customerGuestDetail && $customerGuestDetail->phone}
+                <div><span>{l s='Phone'}</span><strong>{$customerGuestDetail->phone|escape:'html':'UTF-8'}</strong></div>
+            {elseif $customer->phone}
+                <div><span>{l s='Phone'}</span><strong>{$customer->phone|escape:'html':'UTF-8'}</strong></div>
+            {/if}
+        </section>
         {* Overbookings information of the order *}
         {include file='controllers/orders/_overbookings.tpl'}
 
         <div class="row">
             <div class="col-lg-7">
                 {if isset($htl_booking_order_data) && $htl_booking_order_data}
-                    <div class="panel">
+                    <div class="panel sb-print-room-status">
                         <div class="panel-heading order_status_heading">
                             <i class="icon-bed"></i> &nbsp;{l s='Rooms Status'}
                         </div>
@@ -114,6 +138,15 @@
                                                         <td>
                                                             {$data['room_num']}<br>
                                                             <a href="{$link->getAdminLink('AdminProducts')|escape:'html':'UTF-8'}&amp;id_product={$data['id_product']}&amp;updateproduct" target="_blank">{$data['room_type_name']|escape:'html':'UTF-8'}</a>
+                                                            <div class="sb-room-state">
+                                                                {if $data['id_status'] == $hotel_order_status['STATUS_CHECKED_OUT']['id_status']}
+                                                                    <span class="label label-default">{l s='Checked out'}</span>
+                                                                {elseif $data['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}
+                                                                    <span class="label label-success">{l s='Checked in'}</span>
+                                                                {else}
+                                                                    <span class="label label-warning">{l s='Not checked in'}</span>
+                                                                {/if}
+                                                            </div>
                                                         </td>
                                                         <td>
                                                             {assign var="is_full_date" value=($show_full_date && ($data['date_from']|date_format:'%D' == $data['date_to']|date_format:'%D'))}
@@ -152,6 +185,13 @@
                                                                     <button type="submit" name="sb_check_in" value="1" class="btn btn-success"><i class="icon-signin"></i> {l s='Check in'}</button>
                                                                 </form>
                                                             {/if}
+                                                            {if $can_edit && !$data.is_cancelled && !$data.is_refunded && $data['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}
+                                                                <form method="post" action="{$link->getAdminLink('AdminSalisbergToday')|escape:'html':'UTF-8'}" style="display:inline">
+                                                                    <input type="hidden" name="id_booking" value="{$data['id']|intval}">
+                                                                    <input type="hidden" name="id_order_back" value="{$data['id_order']|intval}">
+                                                                    <button type="submit" name="sb_check_out" value="1" class="btn btn-primary"><i class="icon-signout"></i> {l s='Check out'}</button>
+                                                                </form>
+                                                            {/if}
                                                             {if isset($refundReqBookings) && $refundReqBookings && $data.id|in_array:$refundReqBookings && $data.is_refunded}
                                                                 <span class="badge badge-danger">{if $data.is_cancelled}{l s='Cancelled'}{else}{l s='Refunded'}{/if}</span>
                                                             {elseif $can_edit}
@@ -179,7 +219,7 @@
                         </div>
                     </div>
                 {/if}
-                <div class="panel">
+                <div class="panel sb-print-history">
                     <div class="panel-heading">
                         <i class="icon-file"></i> &nbsp;{l s='Booking'}
                         <span class="badge">{$order->reference}</span>
@@ -523,7 +563,7 @@
             <div class="col-lg-5">
                 {* Traveller information *}
                 {if $customerGuestDetail}
-                    <div class="panel">
+                    <div class="panel sb-print-traveller">
                         <div class="panel-heading">
                             <i class="icon icon-user"></i> &nbsp;{l s='Traveller detail'}
                              {if $can_edit}
@@ -843,7 +883,7 @@
                         <input type="hidden" value="{$order->getWarehouseList()|implode}" id="warehouse_list" />
                     </div>
                     {if $hotel_booking}
-                        <div class="panel">
+                        <div class="panel sb-print-room-details">
                             <div class="panel-heading">
                                 <i class="icon-bed"></i> &nbsp;{l s='Rooms Booking Detail'} <span class="badge">{$order_detail_data|@count}</span>
                                 {if $can_edit && (!$order->hasBeenDelivered() && $currentState->id != Configuration::get('PS_OS_REFUND') && $currentState->id != Configuration::get('PS_OS_CANCELED'))}
@@ -909,6 +949,11 @@
         <div class="row">
             <div class="col-lg-4 col-sm-6 col-xs-12 pull-right">
                 <div class="panel panel-total">
+                    <div class="sb-print-payment-summary">
+                        <div><span>{l s='Booking total'}</span><strong>{displayPrice price=$order->total_paid_tax_incl currency=$currency->id}</strong></div>
+                        <div><span>{l s='Paid'}</span><strong>{displayPrice price=$order->total_paid_real currency=$currency->id}</strong></div>
+                        <div><span>{l s='Balance due'}</span><strong>{displayPrice price=($order->total_paid_tax_incl - $order->total_paid_real) currency=$currency->id}</strong></div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table" id="order-details-price">
                             {* Assign order price *}

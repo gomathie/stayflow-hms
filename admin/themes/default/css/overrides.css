@@ -836,3 +836,159 @@ html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard .fc-scrollgrid 
 #content.bootstrap [id^="dgc_"] { color: var(--sb-heading); }
 .bootstrap input.hasDatepicker[readonly],
 .bootstrap input.form-control[readonly] { background-color: var(--sb-subtle); color: var(--sb-ink); }
+
+/* ---------- 13. Room status actions ---------- */
+#content .sb-room-state { margin-top: 6px; }
+#content .sb-room-state .label { display: inline-block; padding: 5px 9px; border-radius: 999px; font-size: 11px; }
+#content #room_status_info_wrapper td:last-child .btn { margin: 2px; }
+
+/* ---------- 14. Customer-facing booking printout ---------- */
+.sb-print-header,
+.sb-print-guest,
+.sb-print-payment-summary { display: none; }
+@media print {
+  @page { size: A4; margin: 14mm 12mm; }
+  html, body, body.ps_back-office, #main, #content, #content.bootstrap, .bootstrap {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #1f2937 !important;
+    font: 10pt/1.4 Arial, sans-serif !important;
+  }
+  #header_infos, #nav-sidebar, #nav-topbar, .page-head, #footer,
+  #content .box-stats, #content .kpi-container, #content .kpis-wrap,
+  #order_detail_view .sb-print-history, #order_detail_view .panel-customer,
+  #order_detail_view .sb-print-traveller, #order_detail_view .panel-guest_address, #order_detail_view .order-notes,
+  #order_detail_view .panel-refund-request, #order_detail_view .panel-vouchers,
+  #order_detail_view .hidden-print, #order_detail_view .btn,
+  #order_detail_view button, #order_detail_view .dropdown,
+  #order_detail_view .panel-heading-action, #order_detail_view .actions,
+  #order_detail_view form .form-group, #order_detail_view input,
+  #order_detail_view select, #order_detail_view textarea,
+  #order_detail_view .overbooking-info { display: none !important; }
+  #content { position: static !important; left: auto !important; }
+  #order_detail_view { width: 100% !important; margin: 0 !important; }
+  .sb-print-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12mm;
+    padding: 0 0 7mm;
+    margin: 0 0 7mm;
+    border-bottom: 2px solid #12352c;
+  }
+  .sb-print-header img { display: block; width: 45mm; max-height: 22mm; object-fit: contain; }
+  .sb-print-header > div { display: grid; gap: 1mm; text-align: right; }
+  .sb-print-header strong { color: #12352c; font-size: 18pt; }
+  .sb-print-header span { color: #6b7280; font-size: 9pt; }
+  .sb-print-header b { font-size: 12pt; letter-spacing: .04em; }
+  .sb-print-guest {
+    display: grid !important;
+    grid-template-columns: 2fr 2fr 1fr;
+    gap: 4mm;
+    padding: 4mm;
+    margin: 0 0 5mm;
+    border: 1px solid #d7dde3;
+    border-radius: 2mm;
+    background: #f8faf9;
+  }
+  .sb-print-guest div { display: grid; gap: 1mm; min-width: 0; }
+  .sb-print-guest span { color: #6b7280; font-size: 8pt; text-transform: uppercase; }
+  .sb-print-guest strong { overflow-wrap: anywhere; }
+  #order_detail_view > .row:first-of-type {
+    display: block !important;
+    margin: 0 0 5mm !important;
+  }
+  #order_detail_view [class*="col-"] {
+    float: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  #order_detail_view .panel {
+    margin: 0 0 5mm !important;
+    padding: 4mm !important;
+    border: 1px solid #d7dde3 !important;
+    border-radius: 2mm !important;
+    background: #fff !important;
+    color: #1f2937 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  #order_detail_view .panel-heading {
+    min-height: 0 !important;
+    margin: -4mm -4mm 3mm !important;
+    padding: 2mm 4mm !important;
+    border-bottom: 1px solid #d7dde3 !important;
+    background: #f3f5f4 !important;
+    color: #12352c !important;
+    font-size: 11pt !important;
+    font-weight: 700 !important;
+  }
+  #order_detail_view .sb-print-traveller .row,
+  #order_detail_view .sb-print-traveller #customer-guest-details { display: grid !important; grid-template-columns: 1fr 1fr; }
+  #order_detail_view .sb-print-traveller .list-detail { float: none !important; width: auto !important; margin: 0 0 2mm !important; padding: 0 !important; }
+  #order_detail_view .label-title { display: block; color: #6b7280 !important; font-size: 8pt; text-transform: uppercase; }
+  #order_detail_view a { color: #1f2937 !important; text-decoration: none !important; }
+  #order_detail_view .row,
+  #order_detail_view .col-lg-12,
+  #start_products,
+  #start_products > .col-lg-12 { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; float: none !important; }
+  #room_status_info_wrapper,
+  #start_products .table-responsive,
+  #form_add_payment_panel .table-responsive,
+  #order-details-price { overflow: visible !important; width: 100% !important; }
+  #room_status_info_wrapper th:nth-child(n+5),
+  #room_status_info_wrapper td:nth-child(n+5) { display: none !important; }
+  #customer_cart_details th:nth-child(2),
+  #customer_cart_details td:nth-child(2),
+  #customer_cart_details th:nth-child(6),
+  #customer_cart_details td:nth-child(6),
+  #customer_cart_details th:nth-child(7),
+  #customer_cart_details td:nth-child(7),
+  #customer_cart_details th:nth-child(8),
+  #customer_cart_details td:nth-child(8),
+  #customer_cart_details th:nth-child(n+10),
+  #customer_cart_details td:nth-child(n+10) { display: none !important; }
+  #customer_cart_details { display: table !important; table-layout: fixed !important; }
+  #customer_cart_details thead { display: table-header-group !important; }
+  #customer_cart_details tbody { display: table-row-group !important; }
+  #customer_cart_details tr { display: table-row !important; }
+  #customer_cart_details th,
+  #customer_cart_details td { display: table-cell !important; }
+  #customer_cart_details th:nth-child(1),
+  #customer_cart_details td:nth-child(1) { width: 13% !important; }
+  #customer_cart_details th:nth-child(3),
+  #customer_cart_details td:nth-child(3) { width: 21% !important; }
+  #customer_cart_details th:nth-child(4),
+  #customer_cart_details td:nth-child(4) { width: 28% !important; }
+  #customer_cart_details th:nth-child(5),
+  #customer_cart_details td:nth-child(5) { width: 14% !important; }
+  #customer_cart_details th:nth-child(9),
+  #customer_cart_details td:nth-child(9) { width: 24% !important; }
+  #order_detail_view .table { width: 100% !important; margin: 0 !important; border-collapse: collapse !important; font-size: 8.5pt !important; }
+  #order_detail_view .table th,
+  #order_detail_view .table td { padding: 2mm !important; border: 1px solid #d7dde3 !important; background: #fff !important; color: #1f2937 !important; vertical-align: top !important; }
+  #order_detail_view .table thead th { background: #f3f5f4 !important; color: #12352c !important; font-weight: 700 !important; }
+  #order_detail_view .table th { font-family: Arial, sans-serif !important; font-style: normal !important; letter-spacing: normal !important; text-transform: none !important; }
+  #form_add_payment_panel .table th:nth-child(3),
+  #form_add_payment_panel .table td:nth-child(3),
+  #form_add_payment_panel .table th:nth-child(4),
+  #form_add_payment_panel .table td:nth-child(4),
+  #form_add_payment_panel .table th:nth-child(6),
+  #form_add_payment_panel .table td:nth-child(6),
+  #form_add_payment_panel .table th:nth-child(n+7),
+  #form_add_payment_panel .table td:nth-child(n+7) { display: none !important; }
+  #order_detail_view .panel-total { width: 58% !important; margin-left: auto !important; }
+  #order_detail_view .panel-total .table-responsive { display: none !important; }
+  .sb-print-payment-summary { display: grid !important; gap: 2mm; }
+  .sb-print-payment-summary > div { display: flex; justify-content: space-between; gap: 6mm; padding: 1.5mm 0; border-bottom: 1px solid #e5e7eb; }
+  .sb-print-payment-summary > div:last-child { border-bottom: 0; color: #12352c; font-size: 12pt; font-weight: 700; }
+  #order_detail_view img { max-width: 24mm; max-height: 18mm; }
+  #order_detail_view tr { page-break-inside: avoid; break-inside: avoid; }
+  #order_detail_view a[href]:after { content: none !important; }
+}

@@ -146,8 +146,8 @@
 		<ol>
 			<li>{l s='Open the booking (section 4) and confirm the guest name and dates. Ask for ID if hotel policy requires it.' mod='salisbergguide'}</li>
 			<li>{l s='If money is still due, take payment first (section 5).' mod='salisbergguide'}</li>
-			<li>{l s='In Rooms Booking Detail, click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='on the room. The button shows once the stay has started and the guest is not yet checked in. The date and time are recorded and you stay on the booking.' mod='salisbergguide'}</li>
-			<li>{l s='When the guest leaves, open the booking again, settle any extra services, and mark the room as checked out.' mod='salisbergguide'}</li>
+			<li>{l s='In Rooms Status, read the status badge beside the room. When the stay has started, click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='on that room row. The date and time are recorded and you stay on the booking; you do not need to open Edit.' mod='salisbergguide'}</li>
+			<li>{l s='When the guest leaves, settle any extra services, then click' mod='salisbergguide'} <span class="sb-btn">Check out</span> {l s='on the same room row. The room is marked Dirty for housekeeping; you do not need to open Edit.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='A booking with several rooms is checked in and out one room at a time.' mod='salisbergguide'}</p>
 	</section>
