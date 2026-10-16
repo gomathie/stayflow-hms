@@ -528,9 +528,10 @@ class SalisbergWalkIn
 
     protected function getCartRoom($idCart)
     {
+        // no LIMIT here: Db::getRow() appends its own " LIMIT 1"
         return Db::getInstance()->getRow(
             'SELECT * FROM `'._DB_PREFIX_.'htl_cart_booking_data`
-            WHERE `id_cart` = '.(int) $idCart.' ORDER BY `id` LIMIT 1'
+            WHERE `id_cart` = '.(int) $idCart.' ORDER BY `id`'
         );
     }
 

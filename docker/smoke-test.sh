@@ -98,6 +98,26 @@ if [ "$BASE" != "${BASE#http://localhost}" ] && command -v docker >/dev/null 2>&
         bad "$count PHP error/warning lines logged; the most frequent:"
         printf '%s\n' "$log" | sed -E 's/^[^|]*\| //; s/^\[[^]]*\] *//; s/\[pid [0-9]+\] *//; s/\[client [^]]*\] *//' | sed -E 's/, referer:.*//' | sort | uniq -c | sort -rn | head -8 | cut -c1-220
     fi
+    # Db::getRow() and Db::getValue() add " LIMIT 1" themselves, so a query that already has
+    # a LIMIT reaches MySQL as "LIMIT 1 LIMIT 1" and fails ("SQLSTATE[42000] ... near
+    # 'LIMIT 1'"). That fault sat on a screen no page-load check opens, so look for it in the
+    # code that is in the image. Use executeS() for a query that needs its own LIMIT.
+    echo "Queries that would get a second LIMIT"
+    limit_hits=$(docker compose exec -T app php -r '
+        $p = "/->(?:getRow|getValue)\\(\\s*[\\x27\\x22][^;]{0,1500}?\\bLIMIT\\s+\\d+\\s*[\\x27\\x22]\\s*[,)]/s";
+        foreach (["modules", "override", "controllers", "classes"] as $d) {
+            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator("/var/www/html/$d", FilesystemIterator::SKIP_DOTS)) as $f) {
+                if ($f->getExtension() !== "php") { continue; }
+                $src = file_get_contents($f->getPathname());
+                if (preg_match_all($p, $src, $m, PREG_OFFSET_CAPTURE)) {
+                    foreach ($m[0] as $h) { echo str_replace("/var/www/html/", "", $f->getPathname()) . ":" . (substr_count(substr($src, 0, $h[1]), "\n") + 1) . "\n"; }
+                }
+            }
+        }' 2>/dev/null || true)
+    if [ -z "$limit_hits" ]; then ok "no getRow()/getValue() query carries its own LIMIT"; else
+        bad "getRow()/getValue() called with a query that already has LIMIT (it becomes LIMIT 1 LIMIT 1):"
+        printf '%s\n' "$limit_hits" | sed 's/^/          /'
+    fi
     printf '  PHP %s, MySQL %s\n' "$(docker compose exec -T app php -r 'echo PHP_VERSION;' 2>/dev/null)" "$(docker compose exec -T db mysqld --version 2>/dev/null | grep -o 'Ver [0-9.]*' | cut -d' ' -f2)"
 fi
 

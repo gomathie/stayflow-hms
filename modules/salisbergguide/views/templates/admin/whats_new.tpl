@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='16 October 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='Editing the stay of a booking you have started works again.' mod='salisbergguide'}</strong> {l s='In New booking, Edit stay details showed a database error when saved. You can now change dates, guests and room before confirming.' mod='salisbergguide'}</li>
 			<li><strong>{l s='A room with a guest still checked in is never shown as Ready.' mod='salisbergguide'}</strong> {l s='Even if the guest stayed past their departure date, the room shows as Occupied on the Room board until you check them out.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Date boxes open the calendar wherever you click.' mod='salisbergguide'}</strong> {l s='In Arrival and Departure on New booking, click anywhere in the box instead of finding the small calendar icon.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Selected room now comes first.' mod='salisbergguide'}</strong> {l s='It is on the left before the room list, and the button is called Book now for both same-day and future stays. Room types show their matching count on the same row. The room list now takes two thirds of the page, the selected room stays in view as you scroll, and the repeated headings and banner above the rooms were removed.' mod='salisbergguide'}</li>
