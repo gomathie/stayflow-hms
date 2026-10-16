@@ -7,6 +7,17 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
+## 2026-10-16
+
+### Changed
+
+- **Room Board summaries are easier to scan.** Each room count now sits beside its room-type heading and updates with the active filter or search. The selected-room card is wider, uses readable dates and guest wording, highlights the estimated total, and omits a redundant nightly breakdown unless rates vary during the stay.
+- Room cards now label capacity explicitly and show a check mark and accessible pressed state for the selected room. On smaller laptops the board switches to one column and keeps its Continue action visible instead of squeezing the summary beside the room grid.
+
+### Fixed
+
+- Long capacity and nightly-rate values in Selected room now wrap inside the card instead of crossing its divider or being clipped.
+
 ## 2026-10-15
 
 ### Changed

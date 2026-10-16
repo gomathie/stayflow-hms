@@ -1855,3 +1855,28 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - After correcting both locks, the same Hotel Staff profile completed future reservation `MJATYEKLB` (order 16) for room GR-105, 12–14 February 2027. The success page rendered, View stay opened without a permission error, and the reference appeared in Reservations. Database checks showed employee 3 (`staff.test@example.com`), complete draft 6, Awaiting payment, Pay later, GH₵416 total, GH₵0 paid, and allotted/reserved booking status. The employee password hash was restored after the test.
 - PHP syntax checks passed for the service, both controllers and module class; JavaScript syntax checks passed for Room board and walk-in scripts; `git diff --check` passed.
 - Not tested: visual interaction in a real browser, the Hotel Manager profile, a same-day check-in or confirmed payment, or the live server.
+
+### 2026-10-16 — Room board count and selected-room layout
+
+**What**
+
+- The count for each room type now sits in a small badge immediately beside the type name. `room-board.js` recalculates it after every status filter or room search, so it describes the rooms currently shown rather than the unfiltered total.
+- The selected-room column is 330–360px instead of 290px. Its detail grid now lets both columns shrink and wraps long values, preventing capacity and nightly rates from crossing the centre or right edge.
+- Check-in and check-out dates use `15 Oct 2026` consistently. Guest wording replaces the ambiguous `1 + 0`, Capacity is named on room cards, and a selected card has both a visible check mark and `aria-pressed=true`.
+- The estimated stay total is a separate highlighted row. The nightly-rate breakdown is hidden for a flat-rate stay and shown only when nightly prices differ.
+- Below 1200px the board becomes one column and the existing fixed Continue action appears, instead of squeezing the room grid and summary beside the 304px back-office menu.
+
+**Why**
+
+- At the width shown by the owner, `justify-content: space-between` made a room count look detached from its heading. The 290px summary and its max-content value column also caused long details to collide and overflow.
+
+**Guide**
+
+- Staff Guide section 3 now explains the filtered room-type count, simplified selected-room summary and conditional nightly breakdown. What's New and `CHANGELOG.md` describe the visible change.
+
+**Verification**
+
+- Rebuilt and restarted the local Docker stack after the Room board code change. `docker/smoke-test.sh` passed 30 of 30 checks on PHP 8.3.35 and MySQL 8.0.46, including the authenticated Room board, with no PHP error or warning in the application log.
+- PHP syntax checks passed for `SalisbergWalkIn.php` and `AdminSalisbergRoomBoardController.php`; the Room board JavaScript syntax check and `git diff --check` passed.
+- A temporary headless-Chrome visual checker did not start its debugging endpoint and was removed with its temporary browser profile. The final layout was therefore not claimed as visually checked; a real-browser screenshot at the owner's working width remains to be reviewed.
+- The Staff Guide, What's New and change-record edits were made after that successful build. A second rebuild was attempted, but Docker Desktop was no longer running (`dockerDesktopLinuxEngine` pipe absent), so those documentation-only edits were not rechecked in the container.

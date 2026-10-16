@@ -19,6 +19,13 @@
 	</div>
 
 	<section>
+		<h3>{l s='16 October 2026' mod='salisbergguide'}</h3>
+		<ul>
+			<li><strong>{l s='The Room board is clearer and no longer crowds the selected room.' mod='salisbergguide'}</strong> {l s='Room counts now sit beside each room type and follow the active filter or search. The wider Selected room card wraps long details safely, uses readable dates, highlights the stay total and only shows a nightly breakdown when rates differ.' mod='salisbergguide'}</li>
+		</ul>
+	</section>
+
+	<section>
 		<h3>{l s='15 October 2026' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='Add new booking now opens the Room board.' mod='salisbergguide'}</strong> {l s='Use the same guided Guest, Payment and Confirm steps for a walk-in or a future reservation. A walk-in can be checked in at the end; a future stay is saved without checking the guest in.' mod='salisbergguide'}</li>
