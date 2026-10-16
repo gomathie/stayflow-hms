@@ -1533,9 +1533,15 @@ $(document).ready(function() {
 
     // Start: Room status dropdown
     $(document).on('click', '.sb-confirm-room-status', function(e) {
-        e.preventDefault();
         var trigger = $(this);
         var confirmation = $('#' + trigger.attr('aria-controls'));
+        // Only the direct room-row actions carry an aria-controls panel. If a
+        // trigger is missing its panel, leave the default action alone so the
+        // click can never be silently swallowed.
+        if (!confirmation.length) {
+            return;
+        }
+        e.preventDefault();
         $('.sb-room-status-confirm').attr('hidden', true);
         $('.sb-confirm-room-status').attr('aria-expanded', 'false');
         confirmation.removeAttr('hidden');
