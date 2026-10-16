@@ -2834,15 +2834,6 @@ class AdminOrdersControllerCore extends AdminController
         $objOrder = new Order(Tools::getValue('id_order'));
         if (Validate::isLoadedObject($objOrder)) {
             $helper = new HelperKpi();
-            $helper->id = 'box-order-date';
-            $helper->icon = 'icon-calendar';
-            $helper->color = 'color1';
-            $helper->title = $this->l('Booking date');
-            $helper->tooltip = $this->l('The date when the booking was made.');
-            $helper->value = Tools::displayDate($objOrder->date_add);
-            $this->kpis[] = $helper;
-
-            $helper = new HelperKpi();
             $helper->id = 'box-order-total';
             $helper->icon = 'icon-money';
             $helper->color = 'color3';
@@ -2869,29 +2860,6 @@ class AdminOrdersControllerCore extends AdminController
             $helper->value = Tools::displayPrice(($objOrder->total_paid_tax_incl - $objOrder->total_paid_real), new Currency($objOrder->id_currency));
             $this->kpis[] = $helper;
 
-            $orderHistory = array_reverse($objOrder->getHistory($this->context->language->id));
-            $helper = new HelperKpi();
-            $helper->id = 'box-order-source';
-            $helper->icon = 'icon-globe';
-            $helper->color = 'color1';
-            $helper->title = $this->l('Booking source');
-            $helper->tooltip = $this->l('Booking source shows where the booking was made.');
-            $helper->subtitle = $orderHistory[0]['id_employee'] ? $this->l('Back office') : $this->l('Front office');
-            $helper->value = $objOrder->source;
-            $this->kpis[] = $helper;
-
-            $objCustomerThread = new CustomerThread();
-            $idCustomerThread = $objCustomerThread->getIdCustomerThreadByIdOrder($objOrder->id);
-            $helper = new HelperKpi();
-            $helper->id = 'box-messages';
-            $helper->icon = 'icon-comments';
-            $helper->color = 'color2';
-            $helper->title = $this->l('Messages');
-            $helper->tooltip = $this->l('Messages is the number of guest messages for this booking.');
-            $helper->href = $this->context->link->getAdminLink('AdminCustomerThreads').((int) $idCustomerThread ? '&viewcustomer_thread&id_customer_thread='.(int) $idCustomerThread : '');
-            $helper->value = count(CustomerThread::getCustomerMessages($objOrder->id_customer, null, $objOrder->id, CustomerMessage::QLO_CUSTOMER_MESSAGE_BY_CUSTOMER));
-            $this->kpis[] = $helper;
-
             $objHotelBookingDetail = new HotelBookingDetail();
             $numRooms = count($objHotelBookingDetail->getBookingDataByOrderId($objOrder->id));
             $helper = new HelperKpi();
@@ -2904,73 +2872,6 @@ class AdminOrdersControllerCore extends AdminController
             $helper->value = $numRooms;
             $this->kpis[] = $helper;
 
-            // if order has normal products the add kpi for total products
-            $objServiceProductOrderDetail = new ServiceProductOrderDetail();
-            $hotelProducts = $objServiceProductOrderDetail->getServiceProductsInOrder($objOrder->id, 0, 0, Product::SELLING_PREFERENCE_HOTEL_STANDALONE);
-            $standaloneProducts = $objServiceProductOrderDetail->getServiceProductsInOrder($objOrder->id, 0, 0, Product::SELLING_PREFERENCE_STANDALONE);
-
-            if ($hotelProducts || $standaloneProducts) {
-                $helper = new HelperKpi();
-                $helper->id = 'box-total-products';
-                $helper->icon = 'icon-home';
-                $helper->color = 'color1';
-                $helper->title = $this->l('Total Products');
-                $helper->tooltip = $this->l('Total products is the number of product quantities in this booking.');
-                $helper->href = '#start_products';
-
-                $totalProductQuantity = 0;
-                if ($hotelProducts) {
-                    $totalProductQuantity += array_sum(array_column($hotelProducts, 'quantity'));
-                }
-                if ($standaloneProducts) {
-                    $totalProductQuantity += array_sum(array_column($standaloneProducts, 'quantity'));
-                }
-
-                $helper->value = $totalProductQuantity;
-                $this->kpis[] = $helper;
-            }
-
-            $helper = new HelperKpi();
-            if (isset($orderHistory[0]['id_order_state']) && ($orderHistory[0]['id_order_state'] == Configuration::get('PS_OS_PAYMENT_ACCEPTED'))) {
-                $initialPaymentStatus = $this->l('Full Payment');
-            } elseif (isset($orderHistory[0]['id_order_state']) && ($orderHistory[0]['id_order_state'] == Configuration::get('PS_OS_PARTIAL_PAYMENT_ACCEPTED'))) {
-                $initialPaymentStatus = $this->l('Partial Payment');
-            } else {
-                $initialPaymentStatus = $this->l('No Payment Received');
-            }
-            $helper->id = 'box-payment-status';
-            $helper->icon = 'icon-home';
-            $helper->color = 'color3';
-            $helper->title = $this->l('Initial Payment Status');
-            $helper->tooltip = $this->l('Initial payment status shows whether the booking was fully paid, partly paid, or unpaid when it was made.');
-            $helper->value = $initialPaymentStatus;
-            $this->kpis[] = $helper;
-
-            if ($objOrder->is_advance_payment) {
-                $helper = new HelperKpi();
-                $helper->id = 'box-partial-payment-amount';
-                $helper->icon = 'icon-money';
-                $helper->color = 'color4';
-                $helper->title = $this->l('Partial Payment Amount');
-                $helper->tooltip = $this->l('Partial payment amount is the advance amount due when part payment was selected for this booking.');
-                $helper->value = Tools::displayPrice($objOrder->advance_paid_amount, new Currency($objOrder->id_currency));
-                $this->kpis[] = $helper;
-            }
-
-            $objOrderReturn = new OrderReturn();
-            $refundReqProducts = $objOrderReturn->getOrderRefundRequestedProducts($objOrder->id, 0, 1);
-            $refundReqBookings = $objOrderReturn->getOrderRefundRequestedBookings($objOrder->id, 0, 1);
-            if ($refundReqProducts || $refundReqBookings) {
-                $refundedAmount = $objOrderReturn->getRefundedAmount($objOrder->id);
-                $helper = new HelperKpi();
-                $helper->id = 'box-payment-type';
-                $helper->icon = 'icon-money';
-                $helper->color = 'color3';
-                $helper->title = $this->l('Refunded Amount');
-                $helper->tooltip = $this->l('Refunded amount is the amount returned for this booking.');
-                $helper->value = Tools::displayPrice($refundedAmount, new Currency($objOrder->id_currency));
-                $this->kpis[] = $helper;
-            }
         } else {
             $time = time();
             $kpis = array();
