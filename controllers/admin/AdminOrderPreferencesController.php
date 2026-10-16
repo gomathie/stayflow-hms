@@ -74,7 +74,7 @@ class AdminOrderPreferencesControllerCore extends AdminController
         $displayCurrencyOptions = array(
             array(
                 'value' => Order::ORDER_LIST_PRICE_DISPLAY_IN_PAYMENT_CURRENCY,
-                'name' => $this->l('Order currency')
+                'name' => $this->l('Booking currency')
             ),
             array(
                 'value' => Order::ORDER_LIST_PRICE_DISPLAY_IN_DEFAULT_CURRENCY,
@@ -84,7 +84,7 @@ class AdminOrderPreferencesControllerCore extends AdminController
 
         $this->fields_options = array(
             'order_restrict' => array(
-                'title' => $this->l('Order Restrict'),
+                'title' => $this->l('Booking restrictions'),
                 'icon' => 'icon-cogs',
                 'fields' => array(
                     'PS_MAX_CHECKOUT_OFFSET' => array(
@@ -103,13 +103,13 @@ class AdminOrderPreferencesControllerCore extends AdminController
                         'suffix' => $this->l('day(s)'),
                     ),
                     'PS_BACKDATE_ORDER_SUPERADMIN' => array(
-                        'title' => $this->l('Allow backdate order from Back-office for super-admin'),
-                        'hint' => $this->l('Allow superadmin to create bookings for backdate'),
+                        'title' => $this->l('Allow the SuperAdmin to create backdated bookings'),
+                        'hint' => $this->l('Allow the SuperAdmin to create bookings with a past check-in date.'),
                         'type' => 'bool',
                     ),
                     'PS_BACKDATE_ORDER_EMPLOYEES' => array(
-                        'title' => $this->l('Allow backdate order from Back-office for employees'),
-                        'hint' => $this->l('Allow employees to create bookings for backdate'),
+                        'title' => $this->l('Allow staff to create backdated bookings'),
+                        'hint' => $this->l('Allow staff to create bookings with a past check-in date.'),
                         'type' => 'bool',
                     ),
                 ),
@@ -122,7 +122,7 @@ class AdminOrderPreferencesControllerCore extends AdminController
                 'icon' =>    'icon-cogs',
                 'fields' =>    array(
                    /* 'PS_ORDER_PROCESS_TYPE' => array(
-                        'title' => $this->l('Order process type'),
+                        'title' => $this->l('Booking process type'),
                         'hint' => $this->l('Please choose either the five-step or one-page checkout process.'),
                         'validation' => 'isInt',
                         'cast' => 'intval',
@@ -133,7 +133,7 @@ class AdminOrderPreferencesControllerCore extends AdminController
                     ),*/
                     'PS_GUEST_CHECKOUT_ENABLED' => array(
                         'title' => $this->l('Enable guest checkout'),
-                        'hint' => $this->l('Allow guest visitors to place an order without registration.'),
+                        'hint' => $this->l('Allow guests to make a booking without creating an account.'),
                         'validation' => 'isBool',
                         'cast' => 'intval',
                         'type' => 'bool'
@@ -146,7 +146,7 @@ class AdminOrderPreferencesControllerCore extends AdminController
                         'type' => 'bool'
                     ),*/
                     'PS_PURCHASE_MINIMUM' => array(
-                        'title' => $this->l('Minimum purchase total required in order to validate the order'),
+                        'title' => $this->l('Minimum total required to confirm a booking'),
                         'hint' => $this->l('Set to 0 to disable this feature.'),
                         'validation' => 'isFloat',
                         'cast' => 'floatval',
@@ -168,7 +168,7 @@ class AdminOrderPreferencesControllerCore extends AdminController
                     ),*/
                     'PS_CONDITIONS' => array(
                         'title' => $this->l('Terms of service'),
-                        'hint' => $this->l('Require customers to accept or decline terms of service before processing an order.'),
+                        'hint' => $this->l('Require guests to accept the terms of service before confirming a booking.'),
                         'validation' => 'isBool',
                         'cast' => 'intval',
                         'type' => 'bool',
@@ -194,9 +194,9 @@ class AdminOrderPreferencesControllerCore extends AdminController
                         'type' => 'bool'
                     ),
                     'PS_ORDER_LIST_PRICE_DISPLAY_CURRENCY' => array(
-                        'title' => $this->l('Display order list prices in Back Office'),
-                        'hint' => $this->l('Choose the currency in which you want the prices in the order list to be displayed.'),
-                        'desc' => $this->l('\'Order currency\' is the currency in which customer created the order and \'Default currency\' is the currency configured in localization.'),
+                        'title' => $this->l('Display booking list prices in the back office'),
+                        'hint' => $this->l('Choose the currency used for prices in the booking list.'),
+                        'desc' => $this->l('\'Booking currency\' is the currency used when the guest created the booking. \'Default currency\' is configured under Localization.'),
                         'validation' => 'isInt',
                         'type' => 'select',
                         'cast' => 'intval',
@@ -204,8 +204,8 @@ class AdminOrderPreferencesControllerCore extends AdminController
                         'identifier' => 'value',
                     ),
                     'PS_ORDER_KPI_AVG_ORDER_VALUE_NB_DAYS' => array(
-                        'title' => $this->l('Days for Average Order Value KPI'),
-                        'hint' => $this->l('Set for last how many days, the \'Average order value\' in the KPI to be calculated.'),
+                        'title' => $this->l('Days for average booking value KPI'),
+                        'hint' => $this->l('Set the number of recent days used to calculate the \'Average booking value\' KPI.'),
                         'type' => 'text',
                         'validation' => 'isUnsignedInt',
                         'class' => 'fixed-width-xl',
@@ -237,33 +237,33 @@ class AdminOrderPreferencesControllerCore extends AdminController
                 'submit' => array('title' => $this->l('Save'))
             ),
             'email' => array(
-                'title' =>    $this->l('Order Confirmation / Overbooking Email'),
+                        'title' =>    $this->l('Booking confirmation / overbooking email'),
                 'icon' =>    'icon-cogs',
                 'fields' =>    array(
                     'PS_ORDER_CONF_MAIL_TO_CUSTOMER' => array(
                         'title' => $this->l('Send email to customer'),
-                        'hint' => $this->l('Enable, if you want to send order confirmation or overbooking or overbooking email to the customer.'),
+                        'hint' => $this->l('Send booking confirmation and overbooking emails to the guest.'),
                         'validation' => 'isBool',
                         'cast' => 'intval',
                         'type' => 'bool'
                     ),
                     'PS_ORDER_CONF_MAIL_TO_SUPERADMIN' => array(
                         'title' => $this->l('Send email to super admin'),
-                        'hint' => $this->l('Enable, if you want to send order confirmation or overbooking email to the super admin.'),
+                        'hint' => $this->l('Send booking confirmation and overbooking emails to the SuperAdmin.'),
                         'validation' => 'isBool',
                         'cast' => 'intval',
                         'type' => 'bool'
                     ),
                     'PS_ORDER_CONF_MAIL_TO_HOTEL_MANAGER' => array(
                         'title' => $this->l('Send email to hotelier'),
-                        'hint' => $this->l('Enable, if you want to send order confirmation or overbooking email to the hotelier. Mail will be sent to the email saved while creating the hotel.'),
+                        'hint' => $this->l('Send booking confirmation and overbooking emails to the hotel address.'),
                         'validation' => 'isBool',
                         'cast' => 'intval',
                         'type' => 'bool'
                     ),
                     'PS_ORDER_CONF_MAIL_TO_EMPLOYEE' => array(
                         'title' => $this->l('Send email to employees'),
-                        'hint' => $this->l('Enable, if you want to send order confirmation or overbooking email to employees having permission to manage the hotel.'),
+                        'hint' => $this->l('Send booking confirmation and overbooking emails to staff who can manage the hotel.'),
                         'validation' => 'isBool',
                         'cast' => 'intval',
                         'type' => 'bool'
@@ -276,8 +276,8 @@ class AdminOrderPreferencesControllerCore extends AdminController
                 'icon' => 'icon-cogs',
                 'fields' => array(
                     'PS_OVERBOOKING_ORDER_ACTION' => array(
-                        'title' => $this->l('Overbooking order action'),
-                        'hint' => $this->l('Please choose the action to take when overbooking is created in any order.'),
+                        'title' => $this->l('Overbooking action'),
+                        'hint' => $this->l('Choose what happens when an overbooking is created in a booking.'),
                         'validation' => 'isInt',
                         'type' => 'select',
                         'cast' => 'intval',
@@ -289,20 +289,20 @@ class AdminOrderPreferencesControllerCore extends AdminController
                     'PS_MAX_OVERBOOKING_PER_HOTEL_PER_DAY' => array(
                         'title' => $this->l('Maximun hotel overbookings per date'),
                         'hint' => $this->l('Enter the maximum number of the overbookings on any date can be created for a hotel.(Set 0 for no limit)'),
-                        'desc' => $this->l('When maximun number of the overbookings on any date in the booking duration is reached, then the new overbooking order will be cancelled.(Set 0 for no limit)'),
+                        'desc' => $this->l('When the maximum number of overbookings is reached for any date in the stay, the new overbooking will be cancelled. Set 0 for no limit.'),
                         'validation' => 'isInt',
                         'type' => 'text',
                         'class' => 'fixed-width-xxl',
                         'id' => 'PS_MAX_OVERBOOKING_PER_HOTEL_PER_DAY',
                     ),
                     'OVERBOOKING_ORDER_CANCEL_ACTION' => array(
-                        'title' => $this->l('Overbooking order cancel action value'),
+                        'title' => $this->l('Cancel overbooking action value'),
                         'type' => 'hidden',
                         'value' => Order::OVERBOOKING_ORDER_CANCEL_ACTION,
                         'auto_value' => false,
                     ),
                     'OVERBOOKING_ORDER_NO_ACTION' => array(
-                        'title' => $this->l('Overbooking order no action value'),
+                        'title' => $this->l('No-action overbooking value'),
                         'validation' => 'isInt',
                         'cast' => 'intval',
                         'type' => 'hidden',
@@ -312,7 +312,7 @@ class AdminOrderPreferencesControllerCore extends AdminController
                     'PS_OVERBOOKING_AUTO_RESOLVE' => array(
                         'title' => $this->l('Resolve overbooking automatically'),
                         'hint' => $this->l('Enable, if you want to resolve overbooking automatically when rooms are available to be replaced with overbooked rooms.'),
-                        'desc' => $this->l('If enabled, the overbookings in the order will be resolved automatically when rooms are available to be replaced with all overbooked rooms in the order.'),
+                        'desc' => $this->l('If enabled, overbookings in a booking are resolved automatically when replacement rooms become available.'),
                         'validation' => 'isBool',
                         'cast' => 'intval',
                         'type' => 'bool'

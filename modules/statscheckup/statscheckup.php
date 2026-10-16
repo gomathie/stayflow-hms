@@ -233,7 +233,7 @@ class StatsCheckUp extends Module
         $array_conf = array(
             'DESCRIPTIONS' => array('name' => $this->l('Descriptions'), 'text' => $this->l('chars (without HTML)')),
             'IMAGES' => array('name' => $this->l('Images'), 'text' => $this->l('images')),
-            'ORDERS' => array('name' => $this->l('Orders'), 'text' => $this->l('orders / month')),
+            'ORDERS' => array('name' => $this->l('Bookings'), 'text' => $this->l('bookings / month')),
             'TOTAL_ROOMS' => array('name' => $this->l('Total rooms'), 'text' => $this->l('rooms')),
         );
 
@@ -290,7 +290,7 @@ class StatsCheckUp extends Module
                         <select name="submitCheckupOrder" onchange="this.form.submit();">
                             <option value="'.self::ORDER_BY_ID.'">'.$this->l('ID').'</option>
                             <option value="'.self::ORDER_BY_NAME.'" '.($this->context->cookie->checkup_order == self::ORDER_BY_NAME ? 'selected="selected"' : '').'>'.$this->l('Name').'</option>
-                            <option value="'.self::ORDER_BY_ORDERS.'" '.($this->context->cookie->checkup_order == self::ORDER_BY_ORDERS ? 'selected="selected"' : '').'>'.$this->l('Orders').'</option>
+                            <option value="'.self::ORDER_BY_ORDERS.'" '.($this->context->cookie->checkup_order == self::ORDER_BY_ORDERS ? 'selected="selected"' : '').'>'.$this->l('Bookings').'</option>
                         </select>
                     </div>
                 </div>
@@ -308,7 +308,7 @@ class StatsCheckUp extends Module
         }
         $hotelsHtml .= '
                     <th class="center"><span class="title_box active">'.$this->l('Images').'</span></th>
-                    <th class="center"><span class="title_box active">'.$this->l('Orders').'</span></th>
+                    <th class="center"><span class="title_box active">'.$this->l('Bookings').'</span></th>
                     <th class="center"><span class="title_box active">'.$this->l('Total rooms').'</span></th>
                     <th class="center"><span class="title_box active">'.$this->l('Overall status').'</span></th>
                     '.(!$this->id_hotel ? '<th class="center"><span class="title_box active">'.$this->l('Action').'</span></th>' : '').'
@@ -414,7 +414,7 @@ class StatsCheckUp extends Module
         }
         $hotelsHtml .= '
                     <th class="center"><span class="title_box active">'.$this->l('Images').'</span></th>
-                    <th class="center"><span class="title_box active">'.$this->l('Orders').'</span></th>
+                    <th class="center"><span class="title_box active">'.$this->l('Bookings').'</span></th>
                     <th class="center"><span class="title_box active">'.$this->l('Total rooms').'</span></th>
                     <th class="center"><span class="title_box active">'.$this->l('Overall status').'</span></th>
                     '.(!$this->id_hotel ? '<th></th>' : '').'
@@ -480,7 +480,7 @@ class StatsCheckUp extends Module
         $array_conf = array(
             'DESCRIPTIONS_SHORT' => array('name' => $this->l('Descriptions'), 'text' => $this->l('chars (without HTML)')),
             'IMAGES' => array('name' => $this->l('Images'), 'text' => $this->l('images')),
-            'ORDERS' => array('name' => $this->l('Orders'), 'text' => $this->l('orders / month')),
+            'ORDERS' => array('name' => $this->l('Bookings'), 'text' => $this->l('bookings / month')),
         );
 
         $servicesHtml = '
@@ -536,7 +536,7 @@ class StatsCheckUp extends Module
                         <select name="submitCheckupOrder" onchange="this.form.submit();">
                             <option value="'.self::ORDER_BY_ID.'">'.$this->l('ID').'</option>
                             <option value="'.self::ORDER_BY_NAME.'" '.($this->context->cookie->checkup_order == self::ORDER_BY_NAME ? 'selected="selected"' : '').'>'.$this->l('Name').'</option>
-                            <option value="'.self::ORDER_BY_ORDERS.'" '.($this->context->cookie->checkup_order == self::ORDER_BY_ORDERS ? 'selected="selected"' : '').'>'.$this->l('Orders').'</option>
+                            <option value="'.self::ORDER_BY_ORDERS.'" '.($this->context->cookie->checkup_order == self::ORDER_BY_ORDERS ? 'selected="selected"' : '').'>'.$this->l('Bookings').'</option>
                         </select>
                     </div>
                 </div>
@@ -555,7 +555,7 @@ class StatsCheckUp extends Module
         }
         $servicesHtml .= '
                     <th class="center"><span class="title_box active">'.$this->l('Images').'</span></th>
-                    <th class="center"><span class="title_box active">'.$this->l('Orders').'</span></th>
+                    <th class="center"><span class="title_box active">'.$this->l('Bookings').'</span></th>
                     <th class="center"><span class="title_box active">'.$this->l('Overall status').'</span></th>
                     '.(!$this->id_hotel ? '<th class="center"><span class="title_box active">'.$this->l('Action').'</span></th>' : '').'
                 </tr>
@@ -645,7 +645,7 @@ class StatsCheckUp extends Module
         }
         $servicesHtml .= '
                     <th class="center"><span class="title_box active">'.$this->l('Images').'</span></th>
-                    <th class="center"><span class="title_box active">'.$this->l('Orders').'</span></th>
+                    <th class="center"><span class="title_box active">'.$this->l('Bookings').'</span></th>
                     <th class="center"><span class="title_box active">'.$this->l('Overall status').'</span></th>
                     '.(!$this->id_hotel ? '<th></th>' : '').'
                 </tr>

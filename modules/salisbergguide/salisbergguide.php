@@ -121,7 +121,11 @@ class Salisbergguide extends Module
      */
     protected $menuLabels = array(
         'AdminParentOrders' => array('Orders', 'Bookings'),
-        'AdminOrders' => array(array('Orders', 'Bookings'), 'Reservations'),
+        'AdminOrders' => array(array('Orders', 'Reservations'), 'Bookings'),
+        'AdminOrderMessage' => array('Order messages', 'Booking messages'),
+        'AdminOrderPreferences' => array('Orders', 'Bookings'),
+        'AdminOrderRefundRules' => array('Manage Order Refund Rules', 'Refund rules'),
+        'AdminOrderRefundRequests' => array('Manage Order Refund Requests', 'Refund requests'),
         'AdminHotelReservationSystemManagement' => array('Hotel Reservation System', 'Manage Hotel'),
         'AdminAddHotel' => array('Manage Hotel', 'Hotel Details'),
         'AdminCatalog' => array('Catalog', 'Rooms & Services'),

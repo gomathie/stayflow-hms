@@ -37,10 +37,10 @@
 	{block name='history_heading'}
 		<h1 class="page-heading bottom-indent">{l s='Bookings'}</h1>
 	{/block}
-	<p class="info-title">{l s='Here are the orders you\'ve placed since your account was created.'}</p>
+	<p class="info-title">{l s='Here are the bookings you have made since your account was created.'}</p>
 
 	{if $slowValidation}
-		<p class="alert alert-warning">{l s='If you have just placed an order, it may take a few minutes for it to be validated. Please refresh this page if your order is missing.'}</p>
+		<p class="alert alert-warning">{l s='A new booking may take a few minutes to appear. Refresh this page if it is missing.'}</p>
 	{/if}
 	<div class="block-center" id="block-history">
 		{if $orders && count($orders)}
@@ -48,7 +48,7 @@
 				<table id="order-list" class="table table-bordered footab">
 					<thead>
 						<tr>
-							<th class="first_item" data-sort-ignore="true">{l s='Order reference'}</th>
+							<th class="first_item" data-sort-ignore="true">{l s='Booking reference'}</th>
 							<th class="item">{l s='Date'}</th>
 							<th data-hide="phone" class="item">{l s='Total price'}</th>
 							{if isset($adv_active)}
@@ -107,7 +107,7 @@
 										{if isset($order.order_state)}
 											<span class="label{if isset($order.order_state_color) && Tools::getBrightness($order.order_state_color) > 128} dark{/if}"{if isset($order.order_state_color) && $order.order_state_color} style="background-color:{$order.order_state_color|escape:'html':'UTF-8'}; border-color:{$order.order_state_color|escape:'html':'UTF-8'};"{/if}>
 												{if $order.current_state|in_array:$overbooking_order_states}
-													{l s='Order Not Confirmed'}
+											{l s='Booking not confirmed'}
 												{else}
 													{$order.order_state|escape:'html':'UTF-8'}
 												{/if}
@@ -154,7 +154,7 @@
 			{/block}
 			<div id="block-order-detail" class="unvisible">&nbsp;</div>
 		{else}
-			<p class="alert alert-warning">{l s='You have not placed any orders.'}</p>
+			<p class="alert alert-warning">{l s='You have not made any bookings.'}</p>
 		{/if}
 	</div>
 	{block name='history_footer_links'}

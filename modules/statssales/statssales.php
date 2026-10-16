@@ -139,7 +139,7 @@ class StatsSales extends ModuleGraph
 					</div>
 					<div class="col-lg-4">
 						<ul class="list-unstyled">
-							<li>'.$this->l('Orders:').' <span class="totalStats">'.(int)$totals['orderCount'].'</span></li>
+							<li>'.$this->l('Bookings:').' <span class="totalStats">'.(int)$totals['orderCount'].'</span></li>
 						</ul>
 						<hr/>
 						<a class="btn btn-default export-csv" href="'.Tools::safeOutput($_SERVER['REQUEST_URI'].'&export=1').'">
@@ -225,7 +225,7 @@ class StatsSales extends ModuleGraph
                 if (Tools::getValue('export')) {
                     $this->_titles['main'][] = $this->l('Date');
                 }
-                $this->_titles['main'][] = $this->l('Orders placed');
+                $this->_titles['main'][] = $this->l('Bookings made');
                 break;
             case 2:
                 if (Tools::getValue('export')) {

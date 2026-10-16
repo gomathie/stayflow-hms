@@ -63,7 +63,7 @@
 					</div>
 				</div>
                 <div class="col-xs-6 col-lg-3">
-					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Cancellation Rate (CR) is the percentage of all cancelled orders out of all orders over a given time period.' mod='dashperformance'}" data-placement="top" style="background-color: #FFBBB8;">
+					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Cancellation Rate (CR) is the percentage of all cancelled bookings out of all bookings over a given time period.' mod='dashperformance'}" data-placement="top" style="background-color: #FFBBB8;">
 						<div class="title-wrapper">
 							<p>{l s='Cancellation Rate' mod='dashperformance'}</p>
 						</div>

@@ -154,7 +154,7 @@
                                     {if isset($order_history[0]) && $order_history[0]}
                                         <span{if isset($order_history[0].color) && $order_history[0].color} style="background-color:{$order_history[0].color|escape:'html':'UTF-8'}30; border: 1px solid {$order_history[0].color|escape:'html':'UTF-8'};" {/if} class="label">
                                             {if $order_history[0].id_order_state|in_array:$overbooking_order_states}
-                                                {l s='Order Not Confirmed'}
+                                                {l s='Booking not confirmed'}
                                             {else}
                                                 {$order_history[0].ostate_name|escape:'html':'UTF-8'}
                                             {/if}
@@ -653,7 +653,7 @@
                                     {if isset($order_history[0]) && $order_history[0]}
                                         <span{if isset($order_history[0].color) && $order_history[0].color} style="background-color:{$order_history[0].color|escape:'html':'UTF-8'}30; border: 1px solid {$order_history[0].color|escape:'html':'UTF-8'};" {/if} class="label">
                                             {if $order_history[0].id_order_state|in_array:$overbooking_order_states}
-                                                {l s='Order Not Confirmed'}
+                                                {l s='Booking not confirmed'}
                                             {else}
                                                 {$order_history[0].ostate_name|escape:'html':'UTF-8'}
                                             {/if}
@@ -1136,7 +1136,7 @@
             {addJsDefL name=no_bookings_selected}{l s='Please select at least one room to proceed for cancellation.' js=1}{/addJsDefL}
             {addJsDefL name=refund_request_success_txt}{l s='Request for booking cancellation is successffully created.' js=1}{/addJsDefL}
             {addJsDefL name=order_message_choose_txt}{l s='-- Choose --' js=1}{/addJsDefL}
-            {addJsDefL name=order_message_success_txt}{l s='Order message sent successfully.' js=1}{/addJsDefL}
+            {addJsDefL name=order_message_success_txt}{l s='Booking message sent successfully.' js=1}{/addJsDefL}
             {addJsDefL name=cancel_req_txt}{l s='Cancel Request' js=1}{/addJsDefL}
             {addJsDefL name=cancel_booking_txt}{l s='Cancel Bookings' js=1}{/addJsDefL}
         {/strip}

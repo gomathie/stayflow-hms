@@ -1018,7 +1018,7 @@ class SalisbergWalkIn
                     throw new Exception($this->module->l('Only a stay arriving today can be checked in now.'));
                 }
                 if (!$room || empty($room['readiness']['ready'])) {
-                    throw new Exception($this->module->l('The room is not ready. Save it as a reservation awaiting the room instead.'));
+                    throw new Exception($this->module->l('The room is not ready. Save it as a booking awaiting the room instead.'));
                 }
             }
 

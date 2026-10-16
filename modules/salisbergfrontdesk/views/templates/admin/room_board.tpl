@@ -86,13 +86,43 @@
         </div>
 
         <div class="sb-board-layout">
+            <aside class="panel sb-selected-room" id="sb-selected-room"{if !$sb_selected_room} hidden{/if}>
+                <h3 class="sb-selected-title">{l s='Selected room' mod='salisbergfrontdesk'}</h3>
+                <div class="sb-selected-heading">
+                    <img id="sb-selected-image" src="{if $sb_selected_room}{$sb_selected_room.image|escape:'html':'UTF-8'}{/if}" alt=""{if !$sb_selected_room || !$sb_selected_room.image} hidden{/if}>
+                    <div><strong id="sb-selected-number">{if $sb_selected_room}{$sb_selected_room.room_num|escape:'html':'UTF-8'}{/if}</strong><span id="sb-selected-type">{if $sb_selected_room}{$sb_selected_room.room_type|escape:'html':'UTF-8'}{/if}</span><span id="sb-selected-status" class="sb-status{if $sb_selected_room} sb-status-{$sb_selected_room.readiness.code|escape:'html':'UTF-8'}{/if}"><i></i>{if $sb_selected_room}{$sb_selected_room.readiness.label|escape:'html':'UTF-8'}{/if}</span></div>
+                </div>
+                <dl class="sb-summary-list">
+                    <dt>{l s='Check-in' mod='salisbergfrontdesk'}</dt><dd>{$sb_stay_display.arrival|escape:'html':'UTF-8'}</dd>
+                    <dt>{l s='Check-out' mod='salisbergfrontdesk'}</dt><dd>{$sb_stay_display.departure|escape:'html':'UTF-8'}</dd>
+                    <dt>{l s='Nights' mod='salisbergfrontdesk'}</dt><dd>{$sb_stay.nights|intval}</dd>
+                    <dt>{l s='Guests' mod='salisbergfrontdesk'}</dt><dd>{$sb_stay.adults|intval} {if $sb_stay.adults == 1}{l s='adult' mod='salisbergfrontdesk'}{else}{l s='adults' mod='salisbergfrontdesk'}{/if}{if $sb_stay.children} · {$sb_stay.children|intval} {if $sb_stay.children == 1}{l s='child' mod='salisbergfrontdesk'}{else}{l s='children' mod='salisbergfrontdesk'}{/if}{/if}</dd>
+                    <dt>{l s='Capacity' mod='salisbergfrontdesk'}</dt><dd id="sb-selected-capacity">{if $sb_selected_room}{$sb_selected_room.max_adults|intval} adults, {$sb_selected_room.max_children|intval} children{/if}</dd>
+                </dl>
+                <hr>
+                <dl class="sb-summary-list">
+                    <dt>{l s='Rate per night' mod='salisbergfrontdesk'}</dt><dd id="sb-selected-rate">{if $sb_selected_room}{$sb_selected_room.quote.average_text|escape:'html':'UTF-8'}{/if}</dd>
+                    <dt id="sb-selected-nightly-label"{if !$sb_selected_room || !$sb_selected_room.quote.varies} hidden{/if}>{l s='Nightly rates' mod='salisbergfrontdesk'}</dt><dd id="sb-selected-nightly"{if !$sb_selected_room || !$sb_selected_room.quote.varies} hidden{/if}>{if $sb_selected_room}{$sb_selected_room.quote.nightly_text|escape:'html':'UTF-8'}{/if}</dd>
+                    <dt>{l s='Taxes' mod='salisbergfrontdesk'}</dt><dd id="sb-selected-taxes">{if $sb_selected_room}{$sb_selected_room.quote.taxes_text|escape:'html':'UTF-8'}{/if}</dd>
+                </dl>
+                <div class="sb-selected-total"><span>{l s='Estimated stay total' mod='salisbergfrontdesk'}</span><strong id="sb-selected-total">{if $sb_selected_room}{$sb_selected_room.quote.total_text|escape:'html':'UTF-8'}{/if}</strong></div>
+                <p class="help-block">{l s='The guided workspace shows the final total including configured fees, discounts and tax.' mod='salisbergfrontdesk'}</p>
+                {if $sb_can_book}
+                    <button type="submit" name="sb_start_booking" value="1" id="sb-book-room" class="btn btn-primary btn-block"{if !$sb_selected_room || !$sb_selected_room.available} disabled{/if}>
+                        {l s='Continue to guest' mod='salisbergfrontdesk'}
+                    </button>
+                {/if}
+                <div class="alert alert-warning" id="sb-selection-warning"{if !$sb_selected_room || $sb_selected_room.available} hidden{/if}>{l s='This room is not available for the complete selected stay.' mod='salisbergfrontdesk'}</div>
+            </aside>
+
             <div class="sb-room-groups">
                 {if $sb_groups}
                     {foreach from=$sb_groups item=group}
                         <section class="sb-room-group">
                             <div class="sb-room-group-title">
                                 <h3>{$group.name|escape:'html':'UTF-8'}</h3>
-                                <span class="sb-room-count" data-room-count data-singular="{l s='room' mod='salisbergfrontdesk'}" data-plural="{l s='rooms' mod='salisbergfrontdesk'}"><strong>{count($group.rooms)|intval}</strong> <span>{l s='rooms' mod='salisbergfrontdesk'}</span></span>
+                                <span class="sb-room-group-separator" aria-hidden="true">—</span>
+                                <span class="sb-room-count" data-room-count data-singular="{l s='room' mod='salisbergfrontdesk'}" data-plural="{l s='rooms' mod='salisbergfrontdesk'}"><strong>{count($group.rooms)|intval}</strong> <span>{if count($group.rooms) == 1}{l s='room' mod='salisbergfrontdesk'}{else}{l s='rooms' mod='salisbergfrontdesk'}{/if}</span></span>
                             </div>
                             <div class="sb-room-grid">
                                 {foreach from=$group.rooms item=room}
@@ -141,39 +171,11 @@
                 </div>
             </div>
 
-            <aside class="panel sb-selected-room" id="sb-selected-room"{if !$sb_selected_room} hidden{/if}>
-                <h3 class="sb-selected-title">{l s='Selected room' mod='salisbergfrontdesk'}</h3>
-                <div class="sb-selected-heading">
-                    <img id="sb-selected-image" src="{if $sb_selected_room}{$sb_selected_room.image|escape:'html':'UTF-8'}{/if}" alt=""{if !$sb_selected_room || !$sb_selected_room.image} hidden{/if}>
-                    <div><strong id="sb-selected-number">{if $sb_selected_room}{$sb_selected_room.room_num|escape:'html':'UTF-8'}{/if}</strong><span id="sb-selected-type">{if $sb_selected_room}{$sb_selected_room.room_type|escape:'html':'UTF-8'}{/if}</span><span id="sb-selected-status" class="sb-status{if $sb_selected_room} sb-status-{$sb_selected_room.readiness.code|escape:'html':'UTF-8'}{/if}"><i></i>{if $sb_selected_room}{$sb_selected_room.readiness.label|escape:'html':'UTF-8'}{/if}</span></div>
-                </div>
-                <dl class="sb-summary-list">
-                    <dt>{l s='Check-in' mod='salisbergfrontdesk'}</dt><dd>{$sb_stay_display.arrival|escape:'html':'UTF-8'}</dd>
-                    <dt>{l s='Check-out' mod='salisbergfrontdesk'}</dt><dd>{$sb_stay_display.departure|escape:'html':'UTF-8'}</dd>
-                    <dt>{l s='Nights' mod='salisbergfrontdesk'}</dt><dd>{$sb_stay.nights|intval}</dd>
-                    <dt>{l s='Guests' mod='salisbergfrontdesk'}</dt><dd>{$sb_stay.adults|intval} {if $sb_stay.adults == 1}{l s='adult' mod='salisbergfrontdesk'}{else}{l s='adults' mod='salisbergfrontdesk'}{/if}{if $sb_stay.children} · {$sb_stay.children|intval} {if $sb_stay.children == 1}{l s='child' mod='salisbergfrontdesk'}{else}{l s='children' mod='salisbergfrontdesk'}{/if}{/if}</dd>
-                    <dt>{l s='Capacity' mod='salisbergfrontdesk'}</dt><dd id="sb-selected-capacity">{if $sb_selected_room}{$sb_selected_room.max_adults|intval} adults, {$sb_selected_room.max_children|intval} children{/if}</dd>
-                </dl>
-                <hr>
-                <dl class="sb-summary-list">
-                    <dt>{l s='Rate per night' mod='salisbergfrontdesk'}</dt><dd id="sb-selected-rate">{if $sb_selected_room}{$sb_selected_room.quote.average_text|escape:'html':'UTF-8'}{/if}</dd>
-                    <dt id="sb-selected-nightly-label"{if !$sb_selected_room || !$sb_selected_room.quote.varies} hidden{/if}>{l s='Nightly rates' mod='salisbergfrontdesk'}</dt><dd id="sb-selected-nightly"{if !$sb_selected_room || !$sb_selected_room.quote.varies} hidden{/if}>{if $sb_selected_room}{$sb_selected_room.quote.nightly_text|escape:'html':'UTF-8'}{/if}</dd>
-                    <dt>{l s='Taxes' mod='salisbergfrontdesk'}</dt><dd id="sb-selected-taxes">{if $sb_selected_room}{$sb_selected_room.quote.taxes_text|escape:'html':'UTF-8'}{/if}</dd>
-                </dl>
-                <div class="sb-selected-total"><span>{l s='Estimated stay total' mod='salisbergfrontdesk'}</span><strong id="sb-selected-total">{if $sb_selected_room}{$sb_selected_room.quote.total_text|escape:'html':'UTF-8'}{/if}</strong></div>
-                <p class="help-block">{l s='The guided workspace shows the final total including configured fees, discounts and tax.' mod='salisbergfrontdesk'}</p>
-                {if $sb_can_book}
-                    <button type="submit" name="sb_start_booking" value="1" id="sb-book-room" class="btn btn-primary btn-block"{if !$sb_selected_room || !$sb_selected_room.available} disabled{/if}>
-                        {if $sb_is_walkin}{l s='Book walk-in' mod='salisbergfrontdesk'}{else}{l s='Create reservation' mod='salisbergfrontdesk'}{/if}
-                    </button>
-                {/if}
-                <div class="alert alert-warning" id="sb-selection-warning"{if !$sb_selected_room || $sb_selected_room.available} hidden{/if}>{l s='This room is not available for the complete selected stay.' mod='salisbergfrontdesk'}</div>
-            </aside>
         </div>
         {if $sb_can_book}
             <div class="sb-mobile-booking" id="sb-mobile-booking"{if !$sb_selected_room} hidden{/if}>
                 <div><strong id="sb-mobile-room">{if $sb_selected_room}{l s='Room' mod='salisbergfrontdesk'} {$sb_selected_room.room_num|escape:'html':'UTF-8'}{/if}</strong><span id="sb-mobile-total">{if $sb_selected_room}{$sb_selected_room.quote.total_text|escape:'html':'UTF-8'} {l s='total' mod='salisbergfrontdesk'}{/if}</span></div>
-                <button type="submit" name="sb_start_booking" value="1" id="sb-mobile-book-room" class="btn btn-primary"{if !$sb_selected_room || !$sb_selected_room.available} disabled{/if}>{l s='Continue' mod='salisbergfrontdesk'}</button>
+                <button type="submit" name="sb_start_booking" value="1" id="sb-mobile-book-room" class="btn btn-primary"{if !$sb_selected_room || !$sb_selected_room.available} disabled{/if}>{l s='Continue to guest' mod='salisbergfrontdesk'}</button>
             </div>
         {/if}
     </form>

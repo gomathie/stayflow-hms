@@ -36,7 +36,7 @@
 	<div class="boxchart-overlay">
 		<div class="boxchart"></div>
 	</div>	
-	<span class="title">{l s='Orders'}</span>
+	<span class="title">{l s='Bookings'}</span>
 	<span class="value">789</span>
 </div>
 

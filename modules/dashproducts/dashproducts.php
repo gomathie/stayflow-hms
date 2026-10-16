@@ -44,7 +44,7 @@ class DashProducts extends Module
 
 		parent::__construct();
 		$this->displayName = $this->l('Dashboard Products');
-		$this->description = $this->l('Adds a block with a table of your latest orders and a ranking of your products');
+		$this->description = $this->l('Adds a block with a table of your latest bookings and a ranking of your room types');
 		$this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.7.0.99');
 	}
 
@@ -145,7 +145,7 @@ class DashProducts extends Module
 		$header = array(
 			array('title' => $this->l('Customer Name'), 'class' => 'text-left'),
 			array('title' => $this->l('Total Rooms'), 'class' => 'text-left'),
-			array('title' => $this->l('Order'), 'class' => 'text-left'),
+			array('title' => $this->l('Booking'), 'class' => 'text-left'),
 			array('title' => $this->l('Hotel'), 'class' => 'text-left'),
 			array('title' => $this->l('Total').' '.$this->l('Tax excl.'), 'class' => 'text-left'),
 			array('title' => $this->l('Date'), 'class' => 'text-left'),

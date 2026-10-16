@@ -4,8 +4,8 @@
  *
  * Front-desk pages for the people at the desk and in housekeeping:
  *
- *  - Bookings > Add new booking: stay-wide availability and a guided flow
- *    for both walk-ins and future reservations.
+ *  - The New booking action: stay-wide availability and a guided flow for
+ *    same-day and future bookings.
  *  - Dashboard: today's arrivals, departures, guests in house and unpaid
  *    balances, with Check in and Check out buttons.
  *  - Bookings > Housekeeping: every room with its state (clean, dirty, out of
@@ -57,7 +57,7 @@ class Salisbergfrontdesk extends Module
     {
         $this->name = 'salisbergfrontdesk';
         $this->tab = 'administration';
-        $this->version = '1.3.1';
+        $this->version = '1.4.0';
         $this->author = 'Salisberg Hotels';
         $this->bootstrap = true;
 
@@ -95,7 +95,7 @@ class Salisbergfrontdesk extends Module
         }
 
         $ok = $ok
-            && $this->installTab(self::TAB_ROOM_BOARD, 'Add new booking', true)
+            && $this->installTab(self::TAB_ROOM_BOARD, 'New booking', false, true)
             && $this->installTab(self::TAB_TODAY, 'Today', false, true)
             && $this->installTab(self::TAB_HOUSEKEEPING, 'Housekeeping', false)
             && $this->installTab(self::TAB_WALK_IN, 'Walk-in booking', false, true);
@@ -103,7 +103,7 @@ class Salisbergfrontdesk extends Module
         return $this->configureTabs() && $this->replaceLegacyTodayWidget() && $ok;
     }
 
-    /** Keep the booking entry visible and the Today action controller hidden. */
+    /** Keep workflow controllers active but out of the side menu. */
     protected function configureTabs()
     {
         $idParent = (int) Tab::getIdFromClassName(self::TAB_PARENT);
@@ -114,9 +114,8 @@ class Salisbergfrontdesk extends Module
             return false;
         }
         $ok = Db::getInstance()->update('tab', array(
-            'id_parent' => $idParent,
+            'id_parent' => -1,
             'active' => 1,
-            'position' => 0,
         ), 'id_tab = '.$idBoard);
         $ok = Db::getInstance()->update('tab', array(
             'id_parent' => -1,
@@ -132,7 +131,7 @@ class Salisbergfrontdesk extends Module
         }
         foreach (Language::getLanguages(false) as $lang) {
             $ok = Db::getInstance()->update('tab_lang', array(
-                'name' => pSQL($this->l('Add new booking')),
+                'name' => pSQL($this->l('New booking')),
             ), 'id_tab = '.$idBoard.' AND id_lang = '.(int) $lang['id_lang']) && $ok;
         }
 

@@ -139,9 +139,9 @@
 		{block name='guest_tracking_form'}
 			<form method="post" action="{$action|escape:'html':'UTF-8'}" class="std" id="guestTracking">
 				<fieldset class="description_box box">
-					<h2 class="page-subheading">{l s='To track your order, please enter the following information:'}</h2>
+					<h2 class="page-subheading">{l s='To track your booking, enter the following information:'}</h2>
 					<div class="text form-group">
-						<label>{l s='Order Reference:'} </label>
+						<label>{l s='Booking reference:'} </label>
 						<input class="form-control" type="text" name="order_reference" value="{if isset($smarty.get.id_order)}{$smarty.get.id_order|escape:'html':'UTF-8'}{else}{if isset($smarty.post.id_order)}{$smarty.post.id_order|escape:'html':'UTF-8'}{/if}{/if}" size="8" />
 						<i>{l s='For example: QIIXJXNUI'}</i>
 					</div>

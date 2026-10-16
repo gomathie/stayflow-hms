@@ -38,7 +38,7 @@ class HotelReservationSystem extends Module
         $this->need_instance = 0;
         $this->bootstrap = true;
         parent::__construct();
-        $this->displayName = $this->l('Hotel Booking and Reservation System');
+        $this->displayName = $this->l('Hotel Booking System');
         $this->description = $this->l('This module is the backbone of QloApps and handles all booking processes on your website.');
         $this->confirmUninstall = $this->l('This module should not be uninstalled under any circumstances. Doing so may cause undesired results.');
     }
@@ -551,12 +551,12 @@ class HotelReservationSystem extends Module
 
     public function callInstallTab()
     {
-        $this->installTab('AdminHotelReservationSystemManagement', 'Hotel Reservation System');
+        $this->installTab('AdminHotelReservationSystemManagement', 'Manage Hotel');
         $this->installTab('AdminAddHotel', 'Manage Hotel', 'AdminHotelReservationSystemManagement');
         $this->installTab('AdminHotelRoomsBooking', 'Book Now', 'AdminHotelReservationSystemManagement');
         $this->installTab('AdminHotelFeatures', 'Manage Hotel Features', 'AdminHotelReservationSystemManagement');
-        $this->installTab('AdminOrderRefundRules', 'Manage Order Refund Rules', 'AdminHotelReservationSystemManagement');
-        $this->installTab('AdminOrderRefundRequests', 'Manage Order Refund Requests', 'AdminHotelReservationSystemManagement');
+        $this->installTab('AdminOrderRefundRules', 'Refund rules', 'AdminHotelReservationSystemManagement');
+        $this->installTab('AdminOrderRefundRequests', 'Refund requests', 'AdminHotelReservationSystemManagement');
 
         $this->installTab('AdminHotelConfigurationSetting', 'General Settings', 'AdminHotelReservationSystemManagement');
         $this->installTab('AdminHotelBedTypes', 'Bed Types', 'AdminCatalog');

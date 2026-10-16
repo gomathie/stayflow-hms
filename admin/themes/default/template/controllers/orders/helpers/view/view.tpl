@@ -174,7 +174,7 @@
                 {/if}
                 <div class="panel">
                     <div class="panel-heading">
-                        <i class="icon-file"></i> &nbsp;{l s='Order'}
+                        <i class="icon-file"></i> &nbsp;{l s='Booking'}
                         <span class="badge">{$order->reference}</span>
                         <span class="badge">{l s="#"}{$order->id}</span>
                         <div class="panel-heading-action">
@@ -431,9 +431,9 @@
                             {* {foreach $order->getBrother() as $brother_order}
                                 {if $brother_order@first}
                                     {if count($order->getBrother()) == 1}
-                                        <br />{l s='This warning also concerns order '}
+                                        <br />{l s='This warning also concerns booking '}
                                     {else}
-                                        <br />{l s='This warning also concerns the next orders:'}
+                                        <br />{l s='This warning also concerns these bookings:'}
                                     {/if}
                                 {/if}
                                 <a href="{$current_index}&amp;vieworder&amp;id_order={$brother_order->id}&amp;token={$smarty.get.token|escape:'html':'UTF-8'}">
@@ -596,7 +596,7 @@
                                         <label class="label-title">{l s='Customer Info'}</label>
 
                                         <dd><b><i class="icon-calendar"></i> &nbsp; {$customer->date_add|date_format:"%d %b, %Y"}</b> ({l s='Member since'})</dd>
-                                        <dd><b><i class="icon-list"></i> &nbsp; {$customerStats['nb_orders']|intval}</b> ({l s='Total valid order placed'})</dd>
+                                        <dd><b><i class="icon-list"></i> &nbsp; {$customerStats['nb_orders']|intval}</b> ({l s='Valid bookings'})</dd>
                                         <dd><b><i class="icon-credit-card"></i> &nbsp; {displayPrice price=Tools::ps_round(Tools::convertPrice($customerStats['total_spent']|floatval, $currency), _PS_PRICE_DISPLAY_PRECISION_) currency=$currency->id}</b> ({l s='Total spent since registration'})</dd>
                                         {if Configuration::get('PS_B2B_ENABLE')}
                                             <dd><b>{$customer->siret}</b> ({l s='Siret'})</dd>
@@ -666,7 +666,7 @@
                                         </a>
                                         <ul class="dropdown-menu">
                                             {if $ordersWithDiffInvAddr}
-                                                <li><a href="{$current_index}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}&amp;action=set_old_orders_address">{l s='Set for all orders'}</a></li>
+                                                <li><a href="{$current_index}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}&amp;action=set_old_orders_address">{l s='Set for all bookings'}</a></li>
                                             {/if}
                                             {if !$idCurrentAddress || ($idCurrentAddress != $idOrderAddressInvoice)}
                                                 <li><a href="{$current_index}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}&amp;action=set_address_current_address">{l s='Set as current address'}</a></li>
@@ -684,7 +684,7 @@
                                             <i class="icon-ellipsis-vertical"></i>
                                         </a>
                                         <ul class="dropdown-menu">
-                                            <li><a href="{$current_index}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}&amp;action=set_order_active_address">{l s='Set current address for this order'}</a></li>
+                                            <li><a href="{$current_index}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}&amp;action=set_order_active_address">{l s='Set current address for this booking'}</a></li>
                                         </ul>
                                     </div>
                                 {/if}
@@ -709,7 +709,7 @@
                 {if isset($messages) && $messages}
                     <div class="panel order-notes">
                         <div class="panel-heading">
-                            <i class="icon-undo"></i> &nbsp;{l s='Order Private Notes'}
+                            <i class="icon-undo"></i> &nbsp;{l s='Booking private notes'}
                         </div>
                         <div class="panel-content">
                             {foreach from=$messages item=message name=customerMessage}
@@ -1174,7 +1174,7 @@
                 <div class="col-lg-4 col-sm-6 col-xs-12 pull-right">
                     <div class="panel">
                         <div class="panel-heading">
-                            <i class="icon-link"></i> &nbsp;{l s='Linked orders'}
+                            <i class="icon-link"></i> &nbsp;{l s='Linked bookings'}
                         </div>
                         <div class="panel-content">
                             <div class="table-responsive">
@@ -1182,7 +1182,7 @@
                                     <thead>
                                         <tr>
                                             <th>
-                                                {l s='Order no. '}
+                                                {l s='Booking no. '}
                                             </th>
                                             <th>
                                                 {l s='Status'}
@@ -1208,7 +1208,7 @@
                                             <td>
                                                 <a  href="{$current_index}&amp;vieworder&amp;id_order={$brother_order->id}&amp;token={$smarty.get.token|escape:'html':'UTF-8'}">
                                                     <i class="icon-eye-open"></i>
-                                                    {l s='See the order'}
+                                                    {l s='See the booking'}
                                                 </a>
                                             </td>
                                         </tr>
@@ -1277,7 +1277,7 @@
                                 </div>
                             </form>
                         {else}
-                            <div class="alert alert-warning">{l s='You do not have permission to edit this order.'}</div>
+                            <div class="alert alert-warning">{l s='You do not have permission to edit this booking.'}</div>
                         {/if}
                     </div>
                 </div>

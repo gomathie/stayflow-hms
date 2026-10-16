@@ -177,14 +177,14 @@ class AdminInvoicesControllerCore extends AdminController
             'input' => array(
                 array(
                     'type' => 'checkboxStatuses',
-                    'label' => $this->l('Order statuses'),
+                    'label' => $this->l('Booking statuses'),
                     'name' => 'id_order_state',
                     'values' => array(
                         'query' => OrderState::getOrderStates($this->context->language->id),
                         'id' => 'id_order_state',
                         'name' => 'name'
                     ),
-                    'hint' => $this->l('You can also export orders which have not been charged yet.')
+                    'hint' => $this->l('You can also export bookings which have not been charged yet.')
                 )
             ),
             'submit' => array(
@@ -403,7 +403,7 @@ class AdminInvoicesControllerCore extends AdminController
             }
         } elseif (Tools::isSubmit('submitAddinvoice_status')) {
             if (!is_array($status_array = Tools::getValue('id_order_state')) || !count($status_array)) {
-                $this->errors[] = $this->l('You must select at least one order status.');
+                $this->errors[] = $this->l('You must select at least one booking status.');
             } else {
                 foreach ($status_array as $id_order_state) {
                     if (count(OrderInvoice::getByStatus((int)$id_order_state))) {

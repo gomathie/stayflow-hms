@@ -36,8 +36,8 @@
 	var currencies = new Array();
 	var id_currency = '';
 	var id_lang = '';
-	//var txt_show_carts = '{l s='Show carts and orders for this customer.' js=1}';
-	//var txt_hide_carts = '{l s='Hide carts and orders for this customer.' js=1}';
+	//var txt_show_carts = '{l s='Show carts and bookings for this customer.' js=1}';
+	//var txt_hide_carts = '{l s='Hide carts and bookings for this customer.' js=1}';
 	var customization_errors = false;
 	var pic_dir = '{$pic_dir}';
 	var currency_format = 5;
@@ -1040,8 +1040,8 @@
 						html_orders += '<tr>';
 						html_orders += '<td>'+this.id_order+'</td><td>'+this.date_add+'</td><td>'+(this.nb_products ? this.nb_products : '0')+'</td><td>'+this.total_paid_real+'</span></td><td>'+this.payment+'</td><td>'+this.order_state+'</td>';
 						html_orders += '<td class="text-right">';
-						html_orders += '<a href="{$link->getAdminLink('AdminOrders')}&id_order='+this.id_order+'&vieworder&liteDisplaying=1#" title="{l s='View this order'}" class="fancybox btn btn-default"><i class="icon-search"></i>&nbsp;{l s="Details"}</a>';
-						html_orders += '&nbsp;<a href="#" "title="{l s='Duplicate this order'}" class="duplicate_order btn btn-default" rel="'+this.id_order+'"><i class="icon-arrow-right"></i>&nbsp;{l s="Use"}</a>';
+						html_orders += '<a href="{$link->getAdminLink('AdminOrders')}&id_order='+this.id_order+'&vieworder&liteDisplaying=1#" title="{l s='View this booking'}" class="fancybox btn btn-default"><i class="icon-search"></i>&nbsp;{l s="Details"}</a>';
+						html_orders += '&nbsp;<a href="#" "title="{l s='Duplicate this booking'}" class="duplicate_order btn btn-default" rel="'+this.id_order+'"><i class="icon-arrow-right"></i>&nbsp;{l s="Use"}</a>';
 						html_orders += '</td>';
 						html_orders += '</tr>';
 					});
@@ -1074,7 +1074,7 @@
 		else
 		{
 			$('#carrier_form').hide();
-			$('#carriers_err').show().html('{l s='No carrier can be applied to this order'}');
+			$('#carriers_err').show().html('{l s='No carrier can be applied to this booking'}');
 		}
 	}
 
@@ -1996,7 +1996,7 @@
                 <li>
                     <a href="#lastOrders" data-toggle="tab">
                         <i class="icon-credit-card"></i>
-                        {l s='Orders'}
+                        {l s='Bookings'}
                     </a>
                 </li>
             </ul>
@@ -2389,7 +2389,7 @@
             <div class="row">
                 <div class="order_message_right col-lg-12">
                     <div class="form-group">
-                        <label class="control-label col-lg-3" for="order_message">{l s='Order message'}</label>
+                        <label class="control-label col-lg-3" for="order_message">{l s='Booking message'}</label>
                         <div class="col-lg-6">
                             <textarea name="order_message" id="order_message" rows="3" cols="45"></textarea>
                         </div>
@@ -2432,7 +2432,7 @@
 								<label for="send_mails_off">{l s="No"}</label>
 								<a class="slide-button btn"></a>
 							</span>
-							<p class="help-block">{l s='If disabled, no mail related to this order will be sent during order creation.'}</p>
+							<p class="help-block">{l s='If disabled, no email about this booking will be sent while it is created.'}</p>
 						</div>
 					</div>
                     <div class="form-group" {if $order_total <= 0}style="display: none;"{/if}>
@@ -2495,7 +2495,7 @@
                         <div class="col-lg-9 col-lg-offset-3">
                             <button type="submit" name="submitAddOrder" class="btn btn-default" />
                                 <i class="icon-check"></i>
-                                {l s='Create the order'}
+                                {l s='Create the booking'}
                             </button>
                         </div>
                     </div>

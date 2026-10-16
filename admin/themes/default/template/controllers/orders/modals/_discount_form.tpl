@@ -73,7 +73,7 @@
                         </label>
                     </p>
                     <p class="help-block">
-                        {l s='If you chooses to create this discount for all invoices, only one discount will be created per order invoice.'}
+                        {l s='If you create this discount for all invoices, only one discount will be created per booking invoice.'}
                     </p>
                 </div>
             </div>

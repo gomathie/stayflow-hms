@@ -2,7 +2,7 @@
 	<div class="col-lg-12">
 		<div class="panel">
 			<div class="panel-heading">
-				<i class="icon-info-circle"></i> &nbsp;{l s='Order Cancellation Request Information' mod='hotelreservationsystem'}
+				<i class="icon-info-circle"></i> &nbsp;{l s='Booking cancellation request' mod='hotelreservationsystem'}
 			</div>
 			<br>
 			<form id="{$table|escape:'htmlall':'UTF-8'}_form" class="defaultForm {$name_controller|escape:'htmlall':'UTF-8'} form-horizontal" action="{$link->getAdminLink('AdminOrderRefundRequests')|escape:'html':'UTF-8'}&amp;vieworder_return&amp;id_order_return={$orderReturnInfo['id']|escape:'html':'UTF-8'|intval}" method="post" enctype="multipart/form-data" {if isset($style)}style="{$style|escape:'htmlall':'UTF-8'}"{/if}>
@@ -59,7 +59,7 @@
 					<div class="form-wrapper">
                         <div class="form-group row">
 							<div class="col-sm-3">
-								<strong>{l s='Order Id' mod='hotelreservationsystem'} :</strong>
+								<strong>{l s='Booking ID' mod='hotelreservationsystem'} :</strong>
 							</div>
 							<div class="col-sm-9">
                                 <a href="{$link->getAdminLink('AdminOrders')|escape:'html':'UTF-8'}&amp;vieworder&amp;id_order={$orderInfo['id']|escape:'html':'UTF-8'}">#{$orderInfo['id']|escape:'html':'UTF-8'}</a>
@@ -67,7 +67,7 @@
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-3">
-								<strong>{l s='Total order amount' mod='hotelreservationsystem'} :</strong>
+								<strong>{l s='Total booking amount' mod='hotelreservationsystem'} :</strong>
 							</div>
 							<div class="col-sm-9">
 								{displayPrice price=$orderInfo['total_paid_tax_incl'] currency=$orderInfo['id_currency']}
@@ -111,7 +111,7 @@
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-3">
-								<strong>{l s='Current order state' mod='hotelreservationsystem'} :</strong>
+								<strong>{l s='Current booking status' mod='hotelreservationsystem'} :</strong>
 							</div>
 							<div class="col-sm-9">
 								<span class="badge" style="background-color:{$currentOrderStateInfo['color']|escape:'html':'UTF-8'}">{$currentOrderStateInfo['name']|escape:'html':'UTF-8'}</span>

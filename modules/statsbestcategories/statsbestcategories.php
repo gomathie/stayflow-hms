@@ -76,7 +76,7 @@ class StatsBestCategories extends ModuleGrid
             ),
             array(
                 'id' => 'totalOrders',
-                'header' => $this->l('Orders'),
+                'header' => $this->l('Bookings'),
                 'dataIndex' => 'totalOrders',
                 'align' => 'center',
             ),
@@ -94,7 +94,7 @@ class StatsBestCategories extends ModuleGrid
             ),
             array(
                 'id' => 'averageRevenue',
-                'header' => $this->l('Avg. revenue/order'),
+                'header' => $this->l('Avg. revenue/booking'),
                 'dataIndex' => 'averageRevenue',
                 'align' => 'center',
             ),

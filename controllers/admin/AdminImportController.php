@@ -291,12 +291,12 @@ class AdminImportControllerCore extends AdminController
                 $this->available_fields = array(
                     'no' => array('label' => $this->l('Ignore this column')),
                     'id_order' => array(
-                        'label' => $this->l('Order Reference ID'),
-                        'help' => $this->l('This is only used to group together orders from multiple rows as a single order.')
+                        'label' => $this->l('Booking reference ID'),
+                        'help' => $this->l('This groups multiple imported rows into one booking.')
                     ),
                     'id_customer' => array(
                         'label' => $this->l('Customer ID *'),
-                        'help' => $this->l('Orders with same Order Reference ID will use Customer ID from the first row only.')
+                        'help' => $this->l('Rows with the same booking reference ID use the guest ID from the first row.')
                     ),
                     'id_product' => array('label'=> 'Room Type ID'),
                     'duration_dates' => array(
@@ -304,10 +304,10 @@ class AdminImportControllerCore extends AdminController
                         'help' => $this->l('Check_in, Check_out')
                     ),
                     'num_rooms' => array('label' => $this->l('Number Of Rooms')),
-                    'amount' => array('label' => $this->l('Order Price')),
+                    'amount' => array('label' => $this->l('Booking price')),
                     'due_amount' => array('label' => $this->l('Due Amount')),
                     'id_currency' => array('label' => $this->l('Currency ID')),
-                    'id_order_status' => array('label' => $this->l('Order Status ID')),
+                    'id_order_status' => array('label' => $this->l('Booking status ID')),
                     'id_service_products' => array(
                         'label' => $this->l('Service Product IDs (x:n, y:n, z:n,..)'),
                         'help' => $this->l('id_service_product:quantity')

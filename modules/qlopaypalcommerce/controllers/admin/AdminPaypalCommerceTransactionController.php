@@ -44,10 +44,10 @@ class AdminPaypalCommerceTransactionController extends ModuleAdminController
 
         $this->fields_list = array(
             'order_reference' => array(
-                'title' => $this->l('Order Reference'),
+                'title' => $this->l('Booking reference'),
                 'align' => 'center',
                 'havingFilter' => true,
-                'hint' => $this->l('Order reference in QloApps of the PayPal transaction'),
+                'hint' => $this->l('Booking reference for the PayPal transaction'),
             ),
             'pp_transaction_id' => array(
                 'title' => $this->l('PayPal Transaction ID'),
@@ -82,10 +82,10 @@ class AdminPaypalCommerceTransactionController extends ModuleAdminController
                 'hint' => $this->l('Current status of the PayPal transaction.'),
             ),
             'order_date' => array(
-                'title' => $this->l('Order Date'),
+                'title' => $this->l('Booking date'),
                 'type' => 'datetime',
                 'align' => 'center',
-                'hint' => $this->l('Date of order creation.'),
+                'hint' => $this->l('Date the booking was created.'),
             )
         );
     }

@@ -167,7 +167,7 @@ class StatsProduct extends ModuleGraph
 			</div>
 			<h4>'.$this->l('Guide').'</h4>
 			<div class="alert alert-warning">
-				<h4>'.$this->l('Number of orders compared to number of views').'</h4>
+				<h4>'.$this->l('Number of bookings compared to number of views').'</h4>
 					'.$this->l('After choosing a hotel and selecting a room type, informational graphs will appear.').'
 					<ul>
 						<li class="bullet">'.$this->l('If you notice that a room type is often booked but viewed infrequently, you should display it more prominently at front office.').'</li>
@@ -243,7 +243,7 @@ class StatsProduct extends ModuleGraph
                                             <span class="title_box  active">'.$this->l('Date').'</span>
                                         </th>
                                         <th>
-                                            <span class="title_box  active">'.$this->l('Order').'</span>
+                                            <span class="title_box  active">'.$this->l('Booking').'</span>
                                         </th>
                                         <th>
                                             <span class="title_box  active">'.$this->l('Customer').'</span>

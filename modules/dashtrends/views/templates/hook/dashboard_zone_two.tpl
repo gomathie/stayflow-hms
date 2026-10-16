@@ -47,20 +47,20 @@
 		</header>
 		<section id="dashtrends_toolbar">
 			<div class="col-md-4 col-xs-6">
-				<dl class="label-tooltip" onclick="selectDashtrendsChart(this, 'sales');" data-toggle="tooltip" data-placement="top" data-original-title="{l s='Sum of revenue (excluding tax) generated within the date range by orders considered validated.' mod='dashtrends'}" data-placement="bottom" style='background-color: #72C3F0;'>
+				<dl class="label-tooltip" onclick="selectDashtrendsChart(this, 'sales');" data-toggle="tooltip" data-placement="top" data-original-title="{l s='Revenue excluding tax from confirmed bookings in the selected date range.' mod='dashtrends'}" data-placement="bottom" style='background-color: #72C3F0;'>
 					<dt>{l s='Sales' mod='dashtrends'}</dt>
 					<dd class="data_value size_l"><span id="sales_score"></span></dd>
 				</dl>
 			</div>
 			<div class="col-md-4 col-xs-6">
-				<dl class="label-tooltip" onclick="selectDashtrendsChart(this, 'orders');" data-toggle="tooltip" data-placement="top" data-original-title="{l s='Total number of orders received within the date range that are considered validated.' mod='dashtrends'}" data-placement="bottom" style='background-color: #56CE56;'>
-					<dt>{l s='Orders' mod='dashtrends'}</dt>
+				<dl class="label-tooltip" onclick="selectDashtrendsChart(this, 'orders');" data-toggle="tooltip" data-placement="top" data-original-title="{l s='Total confirmed bookings in the selected date range.' mod='dashtrends'}" data-placement="bottom" style='background-color: #56CE56;'>
+					<dt>{l s='Bookings' mod='dashtrends'}</dt>
 					<dd class="data_value size_l"><span id="orders_score"></span></dd>
 				</dl>
 			</div>
 			<div class="col-md-4 col-xs-6">
-				<dl class="label-tooltip" onclick="selectDashtrendsChart(this, 'average_cart_value');" data-toggle="tooltip" data-placement="top" data-original-title="{l s='Average Order Value is a metric representing the value of an average order within the date range. It is calculated by dividing sales by bookings. This data is provided by the module "Data mining for statistics", so please make sure it is installed and configured.' mod='dashtrends'}" data-placement="bottom" style='background-color: #FF655C;'>
-					<dt>{l s='Average Order Value' mod='dashtrends'}</dt>
+				<dl class="label-tooltip" onclick="selectDashtrendsChart(this, 'average_cart_value');" data-toggle="tooltip" data-placement="top" data-original-title="{l s='Average booking value is the amount spent per booking within the date range. It is calculated by dividing sales by bookings. This data is provided by the Data mining for statistics module.' mod='dashtrends'}" data-placement="bottom" style='background-color: #FF655C;'>
+					<dt>{l s='Average booking value' mod='dashtrends'}</dt>
 					<dd class="data_value size_l"><span id="cart_value_score"></span></dd>
 				</dl>
 			</div>

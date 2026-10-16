@@ -56,7 +56,7 @@
                         <td class="col-sm-10">{$transaction_data.pp_paid_total_formated|escape:'html':'UTF-8'}</td>
                     </tr>
                     <tr class="row">
-                        <th class="col-sm-2"><strong>{l s='QloApps Order Reference' mod='qlopaypalcommerce'}</strong></th>
+                        <th class="col-sm-2"><strong>{l s='Booking reference' mod='qlopaypalcommerce'}</strong></th>
                         <td class="col-sm-10">
                             {$transaction_data.order_reference|escape:'html':'UTF-8'}
                         </td>

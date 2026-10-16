@@ -21,17 +21,19 @@
 	<section>
 		<h3>{l s='16 October 2026' mod='salisbergguide'}</h3>
 		<ul>
-			<li><strong>{l s='The Room board is clearer and no longer crowds the selected room.' mod='salisbergguide'}</strong> {l s='Room counts now sit beside each room type and follow the active filter or search. The wider Selected room card wraps long details safely, uses readable dates, highlights the stay total and only shows a nightly breakdown when rates differ.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Selected room now comes first.' mod='salisbergguide'}</strong> {l s='It is on the left before the room list, and Continue to guest replaces the different walk-in and future-stay button names. Room types show their matching count on the same row.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Bookings is now the one name used across the back office.' mod='salisbergguide'}</strong> {l s='Menus, page headings, booking details, dashboard figures, statistics and reports no longer switch between Reservations and Orders. Technical database and controller names stay unchanged so existing bookings and integrations keep working.' mod='salisbergguide'}</li>
+			<li><strong>{l s='New booking no longer takes a permanent menu row.' mod='salisbergguide'}</strong> {l s='Open Bookings and use the New booking button at the top. The Room board remains available without crowding the side menu.' mod='salisbergguide'}</li>
 		</ul>
 	</section>
 
 	<section>
 		<h3>{l s='15 October 2026' mod='salisbergguide'}</h3>
 		<ul>
-			<li><strong>{l s='Add new booking now opens the Room board.' mod='salisbergguide'}</strong> {l s='Use the same guided Guest, Payment and Confirm steps for a walk-in or a future reservation. A walk-in can be checked in at the end; a future stay is saved without checking the guest in.' mod='salisbergguide'}</li>
+			<li><strong>{l s='New booking opens the Room board.' mod='salisbergguide'}</strong> {l s='Use the same guided Guest, Payment and Confirm steps for a same-day or future booking. A guest arriving today can be checked in at the end; a future booking is saved without checking the guest in.' mod='salisbergguide'}</li>
 			<li><strong>{l s='The Room board is faster to scan.' mod='salisbergguide'}</strong> {l s='Available and ready rooms come first, with status filters, room search, compact cards, a recommended room and a Continue bar that stays visible on smaller screens.' mod='salisbergguide'}</li>
 			<li><strong>{l s='The booking guide is now three clear steps.' mod='salisbergguide'}</strong> {l s='Guest, Payment and Confirm avoid repeating the stay. Typed guest details survive an error, existing matches are easier to use, Pay later asks for no payment method, and unfinished bookings can be resumed or discarded from the Room board.' mod='salisbergguide'}</li>
-			<li><strong>{l s='Final confirmation now completes the booking.' mod='salisbergguide'}</strong> {l s='Database locking queries had their clauses in the wrong order, so Confirm could stop with a technical error. The locks and duplicate-booking protection remain in place and the reservation now saves normally.' mod='salisbergguide'}</li>
+			<li><strong>{l s='Final confirmation now completes the booking.' mod='salisbergguide'}</strong> {l s='Database locking queries had their clauses in the wrong order, so Confirm could stop with a technical error. The locks and duplicate-booking protection remain in place and the booking now saves normally.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Today is now on the Dashboard.' mod='salisbergguide'}</strong> {l s='Arrivals, departures, rooms in house, unpaid bookings, Check in and Check out are available where the day starts, without a separate Today menu page.' mod='salisbergguide'}</li>
 		</ul>
 		{if $sb_can_read_admin_guide}
@@ -45,7 +47,7 @@
 	<section>
 		<h3>{l s='14 October 2026' mod='salisbergguide'}</h3>
 		<ul>
-			<li><strong>{l s='Bookings, Bookings is now Bookings, Reservations.' mod='salisbergguide'}</strong> {l s='The list of every booking under the Bookings menu is called Reservations, so the section and its first page no longer share a name. The page heading inside still reads Orders for now.' mod='salisbergguide'}</li>
+			<li><strong>{l s='The booking list is easier to find.' mod='salisbergguide'}</strong> {l s='The list of every booking is under Bookings. Its labels have since been standardised to Bookings throughout the back office.' mod='salisbergguide'}</li>
 			<li><strong>{l s='New Room board and guided walk-in check-in.' mod='salisbergguide'}</strong> {l s='Bookings, Room board shows whether every room is free for the whole stay and whether it is ready now. Choose a room, then complete Guest, Payment and Review in one workspace. The final button creates the normal booking and checks the guest in; pending money is never shown as paid.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Quicker Add new booking.' mod='salisbergguide'}</strong> {l s='After Search the page moves to the free rooms. Add To Cart adds a room at the first click, with the guests chosen in the Booking Form. A bar at the bottom of the screen shows the rooms chosen and the total, with a Continue to guest and payment button.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Charge tax switch on the booking form.' mod='salisbergguide'}</strong> {l s='It is on Yes. Choose No for a guest who is not to be charged tax, and only that booking is made without tax.' mod='salisbergguide'}</li>

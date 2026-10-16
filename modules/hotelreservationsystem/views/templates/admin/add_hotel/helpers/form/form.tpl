@@ -494,7 +494,7 @@
 					{if isset($hotel_info.id) && $hotel_info.id}
 						{if isset($WK_ORDER_REFUND_ALLOWED) && !$WK_ORDER_REFUND_ALLOWED}
 							<div class="alert alert-info">
-								{l s='To enable hotel-wise refunds, activate order refunds in' mod='hotelreservationsystem'} <a href="{$link->getAdminLink('AdminOrderRefundRules')|escape:'html':'UTF-8'}" target="_blank">{l s='Manage Order Refund Rules' mod='hotelreservationsystem'}</a>
+								{l s='To enable refunds for this hotel, activate booking refunds in' mod='hotelreservationsystem'} <a href="{$link->getAdminLink('AdminOrderRefundRules')|escape:'html':'UTF-8'}" target="_blank">{l s='Refund rules' mod='hotelreservationsystem'}</a>
 							</div>
 						{/if}
 						<div class="form-group">

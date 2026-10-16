@@ -130,7 +130,7 @@ class AdminCustomerThreadsControllerCore extends AdminController
                 'optional' => true,
             ),
             'id_order' => array(
-                'title' => $this->l('ID Order'),
+                'title' => $this->l('Booking ID'),
                 'filter_key' => 'a!id_order',
                 'optional' => false,
                 'visible_default' => false,
@@ -165,8 +165,8 @@ class AdminCustomerThreadsControllerCore extends AdminController
                         'lang' => true
                     ),
                      'PS_MAIL_EMAIL_MESSAGE' => array(
-                        'title' => $this->l('Send messages from order page to'),
-                        'desc' => $this->l('Where customers send messages from the order page.'),
+                        'title' => $this->l('Send messages from the booking page to'),
+                        'desc' => $this->l('Where guests send messages from the booking page.'),
                         'validation' => 'isUnsignedId',
                         'type' => 'select',
                         'cast' => 'intval',
@@ -914,7 +914,7 @@ class AdminCustomerThreadsControllerCore extends AdminController
             foreach ($order_history as $history) {
                 $link_order = $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order='.(int)$order->id;
 
-                $content = '<a class="badge" target="_blank" href="'.Tools::safeOutput($link_order).'">'.$this->l('Order').' #'.(int)$order->id.'</a><br/><br/>';
+                $content = '<a class="badge" target="_blank" href="'.Tools::safeOutput($link_order).'">'.$this->l('Booking').' #'.(int)$order->id.'</a><br/><br/>';
 
                 $content .= '<span>'.$this->l('Status:').' '.$history['ostate_name'].'</span>';
 
