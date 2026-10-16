@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='16 October 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='A room with a guest still checked in is never shown as Ready.' mod='salisbergguide'}</strong> {l s='Even if the guest stayed past their departure date, the room shows as Occupied on the Room board until you check them out.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Date boxes open the calendar wherever you click.' mod='salisbergguide'}</strong> {l s='In Arrival and Departure on New booking, click anywhere in the box instead of finding the small calendar icon.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Selected room now comes first.' mod='salisbergguide'}</strong> {l s='It is on the left before the room list, and the button is called Book now for both same-day and future stays. Room types show their matching count on the same row. The room list now takes two thirds of the page, the selected room stays in view as you scroll, and the repeated headings and banner above the rooms were removed.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Bookings is now the one name used across the back office.' mod='salisbergguide'}</strong> {l s='Menus, page headings, booking details, dashboard figures, the notification panel at the top, statistics and reports no longer switch between Reservations and Orders. Technical database and controller names stay unchanged so existing bookings and integrations keep working.' mod='salisbergguide'}</li>

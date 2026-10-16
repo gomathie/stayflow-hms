@@ -153,12 +153,13 @@ class SalisbergWalkIn
             }
         }
 
-        $today = pSQL($this->getBusinessDate());
+        // A room is occupied while a guest is checked in and not yet checked out,
+        // including one past the booked departure date (as on Today and in the booking
+        // summary), so the board never shows such a room as Ready.
         $occupied = array_map('intval', array_column((array) Db::getInstance()->executeS(
             'SELECT DISTINCT `id_room` FROM `'._DB_PREFIX_.'htl_booking_detail`
             WHERE `id_hotel` = '.(int) $stay['id_hotel'].' AND `is_cancelled` = 0 AND `is_refunded` = 0
-            AND `id_status` = '.(int) HotelBookingDetail::STATUS_CHECKED_IN.'
-            AND DATE(`date_from`) <= \''.$today.'\' AND DATE(`date_to`) >= \''.$today.'\''
+            AND `id_status` = '.(int) HotelBookingDetail::STATUS_CHECKED_IN
         ), 'id_room'));
 
         $rows = (array) Db::getInstance()->executeS(

@@ -9,6 +9,10 @@ Every change to Salisberg, newest first, in plain words.
 
 ## 2026-10-16
 
+### Fixed
+
+- **The Room board no longer shows a room as Ready while a guest is still checked in.** If a guest stayed past their departure date, or was never checked out, the board listed the room as Ready but the booking steps then said it was not. Both now treat such a room as Occupied until it is checked out, the same as the Today panel.
+
 ### Changed
 
 - **Date boxes open the calendar wherever you click.** On the New booking page and the guided booking's stay screen (Arrival and Departure), clicking the empty part of the box opens the calendar; you no longer have to find the small icon.
