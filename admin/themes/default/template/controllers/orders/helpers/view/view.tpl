@@ -195,9 +195,31 @@
                                                             {if isset($refundReqBookings) && $refundReqBookings && $data.id|in_array:$refundReqBookings && $data.is_refunded}
                                                                 <span class="badge badge-danger">{if $data.is_cancelled}{l s='Cancelled'}{else}{l s='Refunded'}{/if}</span>
                                                             {elseif $can_edit}
-                                                                <a class="open_room_status_form btn btn-default" href="#" data-id_hotel_booking_detail="{$data['id']}" data-id_order="{$data['id_order']}" data-id_status="{$data['id_status']}" data-id_room="{$data['id_room']}" data-date_from="{$data['date_from']|date_format:"%Y-%m-%d"}" data-date_to="{$data['date_to']|date_format:"%Y-%m-%d"}" data-check_in_time="{$data['check_in_time']}" data-check_out_time="{$data['check_out_time']}">
-                                                                    <i class="icon-pencil"></i> {l s='Edit'}
-                                                                </a>
+                                                                <details class="sb-room-status-dropdown">
+                                                                    <summary class="btn btn-default">{l s='Change room status'} <i class="icon-angle-down"></i></summary>
+                                                                    <form action="{$current_index|escape:'html':'UTF-8'}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}" method="post" class="room_status_info_form">
+                                                                        <input type="hidden" name="id_hotel_booking_detail" value="{$data['id']|intval}">
+                                                                        <input type="hidden" name="id_order" value="{$data['id_order']|intval}">
+                                                                        <input type="hidden" name="id_room" value="{$data['id_room']|intval}">
+                                                                        <input type="hidden" name="date_from" value="{$data['date_from']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'}">
+                                                                        <input type="hidden" name="date_to" value="{$data['date_to']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'}">
+                                                                        <input type="hidden" name="check_in_time" value="{$data['check_in_time']|escape:'html':'UTF-8'}">
+                                                                        <input type="hidden" name="check_out_time" value="{$data['check_out_time']|escape:'html':'UTF-8'}">
+                                                                        <div class="form-group">
+                                                                            <label class="control-label">{l s='New room status'}</label>
+                                                                            <select name="booking_order_status" class="form-control booking_order_status" required>
+                                                                                {foreach from=$hotel_order_status item=state}
+                                                                                    <option value="{$state['id_status']|intval}"{if $state['id_status'] == $data['id_status']} selected="selected" disabled="disabled"{/if}>{$state.name|escape:'html':'UTF-8'}</option>
+                                                                                {/foreach}
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="form-group" style="display:none;">
+                                                                            <label class="control-label">{l s='Check-in or check-out date and time'}</label>
+                                                                            <input type="text" name="status_date" class="form-control room_status_date wk-input-date" value="" autocomplete="off">
+                                                                        </div>
+                                                                        <button type="submit" name="submitbookingOrderStatus" class="btn btn-primary">{l s='Save room status'}</button>
+                                                                    </form>
+                                                                </details>
                                                             {/if}
                                                         </td>
                                                     </tr>

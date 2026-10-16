@@ -1530,15 +1530,20 @@ $(document).ready(function() {
     // End: TravellerModal: Processes
     // ======================================
 
-    // Start: RoomStatusModal: Processes
-    // for updating Room status
+    // Start: Room status dropdown
     // toggle date input of check-in checkout dates as per status selected
     $(document).on('change', '.booking_order_status', function() {
         var status = $(this).val();
+        var form = $(this).closest('.room_status_info_form');
+        var dateGroup = form.find('.room_status_date').closest('.form-group');
         if (status == ROOM_STATUS_CHECKED_IN || status == ROOM_STATUS_CHECKED_OUT) {
-            $(this).closest('.room_status_info_form').find('.room_status_date').closest('.form-group').show();
+            dateGroup.show();
+            var date = status == ROOM_STATUS_CHECKED_IN
+                ? form.find('[name="date_from"]').val() + ' ' + form.find('[name="check_in_time"]').val()
+                : form.find('[name="date_to"]').val() + ' ' + form.find('[name="check_out_time"]').val();
+            form.find('.room_status_date').val(date);
         } else {
-            $(this).closest('.room_status_info_form').find('.room_status_date').closest('.form-group').hide();
+            dateGroup.hide();
         }
     });
 
@@ -1558,20 +1563,7 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.open_room_status_form', function(e) {
-        e.preventDefault();
-        RoomStatusModal.show($(this));
-    });
-
-    $(document).on('hidden.bs.modal', '#room-status-modal', function(){
-        $('#room-status-modal').remove();
-    });
-
-    $(document).on('click', '.submitRoomStatus', function(e) {
-        e.preventDefault();
-        RoomStatusModal.submit();
-    });
-    // End: RoomStatusModal: Processes
+    // End: Room status dropdown
     // ======================================
 
     // Start: RoomAllotmentCommentModal: Processes
@@ -2216,60 +2208,6 @@ const TravellerModal = {
     hideErrors: function(cb) {
         $('#traveller-modal .errors-wrap').hide(200);
         $('#traveller-modal .errors-wrap').html('');
-    }
-};
-
-// Modal object to handle room status processes
-const RoomStatusModal = {
-    show: function(roomObj) {
-        $(".loading_overlay").show();
-        $.ajax({
-            type: 'POST',
-            headers: {
-                "cache-control": "no-cache"
-            },
-            url: admin_order_tab_link,
-            dataType: 'JSON',
-            cache: false,
-            data: 'ajax=true&id_order='+id_order+'&action=InitRoomStatusModal',
-            beforeSend: function() {
-                $("#page-loader").show();
-            },
-            success: function(result) {
-                if (result.hasError == 0 && result.modalHtml) {
-                    $('#footer').next('.bootstrap').append(result.modalHtml);
-
-                    $('#room-status-modal #room_status_id_hotel_booking_detail').val(roomObj.data('id_hotel_booking_detail'));
-                    $('#room-status-modal #room_status_date_from').val(roomObj.data('date_from'));
-                    $('#room-status-modal #room_status_date_to').val(roomObj.data('date_to'));
-                    $('#room-status-modal #room_status_id_room').val(roomObj.data('id_room'));
-                    $('#room-status-modal #room_status_id_order').val(roomObj.data('id_order'));
-                    $('#room-status-modal .booking_order_status').val(roomObj.data('id_status'));
-
-                    if (roomObj.data('id_status') == result.STATUS_CHECKED_IN) {
-                        $('.room_status_info_form .room_status_date').val(roomObj.data('date_to') + ' ' + roomObj.data('check_out_time'));
-                    } else {
-                        $('.room_status_info_form .room_status_date').val(roomObj.data('date_from') + ' ' + roomObj.data('check_in_time'));
-                    }
-
-                    $('#room-status-modal .booking_order_status option:selected').attr('disabled', 'disabled');
-
-                    $('#room-status-modal').modal('show');
-                } else if (result.errors) {
-                    showErrorMessage();
-                }
-            },
-            complete: function() {
-                $(".loading_overlay").hide();
-                $("#page-loader").hide();
-            }
-        });
-    },
-    close: function() {
-        $('#room-status-modal').modal('hide');
-    },
-    submit: function() {
-        $(document).find('#submitbookingOrderStatus').click();
     }
 };
 

@@ -841,6 +841,24 @@ html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard .fc-scrollgrid 
 #content .sb-room-state { margin-top: 6px; }
 #content .sb-room-state .label { display: inline-block; padding: 5px 9px; border-radius: 999px; font-size: 11px; }
 #content #room_status_info_wrapper td:last-child .btn { margin: 2px; }
+#content .sb-room-status-dropdown { position: relative; display: inline-block; margin: 2px; }
+#content .sb-room-status-dropdown > summary { list-style: none; cursor: pointer; }
+#content .sb-room-status-dropdown > summary::-webkit-details-marker { display: none; }
+#content .sb-room-status-dropdown > .room_status_info_form {
+  position: absolute;
+  z-index: 1000;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 270px;
+  padding: 12px;
+  border: 1px solid var(--sb-line);
+  border-radius: 8px;
+  background: var(--sb-card);
+  color: var(--sb-ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+}
+#content .sb-room-status-dropdown .form-group { margin-bottom: 10px; }
+#content .sb-room-status-dropdown .control-label { display: block; margin-bottom: 5px; }
 
 /* ---------- 14. Customer-facing booking printout ---------- */
 .sb-print-header,

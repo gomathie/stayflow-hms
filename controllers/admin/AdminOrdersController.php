@@ -752,46 +752,6 @@ class AdminOrdersControllerCore extends AdminController
         die(Tools::jsonEncode($response));
     }
 
-    public function ajaxProcessInitRoomStatusModal()
-    {
-        // set modal details
-        $response['hasError'] = 1;
-        if (Validate::isLoadedObject($objOrder = new Order(Tools::getValue('id_order')))) {
-            $htlOrderStatus = HotelBookingDetail::getAllHotelOrderStatus();
-            $this->context->smarty->assign(
-                array(
-                    'order' => $objOrder,
-                    'current_index' => self::$currentIndex,
-                    'hotel_order_status' => $htlOrderStatus,
-                )
-            );
-            $modal = array(
-                'modal_id' => 'room-status-modal',
-                'modal_class' => 'order_detail_modal',
-                'modal_title' => '<i class="icon-bed"></i> &nbsp'.$this->l('Guest CheckIn - Checkout'),
-                'modal_content' => $this->context->smarty->fetch('controllers/orders/modals/_room_status_form.tpl'),
-                'modal_actions' => array(
-                    array(
-                        'type' => 'button',
-                        'value' => 'submitRoomStatus',
-                        'class' => 'submitRoomStatus btn-primary pull-right',
-                        'label' => '<i class="icon-bed"></i> '.$this->l('Update Status'),
-                    ),
-                ),
-            );
-
-            $this->context->smarty->assign($modal);
-
-            $response['hasError'] = 0;
-            $response['STATUS_ALLOTED'] = HotelBookingDetail::STATUS_ALLOTED;
-            $response['STATUS_CHECKED_IN'] = HotelBookingDetail::STATUS_CHECKED_IN;
-            $response['STATUS_CHECKED_OUT'] = HotelBookingDetail::STATUS_CHECKED_OUT;
-            $response['modalHtml'] = $this->context->smarty->fetch('modal.tpl');
-        }
-
-        die(Tools::jsonEncode($response));
-    }
-
     public function ajaxProcessInitRoomAllotmentCommentModal()
     {
         $response['hasError'] = 1;

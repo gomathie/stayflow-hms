@@ -146,8 +146,9 @@
 		<ol>
 			<li>{l s='Open the booking (section 4) and confirm the guest name and dates. Ask for ID if hotel policy requires it.' mod='salisbergguide'}</li>
 			<li>{l s='If money is still due, take payment first (section 5).' mod='salisbergguide'}</li>
-			<li>{l s='In Rooms Status, read the status badge beside the room. When the stay has started, click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='on that room row. The date and time are recorded and you stay on the booking; you do not need to open Edit.' mod='salisbergguide'}</li>
-			<li>{l s='When the guest leaves, settle any extra services, then click' mod='salisbergguide'} <span class="sb-btn">Check out</span> {l s='on the same room row. The room is marked Dirty for housekeeping; you do not need to open Edit.' mod='salisbergguide'}</li>
+			<li>{l s='In Rooms Status, read the status badge beside the room. When the stay has started, click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='on that room row. The date and time are recorded and you stay on the booking.' mod='salisbergguide'}</li>
+			<li>{l s='When the guest leaves, settle any extra services, then click' mod='salisbergguide'} <span class="sb-btn">Check out</span> {l s='on the same room row. The room is marked Dirty for housekeeping.' mod='salisbergguide'}</li>
+			<li>{l s='For a different status, use' mod='salisbergguide'} <span class="sb-btn">Change room status</span> {l s='beside the room. Choose the new status from the dropdown and click Save room status; check-in and check-out also ask for the date and time.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='A booking with several rooms is checked in and out one room at a time.' mod='salisbergguide'}</p>
 	</section>
