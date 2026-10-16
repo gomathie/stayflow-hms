@@ -7987,7 +7987,7 @@ p.checkbox.gift {
   margin-bottom: 10px; }
 
 a.iframe {
-  color: #333;
+  color: var(--sb-ink);
   text-decoration: underline; }
   a.iframe:hover {
     text-decoration: none; }

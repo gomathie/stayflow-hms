@@ -97,19 +97,19 @@
     #search_hotel_block_form .input-date span i {
       transform: scale(0.8, 0.6);}
   .header-rmsearch-input::-webkit-input-placeholder {
-    color: #333;}
+    color: var(--sb-muted);}
   .header-rmsearch-input:-moz-placeholder {
     /* Firefox 18- */
-    color: #333;
+    color: var(--sb-muted);
     font-weight: 400;
     opacity: 1;}
   .header-rmsearch-input::-moz-placeholder {
     /* Firefox 19+ */
-    color: #333;
+    color: var(--sb-muted);
     font-weight: 400;
     opacity: 1;}
   .header-rmsearch-input:-ms-input-placeholder {
-    color: #333;
+    color: var(--sb-muted);
     font-weight: 400;}
   .search_block_container .dropdown-toggle {
     background-color: #f2f2f2;

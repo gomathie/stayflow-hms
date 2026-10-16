@@ -9,6 +9,7 @@
   --sb-green-2: #1c4a3d;
   --sb-green-ink: #0c241e;
   --sb-gold: #b98a2f;
+  --sb-on-gold: #ffffff;       /* text on a gold button */
   --sb-gold-2: #d4a94e;
   --sb-cream: #f6f1e6;
   --sb-line: #e7e1d4;
@@ -30,6 +31,7 @@ html[data-sb-theme="dark"] {
   --sb-green: #2f7d64;
   --sb-green-2: #38937a;
   --sb-gold: #cfa24a;
+  --sb-on-gold: #0c241e;
   --sb-gold-2: #e0b964;
   --sb-cream: #121c18;
   --sb-line: #27362f;
@@ -116,6 +118,7 @@ header .header-top .shopping_cart .badge,
 header .header-top .ajax_cart_quantity {
   background: var(--sb-gold);
   border-color: var(--sb-gold);
+  color: var(--sb-on-gold);
 }
 
 /* ---------- Hero (home) ---------- */
@@ -206,6 +209,7 @@ header .header-top .ajax_cart_quantity {
   border-radius: 12px;
   background: var(--sb-gold);
   border-color: var(--sb-gold);
+  color: var(--sb-on-gold);
   font-size: 14px;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -396,7 +400,7 @@ header .header-top .ajax_cart_quantity {
   text-transform: uppercase;
   transition: background .2s ease, border-color .2s ease;
 }
-#index a.htlRoomTypeBookNow:hover { background: var(--sb-gold); border-color: var(--sb-gold); color: #fff; }
+#index a.htlRoomTypeBookNow:hover { background: var(--sb-gold); border-color: var(--sb-gold); color: var(--sb-on-gold); }
 
 /* Testimonials */
 #index .htlTestemonial-owlCarousel .home_block_content,
@@ -462,7 +466,7 @@ a.button.exclusive:hover,
 button.button.exclusive:hover {
   background: var(--sb-gold);
   border-color: var(--sb-gold);
-  color: #fff;
+  color: var(--sb-on-gold);
 }
 
 .btn-success,
@@ -481,7 +485,7 @@ button.button.exclusive:hover {
 #add_to_cart button.exclusive.book_now_submit:hover {
   background: var(--sb-gold);
   border-color: var(--sb-gold);
-  color: #fff;
+  color: var(--sb-on-gold);
 }
 .btn-default:not(.button) { border-radius: 10px; }
 
@@ -617,8 +621,9 @@ input.account_input, input.is_required {
 .footer-container .btn.button.newsletter-btn {
   background: var(--sb-gold);
   border-color: var(--sb-gold);
+  color: var(--sb-on-gold);
 }
-.footer-container .btn.button.newsletter-btn:hover { background: var(--sb-gold-2); border-color: var(--sb-gold-2); }
+.footer-container .btn.button.newsletter-btn:hover { background: var(--sb-gold-2); border-color: var(--sb-gold-2); color: var(--sb-on-gold); }
 /* Location and Contact */
 .footer-container .sb-footer-contact {
   list-style: none;
@@ -653,6 +658,7 @@ input.account_input, input.is_required {
     border-radius: 12px;
     background: var(--sb-gold);
     border-color: var(--sb-gold);
+    color: var(--sb-on-gold);
     letter-spacing: .12em;
     text-transform: uppercase;
   }
@@ -933,6 +939,7 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 #order-opc button.btn.btn-default.button:hover {
   background-color: var(--sb-gold);
   border-color: var(--sb-gold);
+  color: var(--sb-on-gold);
 }
 #order-opc .opc-btn-default {
   border-color: var(--sb-green);
@@ -942,6 +949,7 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 #order-opc .footer-container .btn.button.newsletter-btn {
   background-color: var(--sb-gold);
   border-color: var(--sb-gold);
+  color: var(--sb-on-gold);
 }
 #order-opc .cart_total_detail_block .cart_final_total_block > .cart_total_values { color: var(--sb-heading); font-weight: 700; }
 #order-opc .cart_total_detail_block .total_discount_block,
@@ -987,7 +995,7 @@ p.payment_module a.salisbergpay span { display: block; margin-top: 4px; font-siz
 p.payment_module a.salisbergpay::after { color: var(--sb-gold); }
 
 .submit_occupancy_btn.btn { border-color: var(--sb-green); border-radius: 10px; background-color: var(--sb-green); color: #fff; }
-.submit_occupancy_btn.btn:hover { border-color: var(--sb-gold); background-color: var(--sb-gold); }
+.submit_occupancy_btn.btn:hover { border-color: var(--sb-gold); background-color: var(--sb-gold); color: var(--sb-on-gold); }
 
 /* ---------- Light/dark switch (added to the header by theme-toggle.js) ---------- */
 header .header-top .sb-theme-item { display: flex; align-items: center; margin-right: 14px; }
@@ -1029,6 +1037,8 @@ html[data-sb-theme="dark"] #page,
 html[data-sb-theme="dark"] .columns-container { background-color: var(--sb-page); color: var(--sb-ink); }
 html[data-sb-theme="dark"] .header-container,
 html[data-sb-theme="dark"] header#header { background-color: var(--sb-page); }
+/* amenity icons (img/rf) are black on white: same treatment as the logo */
+html[data-sb-theme="dark"] .rm_amen { filter: invert(1); mix-blend-mode: screen; }
 /* the logo file has a white background: invert it and let the black drop out */
 html[data-sb-theme="dark"] header .row #header_logo img { filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
 html[data-sb-theme="dark"] .header-rmsearch-inner-wrapper { background-color: var(--sb-surface); }
@@ -1047,7 +1057,7 @@ html[data-sb-theme="dark"] #columns dt,
 html[data-sb-theme="dark"] #columns dd,
 html[data-sb-theme="dark"] #columns strong,
 html[data-sb-theme="dark"] #columns .dark,
-html[data-sb-theme="dark"] #columns span:not(.price):not(.label):not(.badge) { color: var(--sb-ink); }
+html[data-sb-theme="dark"] #columns :not(button):not(.button) > span:not(.price):not(.label):not(.badge) { color: var(--sb-ink); }
 html[data-sb-theme="dark"] #columns h1,
 html[data-sb-theme="dark"] #columns h2,
 html[data-sb-theme="dark"] #columns h3,
@@ -1097,7 +1107,7 @@ html[data-sb-theme="dark"] #filter_price_silder.ui-slider { background-color: va
 html[data-sb-theme="dark"] .header-rmsearch-details-wrapper,
 html[data-sb-theme="dark"] .header-rmsearch-details-wrapper p,
 html[data-sb-theme="dark"] .header-rmsearch-details-wrapper div,
-html[data-sb-theme="dark"] .header-rmsearch-details-wrapper span { color: var(--sb-ink); }
+html[data-sb-theme="dark"] .header-rmsearch-details-wrapper :not(button):not(.button) > span { color: var(--sb-ink); }
 html[data-sb-theme="dark"] .breadcrumb,
 html[data-sb-theme="dark"] .breadcrumb a,
 html[data-sb-theme="dark"] .breadcrumb a::before,

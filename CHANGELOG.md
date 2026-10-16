@@ -11,6 +11,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Fixed
 
+- **Website dark mode: the guest booking pages are readable.** The "Already have an account?" strip and the terms-of-service line at checkout were white boxes with near-invisible text; on the booking confirmation the room name and the "Awaiting payment" label were dark grey on dark; the room amenity icons on search results were almost invisible; the "Hotel Location" placeholder was too faint; and white text sat on the gold Search Rooms and Subscribe buttons (contrast 1.9 to 2.4). All now meet readable contrast; light mode is unchanged.
 - **The Room board no longer shows a room as Ready while a guest is still checked in.** If a guest stayed past their departure date, or was never checked out, the board listed the room as Ready but the booking steps then said it was not. Both now treat such a room as Occupied until it is checked out, the same as the Today panel.
 
 ### Changed

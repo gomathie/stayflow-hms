@@ -137,7 +137,7 @@
     margin: 0;
     font-size: 20px;
     font-weight: bold;
-    color: #333;
+    color: var(--sb-heading);
 }
 .product-detail dt {
     margin: 7px 0;
@@ -264,7 +264,7 @@
 
 .label {
     font-size: 14px;
-    color: #333;
+    color: var(--sb-ink);
     font-weight: normal;
     border-radius: 2px;
 }

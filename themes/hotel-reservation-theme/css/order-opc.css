@@ -118,7 +118,7 @@
 	font-weight: 700;
 }
 #login_form {
-	background-color: #FFFFFF;
+	background-color: var(--sb-surface);
 }
 #login_form h3 {
 	font-size: 18px;
@@ -131,7 +131,7 @@
 	text-decoration: none;
 }
 #new_account_form fieldset div.box, #tc_cont {
-	background-color: #FFFFFF;
+	background-color: var(--sb-surface);
 	margin-bottom: 20px;
 }
 #new_account_title, #opc_account_form h3, #choose_payment_txt {
@@ -647,7 +647,7 @@
 		font-size: 14px;
 		padding: 11px;
 		font-weight: 600;
-		color: #FFFFFF;
+		color: inherit;
 		text-transform: uppercase;
 		text-align: center;}
 
