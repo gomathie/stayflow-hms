@@ -987,7 +987,11 @@ class OrderCore extends ObjectModel
 
         $sql = 'SELECT o.*, (SELECT SUM(od.`product_quantity`) FROM `'._DB_PREFIX_.'order_detail` od WHERE od.`id_order` = o.`id_order`) nb_products
         FROM `'._DB_PREFIX_.'orders` o
-        WHERE o.`id_customer` = '.(int)$id_customer;
+        WHERE o.`id_customer` = '.(int)$id_customer.'
+        AND NOT EXISTS (
+            SELECT 1 FROM `'._DB_PREFIX_.'sb_deleted_booking` archived
+            WHERE archived.`id_order` = o.`id_order`
+        )';
 
         // if you want orders from / not from a specific id_address_invoice
         if (!is_null($id_address_invoice)) {

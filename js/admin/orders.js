@@ -1533,8 +1533,25 @@ $(document).ready(function() {
 
     // Start: Room status dropdown
     $(document).on('click', '.sb-confirm-room-status', function(e) {
-        if (!window.confirm($(this).attr('data-confirm-message'))) {
-            e.preventDefault();
+        e.preventDefault();
+        var trigger = $(this);
+        var confirmation = $('#' + trigger.attr('aria-controls'));
+        $('.sb-room-status-confirm').attr('hidden', true);
+        $('.sb-confirm-room-status').attr('aria-expanded', 'false');
+        confirmation.removeAttr('hidden');
+        trigger.attr('aria-expanded', 'true');
+        confirmation.find('button').first().trigger('focus');
+    });
+
+    $(document).on('click', '.sb-cancel-room-status', function() {
+        var confirmation = $(this).closest('.sb-room-status-confirm');
+        confirmation.attr('hidden', true);
+        confirmation.closest('form').find('.sb-confirm-room-status').attr('aria-expanded', 'false').trigger('focus');
+    });
+
+    $(document).on('keydown', '.sb-room-status-confirm', function(e) {
+        if (e.key === 'Escape') {
+            $(this).find('.sb-cancel-room-status').trigger('click');
         }
     });
 

@@ -508,6 +508,10 @@ class AdminEmployeesControllerCore extends AdminController
                 $this->errors[] = Tools::displayError('You cannot change a SuperAdmin account.');
                 return false;
             }
+            if ($status === 0 && $employee->isLastAdmin()) {
+                $this->errors[] = Tools::displayError('You cannot disable the last administrator account.');
+                return false;
+            }
             if ($status === 0 && (int) $employee->id == (int) $this->context->employee->id) {
                 $this->errors[] = Tools::displayError('You cannot disable your own account.');
                 return false;

@@ -1,26 +1,9 @@
 {*
-* 2007-2017 PrestaShop
+* 2026
 *
 * NOTICE OF LICENSE
 *
-* This source file is subject to the Academic Free License (AFL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2017 PrestaShop SA
-*  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
+* MIT
 *}
 
 {extends file="helpers/view/view.tpl"}
@@ -138,6 +121,34 @@
                                                         <td>
                                                             {$data['room_num']}<br>
                                                             <a href="{$link->getAdminLink('AdminProducts')|escape:'html':'UTF-8'}&amp;id_product={$data['id_product']}&amp;updateproduct" target="_blank">{$data['room_type_name']|escape:'html':'UTF-8'}</a>
+                                                            {if $can_edit && !$data.is_cancelled && !$data.is_refunded && $data['id_status'] == $hotel_order_status['STATUS_ALLOTED']['id_status'] && $data['date_from']|date_format:'%Y-%m-%d' <= $smarty.now|date_format:'%Y-%m-%d'}
+                                                                <form method="post" action="{$link->getAdminLink('AdminSalisbergToday')|escape:'html':'UTF-8'}" class="sb-room-status-action">
+                                                                    <input type="hidden" name="id_booking" value="{$data['id']|intval}">
+                                                                    <input type="hidden" name="id_order_back" value="{$data['id_order']|intval}">
+                                                                    <button type="button" class="btn btn-success sb-confirm-room-status" aria-expanded="false" aria-controls="sb-room-check-in-confirm-{$data['id']|intval}">
+                                                                        <i class="icon-signin"></i> {l s='Check in'}
+                                                                    </button>
+                                                                    <div id="sb-room-check-in-confirm-{$data['id']|intval}" class="sb-room-status-confirm" role="alertdialog" aria-label="{l s='Confirm check in'|escape:'html':'UTF-8'}" hidden>
+                                                                        <span>{l s='Check this guest in?'}</span>
+                                                                        <button type="submit" name="sb_check_in" value="1" class="btn btn-success btn-xs">{l s='Yes, check in'}</button>
+                                                                        <button type="button" class="btn btn-default btn-xs sb-cancel-room-status">{l s='No'}</button>
+                                                                    </div>
+                                                                </form>
+                                                            {/if}
+                                                            {if $can_edit && !$data.is_cancelled && !$data.is_refunded && $data['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}
+                                                                <form method="post" action="{$link->getAdminLink('AdminSalisbergToday')|escape:'html':'UTF-8'}" class="sb-room-status-action">
+                                                                    <input type="hidden" name="id_booking" value="{$data['id']|intval}">
+                                                                    <input type="hidden" name="id_order_back" value="{$data['id_order']|intval}">
+                                                                    <button type="button" class="btn btn-primary sb-confirm-room-status" aria-expanded="false" aria-controls="sb-room-check-out-confirm-{$data['id']|intval}">
+                                                                        <i class="icon-signout"></i> {l s='Check out'}
+                                                                    </button>
+                                                                    <div id="sb-room-check-out-confirm-{$data['id']|intval}" class="sb-room-status-confirm" role="alertdialog" aria-label="{l s='Confirm check out'|escape:'html':'UTF-8'}" hidden>
+                                                                        <span>{l s='Check this guest out?'}</span>
+                                                                        <button type="submit" name="sb_check_out" value="1" class="btn btn-primary btn-xs">{l s='Yes, check out'}</button>
+                                                                        <button type="button" class="btn btn-default btn-xs sb-cancel-room-status">{l s='No'}</button>
+                                                                    </div>
+                                                                </form>
+                                                            {/if}
                                                             <div class="sb-room-state">
                                                                 {if $data['id_status'] == $hotel_order_status['STATUS_CHECKED_OUT']['id_status']}
                                                                     <span class="label label-default">{l s='Checked out'}</span>
@@ -178,20 +189,6 @@
                                                                 <span class="badge badge-info">{if $data.num_checkin_documents > 0}{$data.num_checkin_documents}{else}0{/if}</span> <i class="icon-file-text"></i>
                                                             </a>
 
-                                                            {if $can_edit && !$data.is_cancelled && !$data.is_refunded && $data['id_status'] == $hotel_order_status['STATUS_ALLOTED']['id_status'] && $data['date_from']|date_format:'%Y-%m-%d' <= $smarty.now|date_format:'%Y-%m-%d'}
-                                                                <form method="post" action="{$link->getAdminLink('AdminSalisbergToday')|escape:'html':'UTF-8'}" style="display:inline">
-                                                                    <input type="hidden" name="id_booking" value="{$data['id']|intval}">
-                                                                    <input type="hidden" name="id_order_back" value="{$data['id_order']|intval}">
-                                                                    <button type="submit" name="sb_check_in" value="1" class="btn btn-success sb-confirm-room-status" data-confirm-message="{l s='Are you sure you want to check this guest in?'|escape:'html':'UTF-8'}"><i class="icon-signin"></i> {l s='Check in'}</button>
-                                                                </form>
-                                                            {/if}
-                                                            {if $can_edit && !$data.is_cancelled && !$data.is_refunded && $data['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}
-                                                                <form method="post" action="{$link->getAdminLink('AdminSalisbergToday')|escape:'html':'UTF-8'}" style="display:inline">
-                                                                    <input type="hidden" name="id_booking" value="{$data['id']|intval}">
-                                                                    <input type="hidden" name="id_order_back" value="{$data['id_order']|intval}">
-                                                                    <button type="submit" name="sb_check_out" value="1" class="btn btn-primary sb-confirm-room-status" data-confirm-message="{l s='Are you sure you want to check this guest out?'|escape:'html':'UTF-8'}"><i class="icon-signout"></i> {l s='Check out'}</button>
-                                                                </form>
-                                                            {/if}
                                                             {if isset($refundReqBookings) && $refundReqBookings && $data.id|in_array:$refundReqBookings && $data.is_refunded}
                                                                 <span class="badge badge-danger">{if $data.is_cancelled}{l s='Cancelled'}{else}{l s='Refunded'}{/if}</span>
                                                             {elseif $can_edit}

@@ -146,8 +146,8 @@
 		<ol>
 			<li>{l s='Open the booking (section 4) and confirm the guest name and dates. Ask for ID if hotel policy requires it.' mod='salisbergguide'}</li>
 			<li>{l s='If money is still due, take payment first (section 5).' mod='salisbergguide'}</li>
-			<li>{l s='In Rooms Status, read the status badge beside the room. When the stay has started, click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='on that room row. Confirm the message to record the date and time, or cancel to leave the status unchanged.' mod='salisbergguide'}</li>
-			<li>{l s='When the guest leaves, settle any extra services, then click' mod='salisbergguide'} <span class="sb-btn">Check out</span> {l s='on the same room row and confirm the message, or cancel. Confirming marks the room Dirty for housekeeping.' mod='salisbergguide'}</li>
+			<li>{l s='In Rooms Status, read the status badge beside the room. When the stay has started, click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='above the badge. A small confirmation appears beside the button; choose Yes to record the date and time, or No to leave the status unchanged.' mod='salisbergguide'}</li>
+			<li>{l s='When the guest leaves, settle any extra services, then click' mod='salisbergguide'} <span class="sb-btn">Check out</span> {l s='above the status badge. Choose Yes in the nearby confirmation to mark the room Dirty for housekeeping, or No to cancel.' mod='salisbergguide'}</li>
 			<li>{l s='For a different status, use' mod='salisbergguide'} <span class="sb-btn">Change room status</span> {l s='beside the room and choose a status. The Rooms Status section grows to show all options together without a scrollbar. The choice is applied immediately; check-in and check-out use the booked date and the hotel check-in or check-out time. For check-in, tick Set actual check-in time to use or adjust the current time instead.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='A booking with several rooms is checked in and out one room at a time.' mod='salisbergguide'}</p>

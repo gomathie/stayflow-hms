@@ -30,6 +30,10 @@ class AdminSalisbergRecycleBinController extends ModuleAdminController
             $this->errors[] = $this->l('You do not have permission to restore bookings.');
             return;
         }
+        if (strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST') {
+            $this->errors[] = $this->l('Bookings must be restored using the confirmation form.');
+            return;
+        }
 
         try {
             SalisbergBookingArchive::restore(
