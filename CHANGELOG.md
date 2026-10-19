@@ -23,6 +23,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **README.md refreshed.** It now reflects the current stack (PHP 8.3, MySQL 8.0 with an 8.4 option), the front-desk and reports modules, bank transfer alongside cash and Mobile Money, the booking recycle bin, SuperAdmin concealment, the current editing rules, and the project's MIT licence.
 - **Booking details and back-office access:** the booking summary now shows only total, paid, due and room count, avoiding a long row of secondary figures. The employee, theme and website controls sit at the far right of the top bar. SuperAdmin employee accounts are hidden from non-SuperAdmins. Hotel Staff can archive a mistaken booking with a reason but cannot view or restore the archive.
 - **Room status editing stays beside the room.** On a booking, **Change room status** expands the Rooms Status section to show the complete status list together, without a scrollbar or pop-up. Choose a status to apply it immediately; there is no separate save button. Check-in and check-out buttons sit above the room status badge, and open a small Yes/No confirmation beside the action. When checking in, staff can optionally set or adjust the actual check-in time.
 - **Check in and check out are now direct actions on the booking.** Each room row in Rooms Status shows a clear status badge and the action available for that room, so staff no longer need to open Edit to check a guest in or out. Check-out still triggers the normal housekeeping update.

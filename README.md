@@ -2,7 +2,7 @@
 
 The booking website and back office for **Salisberg Hotels**: <https://salisberg.com>
 
-Guests search for rooms, book, and choose to pay by cash at the hotel or by Mobile Money. Staff take and manage bookings, record payments, and check guests in and out from the back office.
+Guests search for rooms and book, paying by cash at the hotel, Mobile Money, or bank transfer. The back office covers the whole hotel day: a Room board for new bookings (same-day check-in or advance reservations that check in later), a Today panel on the dashboard for arrivals and departures, housekeeping, printable PDF reports, and a booking recycle bin that keeps deleted bookings auditable.
 
 Salisberg is built on [QloApps](https://github.com/Qloapps/QloApps) 1.7.0, an open-source hotel booking engine by Webkul (itself based on PrestaShop 1.6). This repository is that code plus Salisberg's design, features, security fixes and deployment setup.
 
@@ -12,7 +12,9 @@ Salisberg is built on [QloApps](https://github.com/Qloapps/QloApps) 1.7.0, an op
 |---|---|
 | Website design | `themes/hotel-reservation-theme/css/salisberg.css` |
 | Back office design, light and dark | `admin/themes/default/css/overrides.css` |
-| Cash and Mobile Money payments | `modules/salisbergpay` |
+| Payments: cash, Mobile Money and bank transfer | `modules/salisbergpay` |
+| Front desk: Room board, Today on the dashboard, housekeeping, guided booking, booking recycle bin | `modules/salisbergfrontdesk` |
+| Printable reports: bookings, arrivals and departures, income by day | `modules/salisbergreports` |
 | Back office guides, What's New page, staff roles | `modules/salisbergguide` |
 | Docker image, startup steps, backups, request limits | `Dockerfile`, `docker-compose.yml`, `docker/` |
 | Security fixes applied ahead of the vendor | `PATCHES.md` |
@@ -34,7 +36,7 @@ Inside the running back office, **Guides** holds a Staff Guide, an Admin Guide a
 
 ## Stack
 
-- PHP 8.1 with Apache, MySQL 8.0, Smarty templates
+- PHP 8.3 with Apache, MySQL 8.0 (MySQL 8.4 is available behind the `MYSQL_VERSION` setting), Smarty templates
 - No Composer or Node build step
 - Docker, deployed with [Coolify](https://coolify.io)
 
@@ -63,15 +65,15 @@ The full steps, and what must never be done on the production server, are in `AG
 
 | Role | For | Can do |
 |---|---|---|
-| SuperAdmin | The developer team | Everything |
-| Hotel Manager | The person who runs the hotel | Rooms, prices, bookings, guests, website pages, staff accounts, reports |
+| SuperAdmin | The developer team | Everything; hidden from all other roles |
+| Hotel Manager | The person who runs the hotel | Rooms, prices, bookings including the recycle bin, guests, website pages, staff accounts, reports |
 | Hotel Staff | Front desk and reservations | Bookings, payments, check-in and check-out, guest records |
 
 ## Working on the code
 
 - Work on a branch, not on `main`.
 - Extend what exists before adding something new; `AGENTS.md` rule 25 lists where each kind of change belongs.
-- Do not edit vendor files when an override or a module will do, and never move or rename one.
+- Fix inherited code where it is defined; put new behaviour in `override/` and modules. Never move or rename a vendor file.
 - Every change is recorded in `CHANGELOG.md` and `AGENTS.md`, and in the guides or the What's New page when users will notice it.
 - New versions of QloApps are adopted by tagged release only.
 
@@ -81,10 +83,6 @@ Please do not report security problems in public issues. See [`SECURITY.md`](SEC
 
 ## Licence and credit
 
-License and Credit
+This project is licensed under the MIT License by Salisberg. See [`LICENSE.md`](LICENSE.md).
 
-Salisberg is a modified version of QloApps, © Webkul. QloApps and bundled modules may carry their own respective licenses in their folders.
-
-The changes made by Salisberg in this repository are released under the MIT License. License and copyright notices in the source files are preserved as required.
-
-Third-party code and modules remain subject to their respective original licenses.
+It is a modified version of QloApps, © Webkul, and bundles third-party code and modules. QloApps, the bundled modules and other third-party components remain subject to their own original licenses, and their copyright and license notices are preserved.
