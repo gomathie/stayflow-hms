@@ -80,6 +80,7 @@
                     <img id="sb-selected-image" src="{if $sb_selected_room}{$sb_selected_room.image|escape:'html':'UTF-8'}{/if}" alt=""{if !$sb_selected_room || !$sb_selected_room.image} hidden{/if}>
                     <div><strong id="sb-selected-number">{if $sb_selected_room}{$sb_selected_room.room_num|escape:'html':'UTF-8'}{/if}</strong><span id="sb-selected-type">{if $sb_selected_room}{$sb_selected_room.room_type|escape:'html':'UTF-8'}{/if}</span><span id="sb-selected-status" class="sb-status{if $sb_selected_room} sb-status-{$sb_selected_room.readiness.code|escape:'html':'UTF-8'}{/if}"><i></i>{if $sb_selected_room}{$sb_selected_room.readiness.label|escape:'html':'UTF-8'}{/if}</span></div>
                 </div>
+                <p class="sb-selected-note" id="sb-selected-note"{if !$sb_selected_room || !$sb_selected_room.note} hidden{/if}>{if $sb_selected_room}{$sb_selected_room.note|escape:'html':'UTF-8'}{/if}</p>
                 <dl class="sb-summary-list">
                     <dt>{l s='Check-in' mod='salisbergfrontdesk'}</dt><dd>{$sb_stay_display.arrival|escape:'html':'UTF-8'}</dd>
                     <dt>{l s='Check-out' mod='salisbergfrontdesk'}</dt><dd>{$sb_stay_display.departure|escape:'html':'UTF-8'}</dd>
@@ -130,10 +131,12 @@
                                         data-taxes="{$room.quote.taxes_text|escape:'html':'UTF-8'}"
                                         data-capacity="{$room.max_adults|intval} adults, {$room.max_children|intval} children"
                                         data-image="{$room.image|escape:'html':'UTF-8'}"
+                                        data-note="{$room.note|escape:'html':'UTF-8'}"
                                         data-room-search="{$room.room_num|escape:'html':'UTF-8'} {$room.room_type|escape:'html':'UTF-8'}"
                                         aria-pressed="{if $sb_selected_room && $sb_selected_room.id_room == $room.id_room}true{else}false{/if}"
                                         {if !$room.available}aria-disabled="true"{/if}>
                                         <span class="sb-room-card-top"><strong>{$room.room_num|escape:'html':'UTF-8'}</strong><span>{$room.room_type|escape:'html':'UTF-8'}</span></span>
+                                        {if $room.note}<span class="sb-room-note" title="{$room.note|escape:'html':'UTF-8'}">{$room.note|escape:'html':'UTF-8'}</span>{/if}
                                         {if $sb_recommended_room_id == $room.id_room}<span class="sb-recommended">{l s='Recommended' mod='salisbergfrontdesk'}</span>{/if}
                                         {if $room.image}<img src="{$room.image|escape:'html':'UTF-8'}" alt="">{/if}
                                         <span class="sb-status sb-status-{$room.readiness.code|escape:'html':'UTF-8'}"><i></i>{$room.readiness.label|escape:'html':'UTF-8'}</span>

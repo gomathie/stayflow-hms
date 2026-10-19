@@ -165,12 +165,14 @@ class SalisbergWalkIn
         $rows = (array) Db::getInstance()->executeS(
             'SELECT r.`id` AS `id_room`, r.`room_num`, r.`id_product`, r.`id_hotel`, r.`id_status` AS `room_state`,
                 pl.`name` AS `room_type`, pl.`link_rewrite`, rt.`max_adults`, rt.`max_children`, rt.`max_guests`,
-                IFNULL(rs.`status`, '.(int) Salisbergfrontdesk::ROOM_CLEAN.') AS `housekeeping`
+                IFNULL(rs.`status`, '.(int) Salisbergfrontdesk::ROOM_CLEAN.') AS `housekeeping`,
+                TRIM(r.`comment`) AS `note`, (rr.`price` IS NOT NULL) AS `own_price`
             FROM `'._DB_PREFIX_.'htl_room_information` r
             INNER JOIN `'._DB_PREFIX_.'product_lang` pl ON pl.`id_product` = r.`id_product`
                 AND pl.`id_lang` = '.(int) $this->context->language->id.' AND pl.`id_shop` = '.(int) $this->context->shop->id.'
             INNER JOIN `'._DB_PREFIX_.'htl_room_type` rt ON rt.`id_product` = r.`id_product`
             LEFT JOIN `'._DB_PREFIX_.'sb_room_status` rs ON rs.`id_room` = r.`id`
+            LEFT JOIN `'._DB_PREFIX_.'sb_room_rate` rr ON rr.`id_room` = r.`id`
             WHERE r.`id_hotel` = '.(int) $stay['id_hotel'].'
             ORDER BY pl.`name`, r.`room_num`'
         );
@@ -186,7 +188,8 @@ class SalisbergWalkIn
             $room = array_merge($row, array(
                 'available' => isset($available[(int) $row['id_room']]),
                 'readiness' => $readiness,
-                'quote' => $quotes[$idProduct],
+                // a room with a price of its own is quoted on its own; the others share the room type's quote
+                'quote' => !empty($row['own_price']) ? $this->estimateQuote($idProduct, $stay, (int) $row['id_room']) : $quotes[$idProduct],
                 'image' => $this->productImage($idProduct, $row['link_rewrite']),
             ));
             if (!isset($groups[$idProduct])) {
@@ -306,12 +309,14 @@ class SalisbergWalkIn
         return Db::getInstance()->getRow(
             'SELECT r.`id` AS `id_room`, r.`room_num`, r.`id_product`, r.`id_hotel`, r.`id_status` AS `room_state`,
                 pl.`name` AS `room_type`, pl.`link_rewrite`, rt.`max_adults`, rt.`max_children`, rt.`max_guests`,
-                IFNULL(rs.`status`, '.(int) Salisbergfrontdesk::ROOM_CLEAN.') AS `housekeeping`
+                IFNULL(rs.`status`, '.(int) Salisbergfrontdesk::ROOM_CLEAN.') AS `housekeeping`,
+                TRIM(r.`comment`) AS `note`, (rr.`price` IS NOT NULL) AS `own_price`
             FROM `'._DB_PREFIX_.'htl_room_information` r
             INNER JOIN `'._DB_PREFIX_.'product_lang` pl ON pl.`id_product` = r.`id_product`
                 AND pl.`id_lang` = '.(int) $this->context->language->id.' AND pl.`id_shop` = '.(int) $this->context->shop->id.'
             INNER JOIN `'._DB_PREFIX_.'htl_room_type` rt ON rt.`id_product` = r.`id_product`
             LEFT JOIN `'._DB_PREFIX_.'sb_room_status` rs ON rs.`id_room` = r.`id`
+            LEFT JOIN `'._DB_PREFIX_.'sb_room_rate` rr ON rr.`id_room` = r.`id`
             WHERE r.`id` = '.(int) $idRoom.' AND r.`id_hotel` IN ('.implode(',', $hotels).')'
         );
     }

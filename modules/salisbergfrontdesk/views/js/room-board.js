@@ -62,6 +62,8 @@
         byId('sb-selected-number').textContent = card.getAttribute('data-room-num');
         byId('sb-selected-type').textContent = card.getAttribute('data-room-type');
         byId('sb-selected-capacity').textContent = card.getAttribute('data-capacity');
+        byId('sb-selected-note').textContent = card.getAttribute('data-note') || '';
+        byId('sb-selected-note').hidden = !card.getAttribute('data-note');
         byId('sb-selected-rate').textContent = card.getAttribute('data-rate');
         nightly.textContent = card.getAttribute('data-nightly');
         nightly.hidden = card.getAttribute('data-rate-varies') !== '1';

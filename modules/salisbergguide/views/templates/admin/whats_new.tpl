@@ -19,6 +19,13 @@
 	</div>
 
 	<section>
+		<h3>{l s='19 October 2026' mod='salisbergguide'}</h3>
+		<ul>
+			<li><strong>{l s='A room can have its own price.' mod='salisbergguide'}</strong> {l s='In Manage Room Types, on the Rooms tab, a new Own price box lets one room cost more or less than the others of its type, for example a Standard room with a fridge and a steam iron. Empty means the room type price. What makes the room different goes in Extra Information, which now shows on the room card in New booking. The own price applies to bookings made at the front desk; the website still sells the room type at the room type price.' mod='salisbergguide'}</li>
+		</ul>
+	</section>
+
+	<section>
 		<h3>{l s='16 October 2026' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='Booking details are less cluttered.' mod='salisbergguide'}</strong> {l s='The top summary now shows only the booking total, amount paid, amount due and room count. The account, theme and website controls sit at the far right of the top bar.' mod='salisbergguide'}</li>

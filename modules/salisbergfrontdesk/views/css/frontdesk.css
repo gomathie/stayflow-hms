@@ -81,6 +81,8 @@
 .sb-room-group-separator { color: var(--sb-muted); }
 .sb-room-count { display: inline-flex; align-items: baseline; gap: 4px; padding: 3px 11px; border: 1px solid var(--sb-accent); border-radius: 999px; background: var(--sb-accent-soft); color: var(--sb-accent); font-size: 12px; font-weight: 600; white-space: nowrap; }
 .sb-room-count strong { color: inherit; font-size: inherit; }
+.sb-room-note { display: -webkit-box; margin: 0 0 5px; overflow: hidden; color: var(--sb-muted); font-size: 11px; font-style: italic; overflow-wrap: anywhere; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.sb-selected-note { margin: 0 0 12px; color: var(--sb-muted); font-size: 12px; font-style: italic; overflow-wrap: anywhere; }
 .sb-room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 10px; }
 .sb-room-card { position: relative; min-width: 0; padding: 11px; overflow: hidden; border: 1px solid var(--sb-line); border-radius: 9px; background: var(--sb-card); color: var(--sb-text); text-align: left; transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
 .sb-room-card:hover,

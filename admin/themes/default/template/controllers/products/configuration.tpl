@@ -638,7 +638,7 @@
                     html += '</select>';
                 html += '</td>';
                 html += '<td class="col-sm-3 center">';
-                    html += '<input class="form-control" type="text" name="'+prefix+'[floor]">';
+                    html += '<input class="form-control" type="text" name="'+prefix+'[comment]">';
                 html += '</td>';
                 html += '<td class="center col-sm-2">';
                     html += '<a class="btn btn-default deactiveDatesModal disabled" data-toggle="modal" data-target="#deactiveDatesModal">';
@@ -646,7 +646,7 @@
                     html += '</a>';
                     html += '<input type="hidden" class="form-control disable_dates_json" name="'+prefix+'[disable_dates_json]">';
                 html += '</td>';
-                html += '{hook h='displayHotelRoomListTableRowColumn'}';
+                html += '{hook h='displayHotelRoomListTableRowColumn'}'.replace(/__ROW__/g, lengthRooms);
                 html += '<td class="center col-sm-1">';
                     html += '<a href="#" class="remove-rooms-button btn btn-default"><i class="icon-trash"></i></a>';
                 html += '</td>';

@@ -36,6 +36,7 @@ if (!defined('_PS_VERSION_')) {
 
 require_once dirname(__FILE__).'/classes/SalisbergWalkIn.php';
 require_once dirname(__FILE__).'/classes/SalisbergBookingArchive.php';
+require_once dirname(__FILE__).'/classes/SalisbergRoomRate.php';
 
 class Salisbergfrontdesk extends Module
 {
@@ -91,7 +92,14 @@ class Salisbergfrontdesk extends Module
         );
         $ok = SalisbergWalkIn::ensureTable() && $ok;
         $ok = SalisbergBookingArchive::ensureTable() && $ok;
-        foreach (array('actionRoomBookingStatusUpdateAfter', 'actionOrderStatusPostUpdate', 'dashboardTop') as $hook) {
+        $ok = SalisbergRoomRate::ensureTable() && $ok;
+        foreach (array(
+            'actionRoomBookingStatusUpdateAfter', 'actionOrderStatusPostUpdate', 'dashboardTop',
+            // a room's own price and description: columns in the room type's Rooms tab, saved with the room
+            'displayHotelRoomListTableHeaderColumn', 'displayHotelRoomListTableRowColumn', 'actionValidateRoomInformation',
+            'actionObjectHotelRoomInformationAddAfter', 'actionObjectHotelRoomInformationUpdateAfter', 'actionObjectHotelRoomInformationDeleteAfter',
+            'actionRoomTypeTotalPriceModifier',
+        ) as $hook) {
             if (!$this->isRegisteredInHook($hook)) {
                 $ok = $this->registerHook($hook) && $ok;
             }
@@ -309,6 +317,98 @@ class Salisbergfrontdesk extends Module
     }
 
     /** Today's operational workspace, placed at full width on the Dashboard. */
+    /** Manage Room Types > Rooms tab: the extra column title */
+    public function hookDisplayHotelRoomListTableHeaderColumn()
+    {
+        return $this->display(__FILE__, 'room_columns_header.tpl');
+    }
+
+    /**
+     * The same tab, one room's Own price box. The platform calls this with the row
+     * number (and the room's id once it exists); the call that builds the row
+     * for "Add more rooms" in the browser has neither, so its box name carries
+     * __ROW__, which the template's script replaces with the new row number.
+     * The output of that call goes into a JavaScript string: one line, no quote marks.
+     */
+    public function hookDisplayHotelRoomListTableRowColumn($params)
+    {
+        $index = isset($params['index']) ? (int) $params['index'] : null;
+        $price = '';
+        $posted = Tools::getValue('rooms_info');
+        if ($index !== null && is_array($posted) && isset($posted[$index]['sb_price'])) {
+            // the form came back with an error: show what was typed
+            $price = (string) $posted[$index]['sb_price'];
+        } elseif (!empty($params['id_room']) && ($own = SalisbergRoomRate::get((int) $params['id_room'])) !== null) {
+            $price = rtrim(rtrim(number_format($own, 2, '.', ''), '0'), '.');
+        }
+        $this->smarty->assign(array(
+            'sb_index' => $index === null ? '__ROW__' : $index,
+            'sb_price' => $price,
+        ));
+        $html = trim(preg_replace('/\s+/', ' ', $this->display(__FILE__, 'room_columns_row.tpl')));
+
+        return str_replace("'", '&#39;', $html);
+    }
+
+    /** Before the rooms are saved: the own price must be a valid price */
+    public function hookActionValidateRoomInformation($params)
+    {
+        $room = $params['room_information'];
+        $label = isset($room['room_num']) && trim($room['room_num']) !== '' ? trim($room['room_num']) : $this->l('(new)');
+        $controller = $this->context->controller;
+        if ($controller) {
+            foreach (SalisbergRoomRate::validate($room, $label) as $error) {
+                $controller->errors[] = $error;
+            }
+        }
+    }
+
+    /**
+     * After a room is saved from the Rooms tab: keep its own price. A room added in
+     * the same save has no id in the form, so it is found by its room number. A save
+     * that did not come from that form leaves the price as it is.
+     */
+    public function hookActionObjectHotelRoomInformationAddAfter($params)
+    {
+        $this->storeRoomRate($params['object']);
+    }
+
+    public function hookActionObjectHotelRoomInformationUpdateAfter($params)
+    {
+        $this->storeRoomRate($params['object']);
+    }
+
+    public function hookActionObjectHotelRoomInformationDeleteAfter($params)
+    {
+        SalisbergRoomRate::delete((int) $params['object']->id);
+    }
+
+    protected function storeRoomRate($room)
+    {
+        $posted = Tools::getValue('rooms_info');
+        if (!Tools::getValue('checkConfSubmit') || !is_array($posted) || !(int) $room->id) {
+            return;
+        }
+        foreach ($posted as $row) {
+            $sameRoom = (!empty($row['id']) && (int) $row['id'] === (int) $room->id)
+                || (empty($row['id']) && isset($row['room_num']) && trim($row['room_num']) === (string) $room->room_num);
+            if ($sameRoom && isset($row['sb_price'])) {
+                $price = SalisbergRoomRate::parsePrice($row['sb_price']);
+                if ($price !== false) {
+                    SalisbergRoomRate::save((int) $room->id, $price);
+                }
+
+                return;
+            }
+        }
+    }
+
+    /** A room's own price, for bookings made at the front desk */
+    public function hookActionRoomTypeTotalPriceModifier($params)
+    {
+        SalisbergRoomRate::adjustTotals($params);
+    }
+
     public function hookDashboardTop()
     {
         if (Tools::getValue('controller') != 'AdminDashboard') {

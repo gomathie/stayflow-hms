@@ -105,7 +105,7 @@
 					<li><strong>Prices</strong> &ndash; {l s='the price per night and its tax rule.' mod='salisbergguide'}</li>
 					<li><strong>Images</strong> &ndash; {l s='photos; the cover image is the one used in lists.' mod='salisbergguide'}</li>
 					<li><strong>Features</strong> &ndash; {l s='amenities such as Wi-Fi.' mod='salisbergguide'}</li>
-					<li><strong>Rooms</strong> &ndash; {l s='the individual rooms of this type and whether each is available.' mod='salisbergguide'}</li>
+					<li><strong>Rooms</strong> &ndash; {l s='the individual rooms of this type: room number, floor, whether each is available, Extra Information (shown on the room card at the front desk) and an optional Own price.' mod='salisbergguide'}</li>
 					<li><strong>Occupancy</strong> &ndash; {l s='how many adults and children it sleeps.' mod='salisbergguide'}</li>
 					<li><strong>Service Products</strong> / <strong>Additional Facilities</strong> &ndash; {l s='extras offered with this room.' mod='salisbergguide'}</li>
 					<li><strong>Length of Stay</strong> &ndash; {l s='minimum and maximum nights.' mod='salisbergguide'}</li>
@@ -115,6 +115,15 @@
 		</ol>
 		<p class="sb-warn">{l s='A room type that is switched on but has no room in service cannot be booked: the website shows it as sold out for every date and New booking offers nothing for it. The Manage Room Types list marks it No rooms in red and shows a warning at the top naming it. Add its rooms in the Rooms tab, or switch the room type off until it is ready.' mod='salisbergguide'}</p>
 		<p class="sb-tip">{l s='To take one room out of service (repairs, a fault), use' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Housekeeping</span> {l s='and click Out of service on the room; it is the same as setting the room to Inactive in the Rooms tab. To close a room for set dates only, use the Rooms tab.' mod='salisbergguide'}</p>
+		<h4>{l s='Different prices for rooms of the same type' mod='salisbergguide'}</h4>
+		<p>{l s='All rooms of a type share the price on the Prices tab. When one room is worth more or less, for example a Standard room with a fridge and a steam iron at 400 beside Standard rooms at 300, give that room its own price:' mod='salisbergguide'}</p>
+		<ol>
+			<li>{l s='Open the room type and go to the' mod='salisbergguide'} <strong>Rooms</strong> {l s='tab.' mod='salisbergguide'}</li>
+			<li>{l s='In the row of that room, type the price per night before tax in' mod='salisbergguide'} <strong>Own price</strong>. {l s='Leave it empty and the room uses the room type price.' mod='salisbergguide'}</li>
+			<li>{l s='Write what makes the room different in' mod='salisbergguide'} <strong>Extra Information</strong> {l s='(for example Fridge, steam iron). It is shown on the room card in New booking, so the front desk can explain the price.' mod='salisbergguide'}</li>
+			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Save</span>. {l s='To go back to the room type price, empty the Own price box and save again.' mod='salisbergguide'}</li>
+		</ol>
+		<p class="sb-tip">{l s='The own price is used when staff book that room in New booking. The website sells the room type at the room type price, whichever room the guest is given, because guests do not choose a room there. Bookings already made keep the price they were made at. Special prices set for the room type on certain dates (a season, a promotion) still apply on top: the room keeps the same difference from the room type price on those dates.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminProducts|escape:'html':'UTF-8'}">{l s='Open Manage Room Types' mod='salisbergguide'} &rarr;</a>
 	</section>
 

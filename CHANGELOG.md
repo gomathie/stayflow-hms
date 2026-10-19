@@ -7,6 +7,12 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
+## 2026-10-19
+
+### Added
+
+- **A room can have its own price.** In Manage Room Types, on the Rooms tab, an **Own price** box lets one room of a type cost more or less than the others (for example a Standard room with a fridge and a steam iron at 400 beside Standard rooms at 300). Left empty, the room uses the room type price. The Room board shows each room's own price on its card, and a room's **Extra Information** now shows on its card too, so the front desk can explain the difference. The own price applies to bookings made at the front desk; the website still sells the room type at the room type price.
+
 ## 2026-10-16
 
 ### Added

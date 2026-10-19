@@ -663,6 +663,9 @@ body.adminstats #content div:has(> table.table),
   #content.bootstrap .table-responsive-row { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
 }
 
+/* Rooms tab of a room type: the room's own price box (added by salisbergfrontdesk) needs room to read */
+.hotel-room .sb-room-price { min-width: 88px; }
+
 /* ---------- 8. Stock-blue replacements ----------
    The stock theme's #00aff0 family, found by scanning rendered pages. */
 .bootstrap [id^="dgc_"] { color: var(--sb-heading); }                               /* dashboard tile figures */
