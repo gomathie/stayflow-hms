@@ -98,6 +98,12 @@ class AdminOrdersControllerCore extends AdminController
         }
 
         $this->fields_list = array(
+            // Kept in the query so each row can open its booking. Not shown.
+            'id_order' => array(
+                'title' => $this->l('ID'),
+                'displayed' => false,
+                'search' => false,
+            ),
             'reference' => array(
                 'title' => $this->l('Reference'),
             ),
