@@ -892,7 +892,23 @@ html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); 
     line-height: 1.2;
   }
   .bootstrap .page-head .page-breadcrumb { display: none; }
-  body.ps_back-office .page-head .page-bar { position: static; height: auto; margin: 0; }
+  body.ps_back-office .page-head .page-bar { position: static; display: flex; align-items: center; height: auto; margin: 0; }
+  /* The stock responsive "Menu" toolbar button stacks a caret over its label and floats
+     to the edge, which clips the label. Lay it out as a compact caret-and-label pill that
+     sits inside the page-head padding. */
+  .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn.dropdown-toolbar {
+    float: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    margin: 0;
+    padding: 7px 12px !important;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn.dropdown-toolbar i { float: none; margin: 0; }
+  .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn.dropdown-toolbar div { display: inline; }
   #nav-mobile .searchtab input,
   #nav-mobile input[type="search"],
   #nav-mobile input[type="text"] {
