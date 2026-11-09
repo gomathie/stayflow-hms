@@ -356,6 +356,8 @@ class Salisbergguide extends Module
         }
         $controller->addCSS($this->_path.'views/css/password-toggle.css', 'all');
         $controller->addJS($this->_path.'views/js/password-toggle.js');
+        $controller->addCSS($this->_path.'views/css/install-app.css', 'all');
+        $controller->addJS($this->_path.'views/js/install-app.js');
         if (!$backOffice) {
             // tells theme-toggle.js it is on the website (its own saved choice, light by default)
             Media::addJsDef(array('sbThemeScope' => 'site'));

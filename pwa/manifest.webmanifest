@@ -1,0 +1,16 @@
+{
+  "id": "/",
+  "name": "Salisberg Hotels",
+  "short_name": "Salisberg",
+  "description": "Book a room at Salisberg Hotels.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#12352c",
+  "theme_color": "#12352c",
+  "icons": [
+    { "src": "/pwa/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/pwa/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/pwa/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

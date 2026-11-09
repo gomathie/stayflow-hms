@@ -39,8 +39,13 @@
 		{/if}
 		<meta name="generator" content="Salisberg Hotels" />
 		<meta name="robots" content="{if isset($nobots)}no{/if}index,{if isset($nofollow) && $nofollow}no{/if}follow" />
-		<meta name="viewport" content="width=device-width, minimum-scale=0.25, maximum-scale=1.6, initial-scale=1.0" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-title" content="Salisberg" />
+		<meta name="theme-color" content="#12352c" />
+		<link rel="manifest" href="/pwa/manifest.webmanifest" />
+		<link rel="apple-touch-icon" href="/pwa/icon-180.png" />
 		<link rel="icon" type="image/vnd.microsoft.icon" href="{$favicon_url}?{$img_update_time}" />
 		<link rel="shortcut icon" type="image/x-icon" href="{$favicon_url}?{$img_update_time}" />
 		{if isset($css_files)}
@@ -80,7 +85,7 @@
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 		{* Salisberg visual layer: must stay the last stylesheet *}
-		<link rel="stylesheet" href="{$css_dir}salisberg.css?v=16" type="text/css" media="all" />
+		<link rel="stylesheet" href="{$css_dir}salisberg.css?v=17" type="text/css" media="all" />
 		{* A visitor who chose dark mode gets it before the page is drawn (see theme-toggle.js) *}
 		<script type="text/javascript">{literal}try{if(localStorage.getItem('sb-site-theme')==='dark'){document.documentElement.setAttribute('data-sb-theme','dark');}}catch(e){}{/literal}</script>
 	</head>

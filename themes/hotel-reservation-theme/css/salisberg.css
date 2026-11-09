@@ -914,6 +914,12 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
   border-radius: var(--sb-radius);
   box-shadow: var(--sb-shadow);
 }
+@media (max-width: 767px) {
+  #authentication #center_column form.box,
+  #password #center_column .box,
+  #contact .contact-form-box,
+  #identity .box, #address .box, #my-account .box { padding: 18px 16px; }
+}
 .required sup, sup.required, label sup { color: #c0492f; }
 .alert { border-radius: 12px; text-shadow: none; }
 .alert.alert-success { background: #2f6b4f; border-color: #2f6b4f; color: #fff; }

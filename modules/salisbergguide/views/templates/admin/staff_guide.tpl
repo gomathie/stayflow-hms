@@ -26,6 +26,7 @@
 		<h3>1. {l s='Signing in and your account' mod='salisbergguide'}</h3>
 		<ol>
 			<li>{l s='Open the back office address your administrator gave you and sign in with your work email and password.' mod='salisbergguide'}</li>
+			<li>{l s='On a phone, Add to home screen appears at the bottom. Tap it to put the desk on your home screen. On an iPhone, tap Share, then Add to Home Screen. Closing the note hides it on that phone.' mod='salisbergguide'}</li>
 			<li>{l s='The small switch with a sun and a moon at the top right changes the back office between a light and a dark look. Pick whichever is easier on your eyes; it is remembered on that computer and changes nothing for anyone else.' mod='salisbergguide'}</li>
 			<li>{l s='Every password box has an eye icon at its right edge. Click it to see what you typed, and click again to hide it. Check that nobody is looking at your screen first.' mod='salisbergguide'}</li>
 			<li>{l s='To change your password, click your name at the top right of the screen and choose' mod='salisbergguide'} <span class="sb-btn">My preferences</span>.</li>

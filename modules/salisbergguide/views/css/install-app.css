@@ -1,0 +1,36 @@
+.sb-pwa {
+  position: fixed;
+  z-index: 1080;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 14px;
+  background: #12352c;
+  color: #fff;
+  box-shadow: 0 16px 40px -18px rgba(0, 0, 0, .6);
+}
+.sb-pwa[hidden] { display: none; }
+.sb-pwa p { flex: 1 1 180px; margin: 0; font-size: 14px; line-height: 1.35; }
+.sb-pwa[data-mode="install"] .sb-pwa-ios-text,
+.sb-pwa[data-mode="ios"] .sb-pwa-install-text,
+.sb-pwa[data-mode="ios"] .sb-pwa-install { display: none; }
+.sb-pwa button {
+  height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.sb-pwa-install { background: #b98a2f; color: #fff; }
+.sb-pwa-dismiss { background: transparent; color: rgba(255, 255, 255, .8); }
+@media (min-width: 768px) {
+  .sb-pwa { left: auto; }
+}
