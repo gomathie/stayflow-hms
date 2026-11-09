@@ -364,7 +364,7 @@ $(document).ready(function() {
 			$('body.page-sidebar').removeClass('page-sidebar-closed');
 		}
 	});
-	enquire.register('screen and (max-width: 480px)', {
+	enquire.register('screen and (max-width: 767px)', {
 		match : function() {
 			$('body').addClass('mobile-nav');
 			mobileNav();

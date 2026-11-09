@@ -619,7 +619,7 @@ class Salisbergguide extends Module
             'AdminPreferences', 'AdminThemes', 'AdminMeta', 'AdminCmsContent', 'AdminMaintenance', 'AdminEmails',
             'AdminBackup', 'AdminInformation', 'AdminEmployees', 'AdminProfiles', 'AdminAccess', 'AdminContacts', 'AdminStats',
             'AdminSalisbergGuide', 'AdminSalisbergStaffGuide', 'AdminSalisbergAdminGuide', 'AdminSalisbergWhatsNew',
-            'AdminSalisbergReports',
+            'AdminSalisbergReports', 'AdminSalisbergIntegrations',
         );
         $links = array();
         foreach ($pages as $page) {

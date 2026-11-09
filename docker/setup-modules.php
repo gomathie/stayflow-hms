@@ -42,7 +42,7 @@ if ($idGhana) {
     }
 }
 
-foreach (array('salisbergpay', 'salisbergguide', 'salisbergreports', 'salisbergfrontdesk') as $name) {
+foreach (array('salisbergpay', 'salisbergguide', 'salisbergreports', 'salisbergfrontdesk', 'salisbergnotify') as $name) {
     $module = Module::getInstanceByName($name);
     if (!$module) {
         sb_log("ERROR: module $name not found");
@@ -105,6 +105,17 @@ if ($desk && Module::isInstalled('salisbergfrontdesk')) {
         sb_log('front desk pages in place');
     } else {
         sb_log('ERROR: front desk pages could not be created');
+        $failed = true;
+    }
+}
+
+// Administration > Integrations: the mNotify key. SuperAdmin only, so no other profile is granted it.
+$notify = Module::getInstanceByName('salisbergnotify');
+if ($notify && Module::isInstalled('salisbergnotify')) {
+    if ($notify->ensureSetup()) {
+        sb_log('integrations page in place');
+    } else {
+        sb_log('ERROR: integrations page could not be created');
         $failed = true;
     }
 }

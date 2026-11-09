@@ -97,7 +97,7 @@
 		<p>{l s='Bookings made on the website with Cash at hotel, Mobile Money or Bank transfer arrive as Awaiting payment. Nothing is confirmed automatically: a member of staff must record the money.' mod='salisbergguide'}</p>
 		<p>{l s='Every booking has an invoice from the moment it is made. It shows the stay, the total, each payment received, and the balance still due, with the ways to pay it. Once nothing is owed the same document is headed Receipt. Open the booking and use the invoice button to print it or save it as a PDF.' mod='salisbergguide'}</p>
 		<p>{l s='To find an invoice without opening the booking, go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Invoices</span>. {l s='The page lists every invoice, newest first, with the guest, the stay, the total, what is paid and what is still to pay. Type an invoice number, a booking reference, a guest name or a phone number in Find, or choose Not yet paid in Status to see who still owes money. The button at the end of a row opens the PDF.' mod='salisbergguide'}</p>
-		<p class="sb-tip">{l s='What the guest is sent, if they have an email address: the booking confirmation with the invoice when the booking is made, the receipt when payment is confirmed, and a welcome email with the invoice or receipt when you check them in. Text messages for check-in and payment will start once the text service is connected.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='What the guest is sent, if they have an email address: the booking confirmation with the invoice when the booking is made, the receipt when payment is confirmed, and a welcome email with the invoice or receipt when you check them in. When text messages are switched on, a guest who has a phone number is also texted at check-in and when the booking is paid in full.' mod='salisbergguide'}</p>
 		<p class="sb-tip">{l s='Changing the status to Complete payment received records whatever is still owed as paid, so you do not need to add the last payment by hand as well. The system will not let a payment be more than what is still owed, so the same money cannot be recorded twice.' mod='salisbergguide'}</p>
 		<h4>{l s='Mobile Money' mod='salisbergguide'}</h4>
 		<ol>
@@ -128,7 +128,7 @@
 		<ol>
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Dashboard</span> {l s='and use Today at the desk. Click a count to open that list. Arrivals and Departures are already open when someone still needs to be checked in or out.' mod='salisbergguide'}</li>
 			<li>{l s='Arrivals lists the rooms due today, and any due earlier that have not arrived (marked Late). Check the Still to pay column and the Room is column: do not give out a room that is Dirty or Out of service.' mod='salisbergguide'}</li>
-			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='on the room. The time is recorded.' mod='salisbergguide'}</li>
+			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='on the room. The time is recorded. When text messages are switched on, a guest who has a phone number is sent a text with the room and the check-out date.' mod='salisbergguide'}</li>
 			<li>{l s='Departures lists the rooms due to leave today, and any that should already have left (marked Overdue). If money is still due, click the booking reference and take payment first (section 5).' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Check out</span>{l s='. The room is marked Dirty for housekeeping.' mod='salisbergguide'}</li>
 		</ol>

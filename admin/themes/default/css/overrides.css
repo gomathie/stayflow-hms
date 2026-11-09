@@ -358,6 +358,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 }
 /* our Guides entry had no icon */
 .icon-AdminSalisbergGuide:before { content: "\f02d"; }
+.icon-AdminSalisbergIntegrations:before { content: "\f1e6"; }
 
 @media (min-width: 768px) {
   .bootstrap #nav-sidebar .menu-collapse { display: none; }

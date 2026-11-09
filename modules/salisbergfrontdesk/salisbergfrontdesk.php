@@ -23,8 +23,9 @@
  *  - at check-in: an email with the invoice or receipt attached, and a text;
  *  - when the booking is paid in full: a text (the platform already emails
  *    the receipt for that).
- * Texts go out through the hook actionSalisbergSendSms. Nothing listens to it
- * until an SMS provider's module is installed, so until then no text is sent.
+ * Texts go out through the hook actionSalisbergSendSms. salisbergnotify
+ * sends them through mNotify when an API key is saved; with no key, no text
+ * is sent and check-in still completes.
  *
  * Who may open the pages is an ordinary menu permission (Administration >
  * Permissions, rows "Today" and "Housekeeping"): View to see, Edit to change.
@@ -483,7 +484,7 @@ class Salisbergfrontdesk extends Module
             'sb_book_link' => $this->context->link->getAdminLink(self::TAB_ROOM_BOARD),
             'sb_expected' => HotelBookingDetail::STATUS_ALLOTED,
             'sb_in' => HotelBookingDetail::STATUS_CHECKED_IN,
-            'sb_css' => $this->getPathUri().'views/css/frontdesk.css?v=10',
+            'sb_css' => $this->getPathUri().'views/css/frontdesk.css?v=11',
             'sb_on_dashboard' => (bool) $onDashboard,
             'sb_done' => $done,
         ));
@@ -601,8 +602,8 @@ class Salisbergfrontdesk extends Module
     }
 
     /**
-     * Hands a text message to whichever SMS provider is installed. With none
-     * installed the hook has no listener and nothing happens.
+     * Hands a text message to salisbergnotify. With no API key saved the
+     * listener returns at once and nothing is sent.
      */
     protected function sendSms($phone, $message, Order $order)
     {

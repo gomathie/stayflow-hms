@@ -9,6 +9,10 @@ Every change to Salisberg, newest first, in plain words.
 
 ## 2026-11-09
 
+### Added
+
+- **Guest texts through mNotify.** Administration › Integrations, visible to the developer team only, takes the mNotify API key and the sender name. With a key saved, a guest who has a phone number is texted at check-in and when the booking is paid in full. With no key saved, nothing is sent and check-in still works.
+
 ### Changed
 
 - **Search engine details are made automatically.** When a page is added or edited under Preferences › CMS, the first box is now called Page title; the website link is made from the title and the description search engines show from the start of the content. In Hotel Details the Search engines tab is shown to the developer team only; the link and title are made from the hotel name. A page or hotel keeps its link when renamed, so links already shared keep working.

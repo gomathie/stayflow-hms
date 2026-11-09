@@ -17,7 +17,7 @@
 			<li><a href="#sb-a7">{l s='Currency and taxes' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a8">{l s='Cancellations and refunds' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a9">{l s='Website content' mod='salisbergguide'}</a></li>
-			<li><a href="#sb-a10">{l s='Email' mod='salisbergguide'}</a></li>
+			<li><a href="#sb-a10">{l s='Email and text messages' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a11">{l s='Closing the site for maintenance' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a12">{l s='Backups' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a13">{l s='Things that must be done by the developer' mod='salisbergguide'}</a></li>
@@ -235,7 +235,7 @@
 	</section>
 
 	<section id="sb-a10">
-		<h3>10. {l s='Email' mod='salisbergguide'}</h3>
+		<h3>10. {l s='Email and text messages' mod='salisbergguide'}</h3>
 		{if $sb_is_admin}
 		<p>{l s='Booking confirmations and password resets are sent by email. Set how they are sent in' mod='salisbergguide'} <span class="sb-path">Advanced Parameters &rsaquo; E-mail</span>.</p>
 		<p>{l s='That one setting is used for every email the system sends: booking confirmations, payment and status notices, password resets, Contact form notices and replies written in Inbox. There is no second mail server or mailbox to configure anywhere else.' mod='salisbergguide'}</p>
@@ -250,11 +250,12 @@
 		</table>
 		<p>{l s='The invoice and the receipt are one document: it is headed Invoice while money is owed and Receipt once it is settled. It carries the hotel logo, the stay, the payments received, the balance due, and the payment details entered in Salisberg Pay.' mod='salisbergguide'}</p>
 		<p>{l s='All invoices are listed under' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Invoices</span>{l s=', with totals for what is billed, paid and still to pay. Filter by status or dates, then use the two forms underneath to print many invoices in one PDF. The numbering and layout settings at the bottom of that page are shown to the developer team only.' mod='salisbergguide'}</p>
-		{if $sb_is_admin}
-		<p class="sb-tip">{l s='Text messages are prepared but not sent until a text provider is connected. The system hands each message to the hook actionSalisbergSendSms (phone, message, id_order, reference); a small module for the chosen provider listens to that hook and sends it.' mod='salisbergguide'}</p>
-		{else}
-		<p class="sb-tip">{l s='Text messages start once the developer team has connected a text provider.' mod='salisbergguide'}</p>
-		{/if}
+		<h4>{l s='Text messages' mod='salisbergguide'}</h4>
+		<p>{l s='A guest who has a phone number on the booking is texted at check-in, with the room and the check-out date, and again when the booking is paid in full. Nothing is sent until an API key is saved in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Integrations</span>.</p>
+		<p>{l s='Paste the API key from the mNotify account. The sender name is what appears on the guest phone. It must be a sender ID already approved on that account, letters and numbers only, at most 11 characters, and it starts as Salisberg.' mod='salisbergguide'}</p>
+		<p>{l s='Leave the key box empty to keep the saved key. Tick Remove the saved key to stop texts. With no key saved, check-in and payment still work and no text is sent. A guest with no phone number on the booking is not texted. A Ghana number can start with 0 or with +233.' mod='salisbergguide'}</p>
+		<p>{l s='Use Send a test text on that page, to your own number, before relying on it for guests.' mod='salisbergguide'}</p>
+		<a class="sb-go" href="{$sb_links.AdminSalisbergIntegrations|escape:'html':'UTF-8'}">{l s='Open Integrations' mod='salisbergguide'} &rarr;</a>
 		<ol>
 			<li>{l s='Choose to send through your own SMTP server and enter the details from your email provider (server, port, username, password, encryption).' mod='salisbergguide'}</li>
 			<li>{l s='Use the Test your email configuration box at the bottom to send yourself a test.' mod='salisbergguide'}</li>
