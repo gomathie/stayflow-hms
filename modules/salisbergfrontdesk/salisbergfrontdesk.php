@@ -239,9 +239,14 @@ class Salisbergfrontdesk extends Module
     protected function replaceLegacyTodayWidget()
     {
         $retire = array(
-            'dashguestcycle' => array('dashboardZoneTwo'),
             'dashactivity' => array('dashboardZoneOne', 'dashboardData'),
             'dashproducts' => array('dashboardZoneTwo', 'dashboardData'),
+            // Web-shop targets (traffic, conversion). Not occupancy or revenue.
+            'dashgoals' => array('dashboardZoneTwo', 'dashboardData'),
+            // Extra stay charts beside Occupancy and Performance.
+            'dashinsights' => array('dashboardZoneOne', 'dashboardZoneTwo', 'dashboardData'),
+            // Arrivals, departures and in-house already live on Today at the desk.
+            'dashguestcycle' => array('dashboardZoneTwo', 'dashboardData'),
         );
         $ok = true;
         foreach ($retire as $name => $hooks) {

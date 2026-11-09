@@ -11,6 +11,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Search engine details are made automatically.** When a page is added or edited under Preferences › CMS, the first box is now called Page title; the website link is made from the title and the description search engines show from the start of the content. In Hotel Details the Search engines tab is shown to the developer team only; the link and title are made from the hotel name. A page or hotel keeps its link when renamed, so links already shared keep working.
 - **The Dashboard opens on the work for today.** Today at the desk is first. A list is open when someone still needs to be checked in, checked out, or still owes money. Rooms in house, and rooms already checked out today, stay closed until you click them. Check in and Check out are unchanged.
 - **The charts stay on the Dashboard, and Day means today.** Day, Month and Year change only the charts. A saved period that no longer includes today is set back to Day when the page opens. Day-1, Month-1 and Year-1 are left as they were. The coloured tiles that repeated arrivals and departures with a different count are gone. Operations Today remains with the charts.
 

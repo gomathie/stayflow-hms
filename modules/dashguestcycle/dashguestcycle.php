@@ -64,8 +64,8 @@ class DashGuestCycle extends Module
     {
         // The coloured tiles counted only stays dated today, so they disagreed
         // with Today at the desk (which also lists guests who should already
-        // have left). The Operations Today panel below the charts still shows
-        // this module's today tables.
+        // have left). The Operations Today panel is unhooked from the
+        // dashboard for the same reason. Register the hooks again to restore it.
         return '';
     }
 

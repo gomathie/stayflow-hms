@@ -11,11 +11,6 @@ class AdminOrdersControllerCore extends AdminController
     public $toolbar_title;
 
     protected $statuses_array = array();
-    protected $all_order_sources = array();
-    protected $hotelsArray = array();
-    protected $roomTypesArray = array();
-    protected $roomsArray = array();
-    protected $orderCurrenciesArray = array();
 
 
     public function __construct()
@@ -36,7 +31,6 @@ class AdminOrdersControllerCore extends AdminController
         IF('.((Configuration::get('PS_ORDER_LIST_PRICE_DISPLAY_CURRENCY') == Order::ORDER_LIST_PRICE_DISPLAY_IN_DEFAULT_CURRENCY)? 1 : 0).', ((a.total_paid - a.total_paid_real) / a.conversion_rate), (a.total_paid - a.total_paid_real)) AS amount_due,
         a.source AS order_source,
         a.id_currency,
-        a.id_order AS id_pdf,
         CONCAT(c.`firstname`, \' \', c.`lastname`) AS `customer`,
         osl.`name` AS `osname`, os.`color`,
         cu.iso_code AS currency,
@@ -51,6 +45,15 @@ class AdminOrdersControllerCore extends AdminController
             IF(SUM(hbd.`children`), CONCAT(SUM(hbd.`children`), \' '.$this->l('Children').'\'), \'\')
         ) FROM `'._DB_PREFIX_.'htl_booking_detail` hbd WHERE hbd.`id_order` = a.`id_order`) as total_guests,
         (SELECT SUM(DATEDIFF(hbd.`date_to`, hbd.`date_from`)) FROM `'._DB_PREFIX_.'htl_booking_detail` hbd WHERE hbd.`id_order` = a.`id_order`) as los,
+        (SELECT GROUP_CONCAT(hbdr.`room_num` ORDER BY hbdr.`room_num` SEPARATOR \', \')
+            FROM `'._DB_PREFIX_.'htl_booking_detail` hbdr
+            WHERE hbdr.`id_order` = a.`id_order`) AS room_numbers,
+        (SELECT MIN(hbdd.`date_from`)
+            FROM `'._DB_PREFIX_.'htl_booking_detail` hbdd
+            WHERE hbdd.`id_order` = a.`id_order`) AS stay_from,
+        (SELECT MAX(hbdd.`date_to`)
+            FROM `'._DB_PREFIX_.'htl_booking_detail` hbdd
+            WHERE hbdd.`id_order` = a.`id_order`) AS stay_to,
         hbd.`id_room` AS id_room_information,
         (SELECT COUNT(spod.`id_service_product_order_detail`) FROM `'._DB_PREFIX_.'service_product_order_detail` spod WHERE spod.`id_order` = a.`id_order` AND spod.`id_htl_booking_detail`=0) as num_products';
 
@@ -93,114 +96,57 @@ class AdminOrdersControllerCore extends AdminController
         foreach ($statuses as $status) {
             $this->statuses_array[$status['id_order_state']] = $status['name'];
         }
-        $all_order_sources = Db::getInstance()->executeS('SELECT DISTINCT(`source`) FROM  `'._DB_PREFIX_.'orders`');
-        foreach ($all_order_sources as $source) {
-            $this->all_order_sources[$source['source']] = $source['source'];
-        }
-
-        $hotelsArray = HotelBranchInformation::getProfileAccessedHotels($this->context->employee->id_profile, 1);
-        foreach ($hotelsArray as $hotel) {
-            $addressInfo = HotelBranchInformation::getAddress($hotel['id_hotel']);
-            $this->hotelsArray[$hotel['id_hotel']] = $hotel['hotel_name'].', '.$addressInfo['city'];
-        }
-
-        $roomTypesArray = array();
-        $objHotelRoomType = new HotelRoomType();
-        foreach ($hotelsArray as $hotel) {
-            $hotelRoomTypes = $objHotelRoomType->getRoomTypeByHotelId($hotel['id_hotel'], $this->context->language->id);
-            foreach ($hotelRoomTypes as $room_type) {
-                $this->roomTypesArray[$room_type['id_product']] = $room_type['room_type'].', '.$hotel['hotel_name'];
-            }
-        }
-
-        $roomsArray = array();
-        $hotelRooms = HotelRoomInformation::getHotelRoomsInfo();
-        foreach ($hotelRooms as $hotelRoom) {
-            $this->roomsArray[$hotelRoom['id']] = $hotelRoom['room_num'].', '.$hotelRoom['room_type_name'].', '.$hotelRoom['hotel_name'];
-        }
-
-        $orderCurrencies = Db::getInstance()->executeS('SELECT DISTINCT(`id_currency`) FROM `'._DB_PREFIX_.'orders`');
-        foreach ($orderCurrencies as $orderCurrency) {
-            $this->orderCurrenciesArray[$orderCurrency['id_currency']] = Currency::getCurrencyInstance($orderCurrency['id_currency'])->name;
-        }
 
         $this->fields_list = array(
-            'id_order' => array(
-                'title' => $this->l('ID'),
-                'align' => 'text-center',
-                'class' => 'fixed-width-xs',
-            ),
             'reference' => array(
-                'title' => $this->l('Reference')
+                'title' => $this->l('Reference'),
             ),
             'customer' => array(
-                'title' => $this->l('Customer'),
+                'title' => $this->l('Guest'),
                 'havingFilter' => true,
-                'optional' => true,
-                'visible_default' => true
             ),
-            'hotel_name' => array(
-                'title' => $this->l('Hotel'),
-                'type' => 'select',
-                'filter_key' => 'hbd!id_hotel',
-                'list' => $this->hotelsArray,
-                'optional' => true,
-                'class' => 'chosen',
-                'visible_default' => true
+            'room_numbers' => array(
+                'title' => $this->l('Room'),
+                'havingFilter' => true,
             ),
-            'room_type_name' => array(
-                'title' => $this->l('Room type'),
-                'type' => 'select',
-                'filter_key' => 'hbd!id_product',
-                'list' => $this->roomTypesArray,
-                'optional' => false,
-                'class' => 'chosen',
-                'visible_default' => false,
-                'displayed' => false,
-            ),
-            'id_room_information' => array(
-                'title' => $this->l('Rooms'),
-                'type' => 'select',
-                'filter_key' => 'hbd!id_room',
-                'list' => $this->roomsArray,
-                'optional' => false,
-                'class' => 'chosen',
-                'visible_default' => false,
-                'displayed' => false,
-            ),
-            'date_from' => array(
+            'stay_from' => array(
                 'title' => $this->l('Check-in'),
+                'type' => 'date',
                 'filter_key' => 'hbd!date_from',
-                'type'=>'date',
-                'displayed' => false,
             ),
-            'date_to' => array(
+            'stay_to' => array(
                 'title' => $this->l('Check-out'),
+                'type' => 'date',
                 'filter_key' => 'hbd!date_to',
-                'type'=>'date',
-                'displayed' => false,
             ),
-            'total_guests' => array(
-                'title' => $this->l('Guests'),
-                'type' => 'range',
-                'filter_key' => 'total_guests_count',
-                'optional' => true,
-                'havingFilter' => true,
+            'osname' => array(
+                'title' => $this->l('Status'),
+                'type' => 'select',
+                'multiple' => true,
+                'operator' => 'or',
+                'color' => 'color',
+                'list' => $this->statuses_array,
+                'filter_key' => 'os!id_order_state',
+                'order_key' => 'osname',
             ),
-            'num_rooms' => array(
-                'title' => $this->l('No. of rooms'),
-                'align' => 'text-center',
+            'total_paid_tax_incl' => array(
+                'title' => $this->l('Total'),
+                'align' => 'text-right',
                 'type' => 'range',
-                'optional' => true,
-                'havingFilter' => true,
-                'visible_default' => true
+                'validation' => 'isFloat',
+                'currency' => true,
+                'callback' => 'setOrderCurrency',
+                'badge_success' => true,
             ),
-            'los' => array(
-                'title' => $this->l('Stay period'),
-                'align' => 'text-center',
+            'amount_due' => array(
+                'title' => $this->l('Due'),
+                'align' => 'text-right',
                 'type' => 'range',
+                'validation' => 'isFloat',
+                'currency' => true,
                 'havingFilter' => true,
-                'optional' => true,
+                'callback' => 'setOrderCurrency',
+                'badge_success' => true,
             ),
         );
 
@@ -212,97 +158,6 @@ class AdminOrdersControllerCore extends AdminController
                 ),
             ));
         }
-
-        $this->fields_list = array_merge($this->fields_list, array(
-            'amount_due' => array(
-                'title' => $this->l('Due Amount'),
-                'align' => 'text-right',
-                'type' => 'range',
-                'validation' => 'isFloat',
-                'currency' => true,
-                'havingFilter' => true,
-                'callback' => 'setOrderCurrency',
-                'badge_success' => true,
-                'optional' => true,
-                'visible_default' => true
-            ),
-            'id_currency' => array(
-                'title' => $this->l('Currency'),
-                'align' => 'text-center',
-                'type' => 'select',
-                'multiple' => true,
-                'operator' => 'or',
-                'filter_key' => 'a!id_currency',
-                'list' => $this->orderCurrenciesArray,
-                'displayed' => false,
-            ),
-            'total_paid_tax_incl' => array(
-                'title' => $this->l('Booking total'),
-                'align' => 'text-right',
-                'type' => 'range',
-                'validation' => 'isFloat',
-                'currency' => true,
-                'callback' => 'setOrderCurrency',
-                'badge_success' => true,
-            ),
-            'payment' => array(
-                'title' => $this->l('Payment')
-            ),
-            'order_source' => array(
-                'title' => $this->l('Booking source'),
-                'type' => 'select',
-                'filter_key' => 'a!source',
-                'list' => $this->all_order_sources,
-                'optional' => true,
-                'visible_default' => true
-            ),
-            'osname' => array(
-                'title' => $this->l('Status'),
-                'type' => 'select',
-                'multiple' => true,
-                'operator' => 'or',
-                'color' => 'color',
-                'list' => $this->statuses_array,
-                'filter_key' => 'os!id_order_state',
-                'order_key' => 'osname',
-                'optional' => true,
-                'visible_default' => true
-            ),
-            'date_add' => array(
-                'title' => $this->l('Booking date'),
-                'align' => 'text-right',
-                'type' => 'datetime',
-                'filter_key' => 'a!date_add',
-                'optional' => true,
-                'visible_default' => true
-            ),
-            'id_pdf' => array(
-                'title' => $this->l('PDF'),
-                'align' => 'text-center',
-                'callback' => 'printPDFIcons',
-                'orderby' => false,
-                'search' => false,
-                'remove_onclick' => true,
-                'optional' => true,
-            ),
-            'is_refunded' => array(
-                'title' => $this->l('Refunded / Cancelled Rooms'),
-                'filter_key' => 'hbd!is_refunded',
-                'type'=>'bool',
-                'displayed' => false,
-            ),
-            'id_status' => array(
-                'title' => $this->l('Room status'),
-                'filter_key' => 'hbd!id_status',
-                'displayed' => false,
-                'type' => 'select',
-                'list' => array(
-                    HotelBookingDetail::STATUS_ALLOTED => $this->l('Alloted'),
-                    HotelBookingDetail::STATUS_CHECKED_IN => $this->l('Checked in'),
-                    HotelBookingDetail::STATUS_CHECKED_OUT => $this->l('Checked out'),
-                ),
-            )
-        ));
 
         $this->shopLinkType = 'shop';
         $this->shopShareDatas = Shop::SHARE_ORDER;
@@ -1243,31 +1098,6 @@ class AdminOrdersControllerCore extends AdminController
                 $this->addJS($module->getPathUri().'views/js/archive-booking.js');
             }
         }
-    }
-
-    public function printPDFIcons($id_order, $tr)
-    {
-        static $valid_order_state = array();
-
-        $order = new Order($id_order);
-        if (!Validate::isLoadedObject($order)) {
-            return '';
-        }
-
-        if (!isset($valid_order_state[$order->current_state])) {
-            $valid_order_state[$order->current_state] = Validate::isLoadedObject($order->getCurrentOrderState());
-        }
-
-        if (!$valid_order_state[$order->current_state]) {
-            return '';
-        }
-
-        $this->context->smarty->assign(array(
-            'order' => $order,
-            'tr' => $tr
-        ));
-
-        return $this->createTemplate('_print_pdf_icon.tpl')->fetch();
     }
 
     public function printNewCustomer($id_order, $tr)

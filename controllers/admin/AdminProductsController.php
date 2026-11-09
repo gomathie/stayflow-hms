@@ -103,10 +103,8 @@ class AdminProductsControllerCore extends AdminController
         $this->available_tabs_lang = array(
             'Informations' => $this->l('Information'),
             'Prices' => $this->l('Prices'),
-            'Seo' => $this->l('SEO'),
             'Images' => $this->l('Images'),
             'ServiceProduct' => $this->l('Service Products'),
-            // 'Associations' => $this->l('Associations'),
             'Features' => $this->l('Features'),
             'Configuration' => $this->l('Rooms'),
             'Occupancy' => $this->l('Occupancy'),
@@ -118,8 +116,6 @@ class AdminProductsControllerCore extends AdminController
             $this->available_tabs = array_merge($this->available_tabs, array(
                 'Informations' => 0,
                 'Prices' => 1,
-                'Seo' => 2,
-                // 'Associations' => 3,
                 'Images' => 4,
                 'Features' => 5,
                 'Configuration' => 6,
@@ -2232,8 +2228,46 @@ class AdminProductsControllerCore extends AdminController
     /**
      * Check that a saved product is valid
      */
+    /**
+     * The SEO tab is not on the room type form. Friendly URL is still required
+     * by the product record, so a missing value is filled from the current
+     * address, or from the room type name when the room type is new.
+     */
+    protected function preserveRoomTypeLinkRewrite()
+    {
+        if ($this->isTabSubmitted('Seo')) {
+            return;
+        }
+        $existing = null;
+        $idProduct = (int) Tools::getValue('id_product');
+        if ($idProduct) {
+            $loaded = new Product($idProduct);
+            if (Validate::isLoadedObject($loaded)) {
+                $existing = $loaded;
+            }
+        }
+        foreach (Language::getLanguages(false) as $language) {
+            $idLang = (int) $language['id_lang'];
+            $key = 'link_rewrite_'.$idLang;
+            if (Tools::getValue($key)) {
+                continue;
+            }
+            $rewrite = '';
+            if ($existing && !empty($existing->link_rewrite[$idLang])) {
+                $rewrite = $existing->link_rewrite[$idLang];
+            }
+            if ($rewrite === '') {
+                $rewrite = Tools::link_rewrite((string) Tools::getValue('name_'.$idLang));
+            }
+            if ($rewrite !== '') {
+                $_POST[$key] = $rewrite;
+            }
+        }
+    }
+
     public function checkProduct()
     {
+        $this->preserveRoomTypeLinkRewrite();
         $className = 'Product';
         // @todo : the call_user_func seems to contains only statics values (className = 'Product')
         $rules = call_user_func(array($this->className, 'getValidationRules'), $this->className);

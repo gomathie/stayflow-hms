@@ -86,7 +86,7 @@
 					<li><strong>Restrictions</strong> &ndash; {l s='how far ahead guests can book and minimum notice.' mod='salisbergguide'}</li>
 					<li><strong>Refund Policies</strong> &ndash; {l s='which refund rules apply to this hotel (see section 8).' mod='salisbergguide'}</li>
 					<li><strong>Features</strong> &ndash; {l s='facilities shown on the room pages.' mod='salisbergguide'}</li>
-					<li><strong>Seo</strong> &ndash; {l s='the title and description search engines show.' mod='salisbergguide'}</li>
+					{if $sb_is_admin}<li><strong>Search engines</strong> &ndash; {l s='the website link and the title search engines show. Leave it empty: both are made from the hotel name.' mod='salisbergguide'}</li>{/if}
 				</ul>
 			</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Save and stay</span> {l s='after each tab.' mod='salisbergguide'}</li>
@@ -208,9 +208,10 @@
 			{if $sb_is_admin}
 			<tr><td>{l s='Homepage guest reviews, room list, footer payment icons' mod='salisbergguide'}</td><td><span class="sb-path">Modules and Services &rsaquo; Manage Modules</span>, {l s='then Configure on the block' mod='salisbergguide'}</td></tr>
 			{/if}
-			<tr><td>{l s='Pages such as About Us, Terms, Legal Notice' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; CMS</span></td></tr>
+			<tr><td>{l s='Pages such as About Us, Terms, Legal Notice (enter the Page title and the content only: the website link is made from the title, and the description search engines show from the start of the content. A page keeps its link when you rename it, so links already shared keep working)' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; CMS</span></td></tr>
 			{if $sb_is_admin}
-			<tr><td>{l s='Page titles and descriptions for search engines' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; SEO &amp; URLs</span></td></tr>
+			<tr><td>{l s='Search engine fields (description, keywords, Friendly URL) on a page or a hotel, only shown to the developer team: fill one in only to replace what is made automatically' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; CMS</span>, <span class="sb-path">Manage Hotel &rsaquo; Hotel Details &rsaquo; Search engines</span></td></tr>
+			<tr><td>{l s='Titles and descriptions for the homepage and other fixed pages' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; SEO &amp; URLs</span></td></tr>
 			<tr><td>{l s='Friendly URL (website links read salisberg.com/room-name instead of salisberg.com/index.php?...)' mod='salisbergguide'}</td><td>{l s='Switched on and kept on by the deploy. Leave Friendly URL set to Yes here; turning it off is undone on the next deploy.' mod='salisbergguide'}</td></tr>
 			{/if}
 			<tr><td>{l s='Who receives messages from the Contact form (the form has no Title or Send To choice: every message goes to this one contact and appears under Inbox, titled with the start of the message)' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Contacts</span></td></tr>

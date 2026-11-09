@@ -222,6 +222,8 @@ class AdminAddHotelController extends ModuleAdminController
         $smartyVars['PS_MAX_CHECKOUT_OFFSET'] = (int) Configuration::get('PS_MAX_CHECKOUT_OFFSET');
         $smartyVars['PS_MIN_BOOKING_OFFSET'] = (int) Configuration::get('PS_MIN_BOOKING_OFFSET');
         $smartyVars['WK_ORDER_REFUND_ALLOWED'] = Configuration::get('WK_ORDER_REFUND_ALLOWED');
+        // search engine settings are made from the hotel name and description; only a SuperAdmin is shown them
+        $smartyVars['sb_show_seo'] = $this->context->employee->isSuperAdmin();
 
         $this->context->smarty->assign($smartyVars);
 
@@ -340,16 +342,15 @@ class AdminAddHotelController extends ModuleAdminController
             $this->errors[] = $this->l('Enable order refunds to allow hotel-wise refunds.');
         }
 
-        // validate Friendly URL values
+        // The Friendly URL is made from the hotel name when it is empty. Only a SuperAdmin is shown the
+        // field, so for everyone else it is empty on a new hotel and keeps its value on an existing one.
         if (!trim(Tools::getValue('link_rewrite_'.$defaultLangId))) {
-            $this->errors[] = $this->l('Friendly URL is required at least in ').
-            $objDefaultLanguage['name'];
-        } else {
-            foreach ($languages as $lang) {
-                if (trim(Tools::getValue('link_rewrite_'.$lang['id_lang']))) {
-                    if (!Validate::isLinkRewrite(Tools::getValue('link_rewrite_'.$lang['id_lang']))) {
-                        $this->errors[] = $this->l('Invalid Friendly URL in ').$lang['name'];
-                    }
+            $_POST['link_rewrite_'.$defaultLangId] = Tools::str2url(trim(Tools::getValue('hotel_name_'.$defaultLangId)));
+        }
+        foreach ($languages as $lang) {
+            if (trim(Tools::getValue('link_rewrite_'.$lang['id_lang']))) {
+                if (!Validate::isLinkRewrite(Tools::getValue('link_rewrite_'.$lang['id_lang']))) {
+                    $this->errors[] = $this->l('Invalid Friendly URL in ').$lang['name'];
                 }
             }
         }

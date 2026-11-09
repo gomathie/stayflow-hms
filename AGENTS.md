@@ -2157,3 +2157,35 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 
 - `php -l` on the two changed PHP files. The changed guide templates compile with the bundled Smarty.
 - Not run against a database. The local stack was not running, so the menu flags and the hook rows were not updated here. That happens on the next deploy. Not deployed.
+
+### 2026-11-09 — Search engine fields are made automatically
+
+**What**
+
+- **CMS pages (Preferences › CMS):** the form's "Meta title" is now labelled **Page title**, which is what it really is: the visible title and the footer link text. Meta description, Meta keywords and Friendly URL are shown to a SuperAdmin only (`AdminCmsController::renderForm()` removes them from `fields_form` for everyone else). `fillLinkRewrite()`, called at the top of `postProcess()` when the form is posted, fills an empty Friendly URL with the one the page already has, or else `Tools::str2url()` of the page title. `link_rewrite` is no longer marked required on the form (the model still requires it, so the validator is satisfied by the filled value).
+- **Website description for a page** (`Meta::getCmsMetas()`, inherited, fixed at the source per rule 11): with no meta description entered, the first 155 characters of the page content (tags stripped, entities decoded, whitespace collapsed).
+- **Hotels (`modules/hotelreservationsystem`):** `AdminAddHotelController::processSave()` no longer refuses an empty Friendly URL; it makes one from the hotel name (`$_POST` is filled before the per-language arrays are built). `renderForm()` passes `sb_show_seo` (`Employee::isSuperAdmin()`); `form.tpl` renders the SEO tab (now labelled "Search engines") for everyone but hides its tab link for a non-SuperAdmin, so the saved values are still posted back unchanged.
+- Room types: the website already falls back to the room type name and short description (`Meta::getProductMetas()`); the room type SEO tab is part of the room type form pass (other agent), not changed here.
+
+**Why**
+
+- Owner: SEO URLs and marketing text should be picked automatically from the content people enter, not asked for by default.
+
+**Design choices**
+
+- **A link is made once.** It is derived only when empty, never rebuilt from a changed title, so addresses already shared or indexed keep working. An edit by a non-SuperAdmin posts the existing link (hotel, hidden tab) or has it restored from the saved page (CMS).
+- **Render-time fallback, not stored text.** Descriptions are not copied into the database; the website computes them from the current content, so they cannot go stale. Keywords are not derived (search engines ignore them).
+- **Not removed, hidden by role.** A SuperAdmin can still override every field; nothing in the model or the website changed for pages that already have values.
+
+**Guides (rule 23):** Admin Guide section 3 (the Search engines tab bullet, SuperAdmin only) and section 9 (CMS row rewritten; new SuperAdmin row for the override fields; the SEO & URLs row now says fixed pages). What's New and CHANGELOG, 9 November.
+
+**Verification (local, files copied into the running container, Apache reloaded)**
+
+- As SuperAdmin: the CMS form shows description, keywords and Friendly URL; the hotel form shows the Search engines tab. As a throwaway Hotel Manager: the CMS form has none of those three inputs and reads "Page title"; the hotel tab link is hidden.
+- As the manager: a hotel saved with the Friendly URL emptied (rest of the form posted as the page rendered it) succeeded and the slug is `salisberg-hotels`; a new CMS page "Pool Rules" saved with no SEO fields and got the link `pool-rules`; renaming it to "Pool and Spa Rules" kept `pool-rules`; once active, its website page showed the title "Pool and Spa Rules - Salisberg Hotels" and a description taken from the page content.
+- Admin Guide and What's New load with the new text and no errors. `php -l` passes on the three PHP files.
+- Test page 7 and the test employee were deleted. `docker/smoke-test.sh`: 30 of 31; the failure is a flood of `Undefined array key "id_order"` warnings from the Bookings list template, from work in progress in `AdminOrdersController`, not from these changes.
+
+**Not tested**
+
+- CMS categories, which still ask for meta fields and a Friendly URL (not used by this hotel); a second language; a hotel renamed by a manager (the slug-stays rule is by construction, not exercised); that Google shows the generated description; the live server.
