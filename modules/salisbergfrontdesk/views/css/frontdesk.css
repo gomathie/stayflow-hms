@@ -280,6 +280,24 @@
     .sb-draft-actions .btn { flex: 1; }
     .sb-draft-actions form { display: flex; flex: 1; }
     .sb-draft-actions form .btn { width: 100%; }
+    .sb-desk-scroll { overflow: visible; }
+    .sb-desk-scroll table,
+    .sb-desk-scroll tbody,
+    .sb-desk-scroll tr,
+    .sb-desk-scroll td { display: block; width: 100%; }
+    .sb-desk-scroll thead { display: none; }
+    .sb-desk-scroll tr {
+        margin: 0 0 10px;
+        padding: 10px 12px;
+        border: 1px solid var(--sb-line);
+        border-radius: 10px;
+        background: var(--sb-subtle);
+    }
+    .sb-desk-scroll td { border: 0; padding: 2px 0; text-align: left; }
+    .sb-desk-scroll td.sb-desk-act { margin-top: 8px; white-space: normal; }
+    .sb-desk-scroll td.sb-desk-act form,
+    .sb-desk-scroll td.sb-desk-act .btn { display: flex; width: 100%; justify-content: center; }
+    .sb-desk-scroll tr:has(.sb-desk-empty) { padding: 0; border: 0; background: transparent; }
 }
 
 @media (max-width: 479px) {

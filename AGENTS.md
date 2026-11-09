@@ -2189,3 +2189,11 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 **Not tested**
 
 - CMS categories, which still ask for meta fields and a Friendly URL (not used by this hotel); a second language; a hotel renamed by a manager (the slug-stays rule is by construction, not exercised); that Google shows the generated description; the live server.
+
+### 2026-11-09 — Native PHP session upload-progress disabled
+
+- **What:** `docker/php.ini` now sets `session.upload_progress.enabled = Off`. The Dockerfile already copies this file to `/usr/local/etc/php/conf.d/zz-salisberg.ini`, so it is baked into the image Coolify builds, not only the running container.
+- **Why:** defence in depth. PHP's native session upload-progress writes upload state into `$_SESSION` keyed by a field name the client controls, a building block in session-poisoning chains. An outside security review recommended disabling it.
+- **Safe here, checked first:** a tree-wide search found no use of `session.upload_progress` or `PHP_SESSION_UPLOAD_PROGRESS` anywhere; QloApps tracks uploads its own way (APC / its own AJAX). This setting does not touch `file_uploads`, so hotel/room images, booking documents and the Excel import keep working.
+- **Verification (local):** copied the ini into the running container; `php -i` shows `session.upload_progress.enabled => Off => Off`; `file_uploads` is still `1`. Not re-tested: a full image rebuild and a real upload through the back office after it (the setting is documented by PHP to affect only the progress array, and `file_uploads` is unchanged).
+- **Deploy:** takes effect on the next Coolify build; no data step, no `MODULES_VERSION` bump. No guide or What's New entry (nothing a back office user sees changes). CHANGELOG under Security.

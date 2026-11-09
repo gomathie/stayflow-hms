@@ -780,20 +780,152 @@ body#login, #login { background-color: var(--sb-canvas); }
 html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
 
 /* ---------- 11. Narrow windows ----------
-   Below 768px the stock theme switches to an icon rail and a 36px bar; the
-   roomy desktop shapes are undone there so nothing overlaps. */
+   Under 768px the menu is the named full-screen list (admin-theme.js) and the
+   top bar is one row: menu, logo, light/dark, website, account. */
 @media (max-width: 767px) {
-  #header_infos #header_shopversion { width: 96px; height: 36px; background-size: auto 30px; background-position: 8px center; }
-  .bootstrap #nav-sidebar ul.menu { padding: 0; }
-  .bootstrap #nav-sidebar ul.menu > li.maintab { margin-bottom: 0; }
-  .bootstrap #nav-sidebar ul.menu > li.maintab > a.title { height: 38px; line-height: 38px; padding: 0 4px; border-radius: 0; text-align: center; }
-  .bootstrap #nav-sidebar ul.menu > li.maintab > a.title span { padding-left: 8px; }
-  .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu { margin-left: 0; padding-left: 0; border-left: 0; }
-  .bootstrap #nav-sidebar li.searchtab { padding: 8px 4px; }
-  .bootstrap .page-head h2.page-title { font-size: 20px; }
-  .bootstrap .page-head .page-bar { right: 8px; }
-  /* the icon rail has no room for the fold arrows */
-  .bootstrap #nav-sidebar .sb-menu-arrow { display: none; }
+  .bootstrap #header_infos { height: 48px; min-height: 48px; }
+  #header_infos > .navbar-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 48px;
+    margin: 0;
+    padding-left: 48px;
+  }
+  #header_infos #header_shopversion {
+    display: block;
+    flex: 1 1 auto;
+    width: auto;
+    height: 48px;
+    margin: 0;
+    background-size: auto 28px;
+    background-position: 6px center;
+  }
+  #header_infos #header_employee_box {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    float: none;
+    height: 48px;
+    margin: 0 6px 0 0;
+    padding: 0;
+  }
+  #header_infos #header_employee_box > li { display: flex; float: none; align-items: center; height: 48px; }
+  #header_infos #sb-theme-toggle { width: 52px; height: 28px; padding: 0 6px; }
+  #header_infos #sb-theme-toggle::before { width: 22px; height: 20px; }
+  html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: translateX(20px); }
+  #header_infos #header_foaccess {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+  }
+  #header_infos #header_foaccess .string-short {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+  #header_infos #header_foaccess::before {
+    content: "\f08e";
+    font-family: FontAwesome;
+    font-size: 16px;
+    color: var(--sb-ink);
+  }
+  #header_infos #employee_infos > a { height: 40px; padding: 0 8px; }
+  #header_infos #employee_infos .string-short,
+  #header_infos #employee_infos .caret { display: none; }
+
+  #nav-mobile { width: 48px; height: 48px; background: transparent; }
+  #nav-mobile .menu-collapse {
+    width: 48px;
+    height: 48px;
+    background: transparent;
+    color: var(--sb-ink);
+    font-size: 18px;
+    line-height: 48px;
+  }
+  #nav-mobile.expanded { top: 48px; width: 100%; height: calc(100% - 48px); background: var(--sb-card); }
+  #nav-mobile.expanded .menu-collapse { top: -48px; background: var(--sb-card); color: var(--sb-ink); }
+  #nav-mobile ul.menu,
+  #nav-mobile ul.menu > li { background: var(--sb-card); }
+  #nav-mobile ul.menu > li > a,
+  #nav-mobile #nav-mobile-submenu a:not(#nav-mobile-submenu-back) {
+    height: 48px;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-bottom: 1px solid var(--sb-line);
+    background: var(--sb-card);
+    color: var(--sb-ink);
+    font-size: 16px;
+    line-height: 48px;
+    text-transform: none;
+  }
+  #nav-mobile ul.menu > li > a > i { width: 44px; color: var(--sb-muted); font-size: 16px; }
+  #nav-mobile ul.menu > li > a:hover,
+  #nav-mobile ul.menu > li.active > a { background: var(--sb-accent-soft); color: var(--sb-link); }
+  #nav-mobile a#nav-mobile-submenu-back {
+    height: 48px;
+    background: var(--sb-subtle);
+    color: var(--sb-ink);
+    font-size: 16px;
+    line-height: 48px;
+  }
+
+  body.ps_back-office .page-head {
+    top: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: auto;
+    min-height: 0;
+    padding: 8px 10px;
+  }
+  body.ps_back-office .page-head h2.page-title {
+    height: auto;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    line-height: 1.2;
+  }
+  .bootstrap .page-head .page-breadcrumb { display: none; }
+  body.ps_back-office .page-head .page-bar { position: static; height: auto; margin: 0; }
+  #nav-mobile .searchtab input,
+  #nav-mobile input[type="search"],
+  #nav-mobile input[type="text"] {
+    background: var(--sb-card);
+    color: var(--sb-ink);
+    border-color: var(--sb-line);
+  }
+  #content.bootstrap { margin-left: 0; padding: 108px 12px 32px; }
+  .bootstrap .nav-tabs { display: flex; flex-wrap: nowrap; overflow-x: auto; }
+  .bootstrap .nav-tabs > li { flex: 0 0 auto; float: none; }
+  .bootstrap .nav-tabs > li > a { white-space: nowrap; }
+  body.adminorders #content.bootstrap .panel.kpi-container { align-items: flex-start; padding: 8px; }
+  body.adminorders #content.bootstrap .panel.kpi-container .kpis-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+  body.adminorders #content.bootstrap .panel.kpi-container .kpi-wrap,
+  body.adminorders #content.bootstrap .panel.kpi-container .box-stats { min-width: 0; min-height: 0; }
+  body.adminorders #content.bootstrap .panel.kpi-container .box-stats { padding: 8px 10px; }
+  body.adminorders #content.bootstrap .panel.kpi-container .kpi-icon { display: none; }
+}
+
+/* Stacked list cards (stock, under 992px) follow the same card colour as the rest of the back office. */
+@media (max-width: 991px) {
+  #content.bootstrap .table-responsive-row td,
+  #content.bootstrap .table-responsive-row th {
+    background-color: var(--sb-card);
+    color: var(--sb-ink);
+    border-color: var(--sb-line);
+  }
+  #content.bootstrap .table-responsive-row td:before { color: var(--sb-muted); }
 }
 
 /* ---------- 12. Specificity catch-up ----------

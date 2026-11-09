@@ -9,6 +9,10 @@ Every change to Salisberg, newest first, in plain words.
 
 ## 2026-11-09
 
+### Security
+
+- **Native PHP session upload-progress switched off.** A defence-in-depth setting (`session.upload_progress.enabled = Off` in `docker/php.ini`). Nothing in Salisberg uses this PHP feature, and leaving it on lets a file upload write into the session through a crafted field name. Ordinary file uploads are unaffected.
+
 ### Added
 
 - **Guest texts through mNotify.** Administration › Integrations, visible to the developer team only, takes the mNotify API key and the sender name. With a key saved, a guest who has a phone number is texted at check-in and when the booking is paid in full. With no key saved, nothing is sent and check-in still works.
