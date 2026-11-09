@@ -59,6 +59,7 @@
 		<p>{l s='What each profile may open is set by the developer team. Tell them if a member of staff needs a page they cannot see, or should lose one.' mod='salisbergguide'}</p>
 		{/if}
 		<p class="sb-tip">{l s='Back office sessions end after 12 hours, so everyone signs in again each working day.' mod='salisbergguide'}</p>
+		<p>{l s='On a phone the back office is shown at full size, and a note at the bottom offers Add to home screen. On an iPhone use Share, then Add to Home Screen. The icon opens the desk and does not keep a copy of bookings on the phone. Closing the note hides it on that phone only.' mod='salisbergguide'}</p>
 		<h4>{l s='Sign-in and form limits' mod='salisbergguide'}</h4>
 		<p>{l s='To slow down password guessing and spam, the site limits how often the same internet connection can use certain forms. When a limit is reached the person sees "Too many attempts" and the time to wait.' mod='salisbergguide'}</p>
 		<table>

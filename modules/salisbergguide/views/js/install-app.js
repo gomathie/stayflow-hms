@@ -13,9 +13,17 @@
 
     var deferred = null;
 
+    function isDesk() {
+        return !!document.querySelector('link[rel="manifest"][href*="desk-manifest"]');
+    }
+
+    function storageKey() {
+        return isDesk() ? 'sb-pwa-dismiss-desk' : 'sb-pwa-dismiss';
+    }
+
     function dismissed() {
         try {
-            return localStorage.getItem('sb-pwa-dismiss') === '1';
+            return localStorage.getItem(storageKey()) === '1';
         } catch (e) {
             return false;
         }
@@ -23,7 +31,7 @@
 
     function rememberDismiss() {
         try {
-            localStorage.setItem('sb-pwa-dismiss', '1');
+            localStorage.setItem(storageKey(), '1');
         } catch (e) {}
     }
 
@@ -36,7 +44,7 @@
         node.className = 'sb-pwa';
         node.hidden = true;
         node.innerHTML = ''
-            + '<p class="sb-pwa-install-text">Add Salisberg to your home screen.</p>'
+            + '<p class="sb-pwa-install-text">' + (isDesk() ? 'Add the desk to your home screen.' : 'Add Salisberg to your home screen.') + '</p>'
             + '<p class="sb-pwa-ios-text">On iPhone, tap Share, then Add to Home Screen.</p>'
             + '<button type="button" class="sb-pwa-install">Add to home screen</button>'
             + '<button type="button" class="sb-pwa-dismiss" aria-label="Dismiss">Close</button>';

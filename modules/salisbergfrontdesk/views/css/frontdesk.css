@@ -6,14 +6,14 @@
 .sb-desk-head p { margin: 4px 0 0; color: var(--sb-muted); }
 .sb-desk-links { display: flex; gap: 8px; }
 .sb-desk-links .btn { height: 38px; padding: 0 16px; display: inline-flex; align-items: center; gap: 8px; }
+
+.sb-desk-figures { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.sb-desk-figure { flex: 1 1 160px; padding: 14px 16px; border: 1px solid var(--sb-line); border-radius: 10px; background-color: var(--sb-card); text-decoration: none; }
 @media (max-width: 767px) {
   .sb-desk-links { width: 100%; }
   .sb-desk-links .btn { flex: 1 1 auto; justify-content: center; }
   .sb-desk-figure { flex: 1 1 calc(50% - 12px); }
 }
-
-.sb-desk-figures { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
-.sb-desk-figure { flex: 1 1 160px; padding: 14px 16px; border: 1px solid var(--sb-line); border-radius: 10px; background-color: var(--sb-card); text-decoration: none; }
 .sb-desk-figure:hover,
 .sb-desk-figure:focus { border-color: var(--sb-accent); text-decoration: none; }
 .sb-desk-figure.sb-on { border-color: var(--sb-accent); box-shadow: inset 0 0 0 1px var(--sb-accent); }

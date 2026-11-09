@@ -23,6 +23,7 @@
 		<ul>
 			<li><strong>{l s='The Dashboard opens on the work for today.' mod='salisbergguide'}</strong> {l s='Today at the desk is first. A list is open when someone still needs to be checked in, checked out, or still owes money. Rooms in house, and rooms already checked out today, stay closed until you click them. Check in and Check out are the same buttons.' mod='salisbergguide'}</li>
 			{if $sb_can_read_admin_guide}<li><strong>{l s='The charts stay, and Day means today.' mod='salisbergguide'}</strong> {l s='Day, Month and Year change only the charts under the desk. If the period had fallen behind and no longer includes today, opening the Dashboard sets it back to Day. Day-1, Month-1 and Year-1 are left as they were. The coloured tiles that repeated arrivals and departures with a different count have been removed; Operations Today is still with the charts.' mod='salisbergguide'}</li>{/if}
+			<li><strong>{l s='Phones can keep the site on the home screen.' mod='salisbergguide'}</strong> {l s='The back office and the website now fit a phone at full size, and a note at the bottom offers Add to home screen. On an iPhone use Share, then Add to Home Screen. The desk icon opens the back office. Nothing is stored on the phone: bookings are still loaded from the server. Closing the note hides it on that phone only.' mod='salisbergguide'}</li>
 		</ul>
 	</section>
 

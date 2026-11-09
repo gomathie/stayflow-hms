@@ -14,6 +14,14 @@ Every change to Salisberg, newest first, in plain words.
 - **The Dashboard opens on the work for today.** Today at the desk is first. A list is open when someone still needs to be checked in, checked out, or still owes money. Rooms in house, and rooms already checked out today, stay closed until you click them. Check in and Check out are unchanged.
 - **The charts stay on the Dashboard, and Day means today.** Day, Month and Year change only the charts. A saved period that no longer includes today is set back to Day when the page opens. Day-1, Month-1 and Year-1 are left as they were. The coloured tiles that repeated arrivals and departures with a different count are gone. Operations Today remains with the charts.
 
+### Added
+
+- **Add to home screen.** A note at the bottom of the website and the back office offers to put Salisberg on a phone home screen. On an iPhone the note says to use Share, then Add to Home Screen. The website icon opens the hotel site. The desk icon opens the back office. Bookings are not stored on the phone.
+
+### Changed
+
+- **Phones show the back office at full size.** The back office no longer forces a zoomed-out page, so a phone gets the named menu instead of a row of icons, and pinch-zoom works. Sign-in, contact and account forms use less padding on a narrow screen, and the Today counts sit two across.
+
 ## 2026-10-19
 
 ### Added

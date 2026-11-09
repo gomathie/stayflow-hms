@@ -2112,3 +2112,28 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 
 - `php -l` on the three changed PHP files: no syntax errors. The five changed templates compile with the bundled Smarty once unknown tags such as `{l}` are stubbed.
 - Not run in a browser. The local stack was not running, and this is not deployed: the live site is unchanged until the next deploy. Check-in and check-out were not exercised against a booking.
+
+### 2026-11-09 — Phone layout, and add to the home screen
+
+**What**
+
+- The back office viewport no longer locks the page at 75% zoom (`initial-scale=0.75`, `maximum-scale=0.75`, `user-scalable=0` in both admin headers). It is `width=device-width, initial-scale=1`, so a phone under 480px wide gets the named menu the theme already has for that width, and pinch-zoom works. The website header uses the same viewport. On Android, `themes/hotel-reservation-theme/js/global.js` was rewriting that tag to forbid zoom; it now keeps scale 1 and still hides the address bar.
+- Sign-in, contact and account panels use 18px of padding under 768px (`salisberg.css?v=17`). Today at the desk puts its counts two across and its links on one full-width row (`frontdesk.css?v=10`).
+- A home-screen install. `sw.js` at the site root has an empty `fetch` listener and stores nothing. `pwa/manifest.webmanifest` opens the website. `pwa/desk-manifest.php` opens the back office only when `?dir=` is a real admin folder inside the web root (it must contain `init.php` and `themes/default`); otherwise the icon opens the website. Icons are `pwa/icon-180.png`, `icon-192.png` and `icon-512.png`, shipped in the image because `img/` is a volume. `modules/salisbergguide` loads `install-app.js`: Chrome and Edge get an Add to home screen button from `beforeinstallprompt`; iPhone gets the Share steps. Closing the note is remembered separately for the website and the desk.
+
+**Why**
+
+- Staff use the desk on a phone, and the locked zoom laid the page out as a narrow desktop: an icon rail instead of the named menu. Guests and staff both asked for a home-screen icon. A service worker that cached pages would show stale bookings, so this one does not cache.
+
+**How**
+
+- No booking, payment or permission change. The admin folder name is taken from `_PS_ADMIN_DIR_` in the two admin headers and checked again in PHP, so a guessed name does not publish a directory listing.
+
+**Guides**
+
+- Staff Guide section 1. Admin Guide section 1. What's New, 9 November 2026.
+
+**Verification**
+
+- `php -l` on `pwa/desk-manifest.php`. `node --check` on `sw.js` and `install-app.js`. The new guide lines compile with the bundled Smarty. The desk manifest query was rendered with `_PS_ADMIN_DIR_` set to `/var/www/html/back-engine` and produced `back-engine`. Icons are PNGs (green field, gold house).
+- Not run in a browser, and not deployed. The local stack was not running. Chrome's install prompt and the iPhone Share sheet were not exercised. The live site is unchanged until the next deploy.
