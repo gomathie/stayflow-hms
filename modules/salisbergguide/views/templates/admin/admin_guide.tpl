@@ -321,7 +321,7 @@
 		<h4>{l s='Other places to look' mod='salisbergguide'}</h4>
 		<ul>
 			<li><span class="sb-path">Dashboard</span> &ndash; {l s='Today at the desk, then the charts. Day is today. Month and Year change only the charts. A period that no longer includes today is set back to Day when the page opens. Day-1, Month-1 and Year-1 stay as they were set.' mod='salisbergguide'}</li>
-			<li><span class="sb-path">Stats</span> &ndash; {l s='detailed reports: sales, best room types, visitors and more.' mod='salisbergguide'}</li>
+			<li>{l s='The old Stats section, which counted shop visitors, is no longer in the menu. Use the reports above.' mod='salisbergguide'}</li>
 			<li><span class="sb-path">Bookings &rsaquo; Bookings</span> &ndash; {l s='filter the list, then export it to a spreadsheet with the export button at the top.' mod='salisbergguide'}</li>
 		</ul>
 	</section>
@@ -349,6 +349,7 @@
 			<button type="submit" name="submitSbMenu" class="btn btn-primary">{l s='Save' mod='salisbergguide'}</button>
 		</form>
 		<p class="sb-tip">{l s='Each profile already sees only the sections it has permission for. Hotel Staff and Hotel Manager never see Modules and Services, whatever is chosen here.' mod='salisbergguide'}</p>
+		<p>{l s='These shop pages are also kept out of the menu, and a deploy puts them back out if they are switched on again: Groups, Titles, Shopping Carts, Catalog Price Rules, Stats, Themes, Search, Geolocation and States. Voucher codes stay under Manage Discounts, Cart Rules. The pages are not deleted. Check-in, prices and the website do not use those menu links.' mod='salisbergguide'}</p>
 		{else}
 		<p class="sb-tip">{l s='This is looked after by the developer team. Ask them when it needs to change.' mod='salisbergguide'}</p>
 		{/if}

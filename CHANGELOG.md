@@ -22,6 +22,11 @@ Every change to Salisberg, newest first, in plain words.
 
 - **Phones show the back office at full size.** The back office no longer forces a zoomed-out page, so a phone gets the named menu instead of a row of icons, and pinch-zoom works. Sign-in, contact and account forms use less padding on a narrow screen, and the Today counts sit two across.
 
+### Removed
+
+- **Shop pages are off the menu.** Groups, Titles, Shopping Carts, Catalog Price Rules, Stats, Themes, Search, Geolocation and States no longer appear. The pages are not deleted, and check-in still works. Voucher codes stay under Manage Discounts → Cart Rules.
+- **Shop panels are off the Dashboard.** Visitor counts, abandoned carts, newsletter numbers, best-selling room types and top searches are no longer drawn. Today at the desk and the charts stay.
+
 ## 2026-10-19
 
 ### Added

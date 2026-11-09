@@ -231,18 +231,35 @@ class Salisbergfrontdesk extends Module
         return $ok;
     }
 
-    /** The richer desk view replaces the stock Operations Today dashboard box. */
+    /**
+     * Shop dashboard boxes a hotel does not use. The modules stay installed.
+     * Only the hooks that draw them, and the data call those boxes make, are
+     * dropped. Order and customer hooks on the same modules are left alone.
+     */
     protected function replaceLegacyTodayWidget()
     {
-        if (!Module::isInstalled('dashguestcycle')) {
-            return true;
-        }
-        $module = Module::getInstanceByName('dashguestcycle');
-        if (!$module || !$module->isRegisteredInHook('dashboardZoneTwo')) {
-            return true;
+        $retire = array(
+            'dashguestcycle' => array('dashboardZoneTwo'),
+            'dashactivity' => array('dashboardZoneOne', 'dashboardData'),
+            'dashproducts' => array('dashboardZoneTwo', 'dashboardData'),
+        );
+        $ok = true;
+        foreach ($retire as $name => $hooks) {
+            if (!Module::isInstalled($name)) {
+                continue;
+            }
+            $module = Module::getInstanceByName($name);
+            if (!$module) {
+                continue;
+            }
+            foreach ($hooks as $hook) {
+                if ($module->isRegisteredInHook($hook)) {
+                    $ok = $module->unregisterHook($hook) && $ok;
+                }
+            }
         }
 
-        return $module->unregisterHook('dashboardZoneTwo');
+        return $ok;
     }
 
     /**

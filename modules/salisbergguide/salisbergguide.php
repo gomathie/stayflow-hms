@@ -131,12 +131,26 @@ class Salisbergguide extends Module
         'AdminCustomerThreads' => array('Customer Service', 'Inbox'),
     );
 
-    /** Pages deliberately kept out of this hotel's back-office menu. */
+    /**
+     * Pages kept out of the menu. The controllers stay: a booking is still an
+     * order and a cart, and the installer still creates these tabs.
+     * active = 0 only. A later deploy hides them again.
+     */
     public static $hiddenMenus = array(
         'AdminModulesCatalog',
         'AdminQloappsChannelManagerConnector',
         'AdminZones',
         'AdminSlip',
+        // shop screens a single hotel does not open
+        'AdminGroups',
+        'AdminGenders',
+        'AdminCarts',
+        'AdminSpecificPriceRule',
+        'AdminStats',
+        'AdminThemes',
+        'AdminSearchConf',
+        'AdminGeolocation',
+        'AdminStates',
     );
 
     /**
@@ -330,8 +344,15 @@ class Salisbergguide extends Module
     {
         foreach (self::$hiddenMenus as $className) {
             $idTab = (int) Tab::getIdFromClassName($className);
-            if ($idTab) {
+            if (!$idTab) {
+                continue;
+            }
+            $active = (int) Db::getInstance()->getValue(
+                'SELECT `active` FROM `'._DB_PREFIX_.'tab` WHERE `id_tab` = '.$idTab
+            );
+            if ($active) {
                 Db::getInstance()->update('tab', array('active' => 0), 'id_tab = '.$idTab);
+                PrestaShopLogger::addLog('salisbergguide: hid the menu entry '.$className, 1);
             }
         }
 

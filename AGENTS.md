@@ -2137,3 +2137,23 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 
 - `php -l` on `pwa/desk-manifest.php`. `node --check` on `sw.js` and `install-app.js`. The new guide lines compile with the bundled Smarty. The desk manifest query was rendered with `_PS_ADMIN_DIR_` set to `/var/www/html/back-engine` and produced `back-engine`. Icons are PNGs (green field, gold house).
 - Not run in a browser, and not deployed. The local stack was not running. Chrome's install prompt and the iPhone Share sheet were not exercised. The live site is unchanged until the next deploy.
+
+### 2026-11-09 — Shop menu pages and dashboard panels taken off the screen
+
+**What**
+
+- `$hiddenMenus` in `modules/salisbergguide/salisbergguide.php` now also sets `active = 0` on Groups, Titles, Shopping Carts, Catalog Price Rules, Stats, Themes, Search, Geolocation and States. `hideUnusedMenus()` logs each entry it actually hides. The controllers, tables and permissions stay. Cart Rules stays in the menu: the Admin Guide tells managers to create voucher codes there.
+- `salisbergfrontdesk::replaceLegacyTodayWidget()` also unregisters `dashactivity` from `dashboardZoneOne` and `dashboardData`, and `dashproducts` from `dashboardZoneTwo` and `dashboardData`. Their order, customer and search hooks stay. `MODULES_VERSION=29` so the next deploy runs `ensureSetup()` for both modules.
+
+**Why**
+
+- These are shop screens and shop figures. Hiding the tab and unhooking the panel does not change check-in, prices or the website. Deleting the PHP would: the installer still creates the tabs, and a booking is still an order and a cart.
+
+**Guides**
+
+- Admin Guide sections 14 and 15. What's New, 9 November 2026.
+
+**Verification**
+
+- `php -l` on the two changed PHP files. The changed guide templates compile with the bundled Smarty.
+- Not run against a database. The local stack was not running, so the menu flags and the hook rows were not updated here. That happens on the next deploy. Not deployed.
