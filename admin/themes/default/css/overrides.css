@@ -628,6 +628,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .popover { border: 1px solid var(--sb-line); border-radius: 12px; background-color: var(--sb-card); box-shadow: var(--sb-shadow); color: var(--sb-ink); }
 .bootstrap .popover-title { border-color: var(--sb-line); border-radius: 12px 12px 0 0; background-color: var(--sb-subtle); color: var(--sb-heading); }
 
+#dashboard .sb-figures-note { margin: 0 0 12px; color: var(--sb-muted); font-size: 13px; }
 /* dashboard: the third column is empty (its vendor panels were removed in
    view.tpl), so the other two share the full width from 1200px up */
 @media (min-width: 1200px) {

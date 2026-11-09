@@ -62,7 +62,11 @@ class DashGuestCycle extends Module
 
     public function hookDashboardTop()
     {
-        return $this->display(__FILE__, 'dashboard-top.tpl');
+        // The coloured tiles counted only stays dated today, so they disagreed
+        // with Today at the desk (which also lists guests who should already
+        // have left). The Operations Today panel below the charts still shows
+        // this module's today tables.
+        return '';
     }
 
     public function hookDashboardZoneTwo()

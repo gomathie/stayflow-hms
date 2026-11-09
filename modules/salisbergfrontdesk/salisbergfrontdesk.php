@@ -428,8 +428,31 @@ class Salisbergfrontdesk extends Module
 
     public function assignTodayTemplate($canEdit, $onDashboard = false)
     {
+        $today = $this->getToday();
+        $dueOut = array();
+        $checkedOut = array();
+        foreach ($today['departures'] as $row) {
+            if ((int) $row['id_status'] === (int) HotelBookingDetail::STATUS_CHECKED_IN) {
+                $dueOut[] = $row;
+            } else {
+                $checkedOut[] = $row;
+            }
+        }
+        $waiting = 0;
+        foreach ($today['arrivals'] as $row) {
+            if ((int) $row['id_status'] === (int) HotelBookingDetail::STATUS_ALLOTED) {
+                $waiting++;
+            }
+        }
+        $done = (string) Tools::getValue('sb_done');
+
         $this->context->smarty->assign(array(
-            'sb_today' => $this->getToday(),
+            'sb_today' => $today,
+            'sb_due_out' => $dueOut,
+            'sb_checked_out' => $checkedOut,
+            'sb_open_arrivals' => ($waiting > 0 || $done === 'sb_check_in'),
+            'sb_open_departures' => (count($dueOut) > 0 || $done === 'sb_check_out'),
+            'sb_open_unpaid' => count($today['unpaid']) > 0,
             'sb_date' => Tools::displayDate(date('Y-m-d')),
             'sb_can_edit' => (int) $canEdit,
             'sb_action' => $this->context->link->getAdminLink(self::TAB_TODAY),
@@ -438,9 +461,9 @@ class Salisbergfrontdesk extends Module
             'sb_book_link' => $this->context->link->getAdminLink(self::TAB_ROOM_BOARD),
             'sb_expected' => HotelBookingDetail::STATUS_ALLOTED,
             'sb_in' => HotelBookingDetail::STATUS_CHECKED_IN,
-            'sb_css' => $this->getPathUri().'views/css/frontdesk.css',
+            'sb_css' => $this->getPathUri().'views/css/frontdesk.css?v=9',
             'sb_on_dashboard' => (bool) $onDashboard,
-            'sb_done' => (string) Tools::getValue('sb_done'),
+            'sb_done' => $done,
         ));
     }
 

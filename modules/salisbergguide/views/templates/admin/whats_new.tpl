@@ -19,6 +19,14 @@
 	</div>
 
 	<section>
+		<h3>{l s='9 November 2026' mod='salisbergguide'}</h3>
+		<ul>
+			<li><strong>{l s='The Dashboard opens on the work for today.' mod='salisbergguide'}</strong> {l s='Today at the desk is first. A list is open when someone still needs to be checked in, checked out, or still owes money. Rooms in house, and rooms already checked out today, stay closed until you click them. Check in and Check out are the same buttons.' mod='salisbergguide'}</li>
+			{if $sb_can_read_admin_guide}<li><strong>{l s='The charts stay, and Day means today.' mod='salisbergguide'}</strong> {l s='Day, Month and Year change only the charts under the desk. If the period had fallen behind and no longer includes today, opening the Dashboard sets it back to Day. Day-1, Month-1 and Year-1 are left as they were. The coloured tiles that repeated arrivals and departures with a different count have been removed; Operations Today is still with the charts.' mod='salisbergguide'}</li>{/if}
+		</ul>
+	</section>
+
+	<section>
 		<h3>{l s='19 October 2026' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='A room can have its own price.' mod='salisbergguide'}</strong> {l s='In Manage Room Types, on the Rooms tab, a new Own price box lets one room cost more or less than the others of its type, for example a Standard room with a fridge and a steam iron. Empty means the room type price. What makes the room different goes in Extra Information, which now shows on the room card in New booking. The own price applies to bookings made at the front desk; the website still sells the room type at the room type price.' mod='salisbergguide'}</li>

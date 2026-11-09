@@ -40,6 +40,9 @@
         {/if}
         <div class="col-lg-12">
             <div class="panel clearfix">
+                <div class="col-lg-12">
+                    <p class="sb-figures-note">{l s='Day, Month and Year change these charts only. Day is today. The desk above stays on today, including guests who should already have left.'}</p>
+                </div>
                 <div class="col-lg-6">
                     <div id="calendar">
                         <form action="{$action|escape}" method="post" id="calendar_form" name="calendar_form" class="form-inline">

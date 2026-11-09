@@ -24,8 +24,9 @@
 		<a class="sb-desk-figure" href="#sb-unpaid"><span>{l s='Unpaid bookings' mod='salisbergfrontdesk'}</span><strong>{$sb_today.unpaid|count}</strong></a>
 	</div>
 
-	<div class="panel sb-desk-panel" id="sb-arrivals">
-		<h3><i class="icon-signin"></i> {l s='Arrivals' mod='salisbergfrontdesk'}</h3>
+	<details class="panel sb-desk-panel" id="sb-arrivals"{if $sb_open_arrivals} open{/if}>
+		<summary><h3><i class="icon-chevron-down"></i><i class="icon-signin"></i> {l s='Arrivals' mod='salisbergfrontdesk'}</h3></summary>
+		<div class="sb-desk-body">
 		<p class="sb-desk-note">{l s='Rooms due to arrive today, rooms due earlier that have not arrived yet, and rooms checked in today.' mod='salisbergfrontdesk'}</p>
 		<div class="sb-desk-scroll">
 			<table class="table">
@@ -74,11 +75,13 @@
 				</tbody>
 			</table>
 		</div>
-	</div>
+		</div>
+	</details>
 
-	<div class="panel sb-desk-panel" id="sb-departures">
-		<h3><i class="icon-signout"></i> {l s='Departures' mod='salisbergfrontdesk'}</h3>
-		<p class="sb-desk-note">{l s='Rooms due to leave today, rooms that should already have left, and rooms checked out today. Checking a room out marks it dirty for housekeeping.' mod='salisbergfrontdesk'}</p>
+	<details class="panel sb-desk-panel" id="sb-departures"{if $sb_open_departures} open{/if}>
+		<summary><h3><i class="icon-chevron-down"></i><i class="icon-signout"></i> {l s='Departures' mod='salisbergfrontdesk'}</h3></summary>
+		<div class="sb-desk-body">
+		<p class="sb-desk-note">{l s='Rooms due to leave today, and rooms that should already have left. Checking a room out marks it dirty for housekeeping. Rooms already checked out today are in the list under this one.' mod='salisbergfrontdesk'}</p>
 		<div class="sb-desk-scroll">
 			<table class="table">
 				<thead>
@@ -93,7 +96,7 @@
 					</tr>
 				</thead>
 				<tbody>
-				{foreach from=$sb_today.departures item=sb_row}
+				{foreach from=$sb_due_out item=sb_row}
 					<tr>
 						<td><strong>{$sb_row.room_num|escape:'html':'UTF-8'}</strong><br /><small>{$sb_row.room_type_name|escape:'html':'UTF-8'}</small></td>
 						<td>{$sb_row.guest|escape:'html':'UTF-8'}</td>
@@ -117,15 +120,51 @@
 						</td>
 					</tr>
 				{foreachelse}
-					<tr><td colspan="7" class="sb-desk-empty">{l s='No departures today.' mod='salisbergfrontdesk'}</td></tr>
+					<tr><td colspan="7" class="sb-desk-empty">{l s='No rooms are waiting to check out.' mod='salisbergfrontdesk'}</td></tr>
 				{/foreach}
 				</tbody>
 			</table>
 		</div>
-	</div>
+		</div>
+	</details>
 
-	<div class="panel sb-desk-panel" id="sb-in-house">
-		<h3><i class="icon-key"></i> {l s='Rooms in house' mod='salisbergfrontdesk'}</h3>
+	{if $sb_checked_out|count}
+	<details class="panel sb-desk-panel" id="sb-checked-out">
+		<summary><h3><i class="icon-chevron-down"></i><i class="icon-check"></i> {l s='Checked out today' mod='salisbergfrontdesk'}</h3></summary>
+		<div class="sb-desk-body">
+		<div class="sb-desk-scroll">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>{l s='Room' mod='salisbergfrontdesk'}</th>
+						<th>{l s='Guest' mod='salisbergfrontdesk'}</th>
+						<th>{l s='Phone' mod='salisbergfrontdesk'}</th>
+						<th>{l s='Stay' mod='salisbergfrontdesk'}</th>
+						<th>{l s='Still to pay' mod='salisbergfrontdesk'}</th>
+						<th>{l s='Booking' mod='salisbergfrontdesk'}</th>
+					</tr>
+				</thead>
+				<tbody>
+				{foreach from=$sb_checked_out item=sb_row}
+					<tr>
+						<td><strong>{$sb_row.room_num|escape:'html':'UTF-8'}</strong><br /><small>{$sb_row.room_type_name|escape:'html':'UTF-8'}</small></td>
+						<td>{$sb_row.guest|escape:'html':'UTF-8'}</td>
+						<td>{$sb_row.phone|escape:'html':'UTF-8'}</td>
+						<td>{$sb_row.stay|escape:'html':'UTF-8'}</td>
+						<td>{if $sb_row.balance_text}<span class="sb-chip sb-chip-bad">{$sb_row.balance_text|escape:'html':'UTF-8'}</span>{else}<span class="sb-chip sb-chip-good">{l s='Paid' mod='salisbergfrontdesk'}</span>{/if}</td>
+						<td><a href="{$sb_booking_link|escape:'html':'UTF-8'}{$sb_row.id_order|intval}">{$sb_row.reference|escape:'html':'UTF-8'}</a></td>
+					</tr>
+				{/foreach}
+				</tbody>
+			</table>
+		</div>
+		</div>
+	</details>
+	{/if}
+
+	<details class="panel sb-desk-panel" id="sb-in-house">
+		<summary><h3><i class="icon-chevron-down"></i><i class="icon-key"></i> {l s='Rooms in house' mod='salisbergfrontdesk'}</h3></summary>
+		<div class="sb-desk-body">
 		<p class="sb-desk-note">{l s='Every room with a guest checked in right now.' mod='salisbergfrontdesk'}</p>
 		<div class="sb-desk-scroll">
 			<table class="table">
@@ -157,10 +196,12 @@
 				</tbody>
 			</table>
 		</div>
-	</div>
+		</div>
+	</details>
 
-	<div class="panel sb-desk-panel" id="sb-unpaid">
-		<h3><i class="icon-money"></i> {l s='Unpaid bookings' mod='salisbergfrontdesk'}</h3>
+	<details class="panel sb-desk-panel" id="sb-unpaid"{if $sb_open_unpaid} open{/if}>
+		<summary><h3><i class="icon-chevron-down"></i><i class="icon-money"></i> {l s='Unpaid bookings' mod='salisbergfrontdesk'}</h3></summary>
+		<div class="sb-desk-body">
 		<p class="sb-desk-note">{l s='Bookings with money still to pay, for stays that are coming, under way, or ended in the last 30 days. Open the booking to record a payment.' mod='salisbergfrontdesk'}</p>
 		<div class="sb-desk-scroll">
 			<table class="table">
@@ -198,5 +239,26 @@
 				</tbody>
 			</table>
 		</div>
-	</div>
+		</div>
+	</details>
 </div>
+<script>
+(function () {
+	function openPanel(id) {
+		var panel = document.getElementById(id);
+		if (panel && panel.tagName === 'DETAILS') {
+			panel.open = true;
+		}
+	}
+	document.addEventListener('click', function (event) {
+		var link = event.target.closest ? event.target.closest('a.sb-desk-figure') : null;
+		if (!link) {
+			return;
+		}
+		openPanel((link.getAttribute('href') || '').replace('#', ''));
+	});
+	if (window.location.hash) {
+		openPanel(window.location.hash.slice(1));
+	}
+})();
+</script>

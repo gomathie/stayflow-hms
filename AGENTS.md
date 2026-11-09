@@ -2087,3 +2087,28 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
   - **Website unaffected:** search results list Standard Room 1 at GH₵200; a website cart for 2 nights was allotted GR-106 (own price 350) and the checkout still read GH₵400 + GH₵16 tax = GH₵416.
   - Guides: Admin Guide, Staff Guide and What's New render with the new text for administrator, manager and staff (staff correctly have no Admin Guide).
 - **Not tested:** a room type with a special date price rule combined with an own price (the difference rule is as described but was not exercised); two currencies; editing a room's own price while it has future bookings beyond confirming they keep their stored price (not re-checked after the change); the website's own date pricing for a room with an own price; the Rooms tab in a real browser at phone width; the live server, where the table and hooks are created by the next deploy (`MODULES_VERSION=28`). Local test data: Own prices on GR-102 (300), GR-104 (275) and GR-106 (350, a test room), five test bookings made at those prices, and the hand-set Extra Information texts.
+
+### 2026-11-09 — Dashboard opens on today's work; charts stay and Day means today
+
+**What**
+
+- The coloured arrival and departure tiles at the top of the Dashboard are no longer drawn. They counted only stays dated today, so they disagreed with Today at the desk (10 of 11 live departures were overdue, still checked in). `dashguestcycle::hookDashboardTop()` returns nothing. The Operations Today panel, which is the same module's chart, is unchanged.
+- Today at the desk lists fold. Arrivals is open when someone is still to check in. Departures is open for rooms still to check out, including Overdue; rooms already checked out today are a separate closed list. Unpaid is open when money is owed. Rooms in house starts closed. Clicking a count opens that list. The Check in and Check out buttons, and the controller that handles them, are unchanged.
+- The Day, Month and Year charts stay on the Dashboard, under the desk. `override/controllers/admin/AdminDashboardController.php` sets the chart period back to Day when the saved range no longer includes today. Day-1, Month-1 and Year-1 are left alone, and a Month or Year range that still includes today is left alone. A line above the buttons says they change the charts only.
+
+**Why**
+
+- On the live Dashboard (9 November 2026) the tiles said 1 departure and 4 occupied rooms while the desk said 11 departures and 14 in house, and the charts were stuck on 5 September–5 October. Staff need the desk. The charts are still the place for occupancy and income, and Day is how they show today. The Staff Guide and Admin Guide already describe the Dashboard this way (staff sections 2 and 6, admin section 14).
+
+**How**
+
+- Display only. No booking, payment, status or permission change. The split between "still to check out" and "checked out today" is done in `assignTodayTemplate()` from the same rows `getToday()` already returns.
+
+**Guides**
+
+- Staff Guide sections 2 and 6. Admin Guide section 14. What's New, 9 November 2026.
+
+**Verification**
+
+- `php -l` on the three changed PHP files: no syntax errors. The five changed templates compile with the bundled Smarty once unknown tags such as `{l}` are stubbed.
+- Not run in a browser. The local stack was not running, and this is not deployed: the live site is unchanged until the next deploy. Check-in and check-out were not exercised against a booking.

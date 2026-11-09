@@ -15,6 +15,12 @@
 .sb-desk-figure span { display: block; font-size: 12px; color: var(--sb-muted); }
 .sb-desk-figure strong { display: block; margin-top: 4px; font-size: 24px; color: var(--sb-heading); }
 
+.sb-desk-panel > summary { display: block; padding: 14px 16px; cursor: pointer; list-style: none; }
+.sb-desk-panel > summary::-webkit-details-marker { display: none; }
+.sb-desk-panel > summary h3 { display: flex; align-items: center; gap: 8px; margin: 0; }
+.sb-desk-panel > summary .icon-chevron-down { color: var(--sb-muted); transition: transform 0.15s ease; }
+.sb-desk-panel[open] > summary .icon-chevron-down { transform: rotate(180deg); }
+.sb-desk-body { padding: 0 16px 16px; }
 .sb-desk-panel h3 { margin: 0 0 4px; padding: 0; border: 0; font-size: 17px; font-weight: 600; text-transform: none; color: var(--sb-heading); }
 .sb-desk-note { margin: 0 0 12px; font-size: 12px; color: var(--sb-muted); }
 .sb-desk-scroll { max-width: 100%; overflow-x: auto; }

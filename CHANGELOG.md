@@ -7,6 +7,13 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
+## 2026-11-09
+
+### Changed
+
+- **The Dashboard opens on the work for today.** Today at the desk is first. A list is open when someone still needs to be checked in, checked out, or still owes money. Rooms in house, and rooms already checked out today, stay closed until you click them. Check in and Check out are unchanged.
+- **The charts stay on the Dashboard, and Day means today.** Day, Month and Year change only the charts. A saved period that no longer includes today is set back to Day when the page opens. Day-1, Month-1 and Year-1 are left as they were. The coloured tiles that repeated arrivals and departures with a different count are gone. Operations Today remains with the charts.
+
 ## 2026-10-19
 
 ### Added
