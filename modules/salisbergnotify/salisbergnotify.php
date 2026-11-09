@@ -23,6 +23,13 @@ class Salisbergnotify extends Module
     const SENDER = 'SBNOTIFY_SENDER';
     const DEFAULT_SENDER = 'Salisberg';
     const TAB = 'AdminSalisbergIntegrations';
+    // Staff who receive booking alerts (a chosen list of employee ids), and each
+    // one's phone number. The phone is kept here, not on the vendor employee row.
+    const ALERT_EMPLOYEES = 'SBNOTIFY_ALERT_EMPLOYEES';
+    const EMP_PHONE_PREFIX = 'SBNOTIFY_EMP_PHONE_';
+    // Hidden page any signed-in employee may post their own phone to, so a staff
+    // member who cannot open Integrations can still answer the login prompt.
+    const PHONE_TAB = 'AdminSalisbergPhone';
 
     public function __construct()
     {
@@ -46,10 +53,12 @@ class Salisbergnotify extends Module
 
     public function uninstall()
     {
-        $idTab = (int) Tab::getIdFromClassName(self::TAB);
-        if ($idTab) {
-            $tab = new Tab($idTab);
-            $tab->delete();
+        foreach (array(self::TAB, self::PHONE_TAB) as $class) {
+            $idTab = (int) Tab::getIdFromClassName($class);
+            if ($idTab) {
+                $tab = new Tab($idTab);
+                $tab->delete();
+            }
         }
 
         return parent::uninstall();
@@ -65,7 +74,184 @@ class Salisbergnotify extends Module
             Configuration::updateValue(self::SENDER, self::DEFAULT_SENDER);
         }
 
-        return $this->installTab() && $this->registerHook('actionSalisbergSendSms');
+        return $this->installTab()
+            && $this->installPhoneTab()
+            && $this->registerHook('actionSalisbergSendSms')
+            && $this->registerHook('actionValidateOrder')
+            && $this->registerHook('actionOrderStatusPostUpdate')
+            && $this->registerHook('actionAdminControllerSetMedia');
+    }
+
+    /** Employee ids chosen to receive booking alerts. */
+    public function alertRecipients()
+    {
+        $ids = array_map('intval', explode(',', (string) Configuration::get(self::ALERT_EMPLOYEES)));
+
+        return array_values(array_unique(array_filter($ids)));
+    }
+
+    public function isRecipient($idEmployee)
+    {
+        return in_array((int) $idEmployee, $this->alertRecipients(), true);
+    }
+
+    public function setRecipients(array $ids)
+    {
+        $clean = array_values(array_unique(array_filter(array_map('intval', $ids))));
+
+        Configuration::updateValue(self::ALERT_EMPLOYEES, implode(',', $clean));
+    }
+
+    /** The phone a given employee receives alerts on, or '' when none is set. */
+    public function empPhone($idEmployee)
+    {
+        return trim((string) Configuration::get(self::EMP_PHONE_PREFIX.(int) $idEmployee));
+    }
+
+    public function setEmpPhone($idEmployee, $phone)
+    {
+        Configuration::updateValue(self::EMP_PHONE_PREFIX.(int) $idEmployee, trim((string) $phone));
+    }
+
+    /** True when mail is set up (SMTP or PHP mail), i.e. not set to "never send". */
+    public function mailEnabled()
+    {
+        return (int) Configuration::get('PS_MAIL_METHOD') !== 3;
+    }
+
+    /** True when an alert can reach anyone: by text (a key is saved) or by email. */
+    public function canNotify()
+    {
+        return $this->hasKey() || $this->mailEnabled();
+    }
+
+    /**
+     * Alerts every chosen recipient, by text if a key is saved and the person has
+     * a phone, and by email if mail is set up. A failure on one channel or one
+     * person never stops the others.
+     */
+    public function notifyRecipients($subject, $message, $reference)
+    {
+        $hasKey = $this->hasKey();
+        $mail = $this->mailEnabled();
+        if (!$hasKey && !$mail) {
+            return;
+        }
+        foreach ($this->alertRecipients() as $idEmployee) {
+            if ($hasKey) {
+                $phone = $this->empPhone($idEmployee);
+                if ($phone !== '') {
+                    $this->deliver($phone, $message, $reference);
+                }
+            }
+            if ($mail) {
+                $this->emailRecipient($idEmployee, $subject, $message, $reference);
+            }
+        }
+    }
+
+    /** Emails one recipient the alert at their staff email, if it is a real address. */
+    protected function emailRecipient($idEmployee, $subject, $message, $reference)
+    {
+        $employee = new Employee((int) $idEmployee);
+        if (!Validate::isLoadedObject($employee) || !Validate::isEmail($employee->email)) {
+            return;
+        }
+        try {
+            Mail::Send(
+                (int) $employee->id_lang ?: (int) Configuration::get('PS_LANG_DEFAULT'),
+                'staff_alert',
+                $subject,
+                array('{message}' => $message, '{firstname}' => $employee->firstname),
+                $employee->email,
+                $employee->firstname.' '.$employee->lastname,
+                null,
+                null,
+                null,
+                null,
+                $this->local_path.'mails/'
+            );
+        } catch (Exception $e) {
+            PrestaShopLogger::addLog('salisbergnotify: alert email for '.$this->logRef($reference).' not sent: '.$e->getMessage(), 3);
+        }
+    }
+
+    /** A new booking was created (website or front desk): alert the chosen staff. */
+    public function hookActionValidateOrder($params)
+    {
+        if (!$this->canNotify() || empty($params['order']) || !Validate::isLoadedObject($params['order'])) {
+            return;
+        }
+        $order = $params['order'];
+        $rooms = Db::getInstance()->getRow(
+            'SELECT COUNT(*) AS rooms, MIN(`date_from`) AS date_from, MAX(`date_to`) AS date_to
+            FROM `'._DB_PREFIX_.'htl_booking_detail` WHERE `id_order` = '.(int) $order->id
+        );
+        $guest = '';
+        if (!empty($params['customer']) && Validate::isLoadedObject($params['customer'])) {
+            $guest = trim($params['customer']->firstname.' '.$params['customer']->lastname);
+        }
+        $dates = '';
+        if (!empty($rooms['date_from']) && !empty($rooms['date_to'])) {
+            $dates = ', '.date('j M', strtotime($rooms['date_from'])).'-'.date('j M', strtotime($rooms['date_to']));
+        }
+        $count = isset($rooms['rooms']) ? (int) $rooms['rooms'] : 0;
+        $message = sprintf(
+            $this->l('%1$s: new booking %2$s%3$s%4$s. Total %5$s.'),
+            Configuration::get('PS_SHOP_NAME'),
+            $order->reference,
+            $guest !== '' ? ' for '.$guest : '',
+            ($count ? ', '.$count.' '.($count == 1 ? $this->l('room') : $this->l('rooms')) : '').$dates,
+            Tools::displayPrice((float) $order->total_paid_tax_incl, (int) $order->id_currency)
+        );
+        $this->notifyRecipients(sprintf($this->l('New booking %s'), $order->reference), $message, $order->reference);
+    }
+
+    /** A payment was recorded (full or part): alert the chosen staff. */
+    public function hookActionOrderStatusPostUpdate($params)
+    {
+        if (!$this->canNotify() || empty($params['newOrderStatus']) || empty($params['id_order'])) {
+            return;
+        }
+        $state = $params['newOrderStatus'];
+        $full = !empty($state->paid);
+        $partial = (int) $state->id === (int) Configuration::get('PS_OS_PARTIAL_PAYMENT_ACCEPTED');
+        if (!$full && !$partial) {
+            return;
+        }
+        $order = new Order((int) $params['id_order']);
+        if (!Validate::isLoadedObject($order)) {
+            return;
+        }
+        $message = sprintf(
+            $this->l('%1$s: payment on booking %2$s. Paid %3$s of %4$s.'),
+            Configuration::get('PS_SHOP_NAME'),
+            $order->reference,
+            Tools::displayPrice((float) $order->total_paid_real, (int) $order->id_currency),
+            Tools::displayPrice((float) $order->total_paid_tax_incl, (int) $order->id_currency)
+        );
+        $this->notifyRecipients(sprintf($this->l('Payment on booking %s'), $order->reference), $message, $order->reference);
+    }
+
+    /**
+     * On a back office page, when the signed-in employee is a chosen recipient
+     * with no phone yet and a key is saved, load the prompt that asks for it.
+     */
+    public function hookActionAdminControllerSetMedia($params)
+    {
+        $employee = $this->context->employee;
+        if (!Validate::isLoadedObject($employee)
+            || !$this->hasKey()
+            || !$this->isRecipient($employee->id)
+            || $this->empPhone($employee->id) !== '') {
+            return;
+        }
+        Media::addJsDef(array('sbNotifyPhone' => array(
+            'url' => $this->context->link->getAdminLink(self::PHONE_TAB),
+            'name' => $employee->firstname,
+        )));
+        $this->context->controller->addCSS($this->_path.'views/css/phone-prompt.css');
+        $this->context->controller->addJS($this->_path.'views/js/phone-prompt.js');
     }
 
     /**
@@ -160,6 +346,29 @@ class Salisbergnotify extends Module
         $tab->add();
 
         return (bool) Tab::getIdFromClassName(self::TAB);
+    }
+
+    /**
+     * A hidden page (not in the menu) that any signed-in employee may post their
+     * own phone to. Its controller grants access to every employee itself, so no
+     * per-profile permission is needed.
+     */
+    protected function installPhoneTab()
+    {
+        if (Tab::getIdFromClassName(self::PHONE_TAB)) {
+            return true;
+        }
+        $tab = new Tab();
+        $tab->class_name = self::PHONE_TAB;
+        $tab->module = $this->name;
+        $tab->id_parent = -1;
+        $tab->active = 1;
+        foreach (Language::getLanguages(false) as $lang) {
+            $tab->name[(int) $lang['id_lang']] = 'My phone';
+        }
+        $tab->add();
+
+        return (bool) Tab::getIdFromClassName(self::PHONE_TAB);
     }
 
     /**

@@ -2197,3 +2197,48 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - **Safe here, checked first:** a tree-wide search found no use of `session.upload_progress` or `PHP_SESSION_UPLOAD_PROGRESS` anywhere; QloApps tracks uploads its own way (APC / its own AJAX). This setting does not touch `file_uploads`, so hotel/room images, booking documents and the Excel import keep working.
 - **Verification (local):** copied the ini into the running container; `php -i` shows `session.upload_progress.enabled => Off => Off`; `file_uploads` is still `1`. Not re-tested: a full image rebuild and a real upload through the back office after it (the setting is documented by PHP to affect only the progress array, and `file_uploads` is unchanged).
 - **Deploy:** takes effect on the next Coolify build; no data step, no `MODULES_VERSION` bump. No guide or What's New entry (nothing a back office user sees changes). CHANGELOG under Security.
+
+### 2026-11-09 — Phone: the page-header "Menu" button no longer clips; light and dark checked
+
+- **What:** on a narrow screen the back office page header collapses its action buttons into the stock responsive "Menu" dropdown button (`page_header_toolbar.tpl`). The stock button stacks a caret over its label and floats to the edge, so the label "Menu" was clipped. `admin/themes/default/css/overrides.css`, in the existing `@media (max-width: 767px)` block, now lays that button out as a compact inline caret-and-label pill (`.toolbar_btn.dropdown-toolbar`: `display:inline-flex; width:auto; white-space:nowrap`) and makes `.page-head .page-bar` a flex row so it sits inside the header's padding. CSS only, in the file meant for back office look (rule 25); no template or script change.
+- **Why:** the owner asked to confirm the mobile view renders cleanly; the one nit found was this clipped button.
+- **Verification (local, headless Chrome at 390px, signed in, measured and screenshotted in both themes):**
+  - The button now measures right edge 380 of a 390 viewport (10px inside), width 98px, full text "Menu"; `document.documentElement.scrollWidth === innerWidth` (no sideways scroll) in light and dark.
+  - Full mobile pass reviewed by screenshot and found clean, both themes: website home; back office sign-in, dashboard (Today at the desk, KPI tiles, collapsible lists, booking cards), the open named menu (the 9 Nov full-menu fix), the Bookings list (stacked cards), the Room board (date form, filter chips, selected-room panel, room-card grid). No JavaScript errors on any page.
+- **Not a separate feature:** it is polish on the 9 Nov mobile work, so no guide change and no What's New line (nothing a user does moved or was renamed); CHANGELOG under Fixed. Takes effect as soon as `overrides.css` is served (it is not on a volume); returning staff may see the old rule until their browser refetches the stylesheet.
+- **Not tested:** a real phone browser (Safari/Chrome on a device); widths between 768 and 991; the live server.
+
+### 2026-11-09 — Booking alerts for staff (SMS + email), with a login phone prompt
+
+**What the owner asked**
+
+- When a back-office user who should receive booking notifications signs in without a phone number, show a prompt to add it. Clarified: this is for admins/staff who need alerts about bookings, not guests. Recipients are a chosen list, alerted on a new booking and on a payment. A later message: also send the alert by email when the mail server (SMTP) is set up, so email works alongside text.
+
+**What was built (all in `modules/salisbergnotify`, which already owns mNotify texts — rule 25)**
+
+- **Chosen recipients and their phones.** `SBNOTIFY_ALERT_EMPLOYEES` holds the chosen employee ids; each one's SMS number is `SBNOTIFY_EMP_PHONE_<id>` in Configuration (not on the vendor employee row, so no schema change). Helpers: `alertRecipients()`, `isRecipient()`, `setRecipients()`, `empPhone()`, `setEmpPhone()`.
+- **Two channels, `notifyRecipients($subject, $message, $reference)`.** For each recipient: a text through `deliver()` when a key is saved and they have a phone, and an email through `emailRecipient()` (the module's new `mails/en/staff_alert.{html,txt}`) at the employee's own email when mail is enabled. `mailEnabled()` is `PS_MAIL_METHOD !== 3`; `canNotify()` is `hasKey() || mailEnabled()`. A failure on one channel or one person never stops the rest.
+- **Events** (hooks registered in `ensureSetup()`): `actionValidateOrder` → "new booking REF for GUEST, N rooms, dates, total" (rooms/dates from `htl_booking_detail`); `actionOrderStatusPostUpdate` → "payment on REF, paid X of Y" when the new state is paid (full, `paid` flag) or `PS_OS_PARTIAL_PAYMENT_ACCEPTED` (part). salisbergfrontdesk still texts the guest on full payment separately; both are correct.
+- **Login prompt.** `actionAdminControllerSetMedia` loads `views/js/phone-prompt.js` + `views/css/phone-prompt.css` only when the signed-in employee is a recipient, has no phone, and a key is saved (the prompt collects the SMS number, so it is pointless without a key; email needs no number). The modal asks for the number, posts it, and remembers a dismissal in `sessionStorage` so it does not nag every page; it reappears next session until answered. Colours come from the back office tokens, so it follows light and dark mode.
+- **Save endpoint any employee can reach.** New hidden controller `AdminSalisbergPhone` (tab `id_parent = -1`, not in the menu) with `ajaxProcessSave()`: it saves only the current employee's number (never a posted id), validates with `Validate::isPhoneNumber`, and its `viewAccess()` returns true for any signed-in employee — so a Hotel Staff recipient, who cannot open Integrations, can still answer the prompt. The admin token the dispatcher requires is the CSRF guard (rule 21).
+- **Integrations page** (SuperAdmin only) gains "Booking alerts for staff": a table of active employees with a tick box and a phone box (admin can set a number too), saved by `saveRecipients()`; and a line stating whether mail is set up (method and SMTP server) with a link to Advanced Parameters › E-mail.
+- `MODULES_VERSION=30` so the next deploy registers the new hooks and the phone tab via `setup-modules.php`. No profile grant is needed for the phone tab (its controller grants itself).
+
+**Guides (rule 23):** Admin Guide section 10 (new "Booking alerts for staff" subsection; SuperAdmin-relevant, shown in the admin guide); Staff Guide section 1 (what the sign-in prompt is); What's New (everyone: staff can be alerted; a SuperAdmin line on picking recipients). CHANGELOG under Added.
+
+**Verification (local, running stack; files copied in, class-index cache cleared, Apache reloaded)**
+
+- Hooks registered: `actionValidateOrder`, `actionOrderStatusPostUpdate`, `actionAdminControllerSetMedia`, `actionSalisbergSendSms`. Phone tab created hidden.
+- With a key saved and the admin set as a recipient without a phone: the dashboard loaded the prompt (JsDef + script); the modal rendered correctly in a browser (dark mode screenshot reviewed). Posting a valid number returned `{"ok":true}` and stored it; an invalid number returned the error and stored nothing; after a number was saved the prompt no longer loaded.
+- As a **Hotel Staff** recipient (profile 2): the prompt loaded and the save returned `{"ok":true}` and stored the number — the hidden endpoint works for a non-SuperAdmin.
+- Integrations page: recipients table and the mail-status line render, HTTP 200, no errors; the earlier "Undefined array key email" warning (from `Employee::getEmployees()` not returning email) was fixed by a direct employee query and is gone.
+- Sending: invoking both hooks on a real order ran clean; with a fake key and no real SMTP the SMS was refused by mNotify ("invalid api key") and the email failed at sendmail — both logged at severity 3, neither threw, as designed. On production a real key and SMTP will deliver.
+- `php -l` on the three PHP files, `node --check` on the JS: clean. `docker/smoke-test.sh`: 31 of 31, no PHP errors.
+- Local test config (fake key, recipients, phones) was cleared afterwards. The Hotel Staff test account password was set to a temporary value for the test and not restored (its original hash was unknown); it exists only in the local database.
+
+**Owner must, for this to do anything on the live site**
+
+1. Enter the mNotify API key (for texts) under Administration › Integrations, and/or set up the mail server (for emails) under Advanced Parameters › E-mail.
+2. On the Integrations page, tick the staff who should receive alerts; optionally type their phone, or let them add it at the sign-in prompt.
+
+**Not tested:** real SMS delivery through mNotify and real email through a live SMTP server; the modal in a real phone browser; a booking made end-to-end through the website while a recipient is configured (hooks were invoked directly on an existing order instead); the live server.

@@ -39,6 +39,8 @@ class AdminSalisbergIntegrationsController extends ModuleAdminController
             $this->save();
         } elseif (Tools::isSubmit('sb_test')) {
             $this->sendTest();
+        } elseif (Tools::isSubmit('sb_save_recipients')) {
+            $this->saveRecipients();
         }
 
         return parent::postProcess();
@@ -52,16 +54,39 @@ class AdminSalisbergIntegrationsController extends ModuleAdminController
             'removed' => $this->l('The API key is removed. No text will be sent.'),
             'test_ok' => $this->l('mNotify accepted the test text.'),
             'test_fail' => $this->l('The test text was not accepted. Check the key, the sender name and the phone number, then try again.'),
+            'recipients' => $this->l('The booking-alert recipients are saved.'),
         );
         $done = (string) Tools::getValue('sb_done');
         if (isset($messages[$done])) {
             $this->confirmations[] = $messages[$done];
         }
 
+        $recipients = $this->module->alertRecipients();
+        $employees = array();
+        $rows = Db::getInstance()->executeS(
+            'SELECT `id_employee`, `firstname`, `lastname`, `email` FROM `'._DB_PREFIX_.'employee`
+            WHERE `active` = 1 ORDER BY `lastname` ASC'
+        );
+        foreach ((array) $rows as $row) {
+            $id = (int) $row['id_employee'];
+            $employees[] = array(
+                'id' => $id,
+                'name' => $row['firstname'].' '.$row['lastname'],
+                'email' => $row['email'],
+                'is_recipient' => in_array($id, $recipients, true),
+                'phone' => $this->module->empPhone($id),
+            );
+        }
+        $method = (int) Configuration::get('PS_MAIL_METHOD');
         $this->context->smarty->assign(array(
             'sb_has_key' => $this->module->hasKey(),
             'sb_sender' => $this->module->sender(),
             'sb_action' => $this->context->link->getAdminLink('AdminSalisbergIntegrations'),
+            'sb_employees' => $employees,
+            'sb_mail_enabled' => $method !== 3,
+            'sb_mail_method' => $method === 2 ? $this->l('SMTP') : ($method === 3 ? $this->l('off') : $this->l('PHP mail')),
+            'sb_mail_server' => $method === 2 ? (string) Configuration::get('PS_MAIL_SERVER') : '',
+            'sb_mail_link' => $this->context->link->getAdminLink('AdminEmails'),
         ));
         $this->content .= $this->context->smarty->fetch($this->module->getLocalPath().'views/templates/admin/integrations.tpl');
         $this->context->smarty->assign('content', $this->content);
@@ -95,6 +120,27 @@ class AdminSalisbergIntegrationsController extends ModuleAdminController
             Configuration::updateValue(Salisbergnotify::KEY, $key, true);
         }
         Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergIntegrations').'&sb_done=saved');
+    }
+
+    protected function saveRecipients()
+    {
+        $ids = (array) Tools::getValue('sb_recipients');
+        $this->module->setRecipients($ids);
+        // a phone may be set here too, beside the staff member doing it themselves
+        foreach ($ids as $id) {
+            $id = (int) $id;
+            $phone = trim((string) Tools::getValue('sb_emp_phone_'.$id));
+            if ($phone !== '' && !Validate::isPhoneNumber($phone)) {
+                $this->errors[] = sprintf($this->l('The phone number for one recipient is not valid: %s'), Tools::safeOutput($phone));
+
+                return;
+            }
+            // only overwrite when a value was typed, so a blank box keeps the saved number
+            if (Tools::getIsset('sb_emp_phone_'.$id)) {
+                $this->module->setEmpPhone($id, $phone);
+            }
+        }
+        Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergIntegrations').'&sb_done=recipients');
     }
 
     protected function sendTest()

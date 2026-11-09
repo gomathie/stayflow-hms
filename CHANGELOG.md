@@ -9,6 +9,10 @@ Every change to Salisberg, newest first, in plain words.
 
 ## 2026-11-09
 
+### Added
+
+- **Booking alerts for staff.** Chosen back-office people are told about a new booking and about a payment, by text (through mNotify, when a key is saved and they have a phone) and by email (at their staff address, when the mail server is set up). Pick the recipients under Administration › Integrations. A chosen person with no phone saved is asked for one, in a small box, the next time they sign in. Email now works alongside text: if SMTP (or PHP mail) is set up under Advanced Parameters › E-mail, the alert is emailed even to a recipient who has not given a phone.
+
 ### Security
 
 - **Native PHP session upload-progress switched off.** A defence-in-depth setting (`session.upload_progress.enabled = Off` in `docker/php.ini`). Nothing in Salisberg uses this PHP feature, and leaving it on lets a file upload write into the session through a crafted field name. Ordinary file uploads are unaffected.
@@ -35,6 +39,10 @@ Every change to Salisberg, newest first, in plain words.
 
 - **Shop pages are off the menu.** Groups, Titles, Shopping Carts, Catalog Price Rules, Stats, Themes, Search, Geolocation and States no longer appear. The pages are not deleted, and check-in still works. Voucher codes stay under Manage Discounts → Cart Rules.
 - **Shop panels are off the Dashboard.** Visitor counts, abandoned carts, newsletter numbers, best-selling room types and top searches are no longer drawn. Today at the desk and the charts stay.
+
+### Fixed
+
+- **The "Menu" button on a phone is no longer cut off.** On a narrow screen the back office page header shows a "Menu" button that holds the page's actions; its label was clipped at the right edge. It now sits inside the edge with the full word shown, in both light and dark mode.
 
 ## 2026-10-19
 

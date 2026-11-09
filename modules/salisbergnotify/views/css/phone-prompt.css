@@ -1,0 +1,48 @@
+/* The back office phone prompt. Colours come from the back office tokens in
+   admin/themes/default/css/overrides.css, so it follows light and dark mode. */
+.sbnp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, .45);
+}
+.sbnp-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  border-radius: 14px;
+  background: var(--sb-card, #fff);
+  color: var(--sb-ink, #111827);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+}
+.sbnp-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--sb-heading, #111827);
+}
+.sbnp-lead { margin: 0 0 16px; color: var(--sb-muted, #6b7280); line-height: 1.5; }
+.sbnp-label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; }
+.sbnp-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--sb-field-line, #d1d5db);
+  border-radius: 10px;
+  background: var(--sb-field, #fff);
+  color: var(--sb-ink, #111827);
+  font-size: 15px;
+}
+.sbnp-input:focus { outline: none; border-color: var(--sb-accent, #1f6f54); box-shadow: 0 0 0 3px var(--sb-accent-soft, rgba(31, 111, 84, .2)); }
+.sbnp-error { margin: 8px 0 0; color: var(--sb-danger, #b42318); font-size: 13px; }
+.sbnp-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.sbnp-actions button { height: 42px; padding: 0 18px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+.sbnp-skip { background: transparent; border-color: var(--sb-field-line, #d1d5db); color: var(--sb-ink, #111827); }
+.sbnp-skip:hover { background: var(--sb-subtle, #f3f4f6); }
+.sbnp-save { background: var(--sb-accent, #1f6f54); color: var(--sb-accent-text, #fff); }
+.sbnp-save:hover { background: var(--sb-accent-hover, #18593f); }
+.sbnp-save[disabled] { opacity: .6; cursor: default; }

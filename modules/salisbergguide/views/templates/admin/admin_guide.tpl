@@ -255,6 +255,9 @@
 		<p>{l s='Paste the API key from the mNotify account. The sender name is what appears on the guest phone. It must be a sender ID already approved on that account, letters and numbers only, at most 11 characters, and it starts as Salisberg.' mod='salisbergguide'}</p>
 		<p>{l s='Leave the key box empty to keep the saved key. Tick Remove the saved key to stop texts. With no key saved, check-in and payment still work and no text is sent. A guest with no phone number on the booking is not texted. A Ghana number can start with 0 or with +233.' mod='salisbergguide'}</p>
 		<p>{l s='Use Send a test text on that page, to your own number, before relying on it for guests.' mod='salisbergguide'}</p>
+		<h4>{l s='Booking alerts for staff' mod='salisbergguide'}</h4>
+		<p>{l s='On the same Integrations page, Booking alerts for staff is a list of your back-office people. Tick anyone who should be told about a new booking or a payment. Each person you tick is alerted by text (if a key is saved above and they have a phone number) and by email, at the address on their staff account.' mod='salisbergguide'}</p>
+		<p>{l s='You can type a phone number for a person here, or leave it empty and they are asked for it the next time they sign in. Email alerts need the mail server set up (Advanced Parameters, E-mail); the line at the top of that section says whether it is. A person with no phone still gets the email.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminSalisbergIntegrations|escape:'html':'UTF-8'}">{l s='Open Integrations' mod='salisbergguide'} &rarr;</a>
 		<ol>
 			<li>{l s='Choose to send through your own SMTP server and enter the details from your email provider (server, port, username, password, encryption).' mod='salisbergguide'}</li>
