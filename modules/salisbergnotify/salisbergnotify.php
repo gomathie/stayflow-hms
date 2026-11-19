@@ -79,7 +79,107 @@ class Salisbergnotify extends Module
             && $this->registerHook('actionSalisbergSendSms')
             && $this->registerHook('actionValidateOrder')
             && $this->registerHook('actionOrderStatusPostUpdate')
-            && $this->registerHook('actionAdminControllerSetMedia');
+            && $this->registerHook('actionAdminControllerSetMedia')
+            && $this->registerHook('actionAdminEmployeesFormModifier')
+            && $this->registerHook('actionObjectEmployeeAddAfter')
+            && $this->registerHook('actionObjectEmployeeUpdateAfter');
+    }
+
+    /**
+     * True when the signed-in employee may switch booking alerts on or off for
+     * other people: a SuperAdmin or a Hotel Manager (owner decision 2026-11-19).
+     */
+    public function canManageAlerts()
+    {
+        $employee = $this->context->employee;
+        if (!Validate::isLoadedObject($employee)) {
+            return false;
+        }
+        if ($employee->isSuperAdmin()) {
+            return true;
+        }
+        $manager = (int) Db::getInstance()->getValue(
+            'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang` WHERE `name` = \'Hotel Manager\'',
+            false
+        );
+
+        return $manager && (int) $employee->id_profile === $manager;
+    }
+
+    /**
+     * Administration > Employees, add or edit: "Phone (for texts)" for everyone
+     * who can open the form (their own account included), and "Receive booking
+     * alerts" for a SuperAdmin or Hotel Manager only.
+     */
+    public function hookActionAdminEmployeesFormModifier($params)
+    {
+        if (empty($params['fields'][0]['form']['input'])) {
+            return;
+        }
+        $id = (int) Tools::getValue('id_employee');
+        $params['fields'][0]['form']['input'][] = array(
+            'type' => 'text',
+            'label' => $this->l('Phone (for texts)'),
+            'name' => 'sb_alert_phone',
+            'class' => 'fixed-width-xl',
+            'hint' => $this->l('Booking alerts are texted to this number. A Ghana number can start with 0 or +233.'),
+        );
+        $params['fields_value']['sb_alert_phone'] = $id ? $this->empPhone($id) : '';
+        if ($this->canManageAlerts()) {
+            $params['fields'][0]['form']['input'][] = array(
+                'type' => 'switch',
+                'label' => $this->l('Receive booking alerts'),
+                'name' => 'sb_alert_on',
+                'is_bool' => true,
+                'desc' => $this->l('A text (when a phone is set and texts are switched on) and an email for each new booking, payment, cancellation and milestone.'),
+                'values' => array(
+                    array('id' => 'sb_alert_on_on', 'value' => 1, 'label' => $this->l('Yes')),
+                    array('id' => 'sb_alert_on_off', 'value' => 0, 'label' => $this->l('No')),
+                ),
+            );
+            $params['fields_value']['sb_alert_on'] = $id ? (int) $this->isRecipient($id) : 0;
+        }
+    }
+
+    public function hookActionObjectEmployeeAddAfter($params)
+    {
+        $this->saveEmployeeAlertFields($params);
+    }
+
+    public function hookActionObjectEmployeeUpdateAfter($params)
+    {
+        $this->saveEmployeeAlertFields($params);
+    }
+
+    /**
+     * Stores the two fields when they came from the employee form. A save from
+     * anywhere else (sign-in, password change) does not post them and changes
+     * nothing. An invalid number is not saved and is logged.
+     */
+    protected function saveEmployeeAlertFields($params)
+    {
+        if (empty($params['object']) || !Validate::isLoadedObject($params['object'])
+            || Tools::getValue('controller') !== 'AdminEmployees') {
+            return;
+        }
+        $id = (int) $params['object']->id;
+        if (Tools::getIsset('sb_alert_phone')) {
+            $phone = trim((string) Tools::getValue('sb_alert_phone'));
+            if ($phone === '' || Validate::isPhoneNumber($phone)) {
+                $this->setEmpPhone($id, $phone);
+            } else {
+                PrestaShopLogger::addLog('salisbergnotify: phone for employee '.$id.' not saved (invalid)', 2);
+            }
+        }
+        if (Tools::getIsset('sb_alert_on') && $this->canManageAlerts()) {
+            $ids = $this->alertRecipients();
+            if ((int) Tools::getValue('sb_alert_on')) {
+                $ids[] = $id;
+            } else {
+                $ids = array_diff($ids, array($id));
+            }
+            $this->setRecipients($ids);
+        }
     }
 
     /** Employee ids chosen to receive booking alerts. */
@@ -341,15 +441,15 @@ class Salisbergnotify extends Module
     public function hookActionAdminControllerSetMedia($params)
     {
         $employee = $this->context->employee;
-        if (!Validate::isLoadedObject($employee)
-            || !$this->hasKey()
-            || !$this->isRecipient($employee->id)
-            || $this->empPhone($employee->id) !== '') {
+        // everyone without a phone is asked once per session (owner, 2026-11-19);
+        // the number is the same one shown on their employee form
+        if (!Validate::isLoadedObject($employee) || $this->empPhone($employee->id) !== '') {
             return;
         }
         Media::addJsDef(array('sbNotifyPhone' => array(
             'url' => $this->context->link->getAdminLink(self::PHONE_TAB),
             'name' => $employee->firstname,
+            'recipient' => (int) $this->isRecipient($employee->id),
         )));
         $this->context->controller->addCSS($this->_path.'views/css/phone-prompt.css');
         $this->context->controller->addJS($this->_path.'views/js/phone-prompt.js');

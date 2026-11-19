@@ -43,6 +43,7 @@
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Employees</span> {l s='and click Add new employee.' mod='salisbergguide'}</li>
 			<li>{l s='Enter their name, their own email address and a strong password.' mod='salisbergguide'}</li>
 			<li>{l s='Set Permission profile to Hotel Staff for front desk and bookings, or Hotel Manager for someone who runs the hotel. Only the developer team can give out SuperAdmin.' mod='salisbergguide'}</li>
+			<li>{l s='Type their mobile number in Phone (for texts). Set Receive booking alerts to Yes if they should get a text and an email for each new booking, payment, cancellation and milestone. Anyone without a number is asked for it in a small box the next time they sign in; what they type appears here.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Save</span> {l s='and give them the back office address. Ask them to change the password on first sign-in.' mod='salisbergguide'}</li>
 		</ol>
 		<h4>{l s='When someone leaves' mod='salisbergguide'}</h4>
@@ -261,7 +262,7 @@
 		<h4>{l s='Booking alerts for staff' mod='salisbergguide'}</h4>
 		<p>{l s='Booking milestones (50, 100, then every 100 up to 1,000, then every 500) are sent to the same people, by text and email, and shown on the Dashboard.' mod='salisbergguide'}</p>
 		<p>{l s='On the same Integrations page, Booking alerts for staff is a list of your back-office people. Tick anyone who should be told about a new booking or a payment. Each person you tick is alerted by text (if a key is saved above and they have a phone number) and by email, at the address on their staff account.' mod='salisbergguide'}</p>
-		<p>{l s='You can type a phone number for a person here, or leave it empty and they are asked for it the next time they sign in. Email alerts need the mail server set up (Advanced Parameters, E-mail); the line at the top of that section says whether it is. A person with no phone still gets the email.' mod='salisbergguide'}</p>
+		<p>{l s='You can also set each person's phone and Receive booking alerts on their employee form (Administration, Employees); a Hotel Manager can do it there too. Anyone without a phone is asked for it the next time they sign in. Email alerts need the mail server set up (Advanced Parameters, E-mail); the line at the top of that section says whether it is. A person with no phone still gets the email.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminSalisbergIntegrations|escape:'html':'UTF-8'}">{l s='Open Integrations' mod='salisbergguide'} &rarr;</a>
 		<ol>
 			<li>{l s='Choose to send through your own SMTP server and enter the details from your email provider (server, port, username, password, encryption).' mod='salisbergguide'}</li>

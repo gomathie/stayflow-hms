@@ -2375,3 +2375,26 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
 - **Guides:** Staff Guide section 3; What's New and CHANGELOG.
 - **Verification:** browser run through the booking flow; screenshot of the payment step reviewed in dark mode; no page or JavaScript errors.
 - **Not tested:** light mode and phone width.
+
+### 2026-11-19 — Side menu P-8; employee phone and alerts
+
+- **P-8 side menu:**
+  - In `admin/themes/default/css/admin-theme.css` (inherited, rule 11), three rules from the old dark sidebar were corrected: the current sub-page `color:#fff`, sub-pages `#BEBEBE` on `#363A41`, and the open section's sub-pages `#BEBEBE`. They now use `--sb-heading`, `--sb-ink` and `--sb-link`.
+  - In `overrides.css` section 5, the current sub-page gets dark text, a pale chip and a 3px green bar; the other sub-pages use `--sb-ink`.
+  - `side-menu.js` orders the sections into groups and adds a heading above each group the person can see: Front desk, Hotel, System, Help. Unknown sections stay at the end.
+  - Headings are hidden below 768px (icon rail).
+- **Employee phone and alerts (owner decisions 2026-11-19):**
+  - `salisbergnotify` adds two fields to the employee form through `actionAdminEmployeesFormModifier`:
+    - **Phone (for texts)**, for anyone who can open the form, including their own account;
+    - **Receive booking alerts**, only when `canManageAlerts()` is true (SuperAdmin or Hotel Manager).
+  - The values are saved from `actionObjectEmployeeAddAfter` and `actionObjectEmployeeUpdateAfter`, only when posted by `AdminEmployees`. An invalid phone is not saved and is logged.
+  - They use the same stored values as the Integrations page and the sign-in prompt: `SBNOTIFY_EMP_PHONE_<id>` and `SBNOTIFY_ALERT_EMPLOYEES`.
+  - The sign-in prompt now asks everyone with no phone saved, not only recipients with a key saved, and its wording depends on whether the person is a recipient.
+  - `MODULES_VERSION=32` registers the hooks.
+- **Guides:** Admin Guide section 1 (new step when adding an employee) and section 10 (the form as a second place to set alerts); Staff Guide section 1 (why the box appears); What's New; CHANGELOG.
+- **Verification (local, browser as administrator):**
+  - The Hotel Staff employee's form showed both fields. Saving "0244 555 123" with alerts Yes gave "Successful update", stored the phone and added employee 3 to the recipients.
+  - The prompt appeared for the administrator, who has no phone.
+  - The current sub-page measured in the theme's text colour.
+  - `docker/smoke-test.sh`: 31 of 31.
+- **Not tested:** the form as Hotel Manager and as Hotel Staff on their own account (the switch should be hidden for staff); switching alerts off from the form; the menu headings as staff and manager; production.

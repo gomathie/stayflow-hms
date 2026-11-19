@@ -211,7 +211,7 @@ Add new ones at the top.
 
 ### P-8: Sidebar: readable sub-pages and group headings
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Done 2026-11-19 (AGENTS.md: "Side menu P-8; employee phone and alerts")
 - **Found by / on:** Claude, 2026-11-19 (every production page; the earlier owner request "groups the side bars to a modern view")
 - **Where:** the sidebar
 - **Problem:**

@@ -421,6 +421,64 @@ class Salisbergguide extends Module
     public function hookActionAdminControllerSetMedia()
     {
         $this->addInterfaceAssets(true);
+        $this->addNewsPopup();
+    }
+
+    const NEWS_SEEN = 'SBGUIDE_NEWS_SEEN_';
+
+    /** The newest date on the What's New page, read from the template ('' if none) */
+    public function latestNewsKey()
+    {
+        $raw = (string) @file_get_contents($this->local_path.'views/templates/admin/whats_new.tpl');
+
+        return preg_match("/<section>\\s*<h3>\\{l s='([^']+)'/", $raw, $m) ? $m[1] : '';
+    }
+
+    public function markNewsSeen($idEmployee)
+    {
+        Configuration::updateValue(self::NEWS_SEEN.(int) $idEmployee, $this->latestNewsKey());
+    }
+
+    /**
+     * "What's new" pop-up, once per person per update (owner, 2026-11-19): when
+     * the newest date on What's New is not the one this person last saw, the
+     * items of that date for their role are shown with View more and the
+     * guide. The items come from the What's New page itself, so there is one
+     * place to write them.
+     */
+    protected function addNewsPopup()
+    {
+        $employee = $this->context->employee;
+        $controller = $this->context->controller;
+        if (!Validate::isLoadedObject($employee) || !$controller || Tools::getValue('ajax')
+            || Tools::getValue('controller') === 'AdminSalisbergWhatsNew') {
+            return;
+        }
+        $key = $this->latestNewsKey();
+        if ($key === '' || Configuration::get(self::NEWS_SEEN.(int) $employee->id) === $key) {
+            return;
+        }
+        try {
+            $html = $this->renderGuide('whats_new.tpl');
+        } catch (Exception $e) {
+            return;
+        }
+        if (!preg_match('/<section>\s*<h3>(.*?)<\/h3>\s*<ul>(.*?)<\/ul>/s', $html, $m) || !trim(strip_tags($m[2]))) {
+            return;
+        }
+        $canAdmin = $this->canReadAdminGuide();
+        Media::addJsDef(array('sbNews' => array(
+            'date' => trim(strip_tags($m[1])),
+            'items' => $m[2],
+            'more' => $this->employeeCanView('AdminSalisbergWhatsNew') ? $this->context->link->getAdminLink('AdminSalisbergWhatsNew') : '',
+            'guide' => $this->context->link->getAdminLink($canAdmin ? 'AdminSalisbergAdminGuide' : 'AdminSalisbergStaffGuide'),
+            'guideLabel' => $canAdmin ? $this->l('Open the Admin Guide') : $this->l('Open the Staff Guide'),
+        )));
+        $controller->addCSS($this->_path.'views/css/news-popup.css', 'all');
+        $controller->addJS($this->_path.'views/js/news-popup.js');
+        // shown once: it counts as seen as soon as it is shown (no request needed,
+        // so it works for every role whatever pages they may open)
+        $this->markNewsSeen((int) $employee->id);
     }
 
     public function hookActionAdminLoginControllerSetMedia()

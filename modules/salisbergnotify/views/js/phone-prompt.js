@@ -1,6 +1,6 @@
 /**
- * Shows a one-time prompt in the back office asking a chosen alert recipient to
- * add the phone number their booking texts go to. Dismissing it, or saving a
+ * Shows a one-time prompt in the back office asking anyone with no phone saved
+ * to add it. It is the same number as Phone (for texts) on their employee form. Dismissing it, or saving a
  * number, stops it coming back for the rest of the browser session.
  */
 (function () {
@@ -17,7 +17,7 @@
     overlay.className = 'sbnp-overlay';
     overlay.innerHTML =
       '<div class="sbnp-card" role="dialog" aria-modal="true" aria-labelledby="sbnp-title">' +
-      '<h3 id="sbnp-title">Get booking alerts by text</h3>' +
+      '<h3 id="sbnp-title">Add your phone number</h3>' +
       '<p class="sbnp-lead"></p>' +
       '<label class="sbnp-label" for="sbnp-phone">Your mobile number</label>' +
       '<input id="sbnp-phone" type="tel" inputmode="tel" class="sbnp-input" autocomplete="tel" placeholder="024 000 0000" />' +
@@ -27,8 +27,9 @@
       '<button type="button" class="sbnp-save">Save number</button>' +
       '</div></div>';
     var lead = overlay.querySelector('.sbnp-lead');
-    lead.textContent = (name ? name + ', y' : 'Y') +
-      'ou are set to receive text alerts for new bookings and payments. Add the number they should go to.';
+    lead.textContent = (name ? name + ', p' : 'P') + (sbNotifyPhone.recipient
+      ? 'lease add your mobile number. You receive text alerts for new bookings and payments.'
+      : 'lease add your mobile number so the hotel can reach you, for example with booking alerts.');
     document.body.appendChild(overlay);
 
     var input = overlay.querySelector('#sbnp-phone');
