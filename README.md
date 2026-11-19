@@ -16,7 +16,7 @@ Salisberg is built on [QloApps](https://github.com/Qloapps/QloApps) 1.7.0, an op
 | Front desk: Room board, Today on the dashboard, housekeeping, guided booking, booking recycle bin | `modules/salisbergfrontdesk` |
 | Printable reports: bookings, arrivals and departures, income by day | `modules/salisbergreports` |
 | Back office guides, What's New page, staff roles | `modules/salisbergguide` |
-| Docker image, startup steps, backups, request limits | `Dockerfile`, `docker-compose.yml`, `docker/` |
+| Docker image, startup steps, backups, request limits, error tracking (Sentry, on when `SENTRY_DSN` is set) | `Dockerfile`, `docker-compose.yml`, `docker/` |
 | Security fixes applied ahead of the vendor | `PATCHES.md` |
 
 ## Documents

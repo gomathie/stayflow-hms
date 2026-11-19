@@ -7,6 +7,12 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
+## 2026-11-20
+
+### Changed
+
+- **Licence rule for inherited files.** Old QloApps/PrestaShop headers in inherited platform files may be removed; bundled third-party libraries keep their licence files and notices (`AGENTS.md`, rule 14).
+
 ## 2026-11-19
 
 ### Fixed
