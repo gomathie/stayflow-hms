@@ -2348,3 +2348,23 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 - **Rule 31 and `SIMPLIFY-REVIEW.md`:** every agent looks for ways to make the app simpler, writes them as proposals with evidence, benefits, risks and how to undo, and builds nothing until the owner approves.
 - **First review (rota area 1, making a booking):** proposals P-1 to P-6 added, all Proposed, awaiting the owner. Evidence came from the guided-booking template and the website booking test of 2026-10-16.
 - Documentation only; no code changed.
+
+### 2026-11-19 — Simplify review P-1, P-2, P-5 built
+
+Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
+
+- **P-5 (Book on room cards):** `room_board.tpl` adds a "Book" control under the price on every available card. `room-board.js` selects the card and then clicks the existing Book now button, so the same form and the same checks run.
+- **P-2 (no tick for cash):** `SalisbergWalkIn::savePayment()` treats Cash with full or part payment as confirmed. `walkin.js` hides and disables the tick for Cash. Mobile Money and bank transfer still require the tick and a reference.
+- **P-1 (Payment & confirm):**
+  - The Confirm page is gone. The payment form carries the `sb_finalize` buttons, the price-changed warning and accept tick, and the future-stay and room-not-ready notices.
+  - `AdminSalisbergWalkInController` saves the payment, re-reads the draft and finalizes in one request. A price change returns to step 3 with the warning.
+  - Step 4 without a finished booking is shown as step 3.
+  - The progress bar has two steps. The `sb_save_payment` handler, the review-section markup and its CSS were removed (rule 28; no other reference).
+- **Mistake found and reverted:** adding `?v=` to `addCSS()` and `addJS()` made `Media::getMediaPath()` drop both files, because it checks `file_exists()` on the path including the query. The page lost its styles and scripts. Admin asset links stay unversioned.
+- **Guides:** Staff Guide section 3 (Book on cards, the two steps, cash without a tick); What's New and CHANGELOG.
+- **Verification (local, real headless browser, as administrator):**
+  - The card Book button opened the guest step; the progress bar shows 2 steps.
+  - On the payment step the tick was hidden for cash, and both Confirm buttons were present.
+  - Confirm & check in created booking `SB-261119-03` (cash, GH₵312 paid, checked in), with no page or JavaScript errors.
+  - Screenshots of the board and the payment step reviewed after the fix.
+- **Not tested:** Mobile Money or bank transfer without the tick (should be refused); the price-changed path; part payment and pay later through the merged step; Hotel Staff and Hotel Manager; phone width.

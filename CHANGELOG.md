@@ -11,6 +11,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Faster front-desk booking** (simplify review P-1, P-2, P-5). Room cards have a Book button that starts the booking in one click; the guided booking is two steps, Guest then Payment & confirm, with the old Confirm page removed; cash is recorded as received without the "received and verified" tick, which stays for Mobile Money and bank transfer.
+
 - **Booking milestones.** At 50, 100, then every 100 up to 1,000 and every 500 after, the Dashboard shows a congratulations banner (each person closes it once), the booking-alert recipients get a text and an email, and a Milestones list on the Dashboard keeps the history. Cancelled, refunded and deleted bookings do not count. Milestones already passed when this ships are recorded quietly.
 
 - **Simpler booking codes.** New bookings get a code like `SB-261119-07`: the year, month and day the booking was made, then its number that day. Every booking already in the system keeps its existing nine-letter code. The two database columns that hold the code were widened from 9 to 16 characters on deploy.

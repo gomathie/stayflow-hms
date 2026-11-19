@@ -72,7 +72,7 @@ Add new ones at the top.
 
 ### P-5: Room board: one click to start a booking
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Done 2026-11-19 (AGENTS.md: "Simplify review P-1, P-2, P-5 built")
 - **Found by / on:** Claude, 2026-11-19 (rota area 1)
 - **Where:** Bookings › New booking (Room board)
 - **Problem:** staff click a room card to select it, then click Book now in the Selected room panel: two clicks, and the panel is easy to miss on a phone.
@@ -114,7 +114,7 @@ Add new ones at the top.
 
 ### P-2: Cash payments: no "received and verified" tick
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Done 2026-11-19 (AGENTS.md: "Simplify review P-1, P-2, P-5 built")
 - **Found by / on:** Claude, 2026-11-19 (rota area 1; `walkin.tpl` line 122)
 - **Where:** guided booking, Payment step
 - **Problem:** for every payment, staff must tick "Payment received and verified", or the money is not recorded. For cash, the money is in their hand, so the tick is an extra click. Forgetting it records the booking as unpaid.
@@ -128,7 +128,7 @@ Add new ones at the top.
 
 ### P-1: Merge Payment and Confirm into one step
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Done 2026-11-19 (AGENTS.md: "Simplify review P-1, P-2, P-5 built")
 - **Found by / on:** Claude, 2026-11-19 (rota area 1; `walkin.tpl` lines 104–143)
 - **Where:** guided booking (Guest → Payment → Confirm)
 - **Problem:** the Confirm step only repeats the stay, guest and payment already shown in the Stay summary on the right, then offers the final buttons. Every booking needs one extra page load and one extra click to get there.

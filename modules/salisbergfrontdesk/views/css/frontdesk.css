@@ -342,3 +342,14 @@
 .sb-milestone-list { margin: 0; padding: 0; list-style: none; }
 .sb-milestone-list li { padding: 6px 0; border-top: 1px solid var(--sb-line, #e3e6ea); }
 .sb-milestone-list li:first-child { border-top: 0; }
+
+/* Payment & confirm: total and still to pay, breakdown folded (SIMPLIFY-REVIEW P-4) */
+.sb-pay-figures { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 8px; }
+.sb-pay-figures > div { padding: 12px 14px; border: 1px solid var(--sb-line); border-radius: 10px; background: var(--sb-card); }
+.sb-pay-figures span { display: block; color: var(--sb-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.sb-pay-figures strong { display: block; margin-top: 4px; color: var(--sb-heading); font-size: 24px; line-height: 1.2; }
+.sb-pay-figures .is-due { border-color: var(--sb-accent); }
+.sb-pay-breakdown { margin: 0 0 16px; }
+.sb-pay-breakdown > summary { cursor: pointer; color: var(--sb-link, var(--sb-accent)); font-weight: 600; }
+.sb-pay-breakdown .sb-charge-lines { margin-top: 10px; }
+@media (max-width: 480px) { .sb-pay-figures { grid-template-columns: 1fr; } }

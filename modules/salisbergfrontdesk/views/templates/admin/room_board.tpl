@@ -142,8 +142,8 @@
                                         <span class="sb-status sb-status-{$room.readiness.code|escape:'html':'UTF-8'}"><i></i>{$room.readiness.label|escape:'html':'UTF-8'}</span>
                                         <span class="sb-availability{if !$room.available} is-no{/if}">{if $room.available}{l s='Available for selected stay' mod='salisbergfrontdesk'}{else}{l s='Not available for selected stay' mod='salisbergfrontdesk'}{/if}</span>
                                         <span class="sb-capacity">{l s='Capacity:' mod='salisbergfrontdesk'} {$room.max_adults|intval} {l s='adults' mod='salisbergfrontdesk'} · {$room.max_children|intval} {l s='children' mod='salisbergfrontdesk'}</span>
-                                        {if $room.available}<span class="sb-card-book" data-book-now>{l s='Book' mod='salisbergfrontdesk'} <i class="icon-arrow-right"></i></span>{/if}
                                         <span class="sb-room-rate"><strong>{if $room.quote.varies}{l s='From' mod='salisbergfrontdesk'} {$room.quote.from_text|escape:'html':'UTF-8'}{else}{$room.quote.average_text|escape:'html':'UTF-8'}{/if}</strong><small>{if $room.quote.varies}{l s='rates vary by night' mod='salisbergfrontdesk'}{else}{l s='per night' mod='salisbergfrontdesk'}{/if}</small></span>
+                                        {if $room.available}<span class="sb-card-book" data-book-now>{l s='Book' mod='salisbergfrontdesk'} <i class="icon-arrow-right"></i></span>{/if}
                                     </button>
                                 {/foreach}
                             </div>

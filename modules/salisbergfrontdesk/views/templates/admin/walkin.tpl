@@ -106,6 +106,12 @@
                         <div class="alert alert-warning"><strong>{l s='The price changed after the earlier quote.' mod='salisbergfrontdesk'}</strong> {$sb_state.price_changed.from_text|escape:'html':'UTF-8'} → {$sb_state.price_changed.to_text|escape:'html':'UTF-8'}. {l s='Review the new total and explicitly accept it below.' mod='salisbergfrontdesk'}</div>
                     {/if}
                     <form method="post" action="{$sb_action|escape:'html':'UTF-8'}&amp;step=3" class="sb-step-form" id="sb-payment-step" data-total="{$sb_state.quote.total|escape:'html':'UTF-8'}">
+                        {* the two numbers staff need; the breakdown is one click away (SIMPLIFY-REVIEW P-4) *}
+                        <div class="sb-pay-figures">
+                            <div><span>{l s='Total' mod='salisbergfrontdesk'}</span><strong>{$sb_state.quote.total_text|escape:'html':'UTF-8'}</strong></div>
+                            <div class="is-due"><span>{l s='Still to pay' mod='salisbergfrontdesk'}</span><strong>{$sb_payment.balance_text|escape:'html':'UTF-8'}</strong></div>
+                        </div>
+                        <details class="sb-pay-breakdown"><summary>{l s='Show breakdown' mod='salisbergfrontdesk'}</summary>
                         <div class="sb-charge-lines">
                             <div><span>{l s='Accommodation' mod='salisbergfrontdesk'}</span><strong>{$sb_state.quote.accommodation_text|escape:'html':'UTF-8'}</strong></div>
                             {if $sb_state.quote.extras > 0}<div><span>{l s='Fees and extras' mod='salisbergfrontdesk'}</span><strong>{$sb_state.quote.extras_text|escape:'html':'UTF-8'}</strong></div>{/if}
@@ -115,6 +121,7 @@
                             <div><span>{l s='Confirmed payments' mod='salisbergfrontdesk'}</span><strong>{$sb_payment.confirmed_text|escape:'html':'UTF-8'}</strong></div>
                             <div><span>{l s='Balance outstanding' mod='salisbergfrontdesk'}</span><strong>{$sb_payment.balance_text|escape:'html':'UTF-8'}</strong></div>
                         </div>
+                        </details>
                         <fieldset><legend>{l s='What is the guest paying now?' mod='salisbergfrontdesk'}</legend><div class="sb-payment-arrangements"><label><input type="radio" name="arrangement" value="full"{if !isset($sb_payment_form.arrangement) || $sb_payment_form.arrangement == 'full'} checked{/if}><span><strong>{l s='Paid in full' mod='salisbergfrontdesk'}</strong><small>{l s='Record the complete stay total' mod='salisbergfrontdesk'}</small></span></label><label><input type="radio" name="arrangement" value="partial"{if isset($sb_payment_form.arrangement) && $sb_payment_form.arrangement == 'partial'} checked{/if}><span><strong>{l s='Part payment' mod='salisbergfrontdesk'}</strong><small>{l s='Record a deposit or partial amount' mod='salisbergfrontdesk'}</small></span></label><label><input type="radio" name="arrangement" value="later"{if isset($sb_payment_form.arrangement) && $sb_payment_form.arrangement == 'later'} checked{/if}><span><strong>{l s='Pay later' mod='salisbergfrontdesk'}</strong><small>{l s='No money is being received now' mod='salisbergfrontdesk'}</small></span></label></div></fieldset>
                         <fieldset id="sb-payment-method-field"><legend>{l s='How was it paid?' mod='salisbergfrontdesk'}</legend><div class="sb-payment-methods">{foreach from=$sb_methods item=method}<label><input type="radio" name="method" value="{$method.code|escape:'html':'UTF-8'}"{if (isset($sb_payment_form.method) && $sb_payment_form.method == $method.code) || (!isset($sb_payment_form.method) && $method@first)} checked{/if}><span><strong>{$method.title|escape:'html':'UTF-8'}</strong><small>{$method.hint|escape:'html':'UTF-8'}</small></span></label>{/foreach}</div></fieldset>
                         <div class="sb-form-grid sb-payment-details">
