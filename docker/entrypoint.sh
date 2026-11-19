@@ -20,7 +20,7 @@ MODULES_VERSION=31
 # Bump ROOM_TYPES_VERSION whenever docker/setup-room-types.php changes.
 ROOM_TYPES_VERSION=2
 # Bump SCHEMA_VERSION when a schema/settings step below is added or changed.
-SCHEMA_VERSION=1
+SCHEMA_VERSION=2
 
 # Module folders that receive uploads (gallery, amenities, payment icons,
 # guest photos). Add any other module upload folder here.
@@ -271,6 +271,18 @@ if [ "${1:-}" = "apache2-foreground" ]; then
         done
         # Back office sessions: 12 hours instead of 20 days (only if still at the stock value)
         db_query "UPDATE qlo_configuration SET value='12' WHERE name='PS_COOKIE_LIFETIME_BO' AND value='480'"
+        # Booking codes SB-YYMMDD-NN (Order::generateReference) are 12+ characters;
+        # the stock columns hold 9. Widening keeps every existing code as it is.
+        for col in qlo_orders.reference qlo_order_payment.order_reference; do
+            t="${col%%.*}"; c="${col#*.}"
+            len="$(db_query "SELECT CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '$t' AND COLUMN_NAME = '$c'")"
+            if [ -n "$len" ] && [ "$len" -lt 16 ]; then
+                db_query "ALTER TABLE $t MODIFY $c varchar(16) DEFAULT NULL"
+                echo "Widened $t.$c from $len to 16"
+            fi
+        done
+        # One counter per booking day, taken atomically so two bookings never share a code
+        db_query "CREATE TABLE IF NOT EXISTS qlo_sb_reference_counter (day char(6) NOT NULL PRIMARY KEY, n int unsigned NOT NULL) ENGINE=InnoDB"
         echo "$SCHEMA_VERSION" > /data/.schema-version
         echo "Schema step v$SCHEMA_VERSION done"
     fi

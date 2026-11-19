@@ -1788,7 +1788,23 @@ class OrderCore extends ObjectModel
      */
     public static function generateReference()
     {
-        return strtoupper(Tools::passwdGen(9, 'NO_NUMERIC'));
+        // Salisberg: SB-YYMMDD-NN, the booking day and its running number (SB-261119-07).
+        // The counter row is raised atomically, so two bookings at the same moment
+        // get different numbers. Codes already issued are never changed.
+        $day = date('ymd');
+        $db = Db::getInstance();
+        $ok = $db->execute(
+            'INSERT INTO `'._DB_PREFIX_.'sb_reference_counter` (`day`, `n`) VALUES (\''.pSQL($day).'\', LAST_INSERT_ID(1))
+            ON DUPLICATE KEY UPDATE `n` = LAST_INSERT_ID(`n` + 1)',
+            false
+        );
+        $n = $ok ? (int) $db->Insert_ID() : 0;
+        if ($n < 1) {
+            // the counter table is created by the deploy's schema step; until then keep the stock code
+            return strtoupper(Tools::passwdGen(9, 'NO_NUMERIC'));
+        }
+
+        return 'SB-'.$day.'-'.sprintf('%02d', $n);
     }
 
     public function orderContainProduct($id_product)
