@@ -1,7 +1,22 @@
 {*
  Administration > Integrations. The API key is never assigned to the template.
+ Overview first: one card per integration (sb_cards, built in the controller);
+ a new integration adds a card there and its own panel below.
 *}
-<div class="panel">
+<div class="sb-int-cards">
+	{foreach from=$sb_cards item=card}
+	<a class="sb-int-card" href="{if !empty($card.link)}{$card.link|escape:'html':'UTF-8'}{elseif $card.anchor}#{$card.anchor|escape:'html':'UTF-8'}{else}#{/if}">
+		<span class="sb-int-icon"><i class="{$card.icon|escape:'html':'UTF-8'}"></i></span>
+		<span class="sb-int-text">
+			<strong>{$card.title|escape:'html':'UTF-8'}</strong>
+			<small>{$card.provider|escape:'html':'UTF-8'}</small>
+			<span class="sb-int-status {if $card.ok}is-on{else}is-off{/if}"><i></i>{$card.status|escape:'html':'UTF-8'}</span>
+		</span>
+	</a>
+	{/foreach}
+</div>
+
+<div class="panel" id="sb-int-sms">
 	<div class="panel-heading"><i class="icon-plug"></i> {l s='Text messages' mod='salisbergnotify'}</div>
 	{if $sb_has_key}
 	<div class="alert alert-success">{l s='A key is saved. A guest who has a phone number is texted at check-in and when the booking is paid in full.' mod='salisbergnotify'}</div>
@@ -61,7 +76,7 @@
 </div>
 {/if}
 
-<div class="panel">
+<div class="panel" id="sb-int-alerts">
 	<div class="panel-heading"><i class="icon-bell"></i> {l s='Booking alerts for staff' mod='salisbergnotify'}</div>
 	<p class="help-block">{l s='Choose who is told about new bookings and payments. A chosen person is alerted by text (if a key is saved above and they have a phone number) and by email, at the address on their staff account.' mod='salisbergnotify'}</p>
 	{if $sb_mail_enabled}
@@ -76,6 +91,7 @@
 				<th>{l s='Staff member' mod='salisbergnotify'}</th>
 				<th>{l s='Email' mod='salisbergnotify'}</th>
 				<th style="width:200px;">{l s='Phone for texts' mod='salisbergnotify'}</th>
+				<th style="width:90px;"></th>
 			</tr></thead>
 			<tbody>
 			{foreach from=$sb_employees item=emp}
@@ -84,11 +100,12 @@
 					<td>{$emp.name|escape:'html':'UTF-8'}</td>
 					<td>{$emp.email|escape:'html':'UTF-8'}</td>
 					<td><input type="text" name="sb_emp_phone_{$emp.id|intval}" value="{$emp.phone|escape:'html':'UTF-8'}" class="form-control" inputmode="tel" placeholder="{l s='optional' mod='salisbergnotify'}" /></td>
+					<td>{if $sb_has_key && $emp.is_recipient && $emp.phone}<button type="submit" name="sb_test_one" value="{$emp.id|intval}" class="btn btn-default btn-sm" title="{l s='Send a test text to this saved number' mod='salisbergnotify'}"><i class="icon-mobile"></i> {l s='Test' mod='salisbergnotify'}</button>{/if}</td>
 				</tr>
 			{/foreach}
 			</tbody>
 		</table>
-		<p class="help-block">{l s='Leaving a phone empty is fine: that person still gets the email alert. A chosen person with no phone is asked for one when they next sign in.' mod='salisbergnotify'}</p>
+		<p class="help-block">{l s='Leaving a phone empty is fine: that person still gets the email alert. Anyone with no phone is asked for one when they next sign in. Test sends one text to the saved number of a chosen person; save a new number first.' mod='salisbergnotify'}</p>
 		<button type="submit" name="sb_save_recipients" class="btn btn-primary">{l s='Save recipients' mod='salisbergnotify'}</button>
 	</form>
 </div>

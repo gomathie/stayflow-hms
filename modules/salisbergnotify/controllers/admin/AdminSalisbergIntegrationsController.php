@@ -35,7 +35,9 @@ class AdminSalisbergIntegrationsController extends ModuleAdminController
 
             return;
         }
-        if (Tools::isSubmit('sb_save')) {
+        if (Tools::isSubmit('sb_test_one')) {
+            $this->sendTestToEmployee((int) Tools::getValue('sb_test_one'));
+        } elseif (Tools::isSubmit('sb_save')) {
             $this->save();
         } elseif (Tools::isSubmit('sb_test')) {
             $this->sendTest();
@@ -78,7 +80,38 @@ class AdminSalisbergIntegrationsController extends ModuleAdminController
             );
         }
         $method = (int) Configuration::get('PS_MAIL_METHOD');
+        $missingPhone = 0;
+        foreach ($employees as $emp) {
+            if ($emp['is_recipient'] && $emp['phone'] === '') {
+                $missingPhone++;
+            }
+        }
+        // the overview: one card per integration; a new integration adds one entry here
+        $cards = array(
+            array(
+                'anchor' => 'sb-int-sms', 'icon' => 'icon-mobile', 'title' => $this->l('Text messages'), 'provider' => 'mNotify',
+                'ok' => $this->module->hasKey(),
+                'status' => $this->module->hasKey() ? sprintf($this->l('On, sender %s'), $this->module->sender()) : $this->l('Off: no API key saved'),
+            ),
+            array(
+                'anchor' => 'sb-int-alerts', 'icon' => 'icon-bell', 'title' => $this->l('Booking alerts'), 'provider' => $this->l('Staff'),
+                'ok' => count($recipients) > 0 && !$missingPhone,
+                'status' => sprintf($this->l('%1$d people chosen, %2$d without a phone'), count($recipients), $missingPhone),
+            ),
+            array(
+                'anchor' => 'sb-int-alerts', 'icon' => 'icon-envelope', 'title' => $this->l('Email'), 'provider' => $method === 2 ? 'SMTP' : 'PHP mail',
+                'ok' => $method !== 3,
+                'status' => $method === 3 ? $this->l('Off: no email is sent') : ($method === 2 ? sprintf($this->l('On, %s'), (string) Configuration::get('PS_MAIL_SERVER')) : $this->l('On (PHP mail)')),
+                'link' => $this->context->link->getAdminLink('AdminEmails'),
+            ),
+            array(
+                'anchor' => '', 'icon' => 'icon-bug', 'title' => $this->l('Error tracking'), 'provider' => 'Sentry',
+                'ok' => (bool) getenv('SENTRY_DSN'),
+                'status' => getenv('SENTRY_DSN') ? $this->l('On') : $this->l('Off: SENTRY_DSN not set on the server'),
+            ),
+        );
         $this->context->smarty->assign(array(
+            'sb_cards' => $cards,
             'sb_has_key' => $this->module->hasKey(),
             'sb_sender' => $this->module->sender(),
             'sb_action' => $this->context->link->getAdminLink('AdminSalisbergIntegrations'),
@@ -141,6 +174,43 @@ class AdminSalisbergIntegrationsController extends ModuleAdminController
             }
         }
         Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergIntegrations').'&sb_done=recipients');
+    }
+
+    /**
+     * "Test" on a recipient row (SuperAdmin only, like this whole page): one
+     * short text to that person's saved phone. The result is reported for that
+     * person by name, so a missing or wrong number is obvious.
+     */
+    protected function sendTestToEmployee($idEmployee)
+    {
+        $employee = new Employee($idEmployee);
+        if (!Validate::isLoadedObject($employee)) {
+            $this->errors[] = $this->l('That staff member could not be found.');
+
+            return;
+        }
+        $name = trim($employee->firstname.' '.$employee->lastname);
+        if (!$this->module->hasKey()) {
+            $this->errors[] = $this->l('Save an API key before sending a test.');
+
+            return;
+        }
+        $phone = $this->module->empPhone($idEmployee);
+        if ($phone === '') {
+            $this->errors[] = sprintf($this->l('%s has no phone saved. Type it in their row and click Save recipients, then test again.'), Tools::safeOutput($name));
+
+            return;
+        }
+        $ok = $this->module->deliver(
+            $phone,
+            sprintf($this->l('%s: test booking alert. If you got this, texts reach you. No action needed.'), Configuration::get('PS_SHOP_NAME')),
+            'test-'.$idEmployee
+        );
+        if ($ok) {
+            $this->confirmations[] = sprintf($this->l('Test text accepted for %1$s (%2$s).'), Tools::safeOutput($name), Tools::safeOutput($phone));
+        } else {
+            $this->errors[] = sprintf($this->l('The test text to %1$s (%2$s) was not accepted. Check the number, the key and the sender name. Details are in Advanced Parameters, Logs.'), Tools::safeOutput($name), Tools::safeOutput($phone));
+        }
     }
 
     protected function sendTest()

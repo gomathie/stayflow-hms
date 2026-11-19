@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='19 November 2026' mod='salisbergguide'}</h3>
 		<ul>
+			{if $sb_is_admin}<li><strong>{l s='Integrations at a glance, and a test per person.' mod='salisbergguide'}</strong> {l s='Administration, Integrations opens with a card for each service and whether it is on. Beside each person chosen for booking alerts, Test sends one text to their saved number.' mod='salisbergguide'}</li>{/if}
 			{if $sb_can_read_admin_guide}<li><strong>{l s='Occupancy that matches the desk.' mod='salisbergguide'}</strong> {l s='The Occupancy panel shows tonight as one bar (in house, free, out of service), counted the same way as Today at the desk, and the occupancy rate for the chosen period: booked room-nights out of those available.' mod='salisbergguide'}</li>
 			<li><strong>{l s='News when you sign in.' mod='salisbergguide'}</strong> {l s='After an update, a box shows what changed for your role, once. View more opens this page; the other button opens your guide.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Clearer side menu.' mod='salisbergguide'}</strong> {l s='The page you are on is in dark text with a green bar, the other pages are easier to read, and small headings group the menu: Front desk, Hotel, System and Help.' mod='salisbergguide'}</li>

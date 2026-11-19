@@ -1286,3 +1286,16 @@ html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard .fc-scrollgrid 
   #order_detail_view tr { page-break-inside: avoid; break-inside: avoid; }
   #order_detail_view a[href]:after { content: none !important; }
 }
+
+/* Administration > Integrations: one card per integration (salisbergnotify) */
+#content .sb-int-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin: 0 0 18px; }
+#content .sb-int-card { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border: 1px solid var(--sb-line); border-radius: 12px; background: var(--sb-card); color: var(--sb-ink); text-decoration: none; }
+#content .sb-int-card:hover, #content .sb-int-card:focus { border-color: var(--sb-accent); text-decoration: none; }
+#content .sb-int-icon { flex: 0 0 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--sb-accent-soft); color: var(--sb-accent); font-size: 16px; }
+#content .sb-int-text { display: flex; flex-direction: column; min-width: 0; }
+#content .sb-int-text strong { color: var(--sb-heading); font-size: 15px; }
+#content .sb-int-text small { color: var(--sb-muted); font-size: 12px; }
+#content .sb-int-status { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--sb-ink); font-size: 13px; }
+#content .sb-int-status i { width: 8px; height: 8px; border-radius: 50%; background: var(--sb-muted); }
+#content .sb-int-status.is-on i { background: var(--sb-success); }
+#content .sb-int-status.is-off i { background: var(--sb-warning); }

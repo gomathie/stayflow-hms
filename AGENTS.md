@@ -2432,3 +2432,16 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - The hook returned 17 of 22 tonight, a 3% rate for 30 days and 18 booked nights. A separate per-night loop also counted 18. The low rate comes from local test guests never checked out.
   - Screenshots in light and dark reviewed; no PHP or JavaScript errors.
 - **Not tested:** a specific hotel picked in the filter; production figures; phone width.
+
+### 2026-11-19 — Integrations: cards and a test per recipient
+
+- **Owner decisions:** a Test button on each row; SuperAdmin only; one card per integration.
+- **`AdminSalisbergIntegrationsController`:**
+  - Builds `sb_cards` for Text messages (mNotify key and sender), Booking alerts (people chosen, how many without a phone), Email (`PS_MAIL_METHOD`, linking to E-mail) and Error tracking (whether `SENTRY_DSN` is set). A new integration adds one entry there and its own panel.
+  - `sendTestToEmployee()` handles `sb_test_one` before any save. It needs a saved key and a saved phone, sends through `deliver()`, and reports acceptance or refusal by name and number. The whole page is SuperAdmin-only, as before.
+- **Template:** a card grid at the top, anchors on the panels, and a Test button on rows that are chosen, have a phone and have a key. Styles are in `overrides.css` (an Integrations block, using tokens).
+- **Guides:** Admin Guide section 10; What's New (developer team); CHANGELOG.
+- **Verification (local, browser):**
+  - Four cards with correct statuses; 2 Test buttons.
+  - With a fake key, Test showed "The test text to Admin Salisberg (0244000001) was not accepted…" and the log recorded mNotify's "invalid api key". The fake key was removed afterwards.
+- **Not tested:** a real accepted text (needs the production key); dark mode; phone width.
