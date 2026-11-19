@@ -68,6 +68,6 @@ Never move or rename an inherited file (rule 29). One batch per change.
 
 | Step | Status |
 |---|---|
-| 0. Booking codes | Planned, format chosen: `SB-261119-07` |
+| 0. Booking codes | Built and tested locally (2026-11-19); ships with the next deploy |
 | 1. Never installed | Waiting for step 0 |
 | 2–6 | Not started |

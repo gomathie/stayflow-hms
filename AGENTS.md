@@ -2294,3 +2294,22 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
   - `bookingFacts()` on booking NKDGFJVVP gave the correct rooms, dates, nights and amounts. Every text was built from it and measured.
   - A `<b>` in a value comes out as plain text in the email table.
 - **Not tested:** real delivery of any text or email (no mNotify key and no mail server here); the check-out email rendered in a mail client; a cancellation run end to end; the live server.
+
+### 2026-11-19 — Booking codes SB-YYMMDD-NN (cleanup plan, step 0)
+
+- **What:** `Order::generateReference()` (`classes/order/Order.php`, inherited, changed at the source per rule 11) now returns `SB-` + the booking date as `ymd` + a two-digit day counter, for example `SB-261119-07`. It is the only place codes are made; `PaymentModule::validateOrder()` already loops until a code is unused.
+  - **Counter:** table `qlo_sb_reference_counter` (`day`, `n`), raised with `INSERT … ON DUPLICATE KEY UPDATE n = LAST_INSERT_ID(n + 1)`, which is atomic, so two simultaneous bookings get different numbers. The 100th booking in a day becomes `-100`. If the table is missing (a fresh image before its schema step), the stock random code is used.
+  - **Columns:** `qlo_orders.reference` and `qlo_order_payment.order_reference` were `varchar(9)`. The schema step in `docker/entrypoint.sh` (`SCHEMA_VERSION=2`) reads each width and widens it to 16 only when shorter, logging what it changed (rule 22). It also creates the counter table. `OrderPayment::$definition` size became 16, and `install/data/db_structure.sql` was updated for fresh installs.
+  - **Existing bookings untouched** (owner decision): nothing rewrites old references; widening a varchar keeps its values.
+  - **Checked for 9-letter assumptions:** `Validate::isReference` and the Contact form override's `id_order` pattern both accept hyphens; no code measures a reference's length.
+- **Owner decisions:** format date + counter, prefix SB, two-digit year (chosen over `SB-1119-07`, which would repeat every year). Recorded in `CLEANUP-PLAN.md`.
+- **Guides:** Staff Guide section 4 (what a code looks like); What's New and CHANGELOG.
+- **Verification (local):**
+  - The columns were widened and the counter table created.
+  - Three generated codes were `SB-261119-01…03`; the counter was then cleared.
+  - Two real bookings made through the guided-booking service (`SalisbergWalkIn`, as administrator) got `SB-261119-01` and `-02`; `Order::getByReference()` finds them.
+  - A cash payment on `-02` stored `SB-261119-02` in `order_payment`.
+  - All 145 earlier bookings still have their 9-letter codes.
+  - `docker/smoke-test.sh`: 31 of 31.
+- **Not tested:** a booking from the website checkout; the new code on the invoice PDF, in emails and texts; Excel-imported bookings; two bookings at exactly the same moment (atomicity is by construction, not exercised); the schema step through a rebuilt image (it was applied by hand in the running container); the live server.
+- Local test data: two bookings for guest "Code Tester" about 200 days ahead.

@@ -79,7 +79,7 @@
 		<h3>4. {l s='Find and open a booking' mod='salisbergguide'}</h3>
 		<ol>
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Bookings</span>.</li>
-			<li>{l s='Search by booking reference (the nine-letter code the guest received), by guest name, or by status.' mod='salisbergguide'}</li>
+			<li>{l s='Search by booking reference (the code the guest received: new bookings look like SB-261119-07, the booking day then its number; older bookings keep their nine-letter code), by guest name, or by status.' mod='salisbergguide'}</li>
 			<li>{l s='Click the row to open the booking.' mod='salisbergguide'}</li>
 		</ol>
 		<p>{l s='The booking page is divided into panels:' mod='salisbergguide'}</p>

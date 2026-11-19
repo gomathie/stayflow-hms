@@ -9,6 +9,10 @@ Every change to Salisberg, newest first, in plain words.
 
 ## 2026-11-19
 
+### Changed
+
+- **Simpler booking codes.** New bookings get a code like `SB-261119-07`: the year, month and day the booking was made, then its number that day. Every booking already in the system keeps its existing nine-letter code. The two database columns that hold the code were widened from 9 to 16 characters on deploy.
+
 ### Added
 
 - **Error tracking with Sentry.** PHP errors and crashes on the website and back office are sent to the Sentry project "salisberg" when `SENTRY_DSN` is set in Coolify. No guest or staff personal data is sent; notices and deprecation warnings are not reported.
