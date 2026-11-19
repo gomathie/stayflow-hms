@@ -24,7 +24,13 @@ COPY docker/setup-modules.php /usr/local/share/salisberg/setup-modules.php
 COPY docker/setup-room-types.php /usr/local/share/salisberg/setup-room-types.php
 COPY docker/generate-htaccess.php /usr/local/share/salisberg/generate-htaccess.php
 COPY docker/backup.sh /usr/local/bin/salisberg-backup
-COPY docker/ratelimit.php /usr/local/share/salisberg/ratelimit.php
+COPY docker/ratelimit.php docker/sentry.php docker/prepend.php /usr/local/share/salisberg/
+# Sentry PHP SDK, outside the web root; only active when SENTRY_DSN is set
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+RUN mkdir -p /usr/local/share/salisberg/sentry \
+    && cd /usr/local/share/salisberg/sentry \
+    && COMPOSER_ALLOW_SUPERUSER=1 composer require --no-interaction --no-progress --prefer-dist sentry/sentry:^4 \
+    && rm /usr/local/bin/composer
 COPY docker/branding/pay-cash.jpg docker/branding/pay-momo.jpg /usr/local/share/salisberg/
 # Lets the mysql/mysqldump CLI talk to MySQL 8 (self-signed cert) on the private stack network
 RUN printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/salisberg-client.cnf
