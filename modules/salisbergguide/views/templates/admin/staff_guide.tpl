@@ -31,6 +31,7 @@
 			<li>{l s='Every password box has an eye icon at its right edge. Click it to see what you typed, and click again to hide it. Check that nobody is looking at your screen first.' mod='salisbergguide'}</li>
 			<li>{l s='To change your password, click your name at the top right of the screen and choose' mod='salisbergguide'} <span class="sb-btn">My preferences</span>.</li>
 			<li>{l s='When you finish your shift, click your name at the top right and choose' mod='salisbergguide'} <span class="sb-btn">Sign out</span>.</li>
+			<li>{l s='After an update, a box called What is new lists the changes for your role, once. Click View more for the full list (Guides, What is New) or the other button to open this guide.' mod='salisbergguide'}</li>
 			<li>{l s='If a small box appears after you sign in asking for your mobile number, the hotel does not have your number yet; it is used for text alerts if your manager switches them on. Type your number and click Save number, or click Not now to leave it for later.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-warn">{l s='Never share your login. Every booking and payment you record is saved under your name.' mod='salisbergguide'}</p>

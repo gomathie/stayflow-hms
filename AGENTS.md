@@ -2398,3 +2398,18 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - The current sub-page measured in the theme's text colour.
   - `docker/smoke-test.sh`: 31 of 31.
 - **Not tested:** the form as Hotel Manager and as Hotel Staff on their own account (the switch should be hidden for staff); switching alerts off from the form; the menu headings as staff and manager; production.
+
+### 2026-11-19 — What's New pop-up
+
+- **Owner decisions:** once per person per update; the latest date's items for their role; View more and their guide.
+- **How:**
+  - `salisbergguide::addNewsPopup()` runs from `hookActionAdminControllerSetMedia`, but not on AJAX requests or the What's New page.
+  - It reads the newest date from the first `<section>` of `whats_new.tpl` (`latestNewsKey()`) and compares it with `SBGUIDE_NEWS_SEEN_<id_employee>`.
+  - When they differ, it renders What's New through the existing `renderGuide()`, so role filtering is the page's own, and passes the first section's `<li>` items to `views/js/news-popup.js` with links: View more only if the person may open What's New; the Admin or Staff Guide by role.
+  - It is marked seen as soon as it is shown, so no request is needed and it works for any profile. Opening What's New also marks it seen.
+  - The script shows at most five items with "And N more", waits while the phone prompt is open, closes on ×, Escape or the backdrop, and returns focus to where it was.
+  - Styles are in `views/css/news-popup.css`, using the back office tokens.
+- **Fixed on the way:** today's What's New lines had been added under the 9 November heading. They now have their own 19 November section, which the pop-up depends on: one `<section>` per date.
+- **Guides:** Staff Guide section 1; What's New (19 November); CHANGELOG.
+- **Verification (local browser, administrator):** shown after sign-in with "19 November 2026", five items, "And 5 more", and the buttons "Open the Admin Guide" and "View more"; not shown again on reload; no JavaScript errors; screenshot reviewed in light mode.
+- **Not tested:** as Hotel Staff and Hotel Manager (no View more for a profile without What's New); dark mode; phone width.

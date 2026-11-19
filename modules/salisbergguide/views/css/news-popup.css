@@ -16,3 +16,4 @@
 .sbnews-body { flex: 1 1 auto; min-height: 0; overflow: auto; margin: 0 -6px; padding: 0 6px; }
 .sbnews-more { margin: -8px 0 14px; color: var(--sb-muted, #5b6470); font-size: 13px; }
 .sbnews-actions { flex: 0 0 auto; padding-top: 12px; border-top: 1px solid var(--sb-line, #e3e6ea); }
+.sbnews-overlay .sbnews-close { font-size: 26px; padding: 0; }
