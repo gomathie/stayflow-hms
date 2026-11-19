@@ -209,8 +209,8 @@ class AdminControllerCore extends Controller
     /** @var array Number of results in list per page (used in select field) */
     protected $_pagination = array(20, 50, 100, 300, 1000);
 
-    /** @var int Default number of results in list per page */
-    protected $_default_pagination = 50;
+    /** @var int Default number of results in list per page (20: SIMPLIFY-REVIEW P-13) */
+    protected $_default_pagination = 20;
 
     /** @var string ORDER BY clause determined by field/arrows in list header */
     protected $_orderBy;

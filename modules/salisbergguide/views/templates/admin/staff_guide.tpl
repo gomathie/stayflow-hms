@@ -54,7 +54,7 @@
 			<tr><td><span class="sb-path">Guides</span></td><td>{l s='This guide.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Guides &rsaquo; What's New</span></td><td>{l s='Recent changes to the system, newest first. Look here when something looks different.' mod='salisbergguide'}</td></tr>
 		</table>
-		<p class="sb-tip">{l s='In any list you can type in the boxes under the column headings and press Enter (or click Search) to filter. Click Reset to clear the filter.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='In any list you can type in the boxes under the column headings and press Enter (or click Search) to filter. Click Reset to clear the filter. Long lists show 20 rows at a time: use the page buttons under the list, or choose 50 a page.' mod='salisbergguide'}</p>
 	</section>
 
 	<section id="sb-s3">

@@ -22,6 +22,7 @@
 		<h3>{l s='20 November 2026' mod='salisbergguide'}</h3>
 		<ul>
 			<li><strong>{l s='Refund requests moved.' mod='salisbergguide'}</strong> {l s='Refund requests is now under Bookings, next to the other booking pages.' mod='salisbergguide'}</li>
+<li><strong>{l s='Lists in pages.' mod='salisbergguide'}</strong> {l s='Long lists such as Bookings, Customers and Invoices show 20 rows at a time, with page buttons and a choice of 50. On Invoices the totals at the top still count every invoice that matches your search.' mod='salisbergguide'}</li>
 			<li><strong>{l s='New booking on the Dashboard.' mod='salisbergguide'}</strong> {l s='The button beside Today at the desk is now called New booking, the same as everywhere else.' mod='salisbergguide'}</li>
 			{if !$sb_can_read_admin_guide}<li><strong>{l s='A shorter menu for the front desk.' mod='salisbergguide'}</strong> {l s='Manage Hotel, Addresses, Booking messages and the Quick Access menu are gone from your menu. They were not used at the desk.' mod='salisbergguide'}</li>{/if}
 			{if $sb_can_read_admin_guide}<li><strong>{l s='Technical pages under System.' mod='salisbergguide'}</strong> {l s='Modules, Localization, Preferences, Advanced Parameters and Administration sit under one System heading in the menu, folded away. Click System to show them. Your permissions are unchanged.' mod='salisbergguide'}</li>{/if}

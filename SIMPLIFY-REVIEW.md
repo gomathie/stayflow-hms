@@ -107,7 +107,7 @@ Add new ones at the top.
 
 ### P-15: Tidy guest names and hide placeholder emails
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Approved (owner, 2026-11-19). Owner's choice 2026-11-20: new and edited names only; saved names are not changed
 - **Found by / on:** Claude, 2026-11-19 (production Customers and Invoices lists)
 - **Where:** Customers › Customers; guest names everywhere
 - **Problem:** names are stored as typed ("mr mr", "george wilson", "Mr Emmanuel" as a first name). Walk-ins without email show as `guest-20261112145856-287888@guest.invalid` in the list.
@@ -135,7 +135,7 @@ Add new ones at the top.
 
 ### P-13: Page long lists (20 or 50 at a time)
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Done 2026-11-20 (AGENTS.md: "Lists in pages P-13")
 - **Found by / on:** Claude, 2026-11-19 (Invoices 12,078px tall at 1440, 89,384px at 390; Logs 7,449px)
 - **Where:** Bookings › Invoices, Advanced Parameters › Logs, and any list showing everything
 - **Problem:** Invoices shows all 155 invoices on one page; on a phone that is 89,000px of scrolling, and it grows with every booking.
@@ -167,7 +167,7 @@ Add new ones at the top.
 
 ### P-11: Replace the shop figure strips on list pages
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Approved (owner, 2026-11-19). Owner's choice 2026-11-20: keep one quiet desk line on Bookings (in house, arriving, leaving, owed)
 - **Found by / on:** Claude, 2026-11-19 (Bookings, Customers, Manage Room Types, Translations)
 - **Where:** the coloured figure strips at the top of Bookings, Customers, Manage Room Types and other lists
 - **Problem:**

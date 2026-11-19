@@ -2518,3 +2518,18 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - `php -l` on the six PHP files.
 - **Found while testing:** after many test sign-ins the local back-office limit (10 in 10 minutes) refused the staff account. The test cleared `/tmp/sb-ratelimit` in the container. This is not an app fault.
 - **Not tested:** Hotel Manager; the PDF download as staff; the live server.
+
+### 2026-11-20 — Lists in pages P-13
+
+- **Invoices** (`AdminInvoicesController::renderInvoiceList()`, our own list in an inherited controller):
+  - the 200-row cap (`LIST_LIMIT`) is replaced by pages of 20, or 50 (`$perPageChoices`), chosen with `sb_per` and `sb_page`. Both are validated: a page past the end shows the last page, and an unknown size falls back to 20.
+  - The four totals come from a separate aggregate query over the same filtered set, so they cover every matching invoice and not only the page shown.
+  - Pager links keep the filters. The pager is in `invoices/list.tpl`, styled by `.sb-pager` at the end of `overrides.css`.
+- **Every stock list:** `AdminController::$_default_pagination` changed from 50 to 20 (inherited, rule 11). The list's own page-size menu still offers 20, 50, 100, 300 and 1000. A size someone already picked is kept in their cookie.
+- **Guides:** Staff Guide list tip; What's New 20 November; CHANGELOG.
+- **Owner choices recorded the same day:** P-11 keeps one quiet desk line on Bookings; P-15 changes new and edited names only.
+- **Verification (local, files copied in):**
+  - Invoices: page 1 shows rows 1–20 of 148 and page 2 shows 21–40. `sb_page=999` shows 141–148. `sb_per=50` gives 50 rows and `sb_per=7` gives 20. Filtering Paid and going to page 2 shows 21–38 of 38.
+  - The totals (148, GH₵206,334.00 billed, GH₵98,930.00 paid) match a direct database sum.
+  - Bookings, Customers and Logs show 20 rows each with the stock pager, with no errors. Logs went from about 7,400px to 2,100px tall.
+- **Not tested:** phone width; the Hotel Staff and Hotel Manager roles on Invoices; the live server.
