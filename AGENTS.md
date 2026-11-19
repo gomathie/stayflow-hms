@@ -2500,3 +2500,21 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - `docker/smoke-test.sh` 31 of 31.
 - **Not tested:** Hotel Manager; phone width; the live server.
 - The local Hotel Staff test account now has a temporary local password.
+
+### 2026-11-20 — Income kept from Hotel Staff P-16
+
+- **Owner:** approved P-16 (2026-11-19): staff keep Reports, but only the daily Arrivals and departures sheet.
+- **One rule:** `Salisbergguide::seesIncome()` returns false only for the Hotel Staff profile, and true for SuperAdmins, Hotel Managers and any other profile. Other modules call it behind `class_exists('Salisbergguide')`, so they still work if the module is missing.
+- **Where it applies** (all inherited files, changed in place per rule 11, except our own modules):
+  - `dashtrends` and `dashperformance`: `hookDashboardZoneTwo()` returns nothing and `hookDashboardData()` returns no data, so the figures are not sent to the browser either.
+  - `AdminOrdersController::renderKpis()`: no Total Sales tile on the list. Total Due Amount stays, because it is desk work.
+  - `salisbergreports::getReports()` offers staff only `arrivals`. `buildReport()` and the controller's `getChoice()` now fall back to the first report offered, so `sb_report=income` in the address shows the arrivals sheet.
+  - `salisbergreports::grantStaffSheet()` gives Hotel Staff view on Reports once (`SBREPORTS_STAFF_SHEET`). Taking it away later in Permissions is kept.
+- `MODULES_VERSION=34`.
+- **Guides:** Staff Guide menu table (Bookings › Reports); Admin Guide section 14 (what staff do and do not see); What's New 20 November for both roles; CHANGELOG.
+- **Verification (local, files copied in, setup run):**
+  - As Hotel Staff: no sales or performance panels on the Dashboard, while Occupancy and the desk are present; no Total Sales on Bookings, while Total Due is present; Reports offers only Arrivals and departures; `sb_report=income&sb_period=month` did not show Income by day.
+  - As administrator: everything is present, as before.
+  - `php -l` on the six PHP files.
+- **Found while testing:** after many test sign-ins the local back-office limit (10 in 10 minutes) refused the staff account. The test cleared `/tmp/sb-ratelimit` in the container. This is not an app fault.
+- **Not tested:** Hotel Manager; the PDF download as staff; the live server.

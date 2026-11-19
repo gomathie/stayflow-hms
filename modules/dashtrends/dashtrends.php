@@ -77,6 +77,10 @@ class Dashtrends extends Module
 
     public function hookDashboardZoneTwo($params)
     {
+        // P-16: the sales and revenue chart is not shown to Hotel Staff
+        if (class_exists('Salisbergguide') && !Salisbergguide::seesIncome()) {
+            return '';
+        }
         $this->context->smarty->assign(array(
             'currency' => $this->context->currency,
             '_PS_PRICE_DISPLAY_PRECISION_' => _PS_PRICE_DISPLAY_PRECISION_,
@@ -214,6 +218,9 @@ class Dashtrends extends Module
 
     public function hookDashboardData($params)
     {
+        if (class_exists('Salisbergguide') && !Salisbergguide::seesIncome()) {
+            return array();
+        }
         $this->currency = clone $this->context->currency;
 
         // Retrieve, refine and add up data for the selected period

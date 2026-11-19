@@ -25,6 +25,7 @@
 			<li><strong>{l s='New booking on the Dashboard.' mod='salisbergguide'}</strong> {l s='The button beside Today at the desk is now called New booking, the same as everywhere else.' mod='salisbergguide'}</li>
 			{if !$sb_can_read_admin_guide}<li><strong>{l s='A shorter menu for the front desk.' mod='salisbergguide'}</strong> {l s='Manage Hotel, Addresses, Booking messages and the Quick Access menu are gone from your menu. They were not used at the desk.' mod='salisbergguide'}</li>{/if}
 			{if $sb_can_read_admin_guide}<li><strong>{l s='Technical pages under System.' mod='salisbergguide'}</strong> {l s='Modules, Localization, Preferences, Advanced Parameters and Administration sit under one System heading in the menu, folded away. Click System to show them. Your permissions are unchanged.' mod='salisbergguide'}</li>{/if}
+{if !$sb_can_read_admin_guide}<li><strong>{l s='Reports: the daily sheet.' mod='salisbergguide'}</strong> {l s='Bookings, Reports gives you the Arrivals and departures sheet to view or print. Sales totals and the sales charts are for managers.' mod='salisbergguide'}</li>{/if}			{if $sb_can_read_admin_guide}<li><strong>{l s='Income kept from front desk accounts.' mod='salisbergguide'}</strong> {l s='Hotel Staff no longer see Total Sales on the Bookings page, the sales and performance charts on the Dashboard, or the Bookings and Income reports. They keep the Arrivals and departures sheet.' mod='salisbergguide'}</li>{/if}
 		</ul>
 	</section>
 	<section>

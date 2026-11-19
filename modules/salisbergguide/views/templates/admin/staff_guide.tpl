@@ -47,6 +47,7 @@
 			<tr><td><span class="sb-path">Bookings &rsaquo; Housekeeping</span></td><td>{l s='Every room and whether it is clean, dirty or out of service.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Bookings</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it. Use New booking at the top of this page to make one.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Invoices</span></td><td>{l s='Every invoice and receipt, with what is paid and what is still owed.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Bookings &rsaquo; Reports</span></td><td>{l s='The Arrivals and departures sheet for any day or week: who checks in and who checks out. Click Download PDF to print it for the desk or housekeeping.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records and their booking history.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Inbox</span></td><td>{l s='Messages guests send through the website.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Refund requests</span></td><td>{l s='Cancellation and refund requests from guests.' mod='salisbergguide'}</td></tr>

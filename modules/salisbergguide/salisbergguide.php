@@ -369,6 +369,26 @@ class Salisbergguide extends Module
         return Configuration::updateValue('SBGUIDE_STAFF_DESK_MENU', 1);
     }
 
+    /**
+     * SIMPLIFY-REVIEW P-16: whether an employee may see the hotel's income
+     * (sales totals, revenue and performance charts, income reports).
+     * Everyone except the Hotel Staff profile. The one rule; callers in other
+     * modules use it through class_exists('Salisbergguide').
+     */
+    public static function seesIncome($employee = null)
+    {
+        $employee = $employee ?: Context::getContext()->employee;
+        if (!$employee || !$employee->id || $employee->isSuperAdmin()) {
+            return true;
+        }
+        $idStaff = (int) Db::getInstance()->getValue(
+            'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+            WHERE `name` = \''.pSQL(self::STAFF_PROFILE).'\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+        );
+
+        return (int) $employee->id_profile !== $idStaff;
+    }
+
     /** Hotel Staff (P-17): the top bar shows only what the desk uses */
     public function isDeskOnly()
     {

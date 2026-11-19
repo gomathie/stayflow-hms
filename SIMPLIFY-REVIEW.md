@@ -90,7 +90,7 @@ Add new ones at the top.
 
 ### P-16: Hotel Staff should not see the hotel's income
 
-- **Status:** Approved (owner, 2026-11-19): hide the sales totals and the revenue and performance charts from Hotel Staff; keep Reports for the daily Arrivals and departures sheet only
+- **Status:** Done 2026-11-20 (AGENTS.md: "Income kept from Hotel Staff P-16"). Owner's choice, 2026-11-19: hide the sales totals and the revenue and performance charts from Hotel Staff; keep Reports for the daily Arrivals and departures sheet only
 - **Found by / on:** Claude, 2026-11-19 (production, as Hotel Staff)
 - **Where:** Bookings figure strip, Dashboard charts, Bookings › Reports
 - **Problem:** a Hotel Staff account sees:

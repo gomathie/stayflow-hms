@@ -29,10 +29,11 @@ class AdminSalisbergReportsController extends ModuleAdminController
     {
         $reports = $this->module->getReports();
         $periods = $this->module->getPeriods();
-        $type = (string) Tools::getValue('sb_report', 'bookings');
+        $type = (string) Tools::getValue('sb_report', key($reports));
         $period = (string) Tools::getValue('sb_period', 'today');
+        // a report not offered to this person (P-16) falls back to the first one offered
         if (!isset($reports[$type])) {
-            $type = 'bookings';
+            $type = key($reports);
         }
         if (!isset($periods[$period])) {
             $period = 'today';

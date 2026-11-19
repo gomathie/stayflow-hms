@@ -46,6 +46,11 @@ class Salisbergreports extends Module
     /** @return array report key => name shown to the user */
     public function getReports()
     {
+        // P-16: Hotel Staff get the daily desk sheet only, no money totals
+        if (class_exists('Salisbergguide') && !Salisbergguide::seesIncome()) {
+            return array('arrivals' => $this->l('Arrivals and departures'));
+        }
+
         return array(
             'bookings' => $this->l('Bookings'),
             'arrivals' => $this->l('Arrivals and departures'),
@@ -78,7 +83,7 @@ class Salisbergreports extends Module
     public function ensureSetup()
     {
         if (Tab::getIdFromClassName(self::TAB)) {
-            return true;
+            return $this->grantStaffSheet();
         }
         $tab = new Tab();
         $tab->class_name = self::TAB;
@@ -108,7 +113,34 @@ class Salisbergreports extends Module
             );
         }
 
-        return true;
+        return $this->grantStaffSheet();
+    }
+
+    /**
+     * SIMPLIFY-REVIEW P-16: Hotel Staff open Reports for the daily Arrivals and
+     * departures sheet (getReports() offers them nothing else). The view right
+     * is given once (SBREPORTS_STAFF_SHEET), so taking it away later is kept.
+     */
+    protected function grantStaffSheet()
+    {
+        if (Configuration::get('SBREPORTS_STAFF_SHEET')) {
+            return true;
+        }
+        $idTab = (int) Tab::getIdFromClassName(self::TAB);
+        $idProfile = (int) Db::getInstance()->getValue(
+            'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+            WHERE `name` = \'Hotel Staff\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+        );
+        if ($idTab && $idProfile) {
+            Db::getInstance()->execute(
+                'INSERT INTO `'._DB_PREFIX_.'access` (`id_profile`, `id_tab`, `view`, `add`, `edit`, `delete`)
+                VALUES ('.$idProfile.', '.$idTab.', 1, 0, 0, 0)
+                ON DUPLICATE KEY UPDATE `view` = 1'
+            );
+            PrestaShopLogger::addLog('salisbergreports: Hotel Staff may open Reports (daily sheet only)', 1);
+        }
+
+        return Configuration::updateValue('SBREPORTS_STAFF_SHEET', 1);
     }
 
     public function uninstall()
@@ -171,7 +203,7 @@ class Salisbergreports extends Module
     {
         $reports = $this->getReports();
         if (!isset($reports[$type])) {
-            $type = 'bookings';
+            $type = key($reports);
         }
         $method = 'build'.Tools::ucfirst($type);
         $report = $this->{$method}($from, $to);

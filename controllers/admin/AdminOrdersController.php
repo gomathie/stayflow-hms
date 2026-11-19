@@ -2712,14 +2712,17 @@ class AdminOrdersControllerCore extends AdminController
             $time = time();
             $kpis = array();
 
-            $helper = new HelperKpi();
-            $helper->id = 'box-total-sales';
-            $helper->icon = 'icon-money';
-            $helper->color = 'color4';
-            $helper->title = $this->l('Total Sales', null, null, false);
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_sales';
-            $helper->tooltip = $this->l('Total sales from all bookings created.', null, null, false);
-            $this->kpis[] = $helper;
+            // SIMPLIFY-REVIEW P-16: the hotel's sales total is not shown to Hotel Staff
+            if (!class_exists('Salisbergguide') || Salisbergguide::seesIncome()) {
+                $helper = new HelperKpi();
+                $helper->id = 'box-total-sales';
+                $helper->icon = 'icon-money';
+                $helper->color = 'color4';
+                $helper->title = $this->l('Total Sales', null, null, false);
+                $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_sales';
+                $helper->tooltip = $this->l('Total sales from all bookings created.', null, null, false);
+                $this->kpis[] = $helper;
+            }
 
             $helper = new HelperKpi();
             $helper->id = 'box-total-due-amount';

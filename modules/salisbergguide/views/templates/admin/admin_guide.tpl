@@ -327,6 +327,7 @@
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Show report</span> {l s='to see it on screen, or' mod='salisbergguide'} <span class="sb-btn">Download PDF</span> {l s='to save or print it.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='Totals leave out cancelled and refunded bookings. The Bookings report still lists them, so nothing goes missing from the record.' mod='salisbergguide'}</p>
+		<p>{l s='Hotel Staff see only the Arrivals and departures report. The hotel income is kept from them: they do not see the Bookings and Income reports, the Total Sales figure on the Bookings page, or the sales and performance charts on the Dashboard. Managers and the developer team see everything.' mod='salisbergguide'}</p>
 		<p class="sb-warn">{l s='A report contains guest names and phone numbers. Keep printed copies and downloaded files private.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminSalisbergReports|escape:'html':'UTF-8'}">{l s='Open Reports' mod='salisbergguide'} &rarr;</a>
 		<h4>{l s='Other places to look' mod='salisbergguide'}</h4>
