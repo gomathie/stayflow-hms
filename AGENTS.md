@@ -2453,3 +2453,16 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
 - **Verification (local, files copied in, Apache reloaded):** `php -l` on both files; a direct GET and a POST with a wrong token both return 302 to the homepage; a real AJAX call with the token still returns its JSON reply; `getEntries()` runs without error; `docker/smoke-test.sh` 31 of 31.
 - **Not tested:** the Recycle bin page with archived bookings in it (the local bin is empty); the live server. SALISBERG-1 is the Sentry setup test event.
 - No guide or What's New change.
+
+### 2026-11-19 — Dashboard "Rooms free" chart refined; newsletter action field
+
+- **`modules/dashavailability`** (inherited, changed in place, rule 11):
+  - `hookDashboardData()` validates the period (7, 14 or 30 nights; a valid date, else today) and asks `getAvailabilityLineChartData()` for `days - 1`, because that function returns one point more than asked. It also returns two `data_value` figures, `sb_avail_low` (tightest night and its date) and `sb_avail_avg` (average rooms free per night), escaped with `Tools::safeOutput()` because `data_value()` in `js/admin/dashboard.js` inserts them with `.html()`. Demo mode still gives random figures.
+  - The template is a toolbar (date button, a 7/14/30 segmented control with `aria-pressed`) and a two-item summary. Before, the 115 px header used stock blue buttons; the 15 and 30 buttons had `data-days="15)"`; the date showed as `2026-11-19`. The date label is built in PHP (`date('j M Y')`), not with Smarty `date_format`, which relies on the deprecated `strftime`.
+  - The script colours the series from `--sb-occ-free`, the "free" colour of the Occupancy panel, and draws it as a light area. Dates read "Thu 19 Nov", and there is about one date label per 90 px of chart, at most 7. The bold min/max labels nvd3 repeats on the y axis are hidden. The date picker no longer resets the start to the dashboard's own period start.
+  - Styles are in the module's stylesheet and use the tokens. The two `.avail-bar-*` rules in `overrides.css` section 8 were deleted (rule 27).
+- **`modules/blocknewsletter/blocknewsletter.php`:** `newsletterRegistration()` reads `newsletter_action` through `Tools::getValue()`, so a request without it is treated as a sign-up instead of raising "Undefined array key" (Sentry SALISBERG-7, 8, caused by the local test of the previous entry).
+- **Sentry:** SALISBERG-1 to 8 marked resolved, each with a comment naming its fix.
+- **Guides:** What's New 19 November (manager and developer team). No guide section describes this chart.
+- **Verification (local, headless Chrome, signed in as administrator):** screenshots reviewed at 1440 wide in light and dark and at 390 wide. 7 nights gives 7 points; the summary reads "16 rooms free on Thu 19 Nov" and "19.9 rooms a night"; clicking 30 nights redraws with five date labels; no JavaScript errors; `php -l` and `node --check` pass.
+- **Not tested:** a specific hotel picked in the dashboard filter; Hotel Manager; the date picker by click; the live server.

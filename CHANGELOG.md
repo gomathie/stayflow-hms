@@ -13,8 +13,11 @@ Every change to Salisberg, newest first, in plain words.
 
 - **Recycle bin booking codes.** The Recycle bin now shows each deleted booking's code; it was blank and logged a warning per row (Sentry SALISBERG-2).
 - **Newsletter sign-up hit directly.** A visit or bot request to the newsletter sign-up address that is not the footer form's own call is sent to the homepage, instead of drawing a broken page and logging errors (Sentry SALISBERG-3 to 6).
+- **Newsletter sign-up without its action field.** A sign-up request missing the form's hidden action field is treated as a sign-up instead of logging a warning (Sentry SALISBERG-7, 8).
 
 ### Changed
+
+- **Dashboard availability chart is now "Rooms free".** It shows the tightest night and the average rooms free per night above the chart, offers 7, 14 or 30 nights (exactly that many points), labels days as "Thu 19 Nov", uses the brand colours in light and dark mode, and fits a phone.
 
 - **Integrations page tidied.** It opens with one card per integration (Text messages, Booking alerts, Email, Error tracking) and its status; each booking-alert recipient has a Test button that texts their saved number and reports the result by name. SuperAdmin only.
 

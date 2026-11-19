@@ -712,8 +712,6 @@ body.adminstats #content div:has(> table.table),
 .bootstrap .btn-link,
 .bootstrap .chosen-container .chosen-search:before { color: var(--sb-link); }
 .bootstrap .btn-primary > i[class^="icon-"]:before { color: var(--sb-accent-text); }
-.bootstrap .avail-bar-btn, .bootstrap .avail-bar-date { border-color: var(--sb-accent); border-radius: 8px; background-color: var(--sb-card); color: var(--sb-link); }
-.bootstrap .avail-bar-btn.bar-btn-active { background-color: var(--sb-accent); border-color: var(--sb-accent); color: var(--sb-accent-text); }
 
 /* ---------- 9. Dark-theme specifics ----------
    Things the tokens cannot reach: stock rules with hard-coded light colours,

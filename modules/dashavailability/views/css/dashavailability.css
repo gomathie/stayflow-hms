@@ -20,76 +20,98 @@
 * @license https://opensource.org/license/osl-3-0-php Open Software License version 3.0
 */
 
-.avil-chart-head {
-    padding-top: 15px;
-    height: 115px;
+/* Colours come from the back office tokens (admin/themes/default/css/overrides.css),
+   so the panel follows light and dark mode. */
+#dashavailability .sb-avail-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 0 4px;
 }
 
-.avil-chart-svg {
-    height: 380px;
-}
+#dashavailability .sb-avail-from { position: relative; }
 
-.avail-bar-btn {
-    height: 40px;
-    background: #FFFFFF;
-    border: 1px solid #00AFF0 !important;
-    box-sizing: border-box;
-    border-radius: 5px !important;
-    font-weight: bold !important;
-    color: #00AFF0;
-    text-align: center;
-    width: 100%;
+#dashavailability .sb-avail-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--sb-line);
+    border-radius: 8px;
+    background: var(--sb-card);
+    color: var(--sb-muted);
+    font-size: 13px;
 }
-
-.bar-btn-active {
-    background: #00AFF0;
-    color: #FFFFFF;
-}
-
-.avail-bar-date {
-    height: 40px;
-    background: #FFFFFF;
-    border: 1px solid #00AFF0;
-    box-sizing: border-box;
-    border-radius: 5px;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 14px;
-    line-height: 18px;
-    color: #555555;
-    padding: 0 14px;
-}
-
-.avail-bar-date strong {
-    color: #00AFF0;
-}
-
-.avail-bar-date:hover strong {
-    color: #FFFFFF;
-}
-
-.avail-bar-date:hover {
-    background: #00AFF0;
-}
-
-.avail-bar-btn:hover {
-    color: #ffffff !important;
-    background: #00AFF0;
-}
+#dashavailability .sb-avail-date strong { color: var(--sb-heading); font-weight: 600; }
+#dashavailability .sb-avail-date:hover,
+#dashavailability .sb-avail-date:focus-visible { border-color: var(--sb-accent); }
 
 #bardate {
     position: absolute;
     left: 0;
-    width: 49.5%;
-    height: 40px;
-    margin-top: -40px;
-    z-index: -1;
-    border: none;
-    outline: none;
+    bottom: 0;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    border: 0;
+    pointer-events: none;
 }
 
-@media screen and (max-width:900px) {
-    .avail-bar-btn {
-        white-space: none !important;
-    }
+#dashavailability .sb-avail-range {
+    display: inline-flex;
+    padding: 3px;
+    border: 1px solid var(--sb-line);
+    border-radius: 9px;
+    background: var(--sb-canvas);
+}
+#dashavailability .avail-bar-btn {
+    height: 30px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--sb-ink);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+#dashavailability .avail-bar-btn:hover { color: var(--sb-heading); }
+#dashavailability .avail-bar-btn.bar-btn-active {
+    background: var(--sb-card);
+    color: var(--sb-heading);
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .12);
+}
+
+#dashavailability .sb-avail-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin: 10px 0 0;
+}
+#dashavailability .sb-avail-summary dt {
+    color: var(--sb-muted);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+#dashavailability .sb-avail-summary dd { margin: 2px 0 0; color: var(--sb-heading); font-size: 15px; font-weight: 600; }
+
+#dashavailability .avil-chart-svg { height: 300px; }
+#dashavailability .nvd3 .nv-groups path.nv-area { fill-opacity: .12; }
+/* nvd3 repeats the axis ends in bold over the regular ticks; the ticks already cover them */
+#dashavailability .nvd3 .nv-y .nv-axisMaxMin { display: none; }
+#dashavailability .nvd3 .nv-x .nv-axisMaxMin text { font-weight: 400; }
+#dashavailability .nv-line { stroke-width: 2px; }
+#dashavailability .nvd3 .nv-axis text { fill: var(--sb-muted); }
+#dashavailability .nvd3 .nv-axis .tick line { stroke: var(--sb-line); }
+
+@media (max-width: 480px) {
+    #dashavailability .sb-avail-range { width: 100%; }
+    #dashavailability .avail-bar-btn { flex: 1; padding: 0 6px; }
+    #dashavailability .avil-chart-svg { height: 240px; }
 }
