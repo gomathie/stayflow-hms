@@ -8,8 +8,7 @@
 	{if $sb_on_dashboard && $sb_done == 'sb_check_out'}<div class="alert alert-success">{l s='The room is checked out and marked for cleaning.' mod='salisbergfrontdesk'}</div>{/if}
 	<div class="sb-desk-head">
 		<div>
-			<h2>{l s='Today at the desk' mod='salisbergfrontdesk'}</h2>
-			<p>{$sb_date|escape:'html':'UTF-8'}</p>
+			<h2>{l s='Today at the desk' mod='salisbergfrontdesk'} <span class="sb-desk-date">{$sb_date|escape:'html':'UTF-8'}</span></h2>
 		</div>
 		<div class="sb-desk-links">
 			<a class="btn btn-default" href="{$sb_housekeeping_link|escape:'html':'UTF-8'}"><i class="icon-home"></i> {l s='Housekeeping' mod='salisbergfrontdesk'}</a>
@@ -18,12 +17,29 @@
 	</div>
 
 	<div class="sb-desk-figures">
-		<a class="sb-desk-figure" href="#sb-arrivals"><span>{l s='Arrivals' mod='salisbergfrontdesk'}</span><strong>{$sb_today.arrivals|count}</strong></a>
-		<a class="sb-desk-figure" href="#sb-departures"><span>{l s='Departures' mod='salisbergfrontdesk'}</span><strong>{$sb_today.departures|count}</strong></a>
-		<a class="sb-desk-figure" href="#sb-in-house"><span>{l s='Rooms in house' mod='salisbergfrontdesk'}</span><strong>{$sb_today.in_house|count}</strong></a>
-		<a class="sb-desk-figure" href="#sb-unpaid"><span>{l s='Unpaid bookings' mod='salisbergfrontdesk'}</span><strong>{$sb_today.unpaid|count}</strong></a>
+		<a class="sb-desk-figure" href="#sb-arrivals">
+			<span>{l s='Arrivals' mod='salisbergfrontdesk'}</span><strong>{$sb_today.arrivals|count}</strong>
+			<small>{if $sb_today.arrivals|count == 0}{l s='None today' mod='salisbergfrontdesk'}{elseif $sb_waiting}{$sb_waiting|intval} {l s='still to check in' mod='salisbergfrontdesk'}{else}{l s='All checked in' mod='salisbergfrontdesk'}{/if}</small>
+			<i class="icon-chevron-right"></i>
+		</a>
+		<a class="sb-desk-figure" href="#sb-departures">
+			<span>{l s='Leaving today' mod='salisbergfrontdesk'}</span><strong>{$sb_due_out|count}</strong>
+			<small{if $sb_overdue|count} class="sb-desk-alert"{/if}>{if $sb_overdue|count}{$sb_overdue|count} {l s='overdue' mod='salisbergfrontdesk'}{else}{l s='None overdue' mod='salisbergfrontdesk'}{/if}</small>
+			<i class="icon-chevron-right"></i>
+		</a>
+		<a class="sb-desk-figure" href="#sb-in-house">
+			<span>{l s='Rooms in house' mod='salisbergfrontdesk'}</span><strong>{$sb_today.in_house|count}</strong>
+			<small>{l s='Guests checked in now' mod='salisbergfrontdesk'}</small>
+			<i class="icon-chevron-right"></i>
+		</a>
+		<a class="sb-desk-figure" href="#sb-unpaid">
+			<span>{l s='Unpaid bookings' mod='salisbergfrontdesk'}</span><strong>{$sb_today.unpaid|count}</strong>
+			<small{if $sb_today.unpaid|count} class="sb-desk-alert"{/if}>{if $sb_today.unpaid|count}{$sb_unpaid_owed|escape:'html':'UTF-8'} {l s='owed' mod='salisbergfrontdesk'}{else}{l s='Nothing owed' mod='salisbergfrontdesk'}{/if}</small>
+			<i class="icon-chevron-right"></i>
+		</a>
 	</div>
 
+	{if $sb_today.arrivals|count}
 	<details class="panel sb-desk-panel" id="sb-arrivals"{if $sb_open_arrivals} open{/if}>
 		<summary><h3><i class="icon-chevron-down"></i><i class="icon-signin"></i> {l s='Arrivals' mod='salisbergfrontdesk'}</h3></summary>
 		<div class="sb-desk-body">
@@ -69,19 +85,18 @@
 							{/if}
 						</td>
 					</tr>
-				{foreachelse}
-					<tr><td colspan="9" class="sb-desk-empty">{l s='No arrivals today.' mod='salisbergfrontdesk'}</td></tr>
 				{/foreach}
 				</tbody>
 			</table>
 		</div>
 		</div>
 	</details>
+	{/if}
 
 	<details class="panel sb-desk-panel" id="sb-departures"{if $sb_open_departures} open{/if}>
-		<summary><h3><i class="icon-chevron-down"></i><i class="icon-signout"></i> {l s='Departures' mod='salisbergfrontdesk'}</h3></summary>
+		<summary><h3><i class="icon-chevron-down"></i><i class="icon-signout"></i> {l s='Leaving today' mod='salisbergfrontdesk'} <span class="sb-desk-count">{$sb_due_out|count}</span></h3></summary>
 		<div class="sb-desk-body">
-		<p class="sb-desk-note">{l s='Rooms due to leave today, and rooms that should already have left. Checking a room out marks it dirty for housekeeping. Rooms already checked out today are in the list under this one.' mod='salisbergfrontdesk'}</p>
+		<p class="sb-desk-note">{l s='Rooms due to leave today. Checking a room out marks it dirty for housekeeping.' mod='salisbergfrontdesk'}</p>
 		<div class="sb-desk-scroll">
 			<table class="table">
 				<thead>
@@ -120,13 +135,59 @@
 						</td>
 					</tr>
 				{foreachelse}
-					<tr><td colspan="7" class="sb-desk-empty">{l s='No rooms are waiting to check out.' mod='salisbergfrontdesk'}</td></tr>
+					<tr><td colspan="7" class="sb-desk-empty">{l s='Nobody is due to leave today.' mod='salisbergfrontdesk'}</td></tr>
 				{/foreach}
 				</tbody>
 			</table>
 		</div>
 		</div>
 	</details>
+
+	{if $sb_overdue|count}
+	<details class="panel sb-desk-panel sb-desk-overdue" id="sb-overdue">
+		<summary><h3><i class="icon-chevron-down"></i><i class="icon-warning-sign"></i> {l s='Overdue' mod='salisbergfrontdesk'} <span class="sb-desk-count sb-desk-count-bad">{$sb_overdue|count}</span></h3></summary>
+		<div class="sb-desk-body">
+		<p class="sb-desk-note">{l s='Guests whose stay has ended but who were never checked out. Check them out, or open the booking if they are staying longer.' mod='salisbergfrontdesk'}</p>
+		<div class="sb-desk-scroll">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>{l s='Room' mod='salisbergfrontdesk'}</th>
+						<th>{l s='Guest' mod='salisbergfrontdesk'}</th>
+						<th>{l s='Phone' mod='salisbergfrontdesk'}</th>
+						<th>{l s='Stay' mod='salisbergfrontdesk'}</th>
+						<th>{l s='Still to pay' mod='salisbergfrontdesk'}</th>
+						<th>{l s='Booking' mod='salisbergfrontdesk'}</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+				{foreach from=$sb_overdue item=sb_row}
+					<tr>
+						<td><strong>{$sb_row.room_num|escape:'html':'UTF-8'}</strong><br /><small>{$sb_row.room_type_name|escape:'html':'UTF-8'}</small></td>
+						<td>{$sb_row.guest|escape:'html':'UTF-8'}</td>
+						<td>{$sb_row.phone|escape:'html':'UTF-8'}</td>
+						<td>{$sb_row.stay|escape:'html':'UTF-8'} <span class="sb-chip sb-chip-bad">{if $sb_row.days_over == 1}{l s='1 day over' mod='salisbergfrontdesk'}{else}{$sb_row.days_over|intval} {l s='days over' mod='salisbergfrontdesk'}{/if}</span></td>
+						<td>{if $sb_row.balance_text}<span class="sb-chip sb-chip-bad">{$sb_row.balance_text|escape:'html':'UTF-8'}</span>{else}<span class="sb-chip sb-chip-good">{l s='Paid' mod='salisbergfrontdesk'}</span>{/if}</td>
+						<td><a href="{$sb_booking_link|escape:'html':'UTF-8'}{$sb_row.id_order|intval}">{$sb_row.reference|escape:'html':'UTF-8'}</a></td>
+						<td class="sb-desk-act">
+							{if $sb_can_edit}
+							<form method="post" action="{$sb_action|escape:'html':'UTF-8'}">
+								<input type="hidden" name="id_booking" value="{$sb_row.id|intval}" />
+								<button type="submit" name="sb_check_out" value="1" class="btn btn-primary"><i class="icon-signout"></i> {l s='Check out' mod='salisbergfrontdesk'}</button>
+							</form>
+							{else}
+							<span class="sb-chip">{l s='In house' mod='salisbergfrontdesk'}</span>
+							{/if}
+						</td>
+					</tr>
+				{/foreach}
+				</tbody>
+			</table>
+		</div>
+		</div>
+	</details>
+	{/if}
 
 	{if $sb_checked_out|count}
 	<details class="panel sb-desk-panel" id="sb-checked-out">
@@ -200,9 +261,9 @@
 	</details>
 
 	<details class="panel sb-desk-panel" id="sb-unpaid"{if $sb_open_unpaid} open{/if}>
-		<summary><h3><i class="icon-chevron-down"></i><i class="icon-money"></i> {l s='Unpaid bookings' mod='salisbergfrontdesk'}</h3></summary>
+		<summary><h3><i class="icon-chevron-down"></i><i class="icon-money"></i> {l s='Unpaid bookings' mod='salisbergfrontdesk'} <span class="sb-desk-count">{$sb_today.unpaid|count}</span></h3></summary>
 		<div class="sb-desk-body">
-		<p class="sb-desk-note">{l s='Bookings with money still to pay, for stays that are coming, under way, or ended in the last 30 days. Open the booking to record a payment.' mod='salisbergfrontdesk'}</p>
+		<p class="sb-desk-note">{l s='Most urgent first: guests staying now, then stays that have ended, then the next arrivals. Open the booking to record a payment.' mod='salisbergfrontdesk'}</p>
 		<div class="sb-desk-scroll">
 			<table class="table">
 				<thead>
@@ -220,14 +281,14 @@
 					</tr>
 				</thead>
 				<tbody>
-				{foreach from=$sb_today.unpaid item=sb_row}
+				{foreach from=$sb_unpaid_shown item=sb_row}
 					<tr>
 						<td>{$sb_row.reference|escape:'html':'UTF-8'}</td>
 						<td>{$sb_row.guest|escape:'html':'UTF-8'}</td>
 						<td>{$sb_row.phone|escape:'html':'UTF-8'}</td>
 						<td>{$sb_row.room_nums|escape:'html':'UTF-8'}</td>
-						<td>{$sb_row.stay|escape:'html':'UTF-8'}</td>
-						<td>{$sb_row.payment|escape:'html':'UTF-8'}</td>
+						<td>{$sb_row.stay|escape:'html':'UTF-8'}{if $sb_row.current} <span class="sb-chip sb-chip-warn">{l s='Staying now' mod='salisbergfrontdesk'}</span>{/if}</td>
+						<td>{$sb_row.payment_short|escape:'html':'UTF-8'}</td>
 						<td class="text-right">{$sb_row.total_text|escape:'html':'UTF-8'}</td>
 						<td class="text-right">{$sb_row.paid_text|escape:'html':'UTF-8'}</td>
 						<td class="text-right"><strong>{$sb_row.balance_text|escape:'html':'UTF-8'}</strong></td>
@@ -239,6 +300,9 @@
 				</tbody>
 			</table>
 		</div>
+		{if $sb_today.unpaid|count > $sb_unpaid_shown|count}
+		<p class="sb-desk-more"><a href="{$sb_invoices_link|escape:'html':'UTF-8'}">{l s='See all' mod='salisbergfrontdesk'} {$sb_today.unpaid|count} {l s='unpaid bookings in Invoices' mod='salisbergfrontdesk'} <i class="icon-arrow-right"></i></a></p>
+		{/if}
 		</div>
 	</details>
 </div>

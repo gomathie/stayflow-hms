@@ -34,10 +34,10 @@
 	<div class="row text-center avil-chart-head">
 		<div class="col-md-4 col-xs-4">
 			<div class="row">
-				<div class="col-md-11 label-tooltip col-lg-11 avail-pie-label-container" style="background: #A569DF;"  data-toggle="tooltip" data-original-title="{l s='The total number of rooms booked for date range out of total number of rooms.' mod='dashoccupancy'}">
+				<div class="col-md-11 label-tooltip col-lg-11 avail-pie-label-container sb-occ sb-occ-booked"  data-toggle="tooltip" data-original-title="{l s='The total number of rooms booked for date range out of total number of rooms.' mod='dashoccupancy'}">
 					<div class="">
 						<p class="avail-pie-text">
-							{l s='Occupied' mod='dashoccupancy'}
+							{l s='Booked' mod='dashoccupancy'}
 						</p>
 						<div class="avail-pie-value-container">
 							<p class="avail-pie-value">
@@ -50,10 +50,10 @@
 		</div>
 		<div class="col-md-4 col-xs-4">
 			<div class="row">
-				<div class="col-md-11 col-lg-11 avail-pie-label-container label-tooltip" style="background: #56CE56;" data-toggle="tooltip" data-original-title="{l s='The total number of rooms available for booking for date range.' mod='dashoccupancy'}">
+				<div class="col-md-11 col-lg-11 avail-pie-label-container label-tooltip sb-occ sb-occ-free" data-toggle="tooltip" data-original-title="{l s='The total number of rooms available for booking for date range.' mod='dashoccupancy'}">
 					<div class="">
 						<p class="avail-pie-text">
-							{l s='Available' mod='dashoccupancy'}
+							{l s='Free to book' mod='dashoccupancy'}
 						</p>
 						<div class="avail-pie-value-container">
 							<p class="avail-pie-value" id="pie_avail_text">
@@ -66,10 +66,10 @@
 		</div>
 		<div class="col-md-4 col-xs-4">
 			<div class="row">
-				<div class="col-md-11 col-lg-11 avail-pie-label-container label-tooltip" style="background: #FF655C;" data-toggle="tooltip" data-original-title="{l s='The total number of rooms unavailable for booking for date range.' mod='dashoccupancy'}">
+				<div class="col-md-11 col-lg-11 avail-pie-label-container label-tooltip sb-occ sb-occ-blocked" data-toggle="tooltip" data-original-title="{l s='Rooms that cannot be booked for these dates: out of service or closed.' mod='dashoccupancy'}">
 					<div class="">
 						<p class="avail-pie-text">
-							{l s='Unavailable' mod='dashoccupancy'}
+							{l s='Blocked' mod='dashoccupancy'}
 						</p>
 						<div class="avail-pie-value-container">
 							<p class="avail-pie-value" id="pie_inactive_text">

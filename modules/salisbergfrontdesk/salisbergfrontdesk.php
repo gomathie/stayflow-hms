@@ -53,6 +53,8 @@ class Salisbergfrontdesk extends Module
 
     /** How far back an unpaid stay is still listed, in days */
     const UNPAID_DAYS = 30;
+    // rows of the unpaid list shown on the Dashboard; the rest are under Bookings > Invoices
+    const UNPAID_SHOWN = 6;
 
     /** Profiles given the front-desk pages once, when they are first created */
     protected static $profiles = array('Hotel Staff', 'Hotel Manager');
@@ -452,13 +454,17 @@ class Salisbergfrontdesk extends Module
     public function assignTodayTemplate($canEdit, $onDashboard = false)
     {
         $today = $this->getToday();
+        // due out today is the day's work; earlier stays never checked out are a separate, folded list
         $dueOut = array();
+        $overdue = array();
         $checkedOut = array();
         foreach ($today['departures'] as $row) {
-            if ((int) $row['id_status'] === (int) HotelBookingDetail::STATUS_CHECKED_IN) {
-                $dueOut[] = $row;
-            } else {
+            if ((int) $row['id_status'] !== (int) HotelBookingDetail::STATUS_CHECKED_IN) {
                 $checkedOut[] = $row;
+            } elseif ($row['overdue']) {
+                $overdue[] = $row;
+            } else {
+                $dueOut[] = $row;
             }
         }
         $waiting = 0;
@@ -467,16 +473,30 @@ class Salisbergfrontdesk extends Module
                 $waiting++;
             }
         }
+        // the unpaid list is long by nature: show the most urgent, link to the full list
+        $owed = 0;
+        $owedNow = 0;
+        foreach ($today['unpaid'] as $row) {
+            $owed += $row['balance'];
+            if ($row['current']) {
+                $owedNow++;
+            }
+        }
         $done = (string) Tools::getValue('sb_done');
 
         $this->context->smarty->assign(array(
             'sb_today' => $today,
             'sb_due_out' => $dueOut,
+            'sb_overdue' => $overdue,
             'sb_checked_out' => $checkedOut,
+            'sb_waiting' => $waiting,
+            'sb_unpaid_shown' => array_slice($today['unpaid'], 0, self::UNPAID_SHOWN),
+            'sb_unpaid_owed' => $this->money($owed),
+            'sb_invoices_link' => $this->context->link->getAdminLink('AdminInvoices'),
             'sb_open_arrivals' => ($waiting > 0 || $done === 'sb_check_in'),
             'sb_open_departures' => (count($dueOut) > 0 || $done === 'sb_check_out'),
-            'sb_open_unpaid' => count($today['unpaid']) > 0,
-            'sb_date' => Tools::displayDate(date('Y-m-d')),
+            'sb_open_unpaid' => $owedNow > 0,
+            'sb_date' => date('D j M Y'),
             'sb_can_edit' => (int) $canEdit,
             'sb_action' => $this->context->link->getAdminLink(self::TAB_TODAY),
             'sb_booking_link' => $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order=',
@@ -484,7 +504,7 @@ class Salisbergfrontdesk extends Module
             'sb_book_link' => $this->context->link->getAdminLink(self::TAB_ROOM_BOARD),
             'sb_expected' => HotelBookingDetail::STATUS_ALLOTED,
             'sb_in' => HotelBookingDetail::STATUS_CHECKED_IN,
-            'sb_css' => $this->getPathUri().'views/css/frontdesk.css?v=11',
+            'sb_css' => $this->getPathUri().'views/css/frontdesk.css?v=12',
             'sb_on_dashboard' => (bool) $onDashboard,
             'sb_done' => $done,
         ));
@@ -679,16 +699,60 @@ class Salisbergfrontdesk extends Module
         foreach ($rows as &$row) {
             $row['balance'] = max(0, (float) $row['total_paid_tax_incl'] - (float) $row['total_paid_real']);
             $row['balance_text'] = $row['balance'] > 0.009 ? $this->money($row['balance']) : '';
-            $row['stay'] = Tools::displayDate($row['date_from']).' - '.Tools::displayDate($row['date_to']);
+            $row['stay'] = $this->stayRange($row['date_from'], $row['date_to']);
             $row['guests'] = (int) $row['adults'].' + '.(int) $row['children'];
             $row['late'] = substr($row['date_from'], 0, 10) < $today && (int) $row['id_status'] == HotelBookingDetail::STATUS_ALLOTED;
             $row['overdue'] = substr($row['date_to'], 0, 10) < $today && (int) $row['id_status'] == HotelBookingDetail::STATUS_CHECKED_IN;
+            $row['days_over'] = $row['overdue'] ? (int) round((strtotime($today) - strtotime(substr($row['date_to'], 0, 10))) / 86400) : 0;
             $row['leaves_today'] = substr($row['date_to'], 0, 10) == $today;
             $row['room_label'] = $this->roomLabel($row['room_state'], $row['housekeeping']);
         }
         unset($row);
 
         return $rows;
+    }
+
+    /**
+     * A stay as people say it: "13–15 Oct", "30 Oct – 2 Nov", and the year only when
+     * it is not this year ("28 Dec 2026 – 2 Jan 2027"). One line instead of two dates.
+     */
+    public function stayRange($from, $to)
+    {
+        $a = strtotime(substr((string) $from, 0, 10));
+        $b = strtotime(substr((string) $to, 0, 10));
+        if (!$a || !$b) {
+            return '';
+        }
+        $year = date('Y');
+        $showYear = date('Y', $a) !== $year || date('Y', $b) !== $year;
+        if (date('Y-m', $a) === date('Y-m', $b)) {
+            return date('j', $a).'–'.date('j M', $b).($showYear ? ' '.date('Y', $b) : '');
+        }
+        if ($showYear) {
+            return date('j M Y', $a).' – '.date('j M Y', $b);
+        }
+
+        return date('j M', $a).' – '.date('j M', $b);
+    }
+
+    /** The payment method in one or two words, for narrow columns. */
+    protected function paymentShort($payment)
+    {
+        $p = Tools::strtolower((string) $payment);
+        if (strpos($p, 'momo') !== false || strpos($p, 'mobile') !== false) {
+            return $this->l('MoMo');
+        }
+        if (strpos($p, 'cash') !== false) {
+            return $this->l('Cash');
+        }
+        if (strpos($p, 'bank') !== false || strpos($p, 'transfer') !== false) {
+            return $this->l('Bank');
+        }
+        if (strpos($p, 'later') !== false) {
+            return $this->l('Later');
+        }
+
+        return (string) $payment;
     }
 
     /**
@@ -729,6 +793,7 @@ class Salisbergfrontdesk extends Module
             return array();
         }
         $dead = $this->deadStates();
+        $today = pSQL(date('Y-m-d'));
         $since = pSQL(date('Y-m-d', strtotime('-'.(int) self::UNPAID_DAYS.' days')));
         $rows = Db::getInstance()->executeS(
             'SELECT o.`id_order`, o.`reference`, o.`payment`, o.`total_paid_tax_incl`, o.`total_paid_real`,
@@ -744,15 +809,19 @@ class Salisbergfrontdesk extends Module
                 .($dead ? ' AND o.`current_state` NOT IN ('.implode(',', $dead).')' : '').'
             GROUP BY o.`id_order`
             HAVING `stay_to` >= \''.$since.'\'
-            ORDER BY `stay_from` ASC
+            ORDER BY (DATE(`stay_from`) <= \''.$today.'\' AND DATE(`stay_to`) >= \''.$today.'\') DESC,
+                (DATE(`stay_to`) < \''.$today.'\') DESC, `stay_from` ASC
             LIMIT 200'
         );
         $rows = (array) $rows;
         foreach ($rows as &$row) {
+            $row['balance'] = (float) $row['total_paid_tax_incl'] - (float) $row['total_paid_real'];
             $row['total_text'] = $this->money($row['total_paid_tax_incl']);
             $row['paid_text'] = $this->money($row['total_paid_real']);
-            $row['balance_text'] = $this->money((float) $row['total_paid_tax_incl'] - (float) $row['total_paid_real']);
-            $row['stay'] = Tools::displayDate($row['stay_from']).' - '.Tools::displayDate($row['stay_to']);
+            $row['balance_text'] = $this->money($row['balance']);
+            $row['stay'] = $this->stayRange($row['stay_from'], $row['stay_to']);
+            $row['payment_short'] = $this->paymentShort($row['payment']);
+            $row['current'] = substr($row['stay_from'], 0, 10) <= $today && substr($row['stay_to'], 0, 10) >= $today;
         }
         unset($row);
 

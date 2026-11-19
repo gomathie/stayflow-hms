@@ -325,9 +325,10 @@ class Dashtrends extends Module
             'net_profits' => $this->l('Net Profit')
         );
 
-        $gfx_color = array('#72C3F0','#56CE56','#FF4036','#FF7F0E','#A569DF','#AF8A42');
+        // one series shows at a time: brand green for the period, gold for the comparison period
+        $gfx_color = array_fill(0, 6, '#1f9a70');
         $gfx_color_border = $gfx_color;
-        $gfx_color_compare = array('#1777B6','#19900d','#b9140c','#bf6307','#6B399C','#B3591F');
+        $gfx_color_compare = array_fill(0, 6, '#c08718');
 
         $i = 0;
         $data = array('chart_type' => 'line_chart_trends', 'date_format' => $this->context->language->date_format_lite, 'data' => array());

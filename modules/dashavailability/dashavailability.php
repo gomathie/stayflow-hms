@@ -106,8 +106,8 @@ class DashAvailability extends Module
             array(
                 'id' => 'availabilities',
                 'key' => $this->l('Availability'),
-                'border_color' => '#11f0fc',
-                'color' => '#72C3F0',
+                'border_color' => '#1f9a70',
+                'color' => '#1f9a70',
             )
         );
         $data[] = $availability_data;

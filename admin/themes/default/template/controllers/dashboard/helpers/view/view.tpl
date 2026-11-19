@@ -41,6 +41,7 @@
         <div class="col-lg-12">
             <div class="panel clearfix">
                 <div class="col-lg-12">
+                    {if $PS_DASHBOARD_SIMULATION}<div class="alert alert-warning sb-demo-note"><b>{l s='Demo mode is on.'}</b> {l s='The charts below show sample figures, not your hotel. The desk above is always real.'}</div>{/if}
                     <p class="sb-figures-note">{l s='Day, Month and Year change these charts only. Day is today. The desk above stays on today, including guests who should already have left.'}</p>
                 </div>
                 <div class="col-lg-6">

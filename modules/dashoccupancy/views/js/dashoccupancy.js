@@ -32,7 +32,7 @@ function pie_chart_occupancy(widget_name, chart_details) {
             .labelType('percent')
             .donut(true)
             .donutRatio(0.35)
-            .color(['#A569DF', '#56CE56', '#FF655C']);
+            .color(sbOccupancyColours());
 
         // create content for the tooltip of chart
         chart.tooltip.contentGenerator((obj, element) => {
@@ -73,3 +73,14 @@ $(document).ready(function() {
         $('#dashoccupancy_date_range').html(sprintf(date_subtitle, start.format(date_format), end.format(date_format)));
     });
 });
+
+/* Donut colours come from the back office theme (light or dark), set as
+   --sb-occ-booked, --sb-occ-free and --sb-occ-blocked in overrides.css. */
+function sbOccupancyColours() {
+    var css = window.getComputedStyle(document.documentElement);
+    var pick = function (name, fallback) {
+        var value = css.getPropertyValue(name);
+        return value && value.trim() ? value.trim() : fallback;
+    };
+    return [pick('--sb-occ-booked', '#0f8a60'), pick('--sb-occ-free', '#cf931f'), pick('--sb-occ-blocked', '#4a7fc0')];
+}

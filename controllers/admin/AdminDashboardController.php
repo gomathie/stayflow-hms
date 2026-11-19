@@ -57,11 +57,14 @@ class AdminDashboardControllerCore extends AdminController
     public function initPageHeaderToolbar()
     {
         $this->page_header_toolbar_title = $this->l('Dashboard');
-        $this->page_header_toolbar_btn['switch_demo'] = array(
-            'desc' => $this->l('Demo mode', null, null, false),
-            'icon' => 'process-icon-toggle-'.(Configuration::get('PS_DASHBOARD_SIMULATION') ? 'on' : 'off'),
-            'help' => $this->l('This mode displays sample data so you can try your dashboard without real numbers.', null, null, false)
-        );
+        // sample figures replace the real ones for everybody, so only the developer team may switch it
+        if ($this->context->employee && $this->context->employee->isSuperAdmin()) {
+            $this->page_header_toolbar_btn['switch_demo'] = array(
+                'desc' => $this->l('Demo mode', null, null, false),
+                'icon' => 'process-icon-toggle-'.(Configuration::get('PS_DASHBOARD_SIMULATION') ? 'on' : 'off'),
+                'help' => $this->l('This mode displays sample data so you can try your dashboard without real numbers.', null, null, false)
+            );
+        }
 
         parent::initPageHeaderToolbar();
 
@@ -403,6 +406,9 @@ class AdminDashboardControllerCore extends AdminController
 
     public function ajaxProcessSetSimulationMode()
     {
+        if (!$this->context->employee || !$this->context->employee->isSuperAdmin()) {
+            die('k'.Configuration::get('PS_DASHBOARD_SIMULATION').'k');
+        }
         Configuration::updateValue('PS_DASHBOARD_SIMULATION', (int)Tools::getValue('PS_DASHBOARD_SIMULATION'));
         die('k'.Configuration::get('PS_DASHBOARD_SIMULATION').'k');
     }

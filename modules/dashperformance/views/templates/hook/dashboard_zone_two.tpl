@@ -33,82 +33,82 @@
 		<section>
 			<div class="row stats-wrap">
 				<div class="col-xs-6 col-lg-3">
-					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Average Daily Rate (ADR) represents the average rental income per occupied room over a given time period.' mod='dashperformance'}" data-placement="top" style="background-color: #B7F0FF;">
+					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Average Daily Rate (ADR) represents the average rental income per occupied room over a given time period.' mod='dashperformance'}" data-placement="top">
 						<div class="title-wrapper">
 							<p>{l s='Average Daily Rate' mod='dashperformance'}</p>
 						</div>
 						<div class="value-wrapper">
-							<span id="dp_average_daily_rate" style="color: #0093BA;">--</span>
+							<span id="dp_average_daily_rate">--</span>
 						</div>
 					</div>
 				</div>
                 <div class="col-xs-6 col-lg-3">
-					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Average Occupancy Rate (AOR) is the average percentage of rooms booked out over a given time period.' mod='dashperformance'}" data-placement="top" style="background-color: #FFE5B4;">
+					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Average Occupancy Rate (AOR) is the average percentage of rooms booked out over a given time period.' mod='dashperformance'}" data-placement="top">
 						<div class="title-wrapper">
 							<p>{l s='Average Occupancy Rate' mod='dashperformance'}</p>
 						</div>
 						<div class="value-wrapper">
-							<span id="dp_average_occupancy_rate" style="color: #E09400;">--</span>
+							<span id="dp_average_occupancy_rate">--</span>
 						</div>
 					</div>
 				</div>
                 <div class="col-xs-6 col-lg-3">
-					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Direct Revenue Ratio (DRR) measures the percentage of online revenue that comes directly from your website vs. third party channels.' mod='dashperformance'}" data-placement="top" style="background-color: #B6FFB6;">
+					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Direct Revenue Ratio (DRR) measures the percentage of online revenue that comes directly from your website vs. third party channels.' mod='dashperformance'}" data-placement="top">
 						<div class="title-wrapper">
 							<p>{l s='Direct Revenue Ratio' mod='dashperformance'}</p>
 						</div>
 						<div class="value-wrapper">
-							<span id="dp_direct_revenue_ratio" style="color: #00B200;">--</span>
+							<span id="dp_direct_revenue_ratio">--</span>
 						</div>
 					</div>
 				</div>
                 <div class="col-xs-6 col-lg-3">
-					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Cancellation Rate (CR) is the percentage of all cancelled bookings out of all bookings over a given time period.' mod='dashperformance'}" data-placement="top" style="background-color: #FFBBB8;">
+					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Cancellation Rate (CR) is the percentage of all cancelled bookings out of all bookings over a given time period.' mod='dashperformance'}" data-placement="top">
 						<div class="title-wrapper">
 							<p>{l s='Cancellation Rate' mod='dashperformance'}</p>
 						</div>
 						<div class="value-wrapper">
-							<span id="dp_cancellation_rate" style="color: #FF4036;">--</span>
+							<span id="dp_cancellation_rate">--</span>
 						</div>
 					</div>
 				</div>
                 <div class="col-xs-6 col-lg-3">
-					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Revenue Per Available Room (RevPAR) is calculated by dividing total rooms revenue by the total number of rooms in the period being measured.' mod='dashperformance'}" data-placement="top" style="background-color: #B6FFB6;">
+					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Revenue Per Available Room (RevPAR) is calculated by dividing total rooms revenue by the total number of rooms in the period being measured.' mod='dashperformance'}" data-placement="top">
 						<div class="title-wrapper">
 							<p>{l s='Revenue Per Available Room' mod='dashperformance'}</p>
 						</div>
 						<div class="value-wrapper">
-							<span id="dp_revenue_per_available_room" style="color: #00B200;">--</span>
+							<span id="dp_revenue_per_available_room">--</span>
 						</div>
 					</div>
 				</div>
 				<div class="col-xs-6 col-lg-3">
-					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Total Revenue Per Available Room (TrevPAR) measures the total revenue being generated per available room including additional facilities and service products.' mod='dashperformance'}" data-placement="top" style="background-color: #EBCDFF;">
+					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Total Revenue Per Available Room (TrevPAR) measures the total revenue being generated per available room including additional facilities and service products.' mod='dashperformance'}" data-placement="top">
 						<div class="title-wrapper">
 							<p>{l s='Total Revenue Per Available Room' mod='dashperformance'}</p>
 						</div>
 						<div class="value-wrapper">
-							<span id="dp_total_revenue_per_available_room" style="color: #FF4036;">--</span>
+							<span id="dp_total_revenue_per_available_room">--</span>
 						</div>
 					</div>
 				</div>
 				<div class="col-xs-6 col-lg-3">
-					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Gross Operating Profit Per Available Room (GOPPAR) measures how much gross operating profit comes from each room including additional facilities and service products.' mod='dashperformance'}" data-placement="top" style="background-color: #B7F0FF;">
+					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Gross Operating Profit Per Available Room (GOPPAR) measures how much gross operating profit comes from each room including additional facilities and service products.' mod='dashperformance'}" data-placement="top">
 						<div class="title-wrapper">
 							<p>{l s='Gross Operating Profit Per Available Room' mod='dashperformance'}</p>
 						</div>
 						<div class="value-wrapper">
-							<span id="dp_gross_operating_profit_par" style="color: #0093BA;">--</span>
+							<span id="dp_gross_operating_profit_par">--</span>
 						</div>
 					</div>
 				</div>
 				<div class="col-xs-6 col-lg-3">
-					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Average Length of Stay (ALOS) is the average amount of days guests stay at the hotel over a given time period.' mod='dashperformance'}" data-placement="top" style="background-color: #FFE5B4;">
+					<div class="stat-box label-tooltip" data-toggle="tooltip" data-original-title="{l s='Average Length of Stay (ALOS) is the average amount of days guests stay at the hotel over a given time period.' mod='dashperformance'}" data-placement="top">
 						<div class="title-wrapper">
 							<p>{l s='Average Length of Stay' mod='dashperformance'}</p>
 						</div>
 						<div class="value-wrapper">
-							<span id="dp_average_length_of_stay" style="color: #E09400;">--</span>
+							<span id="dp_average_length_of_stay">--</span>
 						</div>
 					</div>
 				</div>

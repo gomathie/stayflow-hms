@@ -36,6 +36,10 @@
   --sb-success: #2f7d4f;       /* confirm / positive buttons */
   --sb-danger: #c0392b;        /* delete / destructive buttons */
   --sb-warning: #b7791f;       /* caution buttons */
+  /* dashboard occupancy donut: checked with the dataviz palette validator (light surface) */
+  --sb-occ-booked: #0f8a60;
+  --sb-occ-free: #cf931f;
+  --sb-occ-blocked: #4a7fc0;
   --sb-canvas: #e8eaed;        /* page background */
   --sb-card: #f7f7f5;          /* cards, bars, menus, fields: off-white, easier on the eyes than pure white */
   --sb-subtle: #f0f1ef;        /* table headers, card footers */
@@ -66,6 +70,9 @@ html[data-sb-theme="dark"] {
   --sb-success: #3f9d6b;
   --sb-danger: #d9584a;
   --sb-warning: #c98f2e;
+  --sb-occ-booked: #1f9a70;
+  --sb-occ-free: #c08718;
+  --sb-occ-blocked: #5b8fd0;
   --sb-canvas: #0e1412;
   --sb-card: #161e1b;
   --sb-subtle: #1b2521;
@@ -644,9 +651,28 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 /* figures and labels that were cut off or ran outside their box */
 #dashboard .avail-pie-value { font-size: 18px; }
 #dashboard svg { overflow: visible; }
+/* Revenue, Performance and Occupancy figures are stat tiles: one neutral card style, figures in
+   the text colour. Colour is kept for the charts themselves (brand green, gold, blue). */
+#dashboard #dashtrends dl,
+#dashboard .stat-box,
+#dashboard .avail-pie-label-container { border: 1px solid var(--sb-line); border-radius: 12px; background-color: var(--sb-card); box-shadow: none; }
+#dashboard #dashtrends dl dt,
+#dashboard .stat-box .title-wrapper p,
+#dashboard .avail-pie-text { color: var(--sb-muted); font-weight: 500; }
+#dashboard #dashtrends dl dd,
+#dashboard #dashtrends dl dd span,
+#dashboard #dashtrends dl small,
+#dashboard .stat-box .value-wrapper span,
+#dashboard .avail-pie-value { color: var(--sb-heading); }
+#dashboard #dashtrends dl.active { border-color: var(--sb-occ-booked); box-shadow: inset 0 0 0 1px var(--sb-occ-booked); }
 #dashboard .stat-box { padding: 16px; }
-#dashboard .stat-box .value-wrapper span { font-size: 16px; white-space: nowrap; }
-#dashboard .stat-box .title-wrapper p { color: #1f2937; }   /* the tiles are pastel in both themes */
+#dashboard .stat-box .value-wrapper span { font-size: 20px; font-weight: 600; white-space: nowrap; }
+/* each occupancy tile carries the swatch of its slice, so colour is never the only key */
+#dashboard .sb-occ { border-left-width: 6px; }
+#dashboard .sb-occ-booked { border-left-color: var(--sb-occ-booked); }
+#dashboard .sb-occ-free { border-left-color: var(--sb-occ-free); }
+#dashboard .sb-occ-blocked { border-left-color: var(--sb-occ-blocked); }
+#dashboard .sb-demo-note { margin: 0 0 12px; }
 #dashboard .stats-list > li:has(> #dash_traffic_source) { flex-wrap: wrap; align-items: flex-start; }
 #dashboard .stats-list > li:has(> #dash_traffic_source) > .item-label { flex: 0 0 100%; margin-bottom: 8px; }
 /* the occupancy chart is drawn at a fixed size; on a phone it shrinks to fit */
@@ -998,7 +1024,6 @@ html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); 
 #content.bootstrap .sb-booking-kpis .actions-wrap .btn { width: 32px; height: 32px; padding: 0; border-radius: 7px; }
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn span,
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn div { color: inherit; font-weight: inherit; }
-#dashboard .avail-pie-label-container p { color: #fff; }
 .bootstrap .hasDatepicker.form-control { background-color: var(--sb-card); color: var(--sb-ink); }
 
 /* dark theme: text the dashboard and calendar widgets colour themselves */
