@@ -45,9 +45,9 @@ Never move or rename an inherited file (rule 29). One batch per change.
 
 | # | Batch | Modules | Why they can go | Risk |
 |---|---|---|---|---|
-| 1 | **Never installed** (first, chosen) | `gridhtml`, `qlocleaner`, `qlopaypalcommerce` | Not installed; nothing loads them | Very low |
+| 1 | **Never installed** (first, chosen) | `qlopaypalcommerce` | Not installed; nothing loads it. Card payments, if ever added, would use a Ghana provider (Paystack, Hubtel) | Very low |
 | 2 | Replaced by ours | `bankwire`, `cheque` (Salisberg Pay); `qlochannelmanagerconnector`; `qlohotelreview` (CVE-2025-67325) | Already switched off on every deploy | Low |
-| 3 | Shop statistics | 20 `stats*` modules, `statsdata`, `sekeywords`, `pagesnotfound`, `qlostatsserviceproducts`; `graphnvd3` only if no Dashboard chart uses it | Stats menu is hidden; Reports and the Dashboard replace it | Medium: check the chart library first |
+| 3 | Shop statistics | 20 `stats*` modules, `statsdata`, `sekeywords`, `pagesnotfound`, `qlostatsserviceproducts`; `gridhtml` (not installed, but the Stats pages load it by folder name through `PS_STATS_GRID_RENDER`, so it goes with them, never before); `graphnvd3` only if no Dashboard chart uses it | Stats menu is hidden; Reports and the Dashboard replace it | Medium: check the chart library first |
 | 4 | Dashboard leftovers | `dashactivity`, `dashproducts`, `dashgoals`, `dashinsights` | Shop figures we do not show | Medium |
 | 5 | Inherited shop features | Stock classes and tables, suppliers, manufacturers, leftover comparison code, unused admin tabs | Hidden since 2026-10-13 | Higher: loaded by class index and by path |
 | 6 | Unused images and translations | Files under `img/` and `translations/` nothing references | Size only | Low |
@@ -61,8 +61,38 @@ Never move or rename an inherited file (rule 29). One batch per change.
 | `wkabouthotelblock`, `wkhotelfeaturesblock`, `wkhotelroom`, `wkroomsearchblock`, `wkhotelfilterblock`, `wkfooterpaymentblock`, `wkfooterpaymentinfoblockcontainer`, `wkfooternotificationblock` | Homepage and footer |
 | `dashoccupancy`, `dashtrends`, `dashperformance`, `dashavailability`, `dashguestcycle` | Dashboard charts |
 | `salisbergfrontdesk`, `salisbergguide`, `salisbergnotify`, `salisbergpay`, `salisbergreports` | Ours |
+| `qlocleaner` | Kept and rebuilt as our own data clean-up tool (section below), not removed |
 | `wktestimonialblock` | Off until real reviews exist (owner will switch it on) |
 | `blocknewsletter`, `blocksocial`, `blocklanguages`, `blockcurrencies`, `wkfooterlangcurrencyblock` | Owner decision 2026-11-19: keep for now, review later |
+
+## Data clean-up tool: `qlocleaner` made our own
+
+**Owner decision (2026-11-19):** keep `qlocleaner` and rebuild it into Salisberg's own tool for removing old data on purpose, by date and by kind.
+
+**Today** it is the vendor's "Data Cleaner" (not installed). It has two all-or-nothing buttons, Delete Catalog and Delete Orders and Customers, plus a database integrity check. Nothing can be undone, and there is no way to pick dates.
+
+**What it becomes** (proposal to approve in detail before building, rule 31):
+
+| Part | What it does |
+|---|---|
+| Choose what | Bookings, guests with no bookings, unfinished booking drafts, abandoned carts, messages (Inbox), logs, the recycle bin, test data |
+| Choose when | Older than a date, or between two dates (for example "bookings that ended before 1 Jan 2025") |
+| Preview first | Shows how many of each will go, with a sample list, before anything is deleted |
+| Safe by default | Never touches unpaid bookings, guests staying now or arriving later, or anything newer than the hotel's legal retention period (to be agreed; tax records usually need several years) |
+| Backup first | Runs the existing backup (`docker/backup.sh`) and refuses to continue if it fails |
+| Confirm | The admin types the number of items to delete; the action is logged with who, when and what |
+| Optional schedule | For example, "every month, delete unfinished drafts and abandoned carts older than 30 days" |
+| Integrity check | The existing "functional integrity constraints" repair stays |
+| Removed | The two all-or-nothing buttons |
+
+**Who:** SuperAdmin only. The Hotel Manager may later get the safe parts (drafts, abandoned carts, old logs) if the owner chooses.
+
+**Where:** the module is renamed in place: its display name becomes "Data clean-up" and the menu entry goes under Advanced Parameters. Its folder is not renamed (rule 29). It is installed by `docker/setup-modules.php`. It reuses the archive (`sb_deleted_booking`) for bookings, so a deleted booking goes to the recycle bin first, then can be removed for good after a set time.
+
+**Open questions for the owner before building:**
+1. How long must paid bookings and invoices be kept?
+2. Should deleted bookings always pass through the recycle bin first?
+3. Which items, if any, should be cleaned automatically on a schedule?
 
 ## Overrides: fold them into the code they change
 
@@ -94,7 +124,7 @@ Module templates overridden from the theme (`themes/hotel-reservation-theme/modu
 
 | Step | Status |
 |---|---|
-| 0. Booking codes | Built and tested locally (2026-11-19); ships with the next deploy |
-| 1. Never installed | Waiting for step 0 |
+| 0. Booking codes | Live: pushed to production 2026-11-19 |
+| 1. Never installed (`qlopaypalcommerce`) | Ready to start once production is checked |
 | 2–6 | Not started |
 | O1–O7 Overrides | Rule 11 change approved 2026-11-19; not started |

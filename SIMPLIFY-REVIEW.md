@@ -56,6 +56,199 @@ The owner changes **Status** to **Approved**, **Rejected** or **Later**, optiona
 
 Add new ones at the top.
 
+> **Production review, 2026-11-19** (P-7 to P-15). Signed in as the SuperAdmin agent account and visited 60 menu pages read-only, at 1440 and 390 wide; nothing was saved. Screenshots are kept outside the repository. Inspiration: hotel front-desk dashboards on Dribbble and the Stayntouch front-desk dashboard: neutral cards, one accent colour, status chips, short lists, a grouped sidebar. **Not covered:** the Hotel Staff and Hotel Manager flows. No logins for those roles were available, and test accounts were not created on production without approval.
+
+> **Role review, 2026-11-19** (P-16, P-17). Test accounts `agent-staff@salisberg.com` (Hotel Staff) and `agent-manager@salisberg.com` (Hotel Manager) were created on production with owner approval. Their passwords are only in the local `.env`. Each toured its own menu read-only.
+>
+> | Role | Sections | Pages |
+> |---|---|---|
+> | Hotel Staff | 5 | 10 |
+> | Hotel Manager | 9 | 26 |
+> | Developer team | 12 | 59 |
+
+### P-17: Staff menu: only the desk
+
+- **Status:** Approved (owner, 2026-11-19)
+- **Found by / on:** Claude, 2026-11-19 (production, as Hotel Staff)
+- **Where:** the Hotel Staff sidebar and top bar
+- **Problem:**
+  - **Manage Hotel** holds a single page for staff (Refund requests).
+  - **Customers › Addresses** and **Bookings › Booking messages** are platform pages staff do not need. Addresses are filled in by the booking; Booking messages are canned order texts.
+  - The top bar's cart and customer icons and Quick Access open shop features.
+  - The New booking button lives only on the Bookings page; the Dashboard has "Open room board".
+- **Change:**
+  - Move Refund requests under Bookings, so Manage Hotel disappears for staff.
+  - Remove Addresses and Booking messages from the staff profile.
+  - Hide the cart icon and Quick Access for Hotel Staff.
+  - Call the Dashboard button "New booking", the same name as everywhere else.
+- **Why we need it:** a front-desk menu of three sections (Dashboard, Bookings, Customers) plus the guide.
+- **Benefits:** nothing to learn that is not front-desk work.
+- **Risks and costs:** permission changes through `$staffAccess` (one-off for existing profiles, as before); guide menu tables change.
+- **Who notices:** Staff
+- **Undo:** restore the rights
+- **Size:** Small
+
+### P-16: Hotel Staff should not see the hotel's income
+
+- **Status:** Approved (owner, 2026-11-19): hide the sales totals and the revenue and performance charts from Hotel Staff; keep Reports for the daily Arrivals and departures sheet only
+- **Found by / on:** Claude, 2026-11-19 (production, as Hotel Staff)
+- **Where:** Bookings figure strip, Dashboard charts, Bookings › Reports
+- **Problem:** a Hotel Staff account sees:
+  - **Total Sales GH₵43,900** at the top of Bookings;
+  - the **Revenue** and Performance charts on the Dashboard;
+  - **Reports**, including Income by day. On 2026-10-07 Reports was meant for managers only; on production the staff profile has it.
+- **Change:** staff see the desk (arrivals, departures, in house, unpaid for their guests) and no income totals. Reports, the revenue charts and the sales figure are for Hotel Manager and SuperAdmin.
+- **Why we need it:** most hotels keep takings away from front-desk logins.
+- **Benefits:** a simpler staff screen, and income stays private.
+- **Risks and costs:** if the owner wants the desk to print the daily income sheet, keep Reports and remove only the charts. Permission change plus the Dashboard chart modules checking the role.
+- **Who notices:** Staff
+- **Undo:** grant the rights again
+- **Size:** Small
+
+### P-15: Tidy guest names and hide placeholder emails
+
+- **Status:** Approved (owner, 2026-11-19)
+- **Found by / on:** Claude, 2026-11-19 (production Customers and Invoices lists)
+- **Where:** Customers › Customers; guest names everywhere
+- **Problem:** names are stored as typed ("mr mr", "george wilson", "Mr Emmanuel" as a first name). Walk-ins without email show as `guest-20261112145856-287888@guest.invalid` in the list.
+- **Change:** capitalise names on save (George Wilson); refuse a title alone as a name; show "No email" instead of the placeholder address.
+- **Why we need it:** names print on invoices, emails and texts to guests.
+- **Benefits:** professional documents; the list is readable.
+- **Risks and costs:** existing names are not changed unless the owner also wants a one-off tidy.
+- **Who notices:** Staff, Manager, Guests
+- **Undo:** remove the formatting
+- **Size:** Small
+
+### P-14: Phone: compact booking cards, no Delete on the card
+
+- **Status:** Approved (owner, 2026-11-19)
+- **Found by / on:** Claude, 2026-11-19 (Bookings at 390px: 24,278px tall)
+- **Where:** Bookings list, Customers list and Invoices on phones
+- **Problem:** on a phone each booking is a nine-row table about 470px tall, so the page is 24,000px long. A red Delete link sits on every card next to View.
+- **Change:** one compact card per booking (reference, guest, dates, status, due), with the whole card opening the booking. Delete only inside the booking.
+- **Why we need it:** staff use the desk on phones; a stray tap should never start a deletion.
+- **Benefits:** about four times more bookings per screen; fewer accidental deletions.
+- **Risks and costs:** stylesheet and list template changes; check every list that uses the stacked layout.
+- **Who notices:** Staff, Manager
+- **Undo:** restore the stacked rows
+- **Size:** Medium
+
+### P-13: Page long lists (20 or 50 at a time)
+
+- **Status:** Approved (owner, 2026-11-19)
+- **Found by / on:** Claude, 2026-11-19 (Invoices 12,078px tall at 1440, 89,384px at 390; Logs 7,449px)
+- **Where:** Bookings › Invoices, Advanced Parameters › Logs, and any list showing everything
+- **Problem:** Invoices shows all 155 invoices on one page; on a phone that is 89,000px of scrolling, and it grows with every booking.
+- **Change:** 20 rows per page by default, with Next/Previous and a choice of 50; the totals at the top still cover the whole filter.
+- **Why we need it:** the page gets slower and longer every day.
+- **Benefits:** fast pages; the newest items always on top.
+- **Risks and costs:** the Invoices list is our own code (`renderInvoiceList()`, capped at 200 today), so this is contained.
+- **Who notices:** Staff, Manager
+- **Undo:** remove paging
+- **Size:** Small
+
+### P-12: Bookings list: calmer colours, one date format
+
+- **Status:** Approved (owner, 2026-11-19)
+- **Found by / on:** Claude, 2026-11-19 (production Bookings list)
+- **Where:** Bookings › Bookings
+- **Problem:**
+  - Every status is a bright green bar.
+  - Total and Due are green pills, even when Due is GH₵0.00.
+  - Dates show as 11/12/2026, while the rest of the app says 12 Nov 2026.
+  - The reference column (old random codes) and the title-only guest names are hard to scan.
+- **Change:** status as a small neutral chip with a coloured dot (red only for problems); amounts as plain text, with Due in red only when money is owed; dates as 12 Nov 2026.
+- **Why we need it:** the eye should land on what needs action (money owed), not on every row.
+- **Benefits:** unpaid bookings stand out at once.
+- **Risks and costs:** the list is the inherited `AdminOrdersController` list; styles and column callbacks change.
+- **Who notices:** Staff, Manager
+- **Undo:** restore the old callbacks and styles
+- **Size:** Medium
+
+### P-11: Replace the shop figure strips on list pages
+
+- **Status:** Approved (owner, 2026-11-19)
+- **Found by / on:** Claude, 2026-11-19 (Bookings, Customers, Manage Room Types, Translations)
+- **Where:** the coloured figure strips at the top of Bookings, Customers, Manage Room Types and other lists
+- **Problem:**
+  - The strips repeat shop statistics: Abandoned carts, Conversion rate, Total newsletter registrations, "5% male customers", RevPAC, Banned customers.
+  - Some contradict the Dashboard. On the same morning, Manage Room Types said **Occupied Rooms 0** and Bookings said **Departures 0**, while Today at the desk said **6 rooms in house and 6 overdue**.
+- **Change:** remove the strips from these lists. Where a figure helps, show it from the same source as the Dashboard desk (in house, arriving, leaving, owed), so the numbers always agree.
+- **Why we need it:** two different answers to "how many rooms are occupied?" make staff distrust the system.
+- **Benefits:** about 180px less at the top of every list; one source of truth.
+- **Risks and costs:** the strips come from the inherited `kpis` code in each controller; removing them is simple, replacing them is more work.
+- **Who notices:** Staff, Manager
+- **Undo:** restore the strips
+- **Size:** Medium
+
+### P-10: Customers list: hotel columns only
+
+- **Status:** Approved (owner, 2026-11-19)
+- **Found by / on:** Claude, 2026-11-19 (Customers: 16 columns)
+- **Where:** Customers › Customers
+- **Problem:** the list has 16 columns, including ID, Social title (always "--"), Sales, Enabled and Newsletter, and the email column is mostly placeholder addresses. Staff look guests up by name or phone, which is not even a column.
+- **Change:** Name, Phone, Email (blank when a placeholder), Bookings, Last stay, Owed. The other columns stay available under "Available Fields" for the developer team.
+- **Why we need it:** finding a returning guest by phone is the common task.
+- **Benefits:** a list that fits the screen and answers "have they stayed before?".
+- **Risks and costs:** inherited `AdminCustomersController` field list; the export keeps all fields.
+- **Who notices:** Staff, Manager
+- **Undo:** restore the field list
+- **Size:** Small
+
+### P-9: Admin-only "System" group in the sidebar
+
+- **Status:** Approved (owner, 2026-11-19)
+- **Found by / on:** Claude, 2026-11-19 (12 sidebar sections, 59 pages for the developer team)
+- **Where:** the sidebar
+- **Problem:** five of twelve sections are technical: Modules and Services, Localization, Preferences, Advanced Parameters and Administration. They hold 30 of the 59 pages, including Positions (10,710px tall, 704 buttons) and a Translations page that tries to reach the vendor's website. For a SuperAdmin they bury the daily sections.
+- **Change:** fold the five into one **System** section, visible to SuperAdmins only and closed by default. Managers keep the pages they are granted today (for example Preferences › CMS and Employees) inside it. Staff never see it.
+- **Why we need it:** the daily sections stay on one screen and technical pages are out of the way.
+- **Benefits:** a sidebar of eight entries instead of twelve; no change to permissions.
+- **Risks and costs:** menu parent changes through `salisbergguide` (as for Bookings and Rooms & Services); guide paths change.
+- **Who notices:** Manager, Developer team
+- **Undo:** move the sections back
+- **Size:** Medium
+
+### P-8: Sidebar: readable sub-pages and group headings
+
+- **Status:** Approved (owner, 2026-11-19)
+- **Found by / on:** Claude, 2026-11-19 (every production page; the earlier owner request "groups the side bars to a modern view")
+- **Where:** the sidebar
+- **Problem:**
+  - The open page's name is white text on a pale green chip and is nearly unreadable (for example "Bookings" under Bookings, "Invoices", "Manage Room Types").
+  - The other sub-pages are pale grey.
+  - There are no group headings, so twelve sections read as one long list.
+- **Change:**
+  - The current sub-page gets dark text on the pale chip with a green bar on its left. The other sub-pages use the normal text colour.
+  - Small headings group the sections: **Front desk** (Dashboard, Bookings, Customers), **Hotel** (Rooms & Services, Manage Hotel, Manage Discounts), **Help** (Guides), **System** (P-9).
+  - Checked in light and dark, following Dribbble and Stayntouch patterns.
+- **Why we need it:** staff must see where they are.
+- **Benefits:** it is readable at a glance, and the structure matches how the hotel works.
+- **Risks and costs:** `overrides.css` section 5 and a few lines of `side-menu.js`; no template change.
+- **Who notices:** everyone
+- **Undo:** restore the styles
+- **Size:** Small
+
+### P-7: Dashboard: one look for every card
+
+- **Status:** Approved (owner, 2026-11-19)
+- **Found by / on:** Claude, 2026-11-19 (production Dashboard)
+- **Where:** Dashboard
+- **Problem:**
+  - The Demo mode switch sits in the page header for the developer team, which invites a click.
+  - The chart area starts with a paragraph of help text and six period buttons.
+  - The desk lists below the tiles are all folded panels of the same weight, so nothing says where to start.
+- **Change:**
+  - Move Demo mode into the charts' own settings.
+  - Replace the help paragraph with a one-line hint.
+  - Give the panel that needs action now (Overdue, Unpaid) a coloured left edge, and keep the others plain. This follows the Dribbble front-desk dashboards: one accent colour, neutral cards.
+- **Why we need it:** the first glance should show the one thing to do next.
+- **Benefits:** a calmer page that still holds everything.
+- **Risks and costs:** template and CSS only.
+- **Who notices:** everyone
+- **Undo:** restore
+- **Size:** Small
+
 ### P-6: Website booking: go straight to checkout after Book Now
 
 - **Status:** Later (owner, 2026-11-19)
@@ -147,12 +340,12 @@ One area per working session, in this order, then start again. Note the date in 
 | # | Area | What to try | Last reviewed |
 |---|---|---|---|
 | 1 | Making a booking | Walk-in, phone booking, website booking; count clicks and fields | 2026-11-19 (P-1 to P-6) |
-| 2 | Dashboard and Today at the desk | Can the day's work be done from here? | 2026-11-19 |
+| 2 | Dashboard and Today at the desk | Can the day's work be done from here? | 2026-11-19; production 2026-11-19 (P-7, P-11) |
 | 3 | Payments and invoices | Record cash, MoMo and bank; print; find who owes | |
 | 4 | Check-in, check-out, housekeeping | From the Dashboard and from the booking | |
-| 5 | Guests and Inbox | Find a guest, answer a message | |
+| 5 | Guests and Inbox | Find a guest, answer a message | 2026-11-19 production (P-10, P-15) |
 | 6 | Rooms, prices and charges | Change a price, close a room, add a room | |
-| 7 | Settings and menus | Which menu entries are never opened? | |
+| 7 | Settings and menus | Which menu entries are never opened? | 2026-11-19 production (P-8, P-9) |
 | 8 | Website, phone first | Search, book and pay on a phone | |
 | 9 | Messages | Texts and emails: are they clear and short? | 2026-11-19 |
 | 10 | Guides | Long steps usually point to a screen to simplify | |
@@ -164,3 +357,8 @@ One area per working session, in this order, then start again. Note the date in 
 - Remove anything a role uses without a replacement in the same change.
 - Count "it looks old" as evidence.
 - Bundle several proposals into one change.
+
+## 6. Build order and test accounts (owner, 2026-11-19)
+
+1. **Build order:** P-8 sidebar, P-9 System group, P-17 and P-16 roles, P-11 strips, P-12, P-13 and P-14 lists, P-10 and P-15 customers, P-7 Dashboard.
+2. **Test accounts:** `agent-staff` and `agent-manager` stay active on production until each change is verified there as that role, then they are switched off. Their credentials are only in the local `.env`.

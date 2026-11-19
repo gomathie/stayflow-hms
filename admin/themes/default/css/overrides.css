@@ -285,11 +285,15 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   border: 0;
   border-radius: 6px;
   background-color: transparent;
-  color: var(--sb-muted);
+  color: var(--sb-ink);
   font-size: 15px;
 }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a:hover { background-color: var(--sb-canvas); color: var(--sb-link); }
-.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft); color: var(--sb-link); font-weight: 600; }
+.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft); color: var(--sb-heading); font-weight: 600; box-shadow: inset 3px 0 0 var(--sb-accent); }
+/* group headings added by side-menu.js (Front desk, Hotel, System, Help) */
+#nav-sidebar ul.menu > li.sb-menu-group { margin: 18px 0 4px; padding: 0 14px; color: var(--sb-muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; line-height: 1.4; text-transform: uppercase; list-style: none; pointer-events: none; }
+#nav-sidebar ul.menu > li.sb-menu-group:first-of-type { margin-top: 6px; }
+@media (max-width: 767px) { #nav-sidebar ul.menu > li.sb-menu-group { display: none; } }
 /* Sections fold and unfold with the small arrow added by side-menu.js. The
    section you are in starts open. The stock behaviour, a box of pages that
    appeared beside the menu while the pointer rested on a section, is off. */
