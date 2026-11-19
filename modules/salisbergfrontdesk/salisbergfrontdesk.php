@@ -97,7 +97,7 @@ class Salisbergfrontdesk extends Module
         $ok = SalisbergBookingArchive::ensureTable() && $ok;
         $ok = SalisbergRoomRate::ensureTable() && $ok;
         foreach (array(
-            'actionRoomBookingStatusUpdateAfter', 'actionOrderStatusPostUpdate', 'dashboardTop',
+            'actionRoomBookingStatusUpdateAfter', 'actionOrderStatusPostUpdate', 'actionValidateOrder', 'dashboardTop',
             // a room's own price and description: columns in the room type's Rooms tab, saved with the room
             'displayHotelRoomListTableHeaderColumn', 'displayHotelRoomListTableRowColumn', 'actionValidateRoomInformation',
             'actionObjectHotelRoomInformationAddAfter', 'actionObjectHotelRoomInformationUpdateAfter', 'actionObjectHotelRoomInformationDeleteAfter',
@@ -522,28 +522,131 @@ class Salisbergfrontdesk extends Module
         }
         if ((int) $booking->id_status == HotelBookingDetail::STATUS_CHECKED_OUT) {
             $this->saveRoomStatus((int) $booking->id_room, self::ROOM_DIRTY);
+            $this->notifyCheckOut($booking);
         } elseif ((int) $booking->id_status == HotelBookingDetail::STATUS_CHECKED_IN) {
             $this->notifyCheckIn($booking);
         }
     }
 
-    /** A booking that has just become paid in full: text the guest */
+    /*
+     * Guest messages. A text is short (one SMS, 160 characters at most); an
+     * email carries the full details. The platform already emails the booking
+     * confirmation, payment and cancellation with the invoice attached, so for
+     * those only a text is sent here; check-in and check-out also get an email
+     * of our own.
+     */
+
+    /** A booking was just made: text the guest */
+    public function hookActionValidateOrder($params)
+    {
+        if (empty($params['order']) || !Validate::isLoadedObject($params['order'])) {
+            return;
+        }
+        $f = $this->facts($params['order']);
+        if (!$f) {
+            return;
+        }
+        $this->sendSms($f['phone'], sprintf(
+            $this->l('%1$s: booking %2$s confirmed, %3$s-%4$s. Total %5$s. See you soon!'),
+            $f['shop'], $f['reference'], $f['from_short'], $f['to_short'], $f['total']
+        ), $params['order']);
+    }
+
+    /** Paid in full, part paid, or cancelled: text the guest */
     public function hookActionOrderStatusPostUpdate($params)
     {
-        if (empty($params['newOrderStatus']) || empty($params['id_order']) || !$params['newOrderStatus']->paid) {
+        if (empty($params['newOrderStatus']) || empty($params['id_order'])) {
+            return;
+        }
+        $state = $params['newOrderStatus'];
+        $full = !empty($state->paid);
+        $partial = (int) $state->id === (int) Configuration::get('PS_OS_PARTIAL_PAYMENT_ACCEPTED');
+        $cancelled = (int) $state->id === (int) Configuration::get('PS_OS_CANCELED');
+        if (!$full && !$partial && !$cancelled) {
             return;
         }
         $order = new Order((int) $params['id_order']);
-        if (!Validate::isLoadedObject($order)) {
+        if (!Validate::isLoadedObject($order) || !($f = $this->facts($order))) {
             return;
         }
-        $customer = new Customer((int) $order->id_customer);
-        $this->sendSms($customer->phone, sprintf(
-            $this->l('%1$s: we have received your payment of %2$s for booking %3$s. Thank you.'),
-            Configuration::get('PS_SHOP_NAME'),
-            Tools::displayPrice((float) $order->total_paid_real, (int) $order->id_currency),
-            $order->reference
+        if ($cancelled) {
+            $text = sprintf($this->l('%1$s: booking %2$s (%3$s-%4$s) is cancelled. Questions? Call us.'), $f['shop'], $f['reference'], $f['from_short'], $f['to_short']);
+        } elseif ($full) {
+            $text = sprintf($this->l('%1$s: payment of %2$s received for booking %3$s. Paid in full. Thank you!'), $f['shop'], $f['paid'], $f['reference']);
+        } else {
+            $text = sprintf($this->l('%1$s: we received %2$s for booking %3$s. Still to pay: %4$s.'), $f['shop'], $f['paid'], $f['reference'], $f['balance']);
+        }
+        $this->sendSms($f['phone'], $text, $order);
+    }
+
+    /** Booking facts from salisbergnotify, or null when that module is not there */
+    protected function facts(Order $order)
+    {
+        if (!class_exists('Salisbergnotify') && !Module::getInstanceByName('salisbergnotify')) {
+            return null;
+        }
+
+        return Salisbergnotify::bookingFacts($order);
+    }
+
+    /** The last room of a booking has checked out: thank the guest by text and email */
+    protected function notifyCheckOut(HotelBookingDetail $booking)
+    {
+        $still = (int) Db::getInstance()->getValue(
+            'SELECT COUNT(*) FROM `'._DB_PREFIX_.'htl_booking_detail`
+            WHERE `id_order` = '.(int) $booking->id_order.' AND `id` != '.(int) $booking->id.'
+            AND `id_status` != '.(int) HotelBookingDetail::STATUS_CHECKED_OUT.' AND `is_refunded` = 0'
+        );
+        $order = new Order((int) $booking->id_order);
+        if ($still || !Validate::isLoadedObject($order) || !($f = $this->facts($order))) {
+            return;
+        }
+        $this->sendSms($f['phone'], sprintf(
+            $this->l('Thank you for staying at %1$s, %2$s. Safe travels, we hope to see you again!'),
+            $f['shop'], $f['firstname']
         ), $order);
+        $this->emailGuest($order, $f, 'checkout', Mail::l('Thank you for staying with us', (int) $order->id_lang), array(
+            '{balance_line}' => $f['owes']
+                ? sprintf($this->l('A balance of %s is still open on this booking. Please contact us to settle it.'), $f['balance'])
+                : $this->l('Your booking is paid in full. Thank you.'),
+        ));
+    }
+
+    /** Sends one of this module's guest emails, with the stay details filled in */
+    protected function emailGuest(Order $order, array $f, $template, $subject, array $vars, $attachment = null)
+    {
+        if ($f['email'] === '') {
+            return;
+        }
+        try {
+            Mail::Send(
+                (int) $order->id_lang,
+                $template,
+                $subject,
+                array_merge(array(
+                    '{firstname}' => $f['firstname'],
+                    '{order_name}' => $f['reference'],
+                    '{rooms}' => implode(', ', $f['rooms']),
+                    '{check_in}' => $f['from'],
+                    '{check_out}' => $f['to'],
+                    '{nights}' => (string) $f['nights'],
+                    '{total}' => $f['total'],
+                    '{paid}' => $f['paid'],
+                ), $vars),
+                $f['email'],
+                $f['guest'],
+                null,
+                null,
+                $attachment,
+                null,
+                $this->local_path.'mails/',
+                false,
+                (int) $order->id_shop
+            );
+        } catch (Exception $e) {
+            // a mail problem must never stop the desk
+            PrestaShopLogger::addLog('salisbergfrontdesk: '.$template.' email for '.$order->reference.' not sent: '.$e->getMessage(), 3);
+        }
     }
 
     /**
@@ -568,7 +671,7 @@ class Salisbergfrontdesk extends Module
         $balance = max(0, (float) $order->total_paid_tax_incl - (float) $order->total_paid_real);
 
         $this->sendSms($customer->phone, sprintf(
-            $this->l('Welcome to %1$s, %2$s. You are checked in to room %3$s until %4$s. Booking %5$s.'),
+            $this->l('Welcome to %1$s, %2$s! Room %3$s, check-out %4$s. Booking %5$s. Ask reception for anything.'),
             $shopName,
             $customer->firstname,
             $booking->room_num,

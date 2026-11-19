@@ -2,6 +2,8 @@ Hi {firstname},
 
 {message}
 
+{details_txt}
+
 This is an automatic staff alert from {shop_name}. You are receiving it because you are set as a booking-alert recipient in the back office.
 
 {shop_name}

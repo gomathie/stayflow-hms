@@ -126,11 +126,14 @@ class Salisbergnotify extends Module
     }
 
     /**
-     * Alerts every chosen recipient, by text if a key is saved and the person has
-     * a phone, and by email if mail is set up. A failure on one channel or one
-     * person never stops the others.
+     * Alerts every chosen recipient: a short text if a key is saved and the
+     * person has a phone, and a longer email (the same text plus a table of
+     * details) if mail is set up. A failure on one channel or one person never
+     * stops the others.
+     *
+     * @param array $details label => value rows for the email only
      */
-    public function notifyRecipients($subject, $message, $reference)
+    public function notifyRecipients($subject, $message, $reference, array $details = array())
     {
         $hasKey = $this->hasKey();
         $mail = $this->mailEnabled();
@@ -145,13 +148,13 @@ class Salisbergnotify extends Module
                 }
             }
             if ($mail) {
-                $this->emailRecipient($idEmployee, $subject, $message, $reference);
+                $this->emailRecipient($idEmployee, $subject, $message, $reference, $details);
             }
         }
     }
 
     /** Emails one recipient the alert at their staff email, if it is a real address. */
-    protected function emailRecipient($idEmployee, $subject, $message, $reference)
+    protected function emailRecipient($idEmployee, $subject, $message, $reference, array $details = array())
     {
         $employee = new Employee((int) $idEmployee);
         if (!Validate::isLoadedObject($employee) || !Validate::isEmail($employee->email)) {
@@ -162,7 +165,13 @@ class Salisbergnotify extends Module
                 (int) $employee->id_lang ?: (int) Configuration::get('PS_LANG_DEFAULT'),
                 'staff_alert',
                 $subject,
-                array('{message}' => $message, '{firstname}' => $employee->firstname),
+                array(
+                    '{heading}' => Tools::safeOutput($subject),
+                    '{message}' => Tools::safeOutput($message),
+                    '{details_html}' => self::detailsHtml($details),
+                    '{details_txt}' => self::detailsText($details),
+                    '{firstname}' => $employee->firstname,
+                ),
                 $employee->email,
                 $employee->firstname.' '.$employee->lastname,
                 null,
@@ -176,38 +185,125 @@ class Salisbergnotify extends Module
         }
     }
 
+    /**
+     * The facts of a booking that texts and emails are written from, read once
+     * here so staff and guest messages never disagree.
+     */
+    public static function bookingFacts(Order $order)
+    {
+        $rows = Db::getInstance()->executeS(
+            'SELECT `room_num`, `room_type_name`, `date_from`, `date_to`
+            FROM `'._DB_PREFIX_.'htl_booking_detail` WHERE `id_order` = '.(int) $order->id.' ORDER BY `date_from`, `room_num`'
+        );
+        $rows = is_array($rows) ? $rows : array();
+        $from = $to = null;
+        $rooms = array();
+        foreach ($rows as $row) {
+            $from = ($from === null || $row['date_from'] < $from) ? $row['date_from'] : $from;
+            $to = ($to === null || $row['date_to'] > $to) ? $row['date_to'] : $to;
+            $rooms[] = trim($row['room_num'].' ('.$row['room_type_name'].')');
+        }
+        $customer = new Customer((int) $order->id_customer);
+        $total = (float) $order->total_paid_tax_incl;
+        $paid = (float) $order->total_paid_real;
+        $currency = (int) $order->id_currency;
+        $nights = ($from && $to) ? max(1, (int) round((strtotime(substr($to, 0, 10)) - strtotime(substr($from, 0, 10))) / 86400)) : 0;
+
+        return array(
+            'shop' => Configuration::get('PS_SHOP_NAME'),
+            'reference' => $order->reference,
+            'guest' => trim($customer->firstname.' '.$customer->lastname),
+            'firstname' => $customer->firstname,
+            'phone' => trim((string) $customer->phone),
+            'email' => (Validate::isEmail($customer->email) && !Customer::hasNoEmail($customer->email)) ? $customer->email : '',
+            'rooms' => $rooms,
+            'room_count' => count($rooms),
+            'from' => $from ? date('j M Y', strtotime($from)) : '',
+            'to' => $to ? date('j M Y', strtotime($to)) : '',
+            'from_short' => $from ? date('j M', strtotime($from)) : '',
+            'to_short' => $to ? date('j M', strtotime($to)) : '',
+            'nights' => $nights,
+            'total' => Tools::displayPrice($total, $currency),
+            'paid' => Tools::displayPrice($paid, $currency),
+            'balance' => Tools::displayPrice(max(0, $total - $paid), $currency),
+            'owes' => ($total - $paid) > 0.009,
+            'payment' => (string) $order->payment,
+        );
+    }
+
+    /** label => value rows as an email table; values are escaped here */
+    public static function detailsHtml(array $details)
+    {
+        if (!$details) {
+            return '';
+        }
+        $html = '<table width="100%" cellpadding="8" cellspacing="0" style="font-size:14px;border:1px solid #d9d4c7;margin:0 0 16px;">';
+        $first = true;
+        foreach ($details as $label => $value) {
+            if ($value === '' || $value === null) {
+                continue;
+            }
+            $line = $first ? '' : 'border-top:1px solid #d9d4c7;';
+            $html .= '<tr><td width="40%" style="background-color:#f3efe6;color:#6b7280;'.$line.'">'.Tools::safeOutput($label).'</td>'
+                .'<td style="font-weight:bold;'.$line.'">'.Tools::safeOutput($value).'</td></tr>';
+            $first = false;
+        }
+
+        return $html.'</table>';
+    }
+
+    public static function detailsText(array $details)
+    {
+        $lines = array();
+        foreach ($details as $label => $value) {
+            if ($value !== '' && $value !== null) {
+                $lines[] = $label.': '.$value;
+            }
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /** The rows a staff email shows for a booking */
+    protected function staffDetails(array $f)
+    {
+        return array(
+            $this->l('Booking') => $f['reference'],
+            $this->l('Guest') => $f['guest'],
+            $this->l('Phone') => $f['phone'],
+            $this->l('Email') => $f['email'],
+            $this->l('Rooms') => implode(', ', $f['rooms']),
+            $this->l('Check-in') => $f['from'],
+            $this->l('Check-out') => $f['to'],
+            $this->l('Nights') => $f['nights'] ? (string) $f['nights'] : '',
+            $this->l('Payment method') => $f['payment'],
+            $this->l('Total') => $f['total'],
+            $this->l('Paid') => $f['paid'],
+            $this->l('Still to pay') => $f['owes'] ? $f['balance'] : '',
+        );
+    }
+
     /** A new booking was created (website or front desk): alert the chosen staff. */
     public function hookActionValidateOrder($params)
     {
         if (!$this->canNotify() || empty($params['order']) || !Validate::isLoadedObject($params['order'])) {
             return;
         }
-        $order = $params['order'];
-        $rooms = Db::getInstance()->getRow(
-            'SELECT COUNT(*) AS rooms, MIN(`date_from`) AS date_from, MAX(`date_to`) AS date_to
-            FROM `'._DB_PREFIX_.'htl_booking_detail` WHERE `id_order` = '.(int) $order->id
-        );
-        $guest = '';
-        if (!empty($params['customer']) && Validate::isLoadedObject($params['customer'])) {
-            $guest = trim($params['customer']->firstname.' '.$params['customer']->lastname);
-        }
-        $dates = '';
-        if (!empty($rooms['date_from']) && !empty($rooms['date_to'])) {
-            $dates = ', '.date('j M', strtotime($rooms['date_from'])).'-'.date('j M', strtotime($rooms['date_to']));
-        }
-        $count = isset($rooms['rooms']) ? (int) $rooms['rooms'] : 0;
+        $f = self::bookingFacts($params['order']);
+        // text: at most one SMS (160 characters)
         $message = sprintf(
-            $this->l('%1$s: new booking %2$s%3$s%4$s. Total %5$s.'),
-            Configuration::get('PS_SHOP_NAME'),
-            $order->reference,
-            $guest !== '' ? ' for '.$guest : '',
-            ($count ? ', '.$count.' '.($count == 1 ? $this->l('room') : $this->l('rooms')) : '').$dates,
-            Tools::displayPrice((float) $order->total_paid_tax_incl, (int) $order->id_currency)
+            $this->l('New booking %1$s: %2$s, %3$d room(s), %4$s-%5$s. Total %6$s.'),
+            $f['reference'], $f['guest'], $f['room_count'], $f['from_short'], $f['to_short'], $f['total']
         );
-        $this->notifyRecipients(sprintf($this->l('New booking %s'), $order->reference), $message, $order->reference);
+        $this->notifyRecipients(
+            sprintf($this->l('New booking %1$s for %2$s'), $f['reference'], $f['guest']),
+            $message,
+            $f['reference'],
+            $this->staffDetails($f)
+        );
     }
 
-    /** A payment was recorded (full or part): alert the chosen staff. */
+    /** A payment was recorded (full or part), or a booking cancelled: alert the chosen staff. */
     public function hookActionOrderStatusPostUpdate($params)
     {
         if (!$this->canNotify() || empty($params['newOrderStatus']) || empty($params['id_order'])) {
@@ -216,21 +312,26 @@ class Salisbergnotify extends Module
         $state = $params['newOrderStatus'];
         $full = !empty($state->paid);
         $partial = (int) $state->id === (int) Configuration::get('PS_OS_PARTIAL_PAYMENT_ACCEPTED');
-        if (!$full && !$partial) {
+        $cancelled = (int) $state->id === (int) Configuration::get('PS_OS_CANCELED');
+        if (!$full && !$partial && !$cancelled) {
             return;
         }
         $order = new Order((int) $params['id_order']);
         if (!Validate::isLoadedObject($order)) {
             return;
         }
-        $message = sprintf(
-            $this->l('%1$s: payment on booking %2$s. Paid %3$s of %4$s.'),
-            Configuration::get('PS_SHOP_NAME'),
-            $order->reference,
-            Tools::displayPrice((float) $order->total_paid_real, (int) $order->id_currency),
-            Tools::displayPrice((float) $order->total_paid_tax_incl, (int) $order->id_currency)
-        );
-        $this->notifyRecipients(sprintf($this->l('Payment on booking %s'), $order->reference), $message, $order->reference);
+        $f = self::bookingFacts($order);
+        if ($cancelled) {
+            $message = sprintf($this->l('Cancelled %1$s: %2$s, %3$s-%4$s. Rooms are free again.'), $f['reference'], $f['guest'], $f['from_short'], $f['to_short']);
+            $subject = sprintf($this->l('Booking %1$s cancelled (%2$s)'), $f['reference'], $f['guest']);
+        } elseif ($full) {
+            $message = sprintf($this->l('Paid in full %1$s: %2$s, %3$s.'), $f['reference'], $f['guest'], $f['total']);
+            $subject = sprintf($this->l('Booking %1$s paid in full'), $f['reference']);
+        } else {
+            $message = sprintf($this->l('Part payment %1$s: %2$s paid %3$s of %4$s. Due %5$s.'), $f['reference'], $f['guest'], $f['paid'], $f['total'], $f['balance']);
+            $subject = sprintf($this->l('Part payment on booking %1$s'), $f['reference']);
+        }
+        $this->notifyRecipients($subject, $message, $f['reference'], $this->staffDetails($f));
     }
 
     /**
@@ -287,7 +388,9 @@ class Salisbergnotify extends Module
             return false;
         }
         $number = $this->normalizePhone($phone);
-        $message = trim((string) $message);
+        // ₵ is outside the GSM alphabet: one such character turns a text into
+        // 70-character parts, so a 100-character message would cost two SMS
+        $message = trim(str_replace(array('GH₵', '₵'), array('GHS ', 'GHS '), (string) $message));
         if ($number === '' || $message === '') {
             PrestaShopLogger::addLog('salisbergnotify: text for '.$this->logRef($reference).' skipped, no usable phone number', 2);
 

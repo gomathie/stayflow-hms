@@ -2267,3 +2267,30 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
   - Screenshots in light and dark, as administrator and as Hotel Staff. Staff see no Demo button, see the notice, and get Unpaid with 6 rows plus the link.
   - `docker/smoke-test.sh`: 31 of 31, no PHP errors.
 - **Not tested:** that the Demo AJAX call is refused for staff (only the code was read); phone width of the new tiles; the live server.
+
+### 2026-11-19 — Sentry error tracking
+
+- **What:** Sentry project `salisberg` (platform PHP, team `365-42`, EU ingest) created at the owner's request. The Sentry PHP SDK 4.x is installed by the `Dockerfile` with Composer into `/usr/local/share/salisberg/sentry/` (outside the web root; Composer is removed afterwards, so the root still has no Composer step). `docker/sentry.php` initialises it; `docker/prepend.php` is now the `auto_prepend_file` and loads `sentry.php` then `ratelimit.php` (php.ini allows only one prepend file, so the existing file was not duplicated — rule 25).
+- **Off by default:** nothing is sent unless `SENTRY_DSN` is set (compose, `.env.example`, `COOLIFY.md`). The DSN is not committed (rule 4); it is shown in Sentry under Project Settings › Client Keys. `send_default_pii` is false; notices and deprecations are excluded because the inherited code raises many; tracing is 0 unless `SENTRY_TRACES_SAMPLE_RATE` is set. If the SDK is missing or init fails, the request continues and one line is logged.
+- **Limit:** PrestaShop catches its own `PrestaShopException`s and renders an error page, so those are not reported unless they reach PHP's uncaught handler or are PHP errors/fatals. Capturing them would need a `Sentry\captureException()` call in `PrestaShopException::displayMessage()`; not done yet.
+- **Verification (local, image rebuilt):** SDK present in the image, prepend active, `SENTRY_DSN` passed to the container; a fatal error from a CLI script reached Sentry as issue SALISBERG-1. `php -r` does not run prepend files, so test with a script file. Not tested: a request through Apache, the live server, the backup service (it uses the same image but has no DSN set, so sends nothing).
+- No guide or What's New entry: nothing a back office user sees changes.
+
+### 2026-11-19 — Booking messages: short texts, longer emails
+
+- **What:** one set of messages, written from one set of facts.
+  - `Salisbergnotify::bookingFacts()` reads a booking once: guest, phone, real email, rooms, dates, nights, total, paid, balance and method. `detailsHtml()` and `detailsText()` turn label/value rows into the email table (the HTML version is escaped).
+  - **Staff alerts** (`salisbergnotify`): `notifyRecipients()` takes the email rows as a fourth argument, so the text stays one line and the email gets the table. They now go out on a new booking, part payment, payment in full and **cancellation** (`PS_OS_CANCELED`). `staff_alert.html` and `.txt` gained `{heading}`, `{details_html}` and `{details_txt}`.
+  - **Guest texts** (`salisbergfrontdesk`): booking made (a new `actionValidateOrder` hook, registered in `ensureSetup()`), part payment, payment in full, cancellation, check-in (reworded) and check-out.
+  - **Guest emails:**
+    - New: a thank-you email when the last room of the booking checks out (`notifyCheckOut()`, templates `mails/en/checkout.html` and `.txt`), sent through `emailGuest()`.
+    - Unchanged: the platform's own booking confirmation, payment and cancellation emails, which already carry the invoice. They were not duplicated.
+  - `deliver()` writes `GH₵` as `GHS`. `₵` is outside the GSM alphabet and would turn each text into 70-character parts, so every text would cost two or more SMS. All texts measured 85–122 characters on a real booking.
+  - `MODULES_VERSION=31`, so the new hook is registered on deploy.
+- **Guides (rule 23):** Admin Guide section 10, the table of what a guest is sent plus a paragraph on text versus email; What's New and CHANGELOG.
+- **Verification (local):**
+  - `php -l` passes on both modules, and `setup-modules.php` ran.
+  - The frontdesk module is registered on `actionValidateOrder`.
+  - `bookingFacts()` on booking NKDGFJVVP gave the correct rooms, dates, nights and amounts. Every text was built from it and measured.
+  - A `<b>` in a value comes out as plain text in the email table.
+- **Not tested:** real delivery of any text or email (no mNotify key and no mail server here); the check-out email rendered in a mail client; a cancellation run end to end; the live server.
