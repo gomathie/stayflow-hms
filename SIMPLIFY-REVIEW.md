@@ -86,7 +86,7 @@ Add new ones at the top.
 
 ### P-4: Payment step: show the total and the balance, fold the breakdown
 
-- **Status:** Proposed: owner wants to see a preview first (2026-11-19)
+- **Status:** Done 2026-11-19, owner chose "two big numbers" from a preview (AGENTS.md: "Simplify review P-4 built")
 - **Found by / on:** Claude, 2026-11-19 (rota area 1; `walkin.tpl` lines 107–115 and 150–154)
 - **Where:** guided booking, Payment step
 - **Problem:** the Payment step lists seven money lines (accommodation, fees, discounts, taxes, total, confirmed payments, balance). The Stay summary beside it repeats five of them. Staff need two numbers: what the stay costs and what is still owed.

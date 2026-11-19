@@ -2368,3 +2368,10 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - Confirm & check in created booking `SB-261119-03` (cash, GH₵312 paid, checked in), with no page or JavaScript errors.
   - Screenshots of the board and the payment step reviewed after the fix.
 - **Not tested:** Mobile Money or bank transfer without the tick (should be refused); the price-changed path; part payment and pay later through the merged step; Hotel Staff and Hotel Manager; phone width.
+
+### 2026-11-19 — Simplify review P-4 built
+
+- **What:** the Payment & confirm step opens with two large figures, **Total** and **Still to pay**. The seven-line breakdown sits behind "Show breakdown" (`<details>`). This was the owner's choice from a preview of three options. Markup is in `walkin.tpl`; styles are the `.sb-pay-figures` and `.sb-pay-breakdown` rules in `frontdesk.css`, using the existing tokens. The two numbers stack below 480px.
+- **Guides:** Staff Guide section 3; What's New and CHANGELOG.
+- **Verification:** browser run through the booking flow; screenshot of the payment step reviewed in dark mode; no page or JavaScript errors.
+- **Not tested:** light mode and phone width.
