@@ -296,9 +296,11 @@ class SalisbergBookingArchive
     {
         $scope = self::getEmployeeArchiveScope($employee, 'archive');
         return Db::getInstance()->executeS(
-            'SELECT * FROM `'._DB_PREFIX_.self::TABLE.'` archive
+            'SELECT archive.*, o.`reference`
+            FROM `'._DB_PREFIX_.self::TABLE.'` archive
+            LEFT JOIN `'._DB_PREFIX_.'orders` o ON o.`id_order` = archive.`id_order`
             WHERE 1 = 1'.$scope.'
-            ORDER BY `deleted_at` DESC, `id_order` DESC'
+            ORDER BY archive.`deleted_at` DESC, archive.`id_order` DESC'
         );
     }
 

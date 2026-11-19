@@ -9,6 +9,11 @@ Every change to Salisberg, newest first, in plain words.
 
 ## 2026-11-19
 
+### Fixed
+
+- **Recycle bin booking codes.** The Recycle bin now shows each deleted booking's code; it was blank and logged a warning per row (Sentry SALISBERG-2).
+- **Newsletter sign-up hit directly.** A visit or bot request to the newsletter sign-up address that is not the footer form's own call is sent to the homepage, instead of drawing a broken page and logging errors (Sentry SALISBERG-3 to 6).
+
 ### Changed
 
 - **Integrations page tidied.** It opens with one card per integration (Text messages, Booking alerts, Email, Error tracking) and its status; each booking-alert recipient has a Test button that texts their saved number and reports the result by name. SuperAdmin only.

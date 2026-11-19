@@ -2445,3 +2445,11 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - Four cards with correct statuses; 2 Test buttons.
   - With a fake key, Test showed "The test text to Admin Salisberg (0244000001) was not accepted…" and the log recorded mNotify's "invalid api key". The fake key was removed afterwards.
 - **Not tested:** a real accepted text (needs the production key); dark mode; phone width.
+
+### 2026-11-19 — First Sentry issues fixed: Recycle bin code, newsletter endpoint
+
+- **SALISBERG-2** (`Undefined array key "reference"`, 10 events): `recycle_bin.tpl` prints `reference`, but `sb_deleted_booking` has no such column and `SalisbergBookingArchive::getEntries()` selected only the archive table. It now LEFT JOINs `orders` (the order row is kept when a booking is archived) for `o.reference`.
+- **SALISBERG-3 to 6** (one request, same second): the `blocknewsletter` `subscription` front controller has `content_only` and no template, so a non-AJAX request or a wrong token fell through to a full page render (missing HOOK_HEADER, layout, template). `checkAccess()` (inherited, fixed in place per rule 11) now redirects such requests to the homepage; the footer form's AJAX call with the module token is unchanged.
+- **Verification (local, files copied in, Apache reloaded):** `php -l` on both files; a direct GET and a POST with a wrong token both return 302 to the homepage; a real AJAX call with the token still returns its JSON reply; `getEntries()` runs without error; `docker/smoke-test.sh` 31 of 31.
+- **Not tested:** the Recycle bin page with archived bookings in it (the local bin is empty); the live server. SALISBERG-1 is the Sentry setup test event.
+- No guide or What's New change.
