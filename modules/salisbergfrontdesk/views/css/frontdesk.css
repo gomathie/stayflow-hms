@@ -130,7 +130,7 @@
 .sb-availability.is-no { color: var(--sb-muted); }
 .sb-capacity { color: var(--sb-muted); }
 .sb-room-rate { display: block; margin-top: 11px; }
-.sb-card-book { position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 999px; background: var(--sb-accent, #1f9a70); color: #fff; font-size: 13px; font-weight: 600; }
+.sb-card-book { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; padding: 7px 12px; border-radius: 8px; background: var(--sb-accent, #1f9a70); color: #fff; font-size: 13px; font-weight: 600; }
 .sb-card-book:hover { filter: brightness(1.08); }
 .sb-room-rate strong,
 .sb-room-rate small { display: block; }

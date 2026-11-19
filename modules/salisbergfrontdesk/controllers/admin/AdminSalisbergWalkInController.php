@@ -277,7 +277,7 @@ class AdminSalisbergWalkInController extends ModuleAdminController
     public function setMedia()
     {
         parent::setMedia();
-        $this->addCSS($this->module->getPathUri().'views/css/frontdesk.css?v=15');
-        $this->addJS($this->module->getPathUri().'views/js/walkin.js?v=2');
+        $this->addCSS($this->module->getPathUri().'views/css/frontdesk.css');
+        $this->addJS($this->module->getPathUri().'views/js/walkin.js');
     }
 }
