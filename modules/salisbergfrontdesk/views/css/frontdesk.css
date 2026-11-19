@@ -328,3 +328,10 @@
 .sb-recycle-bin td { vertical-align: middle !important; }
 .sb-recycle-bin td form { margin: 0; }
 .sb-recycle-bin td:nth-child(6) { min-width: 180px; max-width: 360px; white-space: normal; }
+
+/* Today panel titles: the stock "#content.bootstrap h3" rule (underline, fixed height,
+   negative margins) left an empty band under a folded panel's title. */
+#content.bootstrap .sb-desk-panel > summary h3 { height: auto; margin: 0; padding: 0; border: 0; line-height: 1.3; }
+#content.bootstrap .sb-desk-panel { padding-top: 0; }
+#content.bootstrap .sb-desk-panel:not([open]) { padding-bottom: 0; }
+#content.bootstrap .sb-desk-panel[open] > summary { border-bottom: 1px solid var(--sb-line); margin-bottom: 12px; }

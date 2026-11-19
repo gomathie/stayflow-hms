@@ -127,13 +127,13 @@
 		<h3>6. {l s='Check a guest in and out' mod='salisbergguide'}</h3>
 		<h4>{l s='From the Dashboard (quickest)' mod='salisbergguide'}</h4>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Dashboard</span> {l s='and use Today at the desk. Click a count to open that list. Arrivals and Departures are already open when someone still needs to be checked in or out.' mod='salisbergguide'}</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Dashboard</span> {l s='and use Today at the desk. The four counts at the top say what needs doing; each line under a count gives the detail (how many still to check in, how many overdue, how much is owed). Click a count to open its list. A list with nothing in it is not shown.' mod='salisbergguide'}</li>
 			<li>{l s='Arrivals lists the rooms due today, and any due earlier that have not arrived (marked Late). Check the Still to pay column and the Room is column: do not give out a room that is Dirty or Out of service.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Check in</span> {l s='on the room. The time is recorded. When text messages are switched on, a guest who has a phone number is sent a text with the room and the check-out date.' mod='salisbergguide'}</li>
-			<li>{l s='Departures lists the rooms due to leave today, and any that should already have left (marked Overdue). If money is still due, click the booking reference and take payment first (section 5).' mod='salisbergguide'}</li>
+			<li>{l s='Leaving today lists the rooms due to leave today. Guests whose stay ended earlier but who were never checked out are in their own folded list, Overdue, with how many days over. If money is still due, click the booking reference and take payment first (section 5).' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Check out</span>{l s='. The room is marked Dirty for housekeeping.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-tip">{l s='Rooms in house starts closed and lists every room with a guest in it right now; click its count to open it. Unpaid bookings is open when money is still owed; click Open booking to record a payment. Rooms already checked out today are in their own closed list under Departures.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='Rooms in house starts closed and lists every room with a guest in it right now; click its count to open it. Unpaid bookings shows the six most urgent (guests staying now first) with the total owed on its count; See all opens the full list under Bookings, Invoices. Rooms already checked out today are in their own closed list.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminDashboard|escape:'html':'UTF-8'}#sb-arrivals">{l s='Open Dashboard' mod='salisbergguide'} &rarr;</a>
 		<h4>{l s='Housekeeping' mod='salisbergguide'}</h4>
 		<ol>

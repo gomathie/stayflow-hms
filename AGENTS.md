@@ -2242,3 +2242,28 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
 2. On the Integrations page, tick the staff who should receive alerts; optionally type their phone, or let them add it at the sign-in prompt.
 
 **Not tested:** real SMS delivery through mNotify and real email through a live SMTP server; the modal in a real phone browser; a booking made end-to-end through the website while a recipient is configured (hooks were invoked directly on an existing order instead); the live server.
+
+### 2026-11-19 — Dashboard redesign: shorter desk, brand-coloured charts, Demo mode for SuperAdmins
+
+- **What:** the three recommendations of the Dashboard design critique. Inspiration came from the dataviz skill and from Dribbble front-desk dashboards such as Filllo "Hotel Management", Prostay and Stayntouch: neutral cards, one accent colour, status chips.
+  - **Desk** (`modules/salisbergfrontdesk`: `salisbergfrontdesk.php`, `today.tpl`, `frontdesk.css?v=13`):
+    - each tile has a sub-line (still to check in, N overdue in red, money owed) and a chevron;
+    - departures are split into Leaving today and a folded Overdue list that shows days over;
+    - empty lists are not shown;
+    - Unpaid is sorted staying now first, then ended, then coming. It shows `UNPAID_SHOWN = 6` rows and a link to the full list in Invoices.
+    - `stayRange()` makes the short dates and `paymentShort()` the short method names.
+    - The stock `h3` panel rule is cancelled by a more specific selector, as on the Room board.
+  - **Charts**, changed in the module files themselves (rule 11):
+    - `dashtrends`: CSS, template and `$gfx_color`;
+    - `dashperformance`: template and CSS;
+    - `dashavailability`: colours;
+    - `dashoccupancy`: classes `sb-occ-*`, and `sbOccupancyColours()` reads the tokens. Labels are Booked, Free and Blocked.
+    - New `--sb-occ-*` tokens in `overrides.css`, with separate dark-mode values. The old pastel tile rule and the white-label rule were deleted (rule 27).
+    - The palettes passed `validate_palette.js` in light and dark mode.
+  - **Demo mode:** `AdminDashboardController` shows the switch, and accepts `setSimulationMode`, only for a SuperAdmin. `view.tpl` shows "Demo mode is on" while sample figures are displayed.
+- **Guides (rule 23):** Staff Guide section 6 and Admin Guide section 14; What's New and CHANGELOG.
+- **Verification (local, files copied into the running container):**
+  - Dashboard height went from 7,852 px to 2,216 px.
+  - Screenshots in light and dark, as administrator and as Hotel Staff. Staff see no Demo button, see the notice, and get Unpaid with 6 rows plus the link.
+  - `docker/smoke-test.sh`: 31 of 31, no PHP errors.
+- **Not tested:** that the Demo AJAX call is refused for staff (only the code was read); phone width of the new tiles; the live server.

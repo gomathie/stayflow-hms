@@ -504,7 +504,7 @@ class Salisbergfrontdesk extends Module
             'sb_book_link' => $this->context->link->getAdminLink(self::TAB_ROOM_BOARD),
             'sb_expected' => HotelBookingDetail::STATUS_ALLOTED,
             'sb_in' => HotelBookingDetail::STATUS_CHECKED_IN,
-            'sb_css' => $this->getPathUri().'views/css/frontdesk.css?v=12',
+            'sb_css' => $this->getPathUri().'views/css/frontdesk.css?v=13',
             'sb_on_dashboard' => (bool) $onDashboard,
             'sb_done' => $done,
         ));

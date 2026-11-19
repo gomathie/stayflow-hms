@@ -53,7 +53,7 @@
 				<div class="col-md-11 col-lg-11 avail-pie-label-container label-tooltip sb-occ sb-occ-free" data-toggle="tooltip" data-original-title="{l s='The total number of rooms available for booking for date range.' mod='dashoccupancy'}">
 					<div class="">
 						<p class="avail-pie-text">
-							{l s='Free to book' mod='dashoccupancy'}
+							{l s='Free' mod='dashoccupancy'}
 						</p>
 						<div class="avail-pie-value-container">
 							<p class="avail-pie-value" id="pie_avail_text">

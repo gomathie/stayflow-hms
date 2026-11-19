@@ -325,7 +325,7 @@
 		<a class="sb-go" href="{$sb_links.AdminSalisbergReports|escape:'html':'UTF-8'}">{l s='Open Reports' mod='salisbergguide'} &rarr;</a>
 		<h4>{l s='Other places to look' mod='salisbergguide'}</h4>
 		<ul>
-			<li><span class="sb-path">Dashboard</span> &ndash; {l s='Today at the desk, then the charts. Day is today. Month and Year change only the charts. A period that no longer includes today is set back to Day when the page opens. Day-1, Month-1 and Year-1 stay as they were set.' mod='salisbergguide'}</li>
+			<li><span class="sb-path">Dashboard</span> &ndash; {l s='Today at the desk, then the charts. The chart tiles are neutral; red marks only a problem. Occupancy reads Booked, Free and Blocked. Demo mode (sample figures) can be switched only by a SuperAdmin, and a notice says when it is on. Day is today. Month and Year change only the charts. A period that no longer includes today is set back to Day when the page opens. Day-1, Month-1 and Year-1 stay as they were set.' mod='salisbergguide'}</li>
 			<li>{l s='The old Stats section, which counted shop visitors, is no longer in the menu. Use the reports above.' mod='salisbergguide'}</li>
 			<li><span class="sb-path">Bookings &rsaquo; Bookings</span> &ndash; {l s='filter the list, then export it to a spreadsheet with the export button at the top.' mod='salisbergguide'}</li>
 		</ul>

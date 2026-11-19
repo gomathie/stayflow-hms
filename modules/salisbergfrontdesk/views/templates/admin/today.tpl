@@ -93,6 +93,7 @@
 	</details>
 	{/if}
 
+	{if $sb_due_out|count}
 	<details class="panel sb-desk-panel" id="sb-departures"{if $sb_open_departures} open{/if}>
 		<summary><h3><i class="icon-chevron-down"></i><i class="icon-signout"></i> {l s='Leaving today' mod='salisbergfrontdesk'} <span class="sb-desk-count">{$sb_due_out|count}</span></h3></summary>
 		<div class="sb-desk-body">
@@ -142,6 +143,7 @@
 		</div>
 		</div>
 	</details>
+	{/if}
 
 	{if $sb_overdue|count}
 	<details class="panel sb-desk-panel sb-desk-overdue" id="sb-overdue">
