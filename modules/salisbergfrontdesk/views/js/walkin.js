@@ -217,11 +217,9 @@
             partial.hidden = arrangement !== 'partial';
             tendered.hidden = method !== 'cash' || isLater;
             reference.hidden = method === 'cash' || isLater;
-            confirmed.hidden = isLater;
-            confirmedInput.disabled = isLater;
-            byId('sb-confirmed-label').textContent = method === 'cash'
-                ? 'Cash received and verified'
-                : 'Payment received and verified';
+            // cash needs no tick: the money is in hand (SIMPLIFY-REVIEW P-2)
+            confirmed.hidden = isLater || method === 'cash';
+            confirmedInput.disabled = isLater || method === 'cash';
             if (arrangement === 'full') {
                 amount.value = form.getAttribute('data-total');
             }

@@ -68,7 +68,7 @@ Never move or rename an inherited file (rule 29). One batch per change.
 
 **Goal (owner, 2026-11-19):** the code should say what it does where it lives, instead of an override in `override/` quietly changing it. There are seven override files (463 lines). Each one is moved into the file it overrides, the override is deleted, and `cache/class_index.php` is rebuilt.
 
-**Needs your approval first:** rule 11 in `AGENTS.md` still says new behaviour "goes in `override/` and in modules". It must be reworded to "change the inherited file itself; `override/` is not used", or this work contradicts the rules.
+**Approved 2026-11-19:** rule 11 now says `override/` is not used.
 
 | # | Override | What it does | Move into | Risk |
 |---|---|---|---|---|
@@ -97,4 +97,4 @@ Module templates overridden from the theme (`themes/hotel-reservation-theme/modu
 | 0. Booking codes | Built and tested locally (2026-11-19); ships with the next deploy |
 | 1. Never installed | Waiting for step 0 |
 | 2–6 | Not started |
-| O1–O7 Overrides | Waiting for approval of the rule 11 change |
+| O1–O7 Overrides | Rule 11 change approved 2026-11-19; not started |

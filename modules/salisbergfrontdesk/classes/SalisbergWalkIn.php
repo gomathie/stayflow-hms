@@ -844,12 +844,12 @@ class SalisbergWalkIn
                 throw new Exception($this->module->l('A partial payment must be more than zero and less than the total.'));
             }
         }
-        $confirmed = !empty($values['confirmed']) && $arrangement != 'later';
+        // Cash is in the employee's hand, so choosing it with full or part payment
+        // means it was received (SIMPLIFY-REVIEW P-2). Mobile Money and bank
+        // transfer still need the explicit "received and verified" tick.
+        $confirmed = $arrangement != 'later' && ($method == 'cash' || !empty($values['confirmed']));
         $reference = trim((string) (isset($values['reference']) ? $values['reference'] : ''));
         $tendered = (float) (isset($values['tendered']) ? $values['tendered'] : 0);
-        if ($method == 'cash' && $amount > 0 && !$confirmed) {
-            throw new Exception($this->module->l('Confirm that the cash was received, or choose pay later.'));
-        }
         if ($method == 'cash' && $confirmed && $tendered < $amount) {
             throw new Exception($this->module->l('Cash tendered cannot be less than the payment applied.'));
         }

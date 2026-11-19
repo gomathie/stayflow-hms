@@ -224,8 +224,15 @@
             nights.addEventListener('change', syncDepartureFromNights);
         }
         for (i = 0; i < cards.length; i += 1) {
-            cards[i].addEventListener('click', function () {
+            cards[i].addEventListener('click', function (event) {
                 selectRoom(this);
+                // the Book control on a card starts the booking at once (SIMPLIFY-REVIEW P-5)
+                if (event.target.closest('[data-book-now]') && this.getAttribute('data-available') === '1') {
+                    var book = byId('sb-book-room');
+                    if (book && !book.disabled) {
+                        book.click();
+                    }
+                }
             });
         }
         setupRoomTools();

@@ -86,7 +86,6 @@ class AdminSalisbergWalkInController extends ModuleAdminController
         }
         if (!Tools::isSubmit('sb_save_stay')
             && !Tools::isSubmit('sb_save_guest')
-            && !Tools::isSubmit('sb_save_payment')
             && !Tools::isSubmit('sb_finalize')
             && !Tools::isSubmit('sb_check_in_now')
             && !Tools::isSubmit('sb_discard_draft')
@@ -138,7 +137,13 @@ class AdminSalisbergWalkInController extends ModuleAdminController
                 ));
                 $this->redirectStep(3, '&saved=guest');
             }
-            if (Tools::isSubmit('sb_save_payment')) {
+            if (Tools::isSubmit('sb_check_in_now')) {
+                $service->checkInNow($draft);
+                $this->redirectStep(4, '&success=1&checked_in=1');
+            }
+            // Payment & confirm is one step (SIMPLIFY-REVIEW P-1): the payment
+            // is saved, the draft read again, then the booking is completed.
+            if (Tools::isSubmit('sb_finalize')) {
                 $service->savePayment($draft, array(
                     'method' => Tools::getValue('method'),
                     'arrangement' => Tools::getValue('arrangement'),
@@ -147,20 +152,14 @@ class AdminSalisbergWalkInController extends ModuleAdminController
                     'reference' => Tools::getValue('reference'),
                     'tendered' => Tools::getValue('tendered'),
                 ));
-                $this->redirectStep(4, '&saved=payment');
-            }
-            if (Tools::isSubmit('sb_check_in_now')) {
-                $service->checkInNow($draft);
-                $this->redirectStep(4, '&success=1&checked_in=1');
-            }
-            if (Tools::isSubmit('sb_finalize')) {
+                $draft = $service->getDraft((int) $draft['id_walkin_draft']);
                 $result = $service->finalize(
                     $draft,
                     (string) Tools::getValue('sb_finalize'),
                     (bool) Tools::getValue('accept_price')
                 );
                 if (!empty($result['price_changed'])) {
-                    $this->redirectStep(4, '&price_changed=1');
+                    $this->redirectStep(3, '&price_changed=1');
                 }
                 $this->redirectStep(4, '&success=1');
             }
@@ -186,6 +185,10 @@ class AdminSalisbergWalkInController extends ModuleAdminController
         if (!$success && $step > (int) $draft['step']) {
             $step = (int) $draft['step'];
         }
+        // no separate Confirm page any more: until the booking exists, step 4 is Payment & confirm
+        if (!$success && $step == 4) {
+            $step = 3;
+        }
         $stay = $draft['state']['stay'];
         $board = $service->getRoomBoard($stay);
         $rooms = array();
@@ -204,7 +207,6 @@ class AdminSalisbergWalkInController extends ModuleAdminController
         $messages = array(
             'stay' => $this->l('Stay details saved.'),
             'guest' => $this->l('Guest saved.'),
-            'payment' => $this->l('Payment details saved.'),
         );
         if (isset($messages[$saved])) {
             $this->confirmations[] = $messages[$saved];
@@ -233,7 +235,7 @@ class AdminSalisbergWalkInController extends ModuleAdminController
         }
 
         $paymentForm = isset($draft['state']['payment']) ? $draft['state']['payment'] : array();
-        if (Tools::isSubmit('sb_save_payment')) {
+        if (Tools::isSubmit('sb_finalize')) {
             $paymentForm = array(
                 'method' => (string) Tools::getValue('method'),
                 'arrangement' => (string) Tools::getValue('arrangement', 'full'),
@@ -275,7 +277,7 @@ class AdminSalisbergWalkInController extends ModuleAdminController
     public function setMedia()
     {
         parent::setMedia();
-        $this->addCSS($this->module->getPathUri().'views/css/frontdesk.css');
-        $this->addJS($this->module->getPathUri().'views/js/walkin.js');
+        $this->addCSS($this->module->getPathUri().'views/css/frontdesk.css?v=15');
+        $this->addJS($this->module->getPathUri().'views/js/walkin.js?v=2');
     }
 }

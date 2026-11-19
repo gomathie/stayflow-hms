@@ -62,7 +62,7 @@ The final repository must consistently identify the project as MIT licensed by S
 
 ### Code
 
-11. **Fix things where they are defined.** The inherited platform code is ours (section 1, Direction), so a fault or an unwanted default in an inherited file is corrected in that file, not papered over from somewhere else. For styling this means changing the inherited stylesheet's rule instead of out-ranking it with `!important`. New behaviour still goes in `override/` and in modules, as PrestaShop 1.6 intends, because that keeps our features in one findable place; an override is no longer preferred merely to leave the original untouched. Every change to an inherited file is verified in a running stack and recorded in section 6.
+11. **Fix things where they are defined.** The inherited platform code is ours (section 1, Direction), so a fault or an unwanted default in an inherited file is corrected in that file, not papered over from somewhere else. For styling this means changing the inherited stylesheet's rule instead of out-ranking it with `!important`. **`override/` is not used** (owner, 2026-11-19): a change to an inherited class or controller is made in that file, so the code says what it does where it lives. The existing overrides are being folded in (`CLEANUP-PLAN.md`, O1-O7). Features of our own that are not changes to inherited behaviour still go in our modules. Every change to an inherited file is verified in a running stack and recorded in section 6.
 12. **Do not rename the `qlo_` table prefix or internal `QloApps`/`PrestaShop` identifiers** as part of branding work. Branding is done through shop name, theme, logos and translations.
 13. **Match the surrounding code style** (PrestaShop 1.6 conventions: PSR-2-ish PHP, Smarty `.tpl`).
 14. **Keep the upstream license headers** in files you touch (OSL-3.0 requirement).
@@ -110,6 +110,13 @@ The final repository must consistently identify the project as MIT licensed by S
 29. **Never move or rename a vendor file.** The back office, the installer and the autoloader locate files by path. (Background: change log, 2026-10-06, `admin/functions.php`.)
 
 30. **Record every change in two more places besides section 6.** `CHANGELOG.md` gets a line for every change, in plain words, under the date and one of Added / Changed / Fixed / Security / Removed. If someone using the back office will notice the change, it also gets a line on the What's New page (`modules/salisbergguide/views/templates/admin/whats_new.tpl`), under the same date, placed for the role it concerns (everyone, manager, or developer team). Section 6 of this file remains the detailed record of how and why.
+
+31. **Look for simplifications; propose them, then wait for approval.** The goal is a system a front-desk employee can use without training. Every agent follows `SIMPLIFY-REVIEW.md`:
+    - check the screens you touch, plus one area from its rota each working session;
+    - record each finding as a proposal there, with the problem, evidence, why it is needed, benefits, risks and how to undo it;
+    - build only what the owner has marked Approved.
+
+    Faults may still be fixed straight away. Code removal follows `CLEANUP-PLAN.md`.
 
 ### Guides
 
@@ -2334,3 +2341,10 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
   - With only 50 recorded, the announcement recorded 100 and the banner became unseen for the administrator.
   - Screenshots in light and dark show the banner and the panel; no PHP or JavaScript errors.
 - **Not tested:** a real text or email (no key or SMTP here); the banner as Hotel Staff; closing the banner by click (the link is built and the token checked, but it was not clicked); the live server, where the first run records what has already been passed.
+
+### 2026-11-19 — Rule 11 reworded; rule 31 and the simplify review added
+
+- **Rule 11 (owner approval, 2026-11-19):** `override/` is no longer used. Changes to inherited classes and controllers are made in those files. The seven existing overrides will be folded in one at a time (`CLEANUP-PLAN.md`, O1–O7).
+- **Rule 31 and `SIMPLIFY-REVIEW.md`:** every agent looks for ways to make the app simpler, writes them as proposals with evidence, benefits, risks and how to undo, and builds nothing until the owner approves.
+- **First review (rota area 1, making a booking):** proposals P-1 to P-6 added, all Proposed, awaiting the owner. Evidence came from the guided-booking template and the website booking test of 2026-10-16.
+- Documentation only; no code changed.
