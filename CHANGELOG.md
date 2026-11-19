@@ -11,6 +11,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Booking milestones.** At 50, 100, then every 100 up to 1,000 and every 500 after, the Dashboard shows a congratulations banner (each person closes it once), the booking-alert recipients get a text and an email, and a Milestones list on the Dashboard keeps the history. Cancelled, refunded and deleted bookings do not count. Milestones already passed when this ships are recorded quietly.
+
 - **Simpler booking codes.** New bookings get a code like `SB-261119-07`: the year, month and day the booking was made, then its number that day. Every booking already in the system keeps its existing nine-letter code. The two database columns that hold the code were widened from 9 to 16 characters on deploy.
 
 ### Added

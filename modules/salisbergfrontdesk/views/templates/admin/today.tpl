@@ -6,6 +6,16 @@
 <div class="sb-desk">
 	{if $sb_on_dashboard && $sb_done == 'sb_check_in'}<div class="alert alert-success">{l s='The room is checked in.' mod='salisbergfrontdesk'}</div>{/if}
 	{if $sb_on_dashboard && $sb_done == 'sb_check_out'}<div class="alert alert-success">{l s='The room is checked out and marked for cleaning.' mod='salisbergfrontdesk'}</div>{/if}
+	{if !empty($sb_milestone)}
+	<div class="sb-milestone" role="status">
+		<span class="sb-milestone-badge">{$sb_milestone.n|intval}</span>
+		<div>
+			<strong>{l s='Congratulations! %s bookings.' sprintf=[$sb_milestone.n|intval] mod='salisbergfrontdesk'}</strong>
+			<span>{l s='Booking %1$s, on %2$s, was number %3$s. Next: %4$s.' sprintf=[$sb_milestone.reference|escape:'html':'UTF-8', $sb_milestone.date|date_format:'%e %b %Y', $sb_milestone.n|intval, $sb_next_milestone|intval] mod='salisbergfrontdesk'}</span>
+		</div>
+		<a class="sb-milestone-close" href="{$sb_milestone_close|escape:'html':'UTF-8'}{$sb_milestone.n|intval}" aria-label="{l s='Close' mod='salisbergfrontdesk'}">&times;</a>
+	</div>
+	{/if}
 	<div class="sb-desk-head">
 		<div>
 			<h2>{l s='Today at the desk' mod='salisbergfrontdesk'} <span class="sb-desk-date">{$sb_date|escape:'html':'UTF-8'}</span></h2>
@@ -307,6 +317,21 @@
 		{/if}
 		</div>
 	</details>
+	{if isset($sb_booking_count)}
+	<details class="panel sb-desk-panel sb-milestones" id="sb-milestones">
+		<summary><h3><i class="icon-chevron-down"></i><i class="icon-trophy"></i> {l s='Milestones' mod='salisbergfrontdesk'} <span class="sb-desk-count">{$sb_booking_count|intval} {l s='bookings' mod='salisbergfrontdesk'}</span></h3></summary>
+		<div class="sb-desk-body">
+		<p class="sb-desk-note">{l s='Next milestone: %s bookings. Cancelled, refunded and deleted bookings do not count.' sprintf=[$sb_next_milestone|intval] mod='salisbergfrontdesk'}</p>
+		{if $sb_milestones|count}
+		<ul class="sb-milestone-list">
+			{foreach $sb_milestones as $m}
+			<li><strong>{$m.n|intval}</strong> {l s='bookings' mod='salisbergfrontdesk'} &middot; {$m.date|date_format:'%e %b %Y'} &middot; {$m.reference|escape:'html':'UTF-8'}</li>
+			{/foreach}
+		</ul>
+		{/if}
+		</div>
+	</details>
+	{/if}
 </div>
 <script>
 (function () {

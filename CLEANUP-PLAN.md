@@ -64,6 +64,32 @@ Never move or rename an inherited file (rule 29). One batch per change.
 | `wktestimonialblock` | Off until real reviews exist (owner will switch it on) |
 | `blocknewsletter`, `blocksocial`, `blocklanguages`, `blockcurrencies`, `wkfooterlangcurrencyblock` | Owner decision 2026-11-19: keep for now, review later |
 
+## Overrides: fold them into the code they change
+
+**Goal (owner, 2026-11-19):** the code should say what it does where it lives, instead of an override in `override/` quietly changing it. There are seven override files (463 lines). Each one is moved into the file it overrides, the override is deleted, and `cache/class_index.php` is rebuilt.
+
+**Needs your approval first:** rule 11 in `AGENTS.md` still says new behaviour "goes in `override/` and in modules". It must be reworded to "change the inherited file itself; `override/` is not used", or this work contradicts the rules.
+
+| # | Override | What it does | Move into | Risk |
+|---|---|---|---|---|
+| O1 | `controllers/admin/AdminOrdersController.php` (15 lines) | Sends the old "Add new order" form to the Room board | `controllers/admin/AdminOrdersController.php` | Low |
+| O2 | `classes/Mail.php` (54) | Never sends to `guest.invalid` placeholder addresses | `classes/Mail.php` | Low |
+| O3 | `controllers/admin/AdminDashboardController.php` (46) | Resets the chart period to Day when it no longer includes today | `controllers/admin/AdminDashboardController.php` | Low |
+| O4 | `classes/Translate.php` (46) | Replaces the vendor name with Salisberg in on-screen text | `classes/Translate.php`. Better still: change the words in the templates and delete the replacement | Medium (touches every page) |
+| O5 | `controllers/admin/AdminImportController.php` (69) | Accepts `.xlsx` only and converts it to CSV | `controllers/admin/AdminImportController.php` | Medium |
+| O6 | `controllers/admin/AdminCustomersController.php` (111) | Finds or creates a guest from the booking form | `controllers/admin/AdminCustomersController.php` | Medium |
+| O7 | `controllers/front/ContactController.php` (122) | Refuses links, strips markup, checks fields on the contact form | `controllers/front/ContactController.php` | Medium (security; re-run the attack tests from 2026-10-13) |
+
+**How each one is done:**
+1. Copy the override's methods into the inherited class, merging with the method of the same name rather than leaving two.
+2. Delete the override and `cache/class_index.php`.
+3. Rebuild, then re-run that feature's original tests (listed in its `AGENTS.md` entry) and `docker/smoke-test.sh`.
+4. Record it in `AGENTS.md`, CHANGELOG (Changed). There is no What's New line: nobody sees a difference.
+
+One override per change, low risk first (O1 → O7). When the folder is empty apart from `index.php` files, add a check to `docker/smoke-test.sh` that fails if a PHP override appears again.
+
+Module templates overridden from the theme (`themes/hotel-reservation-theme/modules/…`) are the same kind of thing. List them after O7 and fold them the same way.
+
 ## Progress
 
 | Step | Status |
@@ -71,3 +97,4 @@ Never move or rename an inherited file (rule 29). One batch per change.
 | 0. Booking codes | Built and tested locally (2026-11-19); ships with the next deploy |
 | 1. Never installed | Waiting for step 0 |
 | 2–6 | Not started |
+| O1–O7 Overrides | Waiting for approval of the rule 11 change |

@@ -134,6 +134,7 @@
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Check out</span>{l s='. The room is marked Dirty for housekeeping.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='Rooms in house starts closed and lists every room with a guest in it right now; click its count to open it. Unpaid bookings shows the six most urgent (guests staying now first) with the total owed on its count; See all opens the full list under Bookings, Invoices. Rooms already checked out today are in their own closed list.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='When the hotel reaches 50, 100, 200 and later booking milestones, a congratulations banner appears at the top of the Dashboard; click the cross to close it. The Milestones list at the end of the desk shows the count, the next milestone and the ones reached. Cancelled, refunded and deleted bookings do not count.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminDashboard|escape:'html':'UTF-8'}#sb-arrivals">{l s='Open Dashboard' mod='salisbergguide'} &rarr;</a>
 		<h4>{l s='Housekeeping' mod='salisbergguide'}</h4>
 		<ol>

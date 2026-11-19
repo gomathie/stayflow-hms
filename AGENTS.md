@@ -2313,3 +2313,24 @@ Reports 2 and 3 turned out to share one cause, found by reproducing the exact fl
   - `docker/smoke-test.sh`: 31 of 31.
 - **Not tested:** a booking from the website checkout; the new code on the invoice PDF, in emails and texts; Excel-imported bookings; two bookings at exactly the same moment (atomicity is by construction, not exercised); the schema step through a rebuilt image (it was applied by hand in the running container); the live server.
 - Local test data: two bookings for guest "Code Tester" about 200 days ahead.
+
+### 2026-11-19 — Booking milestones
+
+- **What:** congratulations at 50, 100, then every 100 up to 1,000, then every 500 (`SalisbergMilestones::steps()` and `next()`). Owner choices: these steps, everyone in the back office sees it, all three channels, and bookings count unless cancelled, refunded or in the recycle bin.
+  - **Code:**
+    - `modules/salisbergfrontdesk/classes/SalisbergMilestones.php`, in the module that owns the Dashboard desk (rule 25).
+    - The count excludes `PS_OS_CANCELED`, `PS_OS_REFUND` and rows in `sb_deleted_booking`.
+    - Reached milestones are stored in `SBFD_MILESTONES`, as JSON holding the number, the date and the booking that reached it.
+    - Each person's closed banner is stored in `SBFD_MILESTONE_SEEN_<id_employee>`.
+  - **First run:** every milestone already passed is recorded, with the booking that reached it, but announced nowhere. A site with hundreds of bookings is therefore not flooded with alerts; the newest one shows once as a banner.
+  - **Announced from `hookActionValidateOrder`** through `salisbergnotify::notifyRecipients()`: a one-line text, plus an email with the milestone, the date, the booking and the next milestone.
+  - **Dashboard:** a banner above Today at the desk (closed with a token-checked link), and a folded Milestones panel at the end of the desk showing the count, the next goal and the last five reached. Styled with the existing tokens; `frontdesk.css?v=14`.
+  - Both entry points catch `Throwable` and only log, so a milestone fault can never stop a booking or the Dashboard.
+- **Fault caught in testing:** the first version called `Tools::displayNumber()` with one argument. The fatal error was not caught by `catch (Exception)` and would have broken the booking that reached the next milestone. It now uses `number_format()` and catches `Throwable`.
+- **Guides:** Staff Guide section 6 (banner and list); Admin Guide section 10 (milestones go to the alert recipients); What's New and CHANGELOG.
+- **Verification (local):**
+  - The steps up to 3,000 come out as intended.
+  - The first run recorded 50 and 100 (146 counting bookings) and announced nothing.
+  - With only 50 recorded, the announcement recorded 100 and the banner became unseen for the administrator.
+  - Screenshots in light and dark show the banner and the panel; no PHP or JavaScript errors.
+- **Not tested:** a real text or email (no key or SMTP here); the banner as Hotel Staff; closing the banner by click (the link is built and the token checked, but it was not clicked); the live server, where the first run records what has already been passed.

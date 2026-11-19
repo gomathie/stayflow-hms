@@ -38,6 +38,7 @@ if (!defined('_PS_VERSION_')) {
 require_once dirname(__FILE__).'/classes/SalisbergWalkIn.php';
 require_once dirname(__FILE__).'/classes/SalisbergBookingArchive.php';
 require_once dirname(__FILE__).'/classes/SalisbergRoomRate.php';
+require_once dirname(__FILE__).'/classes/SalisbergMilestones.php';
 
 class Salisbergfrontdesk extends Module
 {
@@ -448,6 +449,27 @@ class Salisbergfrontdesk extends Module
 
         $this->assignTodayTemplate((int) !empty($access['edit']), true);
 
+        // milestones: record any passed (also the first time this runs), then the banner and history
+        try {
+            SalisbergMilestones::update();
+            $close = (int) Tools::getValue('sb_milestone_seen');
+            if ($close && Tools::getValue('token') == Tools::getAdminTokenLite('AdminDashboard')) {
+                SalisbergMilestones::markSeen((int) $employee->id, $close);
+            }
+            $reached = SalisbergMilestones::reached();
+            $count = SalisbergMilestones::count();
+            $next = $count < 50 ? 50 : SalisbergMilestones::next((int) ($reached ? end($reached)['n'] : 50));
+            $this->context->smarty->assign(array(
+                'sb_milestone' => SalisbergMilestones::unseen((int) $employee->id),
+                'sb_milestones' => array_reverse(array_slice($reached, -5)),
+                'sb_booking_count' => $count,
+                'sb_next_milestone' => $next,
+                'sb_milestone_close' => $this->context->link->getAdminLink('AdminDashboard').'&sb_milestone_seen=',
+            ));
+        } catch (Throwable $e) {
+            PrestaShopLogger::addLog('salisbergfrontdesk: milestones not shown: '.$e->getMessage(), 2);
+        }
+
         return $this->context->smarty->fetch($this->local_path.'views/templates/admin/today.tpl');
     }
 
@@ -504,7 +526,7 @@ class Salisbergfrontdesk extends Module
             'sb_book_link' => $this->context->link->getAdminLink(self::TAB_ROOM_BOARD),
             'sb_expected' => HotelBookingDetail::STATUS_ALLOTED,
             'sb_in' => HotelBookingDetail::STATUS_CHECKED_IN,
-            'sb_css' => $this->getPathUri().'views/css/frontdesk.css?v=13',
+            'sb_css' => $this->getPathUri().'views/css/frontdesk.css?v=14',
             'sb_on_dashboard' => (bool) $onDashboard,
             'sb_done' => $done,
         ));
@@ -542,6 +564,7 @@ class Salisbergfrontdesk extends Module
         if (empty($params['order']) || !Validate::isLoadedObject($params['order'])) {
             return;
         }
+        $this->announceMilestones();
         $f = $this->facts($params['order']);
         if (!$f) {
             return;
@@ -577,6 +600,39 @@ class Salisbergfrontdesk extends Module
             $text = sprintf($this->l('%1$s: we received %2$s for booking %3$s. Still to pay: %4$s.'), $f['shop'], $f['paid'], $f['reference'], $f['balance']);
         }
         $this->sendSms($f['phone'], $text, $order);
+    }
+
+    /**
+     * Records milestones the booking count has passed and tells the booking-alert
+     * recipients by text and email. The Dashboard banner reads the same record.
+     * A problem here must never stop a booking being made.
+     */
+    protected function announceMilestones()
+    {
+        try {
+            $new = SalisbergMilestones::update();
+            if (!$new || !(class_exists('Salisbergnotify') || Module::getInstanceByName('salisbergnotify'))) {
+                return;
+            }
+            $notify = Module::getInstanceByName('salisbergnotify');
+            $shop = Configuration::get('PS_SHOP_NAME');
+            foreach ($new as $m) {
+                $n = number_format((int) $m["n"]);
+                $notify->notifyRecipients(
+                    sprintf($this->l('%1$s has reached %2$s bookings'), $shop, $n),
+                    sprintf($this->l('Congratulations! %1$s has reached %2$s bookings. Booking %3$s was number %2$s.'), $shop, $n, $m['reference']),
+                    $m['reference'],
+                    array(
+                        $this->l('Milestone') => sprintf($this->l('%s bookings'), $n),
+                        $this->l('Reached on') => date('j M Y', strtotime($m['date'])),
+                        $this->l('The booking') => $m['reference'],
+                        $this->l('Next milestone') => sprintf($this->l('%s bookings'), number_format(SalisbergMilestones::next((int) $m["n"]))),
+                    )
+                );
+            }
+        } catch (Throwable $e) {
+            PrestaShopLogger::addLog('salisbergfrontdesk: milestone check failed: '.$e->getMessage(), 2);
+        }
     }
 
     /** Booking facts from salisbergnotify, or null when that module is not there */
