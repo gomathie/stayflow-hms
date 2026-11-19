@@ -31,11 +31,11 @@ Add or update SPDX headers to MIT where the project uses SPDX headers.
 
 Search the entire repository, including hidden files and configuration directories, for stale OSL references.
 
-Do not modify third-party dependency licenses or license notices belonging to external projects.
+Do not modify the licence files or notices of bundled third-party libraries (for example `tools/`, `js/jquery`, `js/tiny_mce`, Smarty, TCPDF, SimpleXLSX). The inherited QloApps/PrestaShop platform code is ours (section 1): its old file headers may be removed (owner, 2026-11-20; rule 14).
 
 Do not modify historical changelogs or archived documents unless they incorrectly claim that the current version of this project is licensed under OSL.
 
-Preserve existing copyright notices and attribution for third-party code.
+Preserve existing copyright notices and attribution for those bundled libraries.
 
 The copyright holder for this project is Salisberg.
 
@@ -65,7 +65,7 @@ The final repository must consistently identify the project as MIT licensed by S
 11. **Fix things where they are defined.** The inherited platform code is ours (section 1, Direction), so a fault or an unwanted default in an inherited file is corrected in that file, not papered over from somewhere else. For styling this means changing the inherited stylesheet's rule instead of out-ranking it with `!important`. **`override/` is not used** (owner, 2026-11-19): a change to an inherited class or controller is made in that file, so the code says what it does where it lives. The existing overrides are being folded in (`CLEANUP-PLAN.md`, O1-O7). Features of our own that are not changes to inherited behaviour still go in our modules. Every change to an inherited file is verified in a running stack and recorded in section 6.
 12. **Do not rename the `qlo_` table prefix or internal `QloApps`/`PrestaShop` identifiers** as part of branding work. Branding is done through shop name, theme, logos and translations.
 13. **Match the surrounding code style** (PrestaShop 1.6 conventions: PSR-2-ish PHP, Smarty `.tpl`).
-14. **Keep the upstream license headers** in files you touch (OSL-3.0 requirement).
+14. **Licence headers (owner, 2026-11-20).** Old QloApps/PrestaShop headers in inherited platform files may be removed; do not add them back. Bundled third-party libraries keep their licence files and notices.
 
 ### Process
 
@@ -2466,3 +2466,9 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
 - **Guides:** What's New 19 November (manager and developer team). No guide section describes this chart.
 - **Verification (local, headless Chrome, signed in as administrator):** screenshots reviewed at 1440 wide in light and dark and at 390 wide. 7 nights gives 7 points; the summary reads "16 rooms free on Thu 19 Nov" and "19.9 rooms a night"; clicking 30 nights redraws with five date labels; no JavaScript errors; `php -l` and `node --check` pass.
 - **Not tested:** a specific hotel picked in the dashboard filter; Hotel Manager; the date picker by click; the live server.
+
+### 2026-11-20 — Rule 14 and the licence section reworded
+
+- **Owner decision:** the owner removed the PrestaShop AFL header from `modules/blocknewsletter/blocknewsletter.php` (commit `4477e6af`). Old headers in inherited platform files may be removed and must not be added back.
+- **Changed:** rule 14, and two lines in the licence section. Bundled third-party libraries keep their licence files, notices and copyright attribution.
+- Change-log entries from before this date that mention rule 14 are history and were left as written. Documentation only.
