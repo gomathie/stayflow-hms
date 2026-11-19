@@ -244,8 +244,8 @@ class AdminInvoicesControllerCore extends AdminController
         ));
     }
 
-    /** How many invoices the list shows at most */
-    const LIST_LIMIT = 200;
+    /** Rows per page the list offers (SIMPLIFY-REVIEW P-13); the first is the default */
+    public static $perPageChoices = array(20, 50);
 
     /** The choices on the list's form, cleaned */
     protected function getListFilters()
@@ -262,6 +262,8 @@ class AdminInvoicesControllerCore extends AdminController
             'status' => in_array($status, array('all', 'unpaid', 'part', 'paid'), true) ? $status : 'all',
             'from' => $isDay($from) ? $from : '',
             'to' => $isDay($to) ? $to : '',
+            'per' => in_array((int) Tools::getValue('sb_per'), self::$perPageChoices, true) ? (int) Tools::getValue('sb_per') : self::$perPageChoices[0],
+            'page' => max(1, (int) Tools::getValue('sb_page', 1)),
         );
     }
 
@@ -297,38 +299,43 @@ class AdminInvoicesControllerCore extends AdminController
             $where .= ' AND '.$owed.' > 0.009 AND o.`total_paid_real` <= 0.009';
         }
 
-        $rows = Db::getInstance()->executeS(
-            'SELECT oi.`id_order_invoice`, oi.`date_add`, o.`id_order`, o.`reference`, o.`id_currency`, o.`id_lang`, o.`id_shop`,
-                o.`total_paid_tax_incl`, o.`total_paid_real`,
-                CONCAT(c.`firstname`, \' \', c.`lastname`) AS `guest`, c.`phone`,
-                MIN(hbd.`date_from`) AS `stay_from`, MAX(hbd.`date_to`) AS `stay_to`
-            FROM `'._DB_PREFIX_.'order_invoice` oi
+        $from = 'FROM `'._DB_PREFIX_.'order_invoice` oi
             INNER JOIN `'._DB_PREFIX_.'orders` o ON o.`id_order` = oi.`id_order`
             INNER JOIN `'._DB_PREFIX_.'htl_booking_detail` hbd ON hbd.`id_order` = oi.`id_order`
             LEFT JOIN `'._DB_PREFIX_.'customer` c ON c.`id_customer` = o.`id_customer`
             WHERE o.`id_shop` IN ('.implode(', ', array_map('intval', Shop::getContextListShopID())).')
                 '.HotelBranchInformation::addHotelRestriction(false, 'hbd').'
                 AND oi.`number` > 0'.$where.'
-            GROUP BY oi.`id_order_invoice`
-            ORDER BY oi.`date_add` DESC, oi.`number` DESC
-            LIMIT '.((int) self::LIST_LIMIT + 1)
+            GROUP BY oi.`id_order_invoice`';
+
+        // totals cover every invoice the filter matches, not only this page (P-13)
+        $sum = Db::getInstance()->executeS(
+            'SELECT COUNT(*) AS `count`, SUM(x.`t`) AS `total`, SUM(x.`p`) AS `paid`,
+                SUM(GREATEST(0, ROUND(x.`t` - x.`p`, 2))) AS `balance`
+            FROM (SELECT o.`total_paid_tax_incl` AS `t`, o.`total_paid_real` AS `p` '.$from.') x'
         );
-        $rows = (array) $rows;
-        $limited = count($rows) > self::LIST_LIMIT;
-        if ($limited) {
-            array_pop($rows);
-        }
+        $sum = $sum ? $sum[0] : array('count' => 0, 'total' => 0, 'paid' => 0, 'balance' => 0);
+        $count = (int) $sum['count'];
+        $per = (int) $filters['per'];
+        $pages = max(1, (int) ceil($count / $per));
+        $page = min((int) $filters['page'], $pages);
+
+        $rows = (array) Db::getInstance()->executeS(
+            'SELECT oi.`id_order_invoice`, oi.`date_add`, o.`id_order`, o.`reference`, o.`id_currency`, o.`id_lang`, o.`id_shop`,
+                o.`total_paid_tax_incl`, o.`total_paid_real`,
+                CONCAT(c.`firstname`, \' \', c.`lastname`) AS `guest`, c.`phone`,
+                MIN(hbd.`date_from`) AS `stay_from`, MAX(hbd.`date_to`) AS `stay_to`
+            '.$from.'
+            ORDER BY oi.`date_add` DESC, oi.`number` DESC
+            LIMIT '.(int) (($page - 1) * $per).', '.$per
+        );
 
         $idCurrency = (int) Configuration::get('PS_CURRENCY_DEFAULT');
-        $sum = array('total' => 0.0, 'paid' => 0.0, 'balance' => 0.0);
         $invoices = array();
         foreach ($rows as $row) {
             $total = (float) $row['total_paid_tax_incl'];
             $paid = (float) $row['total_paid_real'];
             $balance = max(0, Tools::ps_round($total - $paid, 2));
-            $sum['total'] += $total;
-            $sum['paid'] += $paid;
-            $sum['balance'] += $balance;
             $invoice = new OrderInvoice((int) $row['id_order_invoice']);
             $invoices[] = array(
                 'id_order_invoice' => (int) $row['id_order_invoice'],
@@ -356,13 +363,23 @@ class AdminInvoicesControllerCore extends AdminController
                 'paid' => $this->l('Paid'),
             ),
             'sb_totals' => array(
-                'count' => count($invoices),
-                'total' => Tools::displayPrice($sum['total'], $idCurrency),
-                'paid' => Tools::displayPrice($sum['paid'], $idCurrency),
-                'balance' => Tools::displayPrice($sum['balance'], $idCurrency),
+                'count' => $count,
+                'total' => Tools::displayPrice((float) $sum['total'], $idCurrency),
+                'paid' => Tools::displayPrice((float) $sum['paid'], $idCurrency),
+                'balance' => Tools::displayPrice((float) $sum['balance'], $idCurrency),
             ),
-            'sb_limited' => $limited,
-            'sb_limit' => (int) self::LIST_LIMIT,
+            'sb_pager' => array(
+                'page' => $page,
+                'pages' => $pages,
+                'per' => $per,
+                'choices' => self::$perPageChoices,
+                'first' => $count ? ($page - 1) * $per + 1 : 0,
+                'last' => min($count, $page * $per),
+                // the address of this list with the current filters, ready for &sb_page=/&sb_per=
+                'base' => self::$currentIndex.'&token='.$this->token
+                    .'&sb_q='.urlencode($filters['q']).'&sb_status='.urlencode($filters['status'])
+                    .'&sb_from='.urlencode($filters['from']).'&sb_to='.urlencode($filters['to']),
+            ),
             'sb_token' => $this->token,
             'sb_self' => self::$currentIndex.'&token='.$this->token,
             'sb_booking_link' => $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order=',

@@ -1305,3 +1305,7 @@ html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard .fc-scrollgrid 
 #content .sb-int-status i { width: 8px; height: 8px; border-radius: 50%; background: var(--sb-muted); }
 #content .sb-int-status.is-on i { background: var(--sb-success); }
 #content .sb-int-status.is-off i { background: var(--sb-warning); }
+
+/* Paged lists (SIMPLIFY-REVIEW P-13): "1–20 of 155", rows per page, Previous / Next */
+#content .sb-pager { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 14px; }
+#content .sb-pager-actions { display: flex; flex-wrap: wrap; gap: 6px; }

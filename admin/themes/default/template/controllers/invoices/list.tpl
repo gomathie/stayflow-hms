@@ -33,7 +33,7 @@
 	</form>
 
 	<div class="row">
-		<div class="col-sm-3"><div class="well well-sm"><small class="text-muted">{l s='Invoices shown'}</small><br /><strong style="font-size:18px;">{$sb_totals.count|intval}</strong></div></div>
+		<div class="col-sm-3"><div class="well well-sm"><small class="text-muted">{l s='Invoices'}</small><br /><strong style="font-size:18px;">{$sb_totals.count|intval}</strong></div></div>
 		<div class="col-sm-3"><div class="well well-sm"><small class="text-muted">{l s='Total billed'}</small><br /><strong style="font-size:18px;">{$sb_totals.total|escape:'html':'UTF-8'}</strong></div></div>
 		<div class="col-sm-3"><div class="well well-sm"><small class="text-muted">{l s='Paid'}</small><br /><strong style="font-size:18px;">{$sb_totals.paid|escape:'html':'UTF-8'}</strong></div></div>
 		<div class="col-sm-3"><div class="well well-sm"><small class="text-muted">{l s='Still to pay'}</small><br /><strong style="font-size:18px;">{$sb_totals.balance|escape:'html':'UTF-8'}</strong></div></div>
@@ -81,7 +81,18 @@
 			</tbody>
 		</table>
 	</div>
-	{if $sb_limited}
-		<p class="help-block">{l s='Only the newest %d are shown. Use Find or the dates to narrow the list.' sprintf=[$sb_limit]}</p>
+	{* P-13: one page at a time; the totals above cover every invoice the filter matches *}
+	{if $sb_totals.count}
+	<div class="sb-pager">
+		<span class="text-muted">{l s='%1$d–%2$d of %3$d' sprintf=[$sb_pager.first, $sb_pager.last, $sb_totals.count]}</span>
+		<span class="sb-pager-actions">
+			{foreach from=$sb_pager.choices item=sb_n}
+				{if $sb_n == $sb_pager.per}<span class="btn btn-default disabled">{l s='%d a page' sprintf=[$sb_n]}</span>
+				{else}<a class="btn btn-default" href="{$sb_pager.base|escape:'html':'UTF-8'}&amp;sb_per={$sb_n|intval}">{l s='%d a page' sprintf=[$sb_n]}</a>{/if}
+			{/foreach}
+			{if $sb_pager.page > 1}<a class="btn btn-default" href="{$sb_pager.base|escape:'html':'UTF-8'}&amp;sb_per={$sb_pager.per|intval}&amp;sb_page={($sb_pager.page - 1)|intval}">&lsaquo; {l s='Previous'}</a>{/if}
+			{if $sb_pager.page < $sb_pager.pages}<a class="btn btn-primary" href="{$sb_pager.base|escape:'html':'UTF-8'}&amp;sb_per={$sb_pager.per|intval}&amp;sb_page={($sb_pager.page + 1)|intval}">{l s='Next'} &rsaquo;</a>{/if}
+		</span>
+	</div>
 	{/if}
 </div>
