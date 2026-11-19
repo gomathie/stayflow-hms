@@ -260,7 +260,7 @@
                 event.preventDefault();
             });
         });
-        var finalForm = byId('sb-finalize-form');
+        var finalForm = byId('sb-payment-step');
         if (finalForm) {
             var lastSubmitter = null;
             finalForm.addEventListener('click', function (event) {

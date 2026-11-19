@@ -233,12 +233,6 @@
 .sb-payment-arrangements small { margin-top: 4px; color: var(--sb-muted); font-weight: 400; }
 .sb-payment-details { margin-top: 18px; }
 .sb-payment-details small { display: block; margin-top: 4px; color: var(--sb-muted); }
-.sb-review-sections { display: grid; gap: 10px; }
-.sb-review-sections section { padding: 13px; border: 1px solid var(--sb-line); border-radius: 8px; }
-.sb-review-sections section > div:first-child { display: flex; align-items: center; justify-content: space-between; }
-.sb-review-sections h4 { margin: 0; color: var(--sb-heading); font-size: 13px; font-weight: 700; }
-.sb-review-sections p { margin: 8px 0 0; color: var(--sb-muted); }
-.sb-review-sections p strong { color: var(--sb-heading); }
 .sb-accept-price { padding: 12px; border: 1px solid var(--sb-warning); border-radius: 8px; }
 .sb-walkin-success { max-width: 720px; margin: 28px auto; padding: 36px; text-align: center; }
 .sb-success-icon { display: inline-flex; width: 52px; height: 52px; align-items: center; justify-content: center; border-radius: 50%; background: var(--sb-success); color: #fff; font-size: 22px; }
@@ -248,7 +242,7 @@
 .sb-success-details dt { color: var(--sb-muted); font-weight: 400; }
 .sb-success-details dd { margin: 0; color: var(--sb-heading); text-align: right; }
 .sb-confirm-options { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
-#sb-finalize-form .help-block { margin: 12px 0 0; text-align: right; }
+#sb-payment-step .sb-step-actions + .help-block { margin: 12px 0 0; text-align: right; }
 .sb-checkin-box { max-width: 560px; margin: 18px auto 6px; padding: 14px 16px; border: 1px solid var(--sb-line-strong); border-radius: 9px; background: var(--sb-card-alt); color: var(--sb-text); text-align: center; }
 .sb-checkin-box.is-ready { border-color: var(--sb-success); }
 .sb-checkin-box p { margin: 0 0 12px; }
