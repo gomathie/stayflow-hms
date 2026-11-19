@@ -2533,3 +2533,16 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - The totals (148, GH₵206,334.00 billed, GH₵98,930.00 paid) match a direct database sum.
   - Bookings, Customers and Logs show 20 rows each with the stock pager, with no errors. Logs went from about 7,400px to 2,100px tall.
 - **Not tested:** phone width; the Hotel Staff and Hotel Manager roles on Invoices; the live server.
+
+### 2026-11-20 — Side menu icons
+
+- **Owner:** "modernise the sidebar icons too".
+- **What changed:**
+  - In `overrides.css` (beside the section icon rules), each top-level section listed there gets a `--sb-ico` SVG data URI: a line icon, stroke 1.8. The shapes follow Lucide (ISC licence, credited in the comment).
+  - One rule draws it as a mask filled with `currentColor` on the section's existing `<i>`, so the muted, hover, active-pill and dark-mode colours apply unchanged.
+  - A section not in the list (a future module) keeps its font icon.
+  - The old Guides glyph rule was replaced, not overridden (rule 27).
+- CSS only: no template, script or permission change.
+- **Guides:** none needed, since nothing moved or was renamed. What's New (everyone) and CHANGELOG updated.
+- **Verification (local, screenshots at 1440 in light and dark, System opened):** all 12 sections show their new icon, aligned with the labels; the active pill shows its icon in the pill's text colour.
+- **Not tested:** the phone icon rail below 768px; Safari, where `-webkit-mask` is supplied too; the live server.
