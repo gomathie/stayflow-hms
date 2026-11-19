@@ -11,6 +11,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Occupancy panel rebuilt.** Tonight is one bar (in house, free, out of service), counted like Today at the desk, with plain numbers; the period figure is now the occupancy rate (booked room-nights out of available). The old "rooms with any booking in the period" figure, the donut with clipped labels and the zero-padded numbers (00, 02) are gone.
+
 - **What's New pop-up.** After an update, each person sees a box with that date's changes for their role (up to five), once, with View more (What's New) and a button to their guide. Opening What's New also counts as seen.
 
 - **Clearer side menu** (simplify review P-8). The current page is dark text with a green bar instead of white on pale green; the other pages are in normal text instead of light grey; small headings group the menu (Front desk, Hotel, System, Help). The two inherited colour rules were corrected in `admin-theme.css`.

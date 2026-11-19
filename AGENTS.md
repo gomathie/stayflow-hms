@@ -2413,3 +2413,22 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
 - **Guides:** Staff Guide section 1; What's New (19 November); CHANGELOG.
 - **Verification (local browser, administrator):** shown after sign-in with "19 November 2026", five items, "And 5 more", and the buttons "Open the Admin Guide" and "View more"; not shown again on reload; no JavaScript errors; screenshot reviewed in light mode.
 - **Not tested:** as Hotel Staff and Hotel Manager (no View more for a profile without What's New); dark mode; phone width.
+
+### 2026-11-19 — Occupancy panel rebuilt
+
+- **Owner decisions:** tonight plus the occupancy rate; one bar in three parts; plain numbers, short dates and a shorter tooltip.
+- **`modules/dashoccupancy` (inherited, changed in place, rule 11):**
+  - **Data:** `hookDashboardData()` now computes, for the hotels the profile may see (`getProfileAccessedHotels`, or the hotel picked in the filter):
+    - rooms with a guest checked in (`id_status` 2, not refunded or cancelled), as on Today at the desk;
+    - rooms out of service (`id_status` ≠ active);
+    - the rest as free;
+    - the rate = booked room-nights inside the period ÷ (rooms in service × nights).
+  - Dates are validated; the SQL uses `pSQL`, `(int)` and `getValue(..., false)` with no `LIMIT`.
+  - Demo mode still gives random figures.
+  - **Display:** the template is rewritten. The script draws the bar with the legend (swatch, name, number, %) and the donut code is removed.
+- **Styles:** `overrides.css` replaces the old `.avail-pie-*` tile rules (used only here) and the donut size rule with `.sb-occ-*` rules, using the validated `--sb-occ-*` tokens.
+- **Why:** the old figure counted any room with a booking anywhere in the period, so "26/28 (93%)" over a month sat next to "6 in house" on the desk. The numbers were zero-padded and the donut labels were clipped.
+- **Verification (local):**
+  - The hook returned 17 of 22 tonight, a 3% rate for 30 days and 18 booked nights. A separate per-night loop also counted 18. The low rate comes from local test guests never checked out.
+  - Screenshots in light and dark reviewed; no PHP or JavaScript errors.
+- **Not tested:** a specific hotel picked in the filter; production figures; phone width.

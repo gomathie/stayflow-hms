@@ -653,29 +653,36 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .panel.widget > .panel-heading > span:not(.panel-heading-action) { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .bootstrap .panel.widget > .panel-heading > .panel-heading-action { position: static; flex: 0 0 auto; margin-left: auto; }
 /* figures and labels that were cut off or ran outside their box */
-#dashboard .avail-pie-value { font-size: 18px; }
 #dashboard svg { overflow: visible; }
 /* Performance and Occupancy figures are stat tiles: one neutral card style, figures in the text
    colour (the Revenue tiles get the same look in modules/dashtrends/views/css/dashtrends.css).
    Colour is kept for the charts themselves (brand green, gold, blue). */
-#dashboard .stat-box,
-#dashboard .avail-pie-label-container { border: 1px solid var(--sb-line); border-radius: 12px; background-color: var(--sb-card); }
-#dashboard .stat-box .title-wrapper p,
-#dashboard .avail-pie-text { color: var(--sb-muted); font-weight: 500; }
-#dashboard .stat-box .value-wrapper span,
-#dashboard .avail-pie-value { color: var(--sb-heading); }
+#dashboard .stat-box { border: 1px solid var(--sb-line); border-radius: 12px; background-color: var(--sb-card); }
+#dashboard .stat-box .title-wrapper p { color: var(--sb-muted); font-weight: 500; }
+#dashboard .stat-box .value-wrapper span { color: var(--sb-heading); }
 #dashboard .stat-box { padding: 16px; }
 #dashboard .stat-box .value-wrapper span { font-size: 20px; font-weight: 600; white-space: nowrap; }
-/* each occupancy tile carries the swatch of its slice, so colour is never the only key */
-#dashboard .sb-occ { border-left-width: 6px; }
-#dashboard .sb-occ-booked { border-left-color: var(--sb-occ-booked); }
-#dashboard .sb-occ-free { border-left-color: var(--sb-occ-free); }
-#dashboard .sb-occ-blocked { border-left-color: var(--sb-occ-blocked); }
+/* Occupancy: tonight as one bar, then the rate for the period (dashoccupancy). The legend
+   carries a swatch, the name and the number, so colour is never the only key. */
+#dashboard .sb-occupancy .sb-occ-tonight, #dashboard .sb-occupancy .sb-occ-rate { padding: 14px 16px; }
+#dashboard .sb-occupancy .sb-occ-rate { border-top: 1px solid var(--sb-line); }
+#dashboard .sb-occ-label { display: block; color: var(--sb-muted); font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+#dashboard .sb-occ-label span { text-transform: none; letter-spacing: 0; font-weight: 500; }
+#dashboard .sb-occ-big { margin: 4px 0 10px; color: var(--sb-muted); }
+#dashboard .sb-occ-big strong { color: var(--sb-heading); font-size: 28px; font-weight: 700; line-height: 1.1; }
+#dashboard .sb-occ-big em { margin-left: 6px; color: var(--sb-heading); font-style: normal; font-weight: 600; }
+#dashboard .sb-occ-bar { display: flex; gap: 2px; height: 14px; overflow: hidden; border-radius: 7px; background: var(--sb-canvas); }
+#dashboard .sb-occ-seg { display: block; min-width: 0; height: 100%; }
+#dashboard .sb-occ-seg-booked { background: var(--sb-occ-booked); }
+#dashboard .sb-occ-seg-free { background: var(--sb-occ-free); }
+#dashboard .sb-occ-seg-blocked { background: var(--sb-occ-blocked); }
+#dashboard .sb-occ-legend { margin: 10px 0 0; padding: 0; list-style: none; }
+#dashboard .sb-occ-legend li { display: flex; align-items: center; gap: 8px; padding: 3px 0; color: var(--sb-ink); }
+#dashboard .sb-occ-legend strong { margin-left: auto; color: var(--sb-heading); font-weight: 600; }
+#dashboard .sb-occ-dot { flex: 0 0 auto; width: 10px; height: 10px; border-radius: 3px; }
 #dashboard .sb-demo-note { margin: 0 0 12px; }
 #dashboard .stats-list > li:has(> #dash_traffic_source) { flex-wrap: wrap; align-items: flex-start; }
 #dashboard .stats-list > li:has(> #dash_traffic_source) > .item-label { flex: 0 0 100%; margin-bottom: 8px; }
-/* the occupancy chart is drawn at a fixed size; on a phone it shrinks to fit */
-#dashboard #dashoccupancy svg { max-width: 100%; height: auto; }
 #dashboard #dash_traffic_source,
 #dashboard #dash_traffic_chart2 { flex: 0 0 100%; }
 #content.bootstrap #dashboard #dashproducts nav { font-family: inherit; text-transform: none; }
