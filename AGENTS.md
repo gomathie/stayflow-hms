@@ -2472,3 +2472,31 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
 - **Owner decision:** the owner removed the PrestaShop AFL header from `modules/blocknewsletter/blocknewsletter.php` (commit `4477e6af`). Old headers in inherited platform files may be removed and must not be added back.
 - **Changed:** rule 14, and two lines in the licence section. Bundled third-party libraries keep their licence files, notices and copyright attribution.
 - Change-log entries from before this date that mention rule 14 are history and were left as written. Documentation only.
+
+### 2026-11-20 — Staff desk menu P-17; System group P-9; What's New tag fixed
+
+- **Owner:** approved P-17 and P-9 (`SIMPLIFY-REVIEW.md`) after reviewing drawings of both.
+- **P-17 (Hotel Staff menu):**
+  - `salisbergguide::deskOnlyStaffMenu()`, run once from `ensureSetup()` (marker `SBGUIDE_STAFF_DESK_MENU`, rule 22):
+    - moves `AdminOrderRefundRequests` from Manage Hotel to the end of Bookings, only while its parent is still Manage Hotel;
+    - sets view, add, edit and delete to 0 for Hotel Staff on `AdminHotelReservationSystemManagement`, `AdminAddresses` and `AdminOrderMessage`, logging what it changed.
+  - The same three were removed from `$staffAccess` for new installs.
+  - `isDeskOnly()` assigns `sb_desk_only` in `hookActionAdminControllerSetMedia`. `admin/themes/default/template/header.tpl` (inherited, rule 11) leaves out the new-customer icon and Quick Access when it is set.
+  - The bookings bell stays. The proposal called it a cart icon, but it lists new bookings, which the desk uses.
+  - `today.tpl`: "Open room board" is now "New booking".
+- **P-9 (System group):**
+  - `side-menu.js` `foldSystem()` turns the System heading into a button. It folds the five technical sections and opens itself while one of their pages is current.
+  - It is built in the menu script, not by moving tabs: the sidebar has two levels, so nesting sections would hide their pages, and moving them would change permissions.
+  - Managers see only their own sections inside System. Staff, who have none, get no heading.
+  - Below 768px the heading is hidden by the existing rule, so folding is applied above that width only (`overrides.css` section 5).
+- **Fault fixed (found while editing):** the 19 November Occupancy line in `whats_new.tpl` had `{if}` without `{/if}`. The page and the sign-in pop-up could not compile, which is why production showed no pop-up on 20 November.
+- `MODULES_VERSION=33`.
+- **Guides:** Staff Guide menu table and section on refunds (Bookings › Refund requests); Admin Guide section 15 and its refund path; What's New 20 November; CHANGELOG.
+- **Verification (local, files copied in, `setup-modules.php` run):**
+  - Log: "Refund requests moved under Bookings" and "Hotel Staff menu trimmed: AdminHotelReservationSystemManagement, AdminAddresses". Booking messages was already off locally.
+  - As administrator: System folded with no sections showing, and the five appeared after a click; New booking on the desk (screenshot reviewed).
+  - As the Hotel Staff test account: the menu is Dashboard, Bookings, Customers, Rooms & Services and Guides; no System heading, no Quick Access, no customer icon; the bookings bell is still there.
+  - What's New, Staff Guide and Admin Guide pages render for both roles, and the pop-up shows 20 November.
+  - `docker/smoke-test.sh` 31 of 31.
+- **Not tested:** Hotel Manager; phone width; the live server.
+- The local Hotel Staff test account now has a temporary local password.

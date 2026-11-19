@@ -19,10 +19,19 @@
 	</div>
 
 	<section>
+		<h3>{l s='20 November 2026' mod='salisbergguide'}</h3>
+		<ul>
+			<li><strong>{l s='Refund requests moved.' mod='salisbergguide'}</strong> {l s='Refund requests is now under Bookings, next to the other booking pages.' mod='salisbergguide'}</li>
+			<li><strong>{l s='New booking on the Dashboard.' mod='salisbergguide'}</strong> {l s='The button beside Today at the desk is now called New booking, the same as everywhere else.' mod='salisbergguide'}</li>
+			{if !$sb_can_read_admin_guide}<li><strong>{l s='A shorter menu for the front desk.' mod='salisbergguide'}</strong> {l s='Manage Hotel, Addresses, Booking messages and the Quick Access menu are gone from your menu. They were not used at the desk.' mod='salisbergguide'}</li>{/if}
+			{if $sb_can_read_admin_guide}<li><strong>{l s='Technical pages under System.' mod='salisbergguide'}</strong> {l s='Modules, Localization, Preferences, Advanced Parameters and Administration sit under one System heading in the menu, folded away. Click System to show them. Your permissions are unchanged.' mod='salisbergguide'}</li>{/if}
+		</ul>
+	</section>
+	<section>
 		<h3>{l s='19 November 2026' mod='salisbergguide'}</h3>
 		<ul>
 			{if $sb_is_admin}<li><strong>{l s='Integrations at a glance, and a test per person.' mod='salisbergguide'}</strong> {l s='Administration, Integrations opens with a card for each service and whether it is on. Beside each person chosen for booking alerts, Test sends one text to their saved number.' mod='salisbergguide'}</li>{/if}
-			{if $sb_can_read_admin_guide}<li><strong>{l s='Occupancy that matches the desk.' mod='salisbergguide'}</strong> {l s='The Occupancy panel shows tonight as one bar (in house, free, out of service), counted the same way as Today at the desk, and the occupancy rate for the chosen period: booked room-nights out of those available.' mod='salisbergguide'}</li>
+			{if $sb_can_read_admin_guide}<li><strong>{l s='Occupancy that matches the desk.' mod='salisbergguide'}</strong> {l s='The Occupancy panel shows tonight as one bar (in house, free, out of service), counted the same way as Today at the desk, and the occupancy rate for the chosen period: booked room-nights out of those available.' mod='salisbergguide'}</li>{/if}
 			{if $sb_can_read_admin_guide}<li><strong>{l s='Rooms free, at a glance.' mod='salisbergguide'}</strong> {l s='The availability chart on the Dashboard is now called Rooms free. Above it: the tightest night in the period and the average rooms free per night. Choose 7, 14 or 30 nights from any date; it follows light and dark mode.' mod='salisbergguide'}</li>{/if}
 			<li><strong>{l s='News when you sign in.' mod='salisbergguide'}</strong> {l s='After an update, a box shows what changed for your role, once. View more opens this page; the other button opens your guide.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Clearer side menu.' mod='salisbergguide'}</strong> {l s='The page you are on is in dark text with a green bar, the other pages are easier to read, and small headings group the menu: Front desk, Hotel, System and Help.' mod='salisbergguide'}</li>

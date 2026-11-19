@@ -195,7 +195,7 @@
 		<ol>
 			<li>{l s='Set the rules in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Refund rules</span>: {l s='how much is kept depending on how many days before check-in the guest cancels.' mod='salisbergguide'}</li>
 			<li>{l s='Attach rules to the hotel in Hotel Details, Refund Policies tab.' mod='salisbergguide'}</li>
-			<li>{l s='Guest requests arrive in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Refund requests</span>. {l s='Open one, decide, and set its status. The system does not send money: return cash or Mobile Money yourself, then record it on the booking.' mod='salisbergguide'}</li>
+			<li>{l s='Guest requests arrive in' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Refund requests</span>. {l s='Open one, decide, and set its status. The system does not send money: return cash or Mobile Money yourself, then record it on the booking.' mod='salisbergguide'}</li>
 		</ol>
 	</section>
 
@@ -339,6 +339,7 @@
 
 	<section id="sb-a15">
 		<h3>15. {l s='Showing or hiding menu sections' mod='salisbergguide'}</h3>
+		<p>{l s='The technical sections (Modules and Services, Localization, Preferences, Advanced Parameters and Administration) are grouped under the System heading in the menu, folded away. Click System to show or hide them. A section opens by itself while you are on one of its pages. You only see the sections your role may use; Hotel Staff have none, so they have no System heading.' mod='salisbergguide'}</p>
 		{if $sb_is_admin}
 		<p>{l s='The technical Modules and Services section can be taken out of the menu on the left for everyone. Nothing is deleted or switched off: it only disappears from the menu.' mod='salisbergguide'}</p>
 		<ul>

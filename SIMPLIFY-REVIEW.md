@@ -68,7 +68,7 @@ Add new ones at the top.
 
 ### P-17: Staff menu: only the desk
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Done 2026-11-20 (AGENTS.md: "Staff desk menu P-17; System group P-9"). The bookings bell stays in the top bar: it now lists new bookings, not a shop cart.
 - **Found by / on:** Claude, 2026-11-19 (production, as Hotel Staff)
 - **Where:** the Hotel Staff sidebar and top bar
 - **Problem:**
@@ -197,7 +197,7 @@ Add new ones at the top.
 
 ### P-9: Admin-only "System" group in the sidebar
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Done 2026-11-20 (AGENTS.md: "Staff desk menu P-17; System group P-9"). Built as a folding heading in the menu, not by moving tabs, so no permission or menu-parent changes.
 - **Found by / on:** Claude, 2026-11-19 (12 sidebar sections, 59 pages for the developer team)
 - **Where:** the sidebar
 - **Problem:** five of twelve sections are technical: Modules and Services, Localization, Preferences, Advanced Parameters and Administration. They hold 30 of the 59 pages, including Positions (10,710px tall, 704 buttons) and a Translations page that tries to reach the vendor's website. For a SuperAdmin they bury the daily sections.

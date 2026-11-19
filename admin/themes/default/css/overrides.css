@@ -294,6 +294,14 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
 #nav-sidebar ul.menu > li.sb-menu-group { margin: 18px 0 4px; padding: 0 14px; color: var(--sb-muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; line-height: 1.4; text-transform: uppercase; list-style: none; pointer-events: none; }
 #nav-sidebar ul.menu > li.sb-menu-group:first-of-type { margin-top: 6px; }
 @media (max-width: 767px) { #nav-sidebar ul.menu > li.sb-menu-group { display: none; } }
+/* P-9: "System" heading is a button that folds the technical sections */
+#nav-sidebar ul.menu > li.sb-system-group { pointer-events: auto; padding: 0 8px; }
+#nav-sidebar .sb-system-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 6px; border: 0; border-radius: 8px; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; }
+#nav-sidebar .sb-system-toggle::after { content: "\25B8"; font-size: 12px; transition: transform .15s; }
+#nav-sidebar li.sb-open .sb-system-toggle::after { transform: rotate(90deg); }
+#nav-sidebar .sb-system-toggle:hover, #nav-sidebar .sb-system-toggle:focus-visible { background: var(--sb-canvas); color: var(--sb-ink); outline: none; }
+@media (min-width: 768px) { #nav-sidebar ul.menu > li.maintab.sb-system-folded { display: none; } }
+@media (prefers-reduced-motion: reduce) { #nav-sidebar .sb-system-toggle::after { transition: none; } }
 /* Sections fold and unfold with the small arrow added by side-menu.js. The
    section you are in starts open. The stock behaviour, a box of pages that
    appeared beside the menu while the pointer rested on a section, is off. */

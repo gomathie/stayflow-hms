@@ -164,7 +164,7 @@
 							</div>
 						</li>
 					{/if}
-					{if {$show_new_customers} == 1}
+					{if {$show_new_customers} == 1 && empty($sb_desk_only)}
 						<li id="customers_notif" class="dropdown" data-type="customer">
 							<a href="javascript:void(0);" class="dropdown-toggle notifs" data-toggle="dropdown">
 								<i class="icon-user"></i>
@@ -216,7 +216,7 @@
 					{/if}
 					{hook h='displayBackOfficeTopNotificaiton'}
 				</ul>
-				{if count($quick_access) >= 0}
+				{if count($quick_access) >= 0 && empty($sb_desk_only)}
 					<ul id="header_quick">
 						<li class="dropdown">
 							<a href="javascript:void(0)" id="quick_select" class="dropdown-toggle" data-toggle="dropdown">{l s='Quick Access'} <i class="icon-caret-down"></i></a>

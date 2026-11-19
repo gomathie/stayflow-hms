@@ -22,7 +22,6 @@ class Salisbergguide extends Module
         'AdminParentOrders' => array(1, 0, 0, 0),
         'AdminParentCustomer' => array(1, 0, 0, 0),
         'AdminCatalog' => array(1, 0, 0, 0),
-        'AdminHotelReservationSystemManagement' => array(1, 0, 0, 0),
         'AdminSalisbergGuide' => array(1, 0, 0, 0),
         // daily work
         'AdminSalisbergRoomBoard' => array(1, 0, 1, 0),
@@ -31,7 +30,6 @@ class Salisbergguide extends Module
         'AdminOrders' => array(1, 1, 1, 0),
         'AdminInvoices' => array(1, 0, 0, 0),
         'AdminCustomers' => array(1, 1, 1, 0),
-        'AdminAddresses' => array(1, 1, 1, 0),
         'AdminCarts' => array(1, 1, 1, 0),
         'AdminCustomerThreads' => array(1, 1, 1, 0),
         'AdminOrderRefundRequests' => array(1, 0, 1, 0),
@@ -207,6 +205,7 @@ class Salisbergguide extends Module
             && $this->grantHotelAccess()
             && $this->renameMenuEntries()
             && $this->orderMenus()
+            && $this->deskOnlyStaffMenu()
             && $this->hideUnusedMenus()
             && $this->removeMenus()
             && $this->registerHook('header')
@@ -325,6 +324,60 @@ class Salisbergguide extends Module
         return Configuration::updateValue('SBGUIDE_MENU_ORDER', 1);
     }
 
+    /**
+     * SIMPLIFY-REVIEW P-17: the Hotel Staff menu is the desk only.
+     *  - Refund requests moves from Manage Hotel to the end of Bookings (for
+     *    everyone), so Manage Hotel holds nothing a front desk needs.
+     *  - Hotel Staff lose view on Manage Hotel, Addresses and Booking messages.
+     * Done once (SBGUIDE_STAFF_DESK_MENU), so a right given back by hand in
+     * Administration > Permissions, or a menu moved later, is not undone.
+     */
+    protected function deskOnlyStaffMenu()
+    {
+        if (Configuration::get('SBGUIDE_STAFF_DESK_MENU')) {
+            return true;
+        }
+        $db = Db::getInstance();
+        $idRefunds = (int) Tab::getIdFromClassName('AdminOrderRefundRequests');
+        $idBookings = (int) Tab::getIdFromClassName('AdminParentOrders');
+        $idHotel = (int) Tab::getIdFromClassName('AdminHotelReservationSystemManagement');
+        if ($idRefunds && $idBookings && $idHotel
+            && (int) $db->getValue('SELECT `id_parent` FROM `'._DB_PREFIX_.'tab` WHERE `id_tab` = '.$idRefunds) === $idHotel
+        ) {
+            $last = (int) $db->getValue('SELECT MAX(`position`) FROM `'._DB_PREFIX_.'tab` WHERE `id_parent` = '.$idBookings);
+            $db->update('tab', array('id_parent' => $idBookings, 'position' => $last + 1), 'id_tab = '.$idRefunds);
+            PrestaShopLogger::addLog('salisbergguide: Refund requests moved under Bookings', 1);
+        }
+        $idStaff = (int) $this->getProfileId(self::STAFF_PROFILE);
+        if ($idStaff) {
+            $revoked = array();
+            foreach (array('AdminHotelReservationSystemManagement', 'AdminAddresses', 'AdminOrderMessage') as $className) {
+                $idTab = (int) Tab::getIdFromClassName($className);
+                if ($idTab && $db->update(
+                    'access',
+                    array('view' => 0, 'add' => 0, 'edit' => 0, 'delete' => 0),
+                    'id_profile = '.$idStaff.' AND id_tab = '.$idTab.' AND `view` = 1'
+                ) && $db->Affected_Rows()) {
+                    $revoked[] = $className;
+                }
+            }
+            if ($revoked) {
+                PrestaShopLogger::addLog('salisbergguide: Hotel Staff menu trimmed: '.implode(', ', $revoked), 1);
+            }
+        }
+
+        return Configuration::updateValue('SBGUIDE_STAFF_DESK_MENU', 1);
+    }
+
+    /** Hotel Staff (P-17): the top bar shows only what the desk uses */
+    public function isDeskOnly()
+    {
+        $employee = $this->context->employee;
+
+        return $employee && $employee->id && !$employee->isSuperAdmin()
+            && (int) $employee->id_profile === $this->getProfileId(self::STAFF_PROFILE);
+    }
+
     /** Deletes the menu entries in $removedMenus that still exist. Safe to repeat. */
     protected function removeMenus()
     {
@@ -422,6 +475,7 @@ class Salisbergguide extends Module
     {
         $this->addInterfaceAssets(true);
         $this->addNewsPopup();
+        $this->context->smarty->assign('sb_desk_only', $this->isDeskOnly());
     }
 
     const NEWS_SEEN = 'SBGUIDE_NEWS_SEEN_';

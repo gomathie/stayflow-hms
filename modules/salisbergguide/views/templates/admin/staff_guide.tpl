@@ -49,7 +49,7 @@
 			<tr><td><span class="sb-path">Bookings &rsaquo; Invoices</span></td><td>{l s='Every invoice and receipt, with what is paid and what is still owed.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records and their booking history.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Inbox</span></td><td>{l s='Messages guests send through the website.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Manage Hotel &rsaquo; Refund requests</span></td><td>{l s='Cancellation and refund requests from guests.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Bookings &rsaquo; Refund requests</span></td><td>{l s='Cancellation and refund requests from guests.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Guides</span></td><td>{l s='This guide.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Guides &rsaquo; What's New</span></td><td>{l s='Recent changes to the system, newest first. Look here when something looks different.' mod='salisbergguide'}</td></tr>
 		</table>
@@ -193,7 +193,7 @@
 		</ol>
 		<h4>{l s='Refund and cancellation requests' mod='salisbergguide'}</h4>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Refund requests</span>.</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Refund requests</span>.</li>
 			<li>{l s='Open the request to see the booking, the rooms and the reason.' mod='salisbergguide'}</li>
 			<li>{l s='Tell your manager before approving anything. How much is refunded depends on the hotel refund rules, which only an administrator can set.' mod='salisbergguide'}</li>
 		</ol>

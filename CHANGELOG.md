@@ -9,7 +9,14 @@ Every change to Salisberg, newest first, in plain words.
 
 ## 2026-11-20
 
+### Fixed
+
+- **What's New page and sign-in pop-up.** A missing closing tag on the 19 November Occupancy line stopped the What's New page and the pop-up from drawing.
+
 ### Changed
+
+- **Front desk menu (P-17).** Hotel Staff no longer see Manage Hotel, Addresses, Booking messages, the new-customer icon or Quick Access. Refund requests moved under Bookings for everyone. The Dashboard button is called New booking.
+- **System group in the menu (P-9).** Modules and Services, Localization, Preferences, Advanced Parameters and Administration sit under one System heading, folded away until clicked. Permissions are unchanged.
 
 - **Licence rule for inherited files.** Old QloApps/PrestaShop headers in inherited platform files may be removed; bundled third-party libraries keep their licence files and notices (`AGENTS.md`, rule 14).
 
