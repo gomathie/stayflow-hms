@@ -217,7 +217,7 @@
 			<tr><td>{l s='Friendly URL (website links read salisberg.com/room-name instead of salisberg.com/index.php?...)' mod='salisbergguide'}</td><td>{l s='Switched on and kept on by the deploy. Leave Friendly URL set to Yes here; turning it off is undone on the next deploy.' mod='salisbergguide'}</td></tr>
 			{/if}
 			<tr><td>{l s='Who receives messages from the Contact form (the form has no Title or Send To choice: every message goes to this one contact and appears under Inbox, titled with the start of the message)' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Contacts</span></td></tr>
-			<tr><td>{l s='Contact form settings (name and phone fields, default reply text). All email, including replies sent from Inbox, goes out through the one mail server set under Advanced Parameters, E-mail; there is no separate mailbox to set up' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Inbox</span></td></tr>
+			<tr><td>{l s='Contact form settings (name and phone fields, default reply text). All email, including replies sent from Inbox, goes out through the one mail server set under Administration, Integrations, Email; there is no separate mailbox to set up' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Inbox</span></td></tr>
 			<tr><td>{l s='Whether guests can attach a file to a Contact form message (switched off: the form takes messages only)' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Inbox</span>, {l s='Contact form settings, Allow file uploading' mod='salisbergguide'}</td></tr>
 <tr><td>{l s='Web addresses typed by guests' mod='salisbergguide'}</td><td>{l s='Refused everywhere a guest types: the Contact form, guest names, addresses, the city and the message added to a booking. Email addresses are allowed. Text that looks like code is saved as plain text and never runs.' mod='salisbergguide'}</td></tr>
 		</table>
@@ -240,7 +240,7 @@
 	<section id="sb-a10">
 		<h3>10. {l s='Email and text messages' mod='salisbergguide'}</h3>
 		{if $sb_is_admin}
-		<p>{l s='Booking confirmations and password resets are sent by email. Set how they are sent in' mod='salisbergguide'} <span class="sb-path">Advanced Parameters &rsaquo; E-mail</span>.</p>
+		<p>{l s='Booking confirmations and password resets are sent by email. Enter the mail server in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Integrations</span>, {l s='under Email (mail server): server, port, encryption, user name, password and the address to send from. Save, then use Send test email to check it reaches an inbox. For Zoho Mail: smtp.zoho.com, port 587, TLS.' mod='salisbergguide'}</p>
 		<p>{l s='That one setting is used for every email the system sends: booking confirmations, payment and status notices, password resets, Contact form notices and replies written in Inbox. There is no second mail server or mailbox to configure anywhere else.' mod='salisbergguide'}</p>
 		<p>{l s='A guest recorded at the desk without an email address is stored with a placeholder ending in guest.invalid. Nothing is ever sent to those addresses.' mod='salisbergguide'}</p>
 		<h4>{l s='What a guest is sent' mod='salisbergguide'}</h4>
@@ -265,7 +265,7 @@
 		<h4>{l s='Booking alerts for staff' mod='salisbergguide'}</h4>
 		<p>{l s='Booking milestones (50, 100, then every 100 up to 1,000, then every 500) are sent to the same people, by text and email, and shown on the Dashboard.' mod='salisbergguide'}</p>
 		<p>{l s='On the same Integrations page, Booking alerts for staff is a list of your back-office people. Tick anyone who should be told about a new booking or a payment. Each person you tick is alerted by text (if a key is saved above and they have a phone number) and by email, at the address on their staff account.' mod='salisbergguide'}</p>
-		<p>{l s='You can also set the phone of each person and Receive booking alerts on their employee form (Administration, Employees); a Hotel Manager can do it there too. Anyone without a phone is asked for it the next time they sign in. Email alerts need the mail server set up (Advanced Parameters, E-mail); the line at the top of that section says whether it is. A person with no phone still gets the email.' mod='salisbergguide'}</p>
+		<p>{l s='You can also set the phone of each person and Receive booking alerts on their employee form (Administration, Employees); a Hotel Manager can do it there too. Anyone without a phone is asked for it the next time they sign in. Email alerts need the mail server set up (Email, on the same page). A person with no phone still gets the email.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminSalisbergIntegrations|escape:'html':'UTF-8'}">{l s='Open Integrations' mod='salisbergguide'} &rarr;</a>
 		<ol>
 			<li>{l s='Choose to send through your own SMTP server and enter the details from your email provider (server, port, username, password, encryption).' mod='salisbergguide'}</li>

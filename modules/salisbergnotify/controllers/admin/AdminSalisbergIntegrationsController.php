@@ -43,6 +43,10 @@ class AdminSalisbergIntegrationsController extends ModuleAdminController
             $this->sendTest();
         } elseif (Tools::isSubmit('sb_save_recipients')) {
             $this->saveRecipients();
+        } elseif (Tools::isSubmit('sb_save_mail')) {
+            $this->saveMail();
+        } elseif (Tools::isSubmit('sb_test_mail')) {
+            $this->sendTestMail();
         }
 
         return parent::postProcess();
@@ -57,6 +61,7 @@ class AdminSalisbergIntegrationsController extends ModuleAdminController
             'test_ok' => $this->l('mNotify accepted the test text.'),
             'test_fail' => $this->l('The test text was not accepted. Check the key, the sender name and the phone number, then try again.'),
             'recipients' => $this->l('The booking-alert recipients are saved.'),
+            'mail_saved' => $this->l('The email settings are saved. Send a test email to check them.'),
         );
         $done = (string) Tools::getValue('sb_done');
         if (isset($messages[$done])) {
@@ -99,10 +104,9 @@ class AdminSalisbergIntegrationsController extends ModuleAdminController
                 'status' => sprintf($this->l('%1$d people chosen, %2$d without a phone'), count($recipients), $missingPhone),
             ),
             array(
-                'anchor' => 'sb-int-alerts', 'icon' => 'icon-envelope', 'title' => $this->l('Email'), 'provider' => $method === 2 ? 'SMTP' : 'PHP mail',
-                'ok' => $method !== 3,
-                'status' => $method === 3 ? $this->l('Off: no email is sent') : ($method === 2 ? sprintf($this->l('On, %s'), (string) Configuration::get('PS_MAIL_SERVER')) : $this->l('On (PHP mail)')),
-                'link' => $this->context->link->getAdminLink('AdminEmails'),
+                'anchor' => 'sb-int-mail', 'icon' => 'icon-envelope', 'title' => $this->l('Email'), 'provider' => $method === 2 ? 'SMTP' : 'PHP mail',
+                'ok' => $method === 2,
+                'status' => $method === 3 ? $this->l('Off: no email is sent') : ($method === 2 ? sprintf($this->l('On, %s'), (string) Configuration::get('PS_MAIL_SERVER')) : $this->l('Not set up: no mail server saved')),
             ),
             array(
                 'anchor' => '', 'icon' => 'icon-bug', 'title' => $this->l('Error tracking'), 'provider' => 'Sentry',
@@ -119,7 +123,16 @@ class AdminSalisbergIntegrationsController extends ModuleAdminController
             'sb_mail_enabled' => $method !== 3,
             'sb_mail_method' => $method === 2 ? $this->l('SMTP') : ($method === 3 ? $this->l('off') : $this->l('PHP mail')),
             'sb_mail_server' => $method === 2 ? (string) Configuration::get('PS_MAIL_SERVER') : '',
-            'sb_mail_link' => $this->context->link->getAdminLink('AdminEmails'),
+            'sb_mail_link' => '#sb-int-mail',
+            'sb_mail' => array(
+                'on' => $method === 2,
+                'server' => (string) Configuration::get('PS_MAIL_SERVER'),
+                'port' => (int) Configuration::get('PS_MAIL_SMTP_PORT') ?: 587,
+                'enc' => (string) Configuration::get('PS_MAIL_SMTP_ENCRYPTION') ?: 'tls',
+                'user' => (string) Configuration::get('PS_MAIL_USER'),
+                'has_pass' => (bool) Configuration::get('PS_MAIL_PASSWD'),
+                'from' => (string) Configuration::get('PS_SHOP_EMAIL'),
+            ),
         ));
         $this->content .= $this->context->smarty->fetch($this->module->getLocalPath().'views/templates/admin/integrations.tpl');
         $this->context->smarty->assign('content', $this->content);
@@ -153,6 +166,95 @@ class AdminSalisbergIntegrationsController extends ModuleAdminController
             Configuration::updateValue(Salisbergnotify::KEY, $key, true);
         }
         Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergIntegrations').'&sb_done=saved');
+    }
+
+    /**
+     * The mail server, saved in the platform's own settings (PS_MAIL_*), the
+     * same ones every email in the app is sent with. Advanced Parameters,
+     * E-mail shows no form, so this is where the server is entered.
+     */
+    protected function saveMail()
+    {
+        $on = (int) Tools::getValue('sb_mail_on') === 1;
+        $server = trim((string) Tools::getValue('sb_mail_server'));
+        $port = (int) Tools::getValue('sb_mail_port');
+        $enc = (string) Tools::getValue('sb_mail_enc');
+        $user = trim((string) Tools::getValue('sb_mail_user'));
+        $pass = (string) Tools::getValue('sb_mail_pass');
+        $from = trim((string) Tools::getValue('sb_mail_from'));
+
+        if (!in_array($enc, array('off', 'tls', 'ssl'), true)) {
+            $enc = 'tls';
+        }
+        if ($on) {
+            if (!preg_match('/^[A-Za-z0-9.\-]{3,255}$/', $server)) {
+                $this->errors[] = $this->l('Enter the mail server name, for example smtp.zoho.com.');
+            }
+            if ($port < 1 || $port > 65535) {
+                $this->errors[] = $this->l('Enter the port, for example 587 (TLS) or 465 (SSL).');
+            }
+            if ($user === '' || !Validate::isEmail($user) && !preg_match('/^[A-Za-z0-9._@\-]{2,255}$/', $user)) {
+                $this->errors[] = $this->l('Enter the mail account user name, usually the full email address.');
+            }
+            if (!Validate::isEmail($from)) {
+                $this->errors[] = $this->l('Enter the address emails are sent from, for example booking@salisberg.com.');
+            }
+            if ($pass === '' && !Configuration::get('PS_MAIL_PASSWD')) {
+                $this->errors[] = $this->l('Enter the mail account password.');
+            }
+        }
+        if ($this->errors) {
+            return;
+        }
+
+        Configuration::updateValue('PS_MAIL_METHOD', $on ? 2 : 3);
+        if ($on) {
+            Configuration::updateValue('PS_MAIL_SERVER', $server);
+            Configuration::updateValue('PS_MAIL_SMTP_PORT', $port);
+            Configuration::updateValue('PS_MAIL_SMTP_ENCRYPTION', $enc);
+            Configuration::updateValue('PS_MAIL_USER', $user);
+            Configuration::updateValue('PS_SHOP_EMAIL', $from);
+            // an empty box keeps the saved password; html=true stores it exactly as typed
+            if ($pass !== '') {
+                Configuration::updateValue('PS_MAIL_PASSWD', $pass, true);
+            }
+        }
+        Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergIntegrations').'&sb_done=mail_saved#sb-int-mail');
+    }
+
+    /** One test email through the saved server, reported here in plain words */
+    protected function sendTestMail()
+    {
+        $to = trim((string) Tools::getValue('sb_mail_test_to'));
+        if (!Validate::isEmail($to)) {
+            $this->errors[] = $this->l('Enter an email address to send the test to.');
+
+            return;
+        }
+        if ((int) Configuration::get('PS_MAIL_METHOD') !== 2) {
+            $this->errors[] = $this->l('Save the mail server first.');
+
+            return;
+        }
+        $result = Mail::sendMailTest(
+            true,
+            Configuration::get('PS_MAIL_SERVER'),
+            sprintf($this->l('This is a test email from %s. If you can read it, emails from the app reach people.'), Configuration::get('PS_SHOP_NAME')),
+            sprintf($this->l('%s: test email'), Configuration::get('PS_SHOP_NAME')),
+            'text/html',
+            $to,
+            Configuration::get('PS_SHOP_EMAIL'),
+            Configuration::get('PS_MAIL_USER'),
+            Configuration::get('PS_MAIL_PASSWD'),
+            Configuration::get('PS_MAIL_SMTP_PORT'),
+            Configuration::get('PS_MAIL_SMTP_ENCRYPTION')
+        );
+        if ($result === true) {
+            $this->confirmations[] = sprintf($this->l('The mail server accepted the test email to %s. Check that inbox (and its spam folder).'), Tools::safeOutput($to));
+        } else {
+            PrestaShopLogger::addLog('Test email failed: '.(is_string($result) ? $result : 'unknown error'), 2);
+            $this->errors[] = $this->l('The test email was not sent. Check the server, port, encryption, user name and password. The server\'s reply is in Advanced Parameters, Logs.');
+        }
     }
 
     protected function saveRecipients()

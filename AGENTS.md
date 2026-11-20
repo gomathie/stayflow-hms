@@ -2764,3 +2764,21 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - Website: search results, a room page, and the hotel room list (category 8, with dates) render with rooms and no errors. Category 2 is the root and returns 404, as it should.
   - No script errors.
 - **Not tested:** a full website booking; the live server.
+
+### 2026-11-20 — Mail server (SMTP) on the Integrations page
+
+- **Owner:** add SMTP to the integrations page so it can be entered in the app.
+- **Why it was missing:** `AdminEmailsController::initContent()` has `renderOptions()` commented out, so Advanced Parameters › E-mail shows no settings form. Mail could not be configured without the database.
+- **What:**
+  - In `AdminSalisbergIntegrationsController`: `saveMail()` writes `PS_MAIL_METHOD` (2 = SMTP, 3 = off), `PS_MAIL_SERVER`, `PS_MAIL_SMTP_PORT`, `PS_MAIL_SMTP_ENCRYPTION`, `PS_MAIL_USER` and `PS_SHOP_EMAIL`, plus `PS_MAIL_PASSWD` only when a password is typed. These are the platform's own settings, so every email uses them (rule 26).
+  - `sendTestMail()` sends through `Mail::sendMailTest()` and logs the server's reply on failure.
+  - The panel `#sb-int-mail` is in `integrations.tpl`. The Email card points to it and is green only for a saved SMTP server.
+  - SuperAdmin only, as the rest of the page.
+- **Guides:** Admin Guide section 10 (where and what to enter, with Zoho settings), the section 9 row and the alerts paragraph now point to Administration › Integrations; CHANGELOG.
+- **Verification (local, browser, administrator):**
+  - Invalid values were refused with plain messages.
+  - Valid values saved and the panel showed email on.
+  - A test to a non-existent server failed with the plain message and a log entry.
+  - Switching off saved method 3.
+  - `php -l`; no script errors.
+- **Not tested:** a real Zoho server (needs the mailbox password); the live server.

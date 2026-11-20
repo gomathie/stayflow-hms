@@ -76,13 +76,80 @@
 </div>
 {/if}
 
+<div class="panel" id="sb-int-mail">
+	<div class="panel-heading"><i class="icon-envelope"></i> {l s='Email (mail server)' mod='salisbergnotify'}</div>
+	{if $sb_mail.on}
+	<div class="alert alert-success">{l s='Email is on. Booking confirmations, invoices and staff alerts are sent through' mod='salisbergnotify'} {$sb_mail.server|escape:'html':'UTF-8'}.</div>
+	{else}
+	<div class="alert alert-warning">{l s='No mail server is set up, so no email is sent: guests get no booking confirmation or invoice by email. Texts still work.' mod='salisbergnotify'}</div>
+	{/if}
+	<p class="help-block">{l s='Copy these from the mail provider. For Zoho Mail: server smtp.zoho.com, port 587 with TLS (or 465 with SSL), user name and password of the mailbox, for example booking@salisberg.com.' mod='salisbergnotify'}</p>
+	<form method="post" action="{$sb_action|escape:'html':'UTF-8'}#sb-int-mail" autocomplete="off" class="form-horizontal">
+		<div class="form-group">
+			<label class="control-label col-lg-3">{l s='Send email' mod='salisbergnotify'}</label>
+			<div class="col-lg-4">
+				<label class="radio-inline"><input type="radio" name="sb_mail_on" value="1"{if $sb_mail.on} checked="checked"{/if} /> {l s='On, through this server' mod='salisbergnotify'}</label>
+				<label class="radio-inline"><input type="radio" name="sb_mail_on" value="0"{if !$sb_mail.on} checked="checked"{/if} /> {l s='Off' mod='salisbergnotify'}</label>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="sb_mail_server">{l s='Mail server (SMTP)' mod='salisbergnotify'}</label>
+			<div class="col-lg-4"><input type="text" name="sb_mail_server" id="sb_mail_server" value="{$sb_mail.server|escape:'html':'UTF-8'}" placeholder="smtp.zoho.com" class="form-control" /></div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="sb_mail_port">{l s='Port' mod='salisbergnotify'}</label>
+			<div class="col-lg-2"><input type="number" name="sb_mail_port" id="sb_mail_port" value="{$sb_mail.port|intval}" min="1" max="65535" class="form-control" /></div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="sb_mail_enc">{l s='Encryption' mod='salisbergnotify'}</label>
+			<div class="col-lg-2">
+				<select name="sb_mail_enc" id="sb_mail_enc" class="form-control">
+					<option value="tls"{if $sb_mail.enc == 'tls'} selected="selected"{/if}>TLS</option>
+					<option value="ssl"{if $sb_mail.enc == 'ssl'} selected="selected"{/if}>SSL</option>
+					<option value="off"{if $sb_mail.enc == 'off'} selected="selected"{/if}>{l s='None' mod='salisbergnotify'}</option>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="sb_mail_user">{l s='User name' mod='salisbergnotify'}</label>
+			<div class="col-lg-4"><input type="text" name="sb_mail_user" id="sb_mail_user" value="{$sb_mail.user|escape:'html':'UTF-8'}" autocomplete="off" placeholder="booking@salisberg.com" class="form-control" /></div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="sb_mail_pass">{l s='Password' mod='salisbergnotify'}</label>
+			<div class="col-lg-4">
+				<input type="password" name="sb_mail_pass" id="sb_mail_pass" value="" autocomplete="new-password" class="form-control" />
+				{if $sb_mail.has_pass}<p class="help-block">{l s='A password is saved. Leave this empty to keep it.' mod='salisbergnotify'}</p>{/if}
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="sb_mail_from">{l s='Send from' mod='salisbergnotify'}</label>
+			<div class="col-lg-4">
+				<input type="email" name="sb_mail_from" id="sb_mail_from" value="{$sb_mail.from|escape:'html':'UTF-8'}" class="form-control" />
+				<p class="help-block">{l s='The address guests see. Most providers only allow the mailbox you sign in with.' mod='salisbergnotify'}</p>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-lg-offset-3 col-lg-4"><button type="submit" name="sb_save_mail" class="btn btn-primary">{l s='Save' mod='salisbergnotify'}</button></div>
+		</div>
+	</form>
+	{if $sb_mail.on}
+	<form method="post" action="{$sb_action|escape:'html':'UTF-8'}#sb-int-mail" class="form-horizontal" autocomplete="off">
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="sb_mail_test_to">{l s='Send a test email to' mod='salisbergnotify'}</label>
+			<div class="col-lg-4"><input type="email" name="sb_mail_test_to" id="sb_mail_test_to" value="" class="form-control" /></div>
+			<div class="col-lg-2"><button type="submit" name="sb_test_mail" class="btn btn-default">{l s='Send test email' mod='salisbergnotify'}</button></div>
+		</div>
+	</form>
+	{/if}
+</div>
+
 <div class="panel" id="sb-int-alerts">
 	<div class="panel-heading"><i class="icon-bell"></i> {l s='Booking alerts for staff' mod='salisbergnotify'}</div>
 	<p class="help-block">{l s='Choose who is told about new bookings and payments. A chosen person is alerted by text (if a key is saved above and they have a phone number) and by email, at the address on their staff account.' mod='salisbergnotify'}</p>
 	{if $sb_mail_enabled}
 	<div class="alert alert-info">{l s='Email is set up' mod='salisbergnotify'} ({$sb_mail_method|escape:'html':'UTF-8'}{if $sb_mail_server}, {$sb_mail_server|escape:'html':'UTF-8'}{/if}). {l s='Alert emails will be sent.' mod='salisbergnotify'} <a href="{$sb_mail_link|escape:'html':'UTF-8'}">{l s='Email settings' mod='salisbergnotify'}</a></div>
 	{else}
-	<div class="alert alert-warning">{l s='Email is switched off, so no alert emails are sent.' mod='salisbergnotify'} <a href="{$sb_mail_link|escape:'html':'UTF-8'}">{l s='Set it up under Advanced Parameters, E-mail' mod='salisbergnotify'}</a>.</div>
+	<div class="alert alert-warning">{l s='Email is switched off, so no alert emails are sent.' mod='salisbergnotify'} <a href="{$sb_mail_link|escape:'html':'UTF-8'}">{l s='Set it up under Email above' mod='salisbergnotify'}</a>.</div>
 	{/if}
 	<form method="post" action="{$sb_action|escape:'html':'UTF-8'}" class="form-horizontal" autocomplete="off">
 		<table class="table">
