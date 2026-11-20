@@ -22,6 +22,12 @@
 .sb-pwa[data-mode="install"] .sb-pwa-ios-text,
 .sb-pwa[data-mode="ios"] .sb-pwa-install-text,
 .sb-pwa[data-mode="ios"] .sb-pwa-install { display: none; }
+/* "Add to home screen" chosen from the account menu when the browser offers no prompt */
+.sb-pwa-help-text { display: none; }
+.sb-pwa[data-mode="help"] .sb-pwa-help-text { display: block; }
+.sb-pwa[data-mode="help"] .sb-pwa-install-text,
+.sb-pwa[data-mode="help"] .sb-pwa-ios-text,
+.sb-pwa[data-mode="help"] .sb-pwa-install { display: none; }
 .sb-pwa button {
   height: 38px;
   padding: 0 14px;

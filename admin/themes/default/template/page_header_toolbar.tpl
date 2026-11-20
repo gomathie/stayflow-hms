@@ -76,10 +76,12 @@
 		{block name=toolbarBox}
 		<div class="page-bar toolbarBox">
 			<div class="btn-toolbar">
-				<a href="#" class="toolbar_btn dropdown-toolbar navbar-toggle" data-toggle="collapse" data-target="#toolbar-nav"><i class="process-icon-dropdown"></i><div>{l s='Menu'}</div></a>
+				{* the phone "Menu" only when it has something to show *}
+				{assign var=sb_menu_items value=0}{foreach from=$toolbar_btn key=k item=btn}{if $k != 'back'}{assign var=sb_menu_items value=$sb_menu_items+1}{/if}{/foreach}
+				{if $sb_menu_items}<a href="#" class="toolbar_btn dropdown-toolbar navbar-toggle" data-toggle="collapse" data-target="#toolbar-nav"><i class="process-icon-dropdown"></i><div>{l s='Menu'}</div></a>{/if}
 				<ul id="toolbar-nav" class="nav nav-pills pull-right collapse navbar-collapse">
 					{foreach from=$toolbar_btn item=btn key=k}
-					{if $k != 'back' && $k != 'modules-list'}
+					{if $k != 'back'}
 					<li>
 						<a id="page-header-desc-{$table}-{if isset($btn.imgclass)}{$btn.imgclass|escape}{else}{$k}{/if}" class="toolbar_btn {if isset($btn.target) && $btn.target} _blank{/if} pointer"{if isset($btn.href)} href="{$btn.href|escape}"{/if} title="{if isset($btn.help)}{$btn.help}{else}{$btn.desc|escape}{/if}"{if isset($btn.js) && $btn.js} onclick="{$btn.js}"{/if}{if isset($btn.modal_target) && $btn.modal_target} data-target="{$btn.modal_target}" data-toggle="modal"{/if}{if isset($btn.help)} data-toggle="tooltip" data-placement="bottom"{/if}>
 							<i class="{if isset($btn.icon)}{$btn.icon|escape}{else}process-icon-{if isset($btn.imgclass)}{$btn.imgclass|escape}{else}{$k}{/if}{/if}{if isset($btn.class)} {$btn.class|escape}{/if}"></i>
@@ -88,45 +90,7 @@
 					</li>
 					{/if}
 					{/foreach}
-					{if isset($toolbar_btn['modules-list'])}
-					<li>
-						<a id="page-header-desc-{$table}-{if isset($toolbar_btn['modules-list'].imgclass)}{$toolbar_btn['modules-list'].imgclass}{else}modules-list{/if}" class="toolbar_btn{if isset($toolbar_btn['modules-list'].class)} {$toolbar_btn['modules-list'].class}{/if}{if isset($toolbar_btn['modules-list'].target) && $toolbar_btn['modules-list'].target} _blank{/if}" {if isset($toolbar_btn['modules-list'].href)}href="{$toolbar_btn['modules-list'].href}"{/if} title="{$toolbar_btn['modules-list'].desc}"{if isset($toolbar_btn['modules-list'].js) && $toolbar_btn['modules-list'].js} onclick="{$toolbar_btn['modules-list'].js}"{/if}>
-							<i class="{if isset($toolbar_btn['modules-list'].icon)}{$toolbar_btn['modules-list'].icon}{else}process-icon-{if isset($toolbar_btn['modules-list'].imgclass)}{$toolbar_btn['modules-list'].imgclass}{else}modules-list{/if}{/if}"></i>
-							<span{if isset($toolbar_btn['modules-list'].force_desc) && $toolbar_btn['modules-list'].force_desc == true } class="locked"{/if}>{$toolbar_btn['modules-list'].desc}</span>
-						</a>
-					</li>
-					{/if}
-					{* {if isset($help_link)}
-					<li>
-						<a class="toolbar_btn btn-help" href="{$help_link|escape}" title="{l s='Help'}">
-							<i class="process-icon-help"></i>
-							<div>{l s='Help'}</div>
-						</a>
-					</li>
-					{/if} *}
 				</ul>
-				<script type="text/javascript">
-				//<![CDATA[
-					var modules_list_loaded = false;
-					{if isset($tab_modules_open) && $tab_modules_open}
-						$(function() {
-								$('#modules_list_container').modal('show');
-								openModulesList();
-
-						});
-					{/if}
-					$('.process-icon-modules-list').parent('a').unbind().bind('click', async function (){
-						let loggedIn = await checkIfEmployeeIsLoggedIn();
-
-						if (loggedIn) {
-							$('#modules_list_container').modal('show');
-							openModulesList();
-						} else {
-							window.location = window.location.pathname;
-						}
-					});
-				//]]>
-				</script>
 			</div>
 		</div>
 		{/block}

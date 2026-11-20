@@ -2802,3 +2802,25 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
 - **Email wording:** Zoho examples removed from the Email panel, its messages and the guide; any SMTP provider works.
 - **Live data left by the test:** one or two customer accounts named "Test Signup" with @example.com addresses (no booking). Their carts are removed by the daily clean-up after 30 days.
 - Smoke test 33 of 33.
+
+### 2026-11-20 — Back office on a phone: menu, empty "Menu" button, Add to home screen
+
+- **Owner report:** on a phone there is no button to add the app, "only 2 items", and a Menu on the Dashboard that does nothing.
+- **Phone menu:**
+  - Below 768px the theme script renames `#nav-sidebar` to `#nav-mobile`, so none of the menu rules applied there. The group labels showed as plain text, the fold arrows as grey dashes, "System" as a grey pill, and the list did not scroll (the developer account's menu was 930px of content in a 796px box on the live site).
+  - `overrides.css` gains `#nav-mobile` rules: labels styled, System a plain label with every section shown, fold arrows hidden (a tap opens the section's pages), and the list scrolls.
+  - Hotel Staff see four sections by design (P-17); the developer account sees twelve.
+- **Empty "Menu":**
+  - Its only item was the vendor "Recommendations" button, which `overrides.css` hid everywhere.
+  - Removed at the source (rule 28): `AdminController::addPageHeaderToolBarModulesListButton()` and its call; the template block, its loader script and a commented-out Help block in `page_header_toolbar.tpl`; and the two CSS hide selectors.
+  - The template shows the phone "Menu" only when it has a button other than Back.
+- **Add to home screen:**
+  - New item in the account menu (`header.tpl`, `#sb-install-item`), unhidden by `install-app.js` on every back office page unless the app is already installed. It opens the browser's install prompt when there is one, and otherwise shows the steps (`data-mode="help"`: Safari Share on an iPhone, the browser menu elsewhere).
+  - Staff Guide section 1 and Admin Guide section 1 updated.
+- **Verification (local, 390px):**
+  - The menu screenshot was reviewed: labels, no dashes, all sections.
+  - The menu scrolls (max-height 784px, overflow auto).
+  - The Dashboard has no "Menu"; Bookings keeps its Menu.
+  - The account item is visible. With a prompt available, it opens the prompt. With the prompt blocked and an iPhone user agent, it shows "In Safari, tap Share, then Add to Home Screen" (screenshot reviewed).
+  - No script errors.
+- **Not tested:** a real Android phone and a real iPhone; the live server.

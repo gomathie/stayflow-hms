@@ -307,6 +307,14 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
 #nav-sidebar .sb-system-toggle:hover, #nav-sidebar .sb-system-toggle:focus-visible { background: var(--sb-canvas); color: var(--sb-ink); outline: none; }
 @media (min-width: 768px) { #nav-sidebar ul.menu > li.maintab.sb-system-folded { display: none; } }
 @media (prefers-reduced-motion: reduce) { #nav-sidebar .sb-system-toggle::after { transition: none; } }
+/* Phone menu (the theme script renames #nav-sidebar to #nav-mobile below 768px):
+   group names as small labels, System as a plain label (every section shows),
+   no fold arrows (a tap on a section opens its pages), and the list scrolls. */
+#nav-mobile ul.menu { max-height: calc(100vh - 60px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+#nav-mobile ul.menu > li.sb-menu-group { margin: 14px 0 2px; padding: 0 16px; color: var(--sb-muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; line-height: 1.4; text-transform: uppercase; list-style: none; }
+#nav-mobile .sb-system-toggle { padding: 0; border: 0; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; pointer-events: none; }
+#nav-mobile .sb-menu-arrow { display: none; }
+#nav-mobile ul.menu > li.maintab.sb-system-folded { display: block; }
 /* Sections fold and unfold with the small arrow added by side-menu.js. The
    section you are in starts open. The stock behaviour, a box of pages that
    appeared beside the menu while the pointer rested on a section, is off. */
@@ -454,8 +462,6 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn[id*="-new"]:hover { border-color: var(--sb-accent-hover); background-color: var(--sb-accent-hover); color: var(--sb-accent-text); }
 .bootstrap .page-head .toolbarBox .toolbar_btn.navbar-toggle { border-color: var(--sb-line); }
 /* vendor's module promotions */
-.bootstrap .page-head .toolbarBox a[id$="-modules-list"],
-.bootstrap .page-head .toolbarBox li:has(> a[id$="-modules-list"]),
 .bootstrap .page-head .toolbarBox li:has(> a#desc-module-catalog),
 #modules_list_container { display: none; }
 

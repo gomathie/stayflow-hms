@@ -21,6 +21,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Fixed
 
+- **Back office on a phone.** The menu now shows its group labels properly, has no stray dashes, lists every section and scrolls. The Dashboard's empty "Menu" button is gone: it held only the vendor's hidden "Recommendations" button, which was removed. Add to home screen is now always in the account menu (it was only an occasional note on the Dashboard).
+
 - **Searching on a phone.** In the search pop-up the guest picker opened over the Search Rooms button and was cut off, so a tap on Search Rooms did nothing. The picker now sits in the form and pushes the button down.
 - **"Add to home screen" bar on the website** covered the bottom of the checkout form on phones. It now shows on the homepage only.
 

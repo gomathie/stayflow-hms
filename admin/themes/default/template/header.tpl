@@ -329,6 +329,7 @@
 							{if $host_mode}
 							<li><a href="https://www.prestashop.com/cloud/" class="_blank"><i class="icon-wrench"></i> {l s='My PrestaShop account'}</a></li>
 							{/if}
+							<li id="sb-install-item" hidden><a href="#" id="sb-install-link"><i class="icon-mobile"></i> {l s='Add to home screen'}</a></li>
 							<li><a id="header_logout" href="{$login_link|escape:'html':'UTF-8'}&amp;logout"><i class="icon-signout"></i> {l s='Sign out'}</a></li>
 						</ul>
 					</li>

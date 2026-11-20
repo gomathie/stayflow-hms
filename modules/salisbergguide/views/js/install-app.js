@@ -12,6 +12,7 @@
     }
 
     var deferred = null;
+    var iphone = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
 
     function isDesk() {
         return !!document.querySelector('link[rel="manifest"][href*="desk-manifest"]');
@@ -62,6 +63,9 @@
         node.innerHTML = ''
             + '<p class="sb-pwa-install-text">' + (isDesk() ? 'Add the desk to your home screen.' : 'Add Salisberg to your home screen.') + '</p>'
             + '<p class="sb-pwa-ios-text">On iPhone, tap Share, then Add to Home Screen.</p>'
+            + '<p class="sb-pwa-help-text">' + (iphone
+                ? 'In Safari, tap Share, then Add to Home Screen.'
+                : 'Open the browser menu (the three dots), then tap Install app or Add to Home screen.') + '</p>'
             + '<button type="button" class="sb-pwa-install">Add to home screen</button>'
             + '<button type="button" class="sb-pwa-dismiss" aria-label="Dismiss">Close</button>';
         document.body.appendChild(node);
@@ -100,7 +104,36 @@
         show('install');
     });
 
-    var iphone = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+    // "Add to home screen" in the back office account menu: always there (unless
+    // the app is already installed). It opens the browser's install prompt when
+    // there is one, and otherwise shows the steps for this phone.
+    function accountMenuItem() {
+        var item = document.getElementById('sb-install-item');
+        if (!item) {
+            return;
+        }
+        item.hidden = false;
+        document.getElementById('sb-install-link').addEventListener('click', function (event) {
+            event.preventDefault();
+            var node = bar();
+            if (deferred) {
+                deferred.prompt();
+                deferred.userChoice.then(function () {
+                    node.hidden = true;
+                    deferred = null;
+                });
+                return;
+            }
+            node.setAttribute('data-mode', 'help');
+            node.hidden = false;
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', accountMenuItem);
+    } else {
+        accountMenuItem();
+    }
+
     if (iphone) {
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function () { show('ios'); });

@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='20 November 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='Phone: menu and home screen.' mod='salisbergguide'}</strong> {l s='The phone menu is tidier and scrolls. To put the desk on your home screen, tap the circle with your initials, then Add to home screen. The empty Menu button on the Dashboard is gone.' mod='salisbergguide'}</li>
 			{if $sb_is_admin}<li><strong>{l s='27 unused modules removed.' mod='salisbergguide'}</strong> {l s='Bank wire, cheque, the channel manager, four shop Dashboard boxes and the shop statistics modules are gone. Manage Modules now lists 32. Bookings paid through a removed module keep their payment name.' mod='salisbergguide'}</li>{/if}
 			{if $sb_can_read_admin_guide}<li><strong>{l s='Recycle bin, Statuses and Positions moved.' mod='salisbergguide'}</strong> {l s='They are now at the end of Administration (under System in the menu). Recycle bin and Statuses were under Bookings, Positions under Modules and Services. Who may open them is unchanged.' mod='salisbergguide'}</li>{/if}
 			{if $sb_is_admin}<li><strong>{l s='Data clean-up.' mod='salisbergguide'}</strong> {l s='Advanced Parameters, Data clean-up removes old drafts, carts, logs, closed messages and guests with no bookings, after showing how many and asking you to type that number. Drafts and carts older than 30 days and logs older than 90 are cleaned automatically once a day. Paid bookings are kept for 6 years. The old Data Cleaner with its delete-everything buttons is gone.' mod='salisbergguide'}</li>{/if}
