@@ -58,6 +58,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Account menu on a phone.** Tapping your initials opens a panel from the bottom of the screen, showing your name and email. It has larger buttons and Sign out in red, and closes when you tap outside it. The old full-screen dark menu is gone.
+
 - **Shorter website checkout (P-24).** Guests book as guests, with no password; "Create an account instead" is one link away. The Mr/Mrs field is gone. Email is optional: a guest may book with a phone number only and gets their confirmation by text.
 
 - **Saved guest names tidied, once.** Names saved in all small or all capital letters now read like "Ama Mensah", as new names already did. Mixed-case names are unchanged; names that are only a title (Mr, Mrs) are counted in the deploy log for the desk to correct.

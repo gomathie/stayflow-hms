@@ -2888,3 +2888,14 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - Negative control: with the cap removed from `OrderHistory.php` in the container, the payment test failed ("expected 208.0, got 308.0"). With it restored, all pass.
   - No trace: order payments, own prices and the code counter were 53/3/9 before and after.
 - **Not covered:** the Add payment over-the-balance refusal (it is controller code; the e2e suite is the place for it); the tax switch on a booking.
+
+### 2026-11-20 — Phone account menu as a bottom sheet
+
+- **Owner:** take inspiration from Dribbble and improve the profile pop-up on mobile. The standard Dribbble/iOS/Material pattern is a bottom sheet: a grab handle, a header showing who is signed in, 48–56px rows, the destructive action last and in red, and the page dimmed behind.
+- **Before (below 768px):** the stock `admin-theme.css` drew `#employee_links` as a full-screen panel (`position: fixed; top: 36px; height: 100%; background: #383F50`, all `!important`) with uppercase, blue-icon rows: three items floating in an empty dark screen.
+- **Change:**
+  - The three stock rules were removed from `admin-theme.css` (rule 11), not out-ranked.
+  - `overrides.css`, inside the existing `max-width: 767px` block: the menu is a fixed bottom sheet (18px top corners, a handle, `max-height: 80vh`, safe-area padding), with 52px rows, Sign out in `--sb-danger` above a divider, and a backdrop drawn by `#employee_infos.open::after`. Tapping outside closes the menu through Bootstrap's own document click. The trigger's grey "open" background was cleared.
+  - `header.tpl`: a `li.sb-me-head` with the initials avatar, name and email, hidden from 768px up.
+- **Verification (local, Playwright, Pixel 7 width, Hotel Manager test account):** in light and dark mode the sheet is 272px tall and its bottom edge sits at the bottom of the screen; tapping outside hides it. Both screenshots were reviewed. Smoke test 33 of 33.
+- **Not tested:** a real iPhone (the safe-area inset); RTL (`admin-theme_rtl.css` still has the old rules); the live server.
