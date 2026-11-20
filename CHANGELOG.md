@@ -11,6 +11,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Removed
 
+- **Old shop code (clean-up batch 5).** The old "Add new order" form (about 2,700 lines of form and saving code no page could reach since New booking replaced it), the supplier, manufacturer and supply-order screens (no menu entry since installation), and the leftover product comparison code. Anyone who opens the old form address goes to New booking.
+
 - **27 unused modules (clean-up batches 2–4).** Bank wire, cheque and the channel manager (replaced by Salisberg Pay, or never used); the shop Dashboard boxes (activity, products, goals, insights), which were no longer drawn; and the 20 shop statistics modules with search keywords and the 404 log, behind the hidden Stats menu. Each is forgotten by the database on the next deploy and logged. Bookings paid through a removed module keep their payment name. The Modules page lists 32 modules instead of 58.
 - **Unused theme images (batch 6).** 15 images nothing refers to, and the bank wire and cheque icons.
 

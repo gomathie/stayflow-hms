@@ -133,11 +133,11 @@ Module templates overridden from the theme (`themes/hotel-reservation-theme/modu
 | 2 | Done 2026-11-20: bankwire, cheque, qlochannelmanagerconnector removed; qlohotelreview kept (switched off, may be switched on: rule 28) |
 | 3 | Done 2026-11-20: 20 statistics modules, sekeywords, pagesnotfound, qlostatsserviceproducts removed; graphnvd3 and gridhtml kept (the Stats screens load them by name) |
 | 4 | Done 2026-11-20: dashactivity, dashproducts, dashgoals, dashinsights removed |
-| 5 | Proposed, waiting for the owner (see below) |
+| 5 | Done 2026-11-20 (owner: "do batch 5"): old order form, supplier, manufacturer and supply-order screens, comparison code removed; stock classes kept; hidden admin tabs kept hidden (several are used by other screens) |
 | 6 | Done 2026-11-20: 15 unreferenced theme images removed; non-English module translations kept (needed if a language is added) |
 | O1–O7 Overrides | Rule 11 change approved 2026-11-19; not started |
 
-## Batch 5 proposal (waiting for the owner)
+## Batch 5 (done 2026-11-20; the table below was the proposal)
 
 Inherited shop features. Higher risk than batches 2–4: the platform loads these files by fixed path, by hook and through the class index, so each item needs its own proof and a rebuild before it goes.
 

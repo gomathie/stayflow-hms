@@ -434,11 +434,6 @@ class FrontControllerCore extends Controller
             $meta_language[] = $lang['iso_code'];
         }
 
-        $compared_products = array();
-        if (Configuration::get('PS_COMPARATOR_MAX_ITEM') && isset($this->context->cookie->id_compare)) {
-            $compared_products = CompareProduct::getCompareProducts($this->context->cookie->id_compare);
-        }
-
         $isOccupancyWiseSearch = false;
         if (Configuration::get('PS_FRONT_SEARCH_TYPE') == HotelBookingDetail::SEARCH_TYPE_OWS) {
             $isOccupancyWiseSearch = true;
@@ -490,8 +485,6 @@ class FrontControllerCore extends Controller
             'PS_STOCK_MANAGEMENT' => Configuration::get('PS_STOCK_MANAGEMENT'),
             'quick_view'          => (bool)Configuration::get('PS_QUICK_VIEW'),
             'shop_phone'          => Configuration::get('PS_SHOP_PHONE'),
-            'compared_products'   => is_array($compared_products) ? $compared_products : array(),
-            'comparator_max_item' => (int)Configuration::get('PS_COMPARATOR_MAX_ITEM'),
             'currencySign'        => $currency->sign, // backward compat, see global.tpl
             'currencyFormat'      => $currency->format, // backward compat
             'currencyBlank'       => $currency->blank, // backward compat

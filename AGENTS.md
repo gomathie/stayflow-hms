@@ -2741,3 +2741,26 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - Manage Modules: 32 modules (was 58).
 - **Not tested:** a website checkout to the payment step (the smoke test loads the pages only); the live server, where the step runs on the next deploy.
 - Also in this change: the light/dark switch fix recorded above.
+
+### 2026-11-20 — Clean-up batch 5: old order form, supplier/manufacturer/supply-order screens, comparison code
+
+- **Owner:** "do batch 5".
+- **Old "Add new order" form:**
+  - Removed `admin/themes/default/template/controllers/orders/form.tpl` (2,531 lines), the `submitAddOrder` branch of `AdminOrdersController::postProcess()` (142 lines), and `renderForm()` (100 lines). `renderForm()` now only redirects to New booking.
+  - Also removed `_new_service_product.tpl`, which nothing included.
+  - **Evidence:** `init()` already redirected `addorder`/`submitAddOrder`; `renderForm()` is reached only through the add screen; the form's guest endpoint went with O6. The other order partials are used by the booking page or by `AdminCartsController`.
+  - **Kept:** the `AdminCartsController` cart helpers, because the hidden legacy room-booking page (kept for reallocation) still reaches them.
+- **Suppliers, manufacturers, supply orders:**
+  - Removed their three admin controllers and five template folders, plus the commented-out installer tab lines.
+  - **Evidence:** no menu entry (commented out in `install/data/xml/tab.xml` since installation; none in the database); no reference outside their own files.
+  - **Kept:** the `Supplier`, `Manufacturer` and stock classes, because product and room code read them.
+- **Comparison:**
+  - Removed `classes/CompareProduct.php`, the lookup and the two values in `FrontController`, the comparison script values and commented-out button in the theme's `product-list.tpl`, and the 28-line commented-out block in `CategoryController`.
+  - **Evidence:** no script reads `comparator_max_item`, `comparedProductsIds`, `min_item` or `max_item`. The front pages were removed on 2026-10-13. The `compare` tables and the `PS_COMPARATOR_MAX_ITEM` setting stay; they are harmless data.
+- **Hidden admin tabs** (Groups, Titles, Shopping Carts and others): kept hidden. Several are used by other screens (carts by bookings, groups by prices).
+- **Verification (local, image rebuilt):**
+  - Smoke test 33 of 33.
+  - `AdminOrders&addorder` lands on the Room board, and a booking page opens with no errors.
+  - Website: search results, a room page, and the hotel room list (category 8, with dates) render with rooms and no errors. Category 2 is the root and returns 404, as it should.
+  - No script errors.
+- **Not tested:** a full website booking; the live server.
