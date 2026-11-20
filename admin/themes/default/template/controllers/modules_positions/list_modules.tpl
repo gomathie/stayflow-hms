@@ -78,18 +78,17 @@
 					<section class="hook_panel {if $hook['position'] == 0}hook_position{/if}" {if $hook['position'] == 0}style="display:none;"{/if}>
 						<a name="{$hook['name']}"></a>
 						<header class="hook_panel_header">
-							<span class="hook_name">{$hook['name']}</span>
-							<!-- <span class="hook_title">{$hook['title']}</span> -->
-							<span class="badge pull-right">
+							<button type="button" class="sb-hook-toggle" aria-expanded="false"{if !empty($hook['description'])} title="{$hook['description']|strip_tags|escape:'html':'UTF-8'}"{/if}>
+								<i class="icon-caret-right" aria-hidden="true"></i>
+								{if $hook['sb_label']}<strong class="sb-hook-label">{$hook['sb_label']|escape:'html':'UTF-8'}</strong>{/if}
+								<span class="hook_name">{$hook['name']|escape:'html':'UTF-8'}</span>
+							</button>
+							<span class="sb-hook-count">
 								{if $hook['module_count'] && $can_move}
-								<input type="checkbox" id="Ghook{$hook['id_hook']}" onclick="hookCheckboxes({$hook['id_hook']}, 0, this)"/>
+								<input type="checkbox" id="Ghook{$hook['id_hook']}" onclick="hookCheckboxes({$hook['id_hook']}, 0, this)" title="{l s='Select all'}"/>
 								{/if}
-								{$hook['module_count']} {if $hook['module_count'] > 1}{l s='Modules'}{else}{l s='Module'}{/if}
+								{$hook['module_count']} {if $hook['module_count'] > 1}{l s='modules'}{else}{l s='module'}{/if}
 							</span>
-
-							{if !empty($hook['description'])}
-							<div class="hook_description">{$hook['description']}</div>
-							{/if}
 						</header>
 
 						{if $hook['module_count']}
@@ -104,6 +103,7 @@
 								</div>
 								{if !$display_key}
 								<div class="module_col_position{if $can_move && $hook['module_count'] >= 2} dragHandle{/if}" id="td_{$hook['id_hook']|intval}_{$module['instance']->id}">
+									{if $can_move && $hook['module_count'] >= 2}<span class="sb-drag" aria-hidden="true" title="{l s='Drag to reorder'}">&#8942;&#8942;</span>{/if}
 									<span class="positions">{$module@iteration}</span>
 									{if $can_move}
 									<div class="btn-group-vertical">
@@ -119,7 +119,7 @@
 								</div>
 								{/if}
 								<div class="module_col_icon">
-									<img width="57" src="../modules/{$module['instance']->name}/logo.png" alt="{$module['instance']->name|stripslashes}" />
+									<span class="sb-mod-tile{if strpos($module['instance']->name, 'salisberg') === 0} sb-own{/if}" aria-hidden="true">{$module['instance']->displayName|stripslashes|regex_replace:'/^\W*(\w)\w*\W*(\w?).*$/u':'$1$2'|upper|escape:'html':'UTF-8'}</span>
 								</div>
 								<div class="module_col_infos">
 									<span class="module_name">

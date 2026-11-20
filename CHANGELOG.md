@@ -11,6 +11,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Fixed
 
+- **Module category filter.** Choosing a category on Manage Modules kept showing every module: the saved choice was read but never applied. It now filters.
 - **What's New page and sign-in pop-up.** A missing closing tag on the 19 November Occupancy line stopped the What's New page and the pop-up from drawing.
 
 ### Security
@@ -27,6 +28,8 @@ Every change to Salisberg, newest first, in plain words.
 - **Guest names (P-15).** Names typed all in small or all in capital letters are saved with capitals; mixed-case names are kept as typed; a title alone is refused. Saved names are not changed.
 - **Phone cards (P-14).** On a phone, Bookings, Customers and Invoices show one compact card per row, with no Delete on the card.
 - **Dashboard (P-7).** Overdue and Unpaid have a coloured edge when they need action; the chart hint is one line; Demo figures moved beside the hotel filter (SuperAdmin only).
+- **Manage Modules redesigned.** One totals line instead of the Alert and Updates tabs, the figure strip and the vendor's addons banner; category chips above the list; each module with a letter tile, an On, Off or Not installed label, and its category; Salisberg modules first; bank wire, cheque, PayPal, the channel manager and anything not installed folded under Not used.
+- **Positions redesigned.** Each hook is one folded line with a plain name (written for the hooks this hotel uses) and the technical name beside it; click to open; a drag handle beside each module; search also matches the plain names and opens what it finds; brand colours instead of the bright blue.
 - **Modern side menu icons.** Each menu section has a thin line icon in place of the old font icons, in light and dark.
 - **Lists in pages (P-13).** Lists show 20 rows a page by default (50 to choose). Invoices pages too, and its totals still cover every matching invoice.
 - **System group in the menu (P-9).** Modules and Services, Localization, Preferences, Advanced Parameters and Administration sit under one System heading, folded away until clicked. Permissions are unchanged.

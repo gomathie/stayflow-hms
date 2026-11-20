@@ -2611,3 +2611,23 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - Sample values: real names, "P.O. Box 4501, Accra", "Plot 7, Spintex Rd.", Accra and an email in a message all pass. `www.evil.com`, `bit.ly`, `freecash.xyz`, `http://`, `javascript:`, "visit www.scam.com", "scam.ru", "site.com" as a city and "cheap-hotels.com" in a message are all refused.
   - All 290 saved customer, address and employee name values pass the new rule. The production scan above found no links either, so no existing record is blocked from being edited.
 - **Not tested:** a full website checkout carrying a message with a link (the check is in the shared save function); the live server.
+
+### 2026-11-20 — Modules and Positions pages redesigned; category filter fixed
+
+- **Owner:** approved both redesigns from the previews; for Modules, unused modules in a folded "Not used" group (the default offered).
+- **Manage Modules:**
+  - `controllers/admin/AdminModulesController.php` (inherited, rule 11): in `initContent()` modules are grouped (`sb_group`: `own` for `salisberg*`, `unused` for not installed or bank wire, cheque, PayPal and the channel manager, else `main`) and listed in that order; each gets `sb_initials` for its tile; `sb_nb_unused` is assigned. `renderKpis()` and the `kpis` template variable were deleted (rule 28: only `page.tpl` used them; the `AdminStats` KPI endpoints are left).
+  - `page.tpl` rewritten: one summary line (on, off, not installed, updates), alerts only when there are some, category chips and a search box above the list. Removed: the Alert and Updates tabs, the figure strip and the vendor addons banner (and its now-unused hide selector in `overrides.css`). The element ids the stock script uses (`moduleQuicksearch`, `filter_all`, `categoryModuleFilterLink`) are kept.
+  - `list.tpl`: group heading rows; letter tile instead of the logo; On, Off or Not installed chip (`.sb-state`); version and category on the name line; "Not used" rows start hidden and open with a button. They stay in the first `tbody`, so the search still finds them.
+  - `admin-theme.css`: the green and grey bar of `td.module_active` / `module_inactive` made transparent.
+  - **Fault found and fixed:** `isModuleFiltered()` read `PS_SHOW_CAT_MODULES_<employee>` into `$filter_categories` but tested an empty `$category_filtered`, so a category chip never filtered. It now fills `$category_filtered` from the saved value.
+- **Positions:**
+  - `AdminModulesPositionsController::initContent()` adds `sb_label` per hook: a plain name for 42 hooks this hotel uses, else the stored hook title when it differs from the name, else nothing.
+  - `list_modules.tpl`: each hook header is a button (plain name, technical name, count); module lists start folded; a drag handle beside the position number (the arrows stay, for keyboard users); a letter tile instead of the logo; the description shows as the button's tooltip.
+  - `js/admin/modules-position.js` (inherited): the hook search also matches the plain name; hooks found by a search or the module filter are opened, and folded again when the filter is cleared; a link to `#hookName` (used after moving a module) opens that hook.
+  - `admin-theme.css`: the hook panel, header, name, list item, highlight, select and position rules use the tokens instead of the bright blue and grey bevels.
+- **Guides:** Admin Guide section 15 (SuperAdmin part); What's New 20 November (SuperAdmin); CHANGELOG.
+- **Verification (local, headless Chrome, administrator, dark mode):**
+  - Modules: summary "58 modules · 53 on · 5 off · 0 not installed · all up to date"; Salisberg group first; 55 rows shown, 3 folded; opening Not used shows 58; searching "bank" finds 2; the Payments and Gateways chip shows 3 (it showed all 58 before the filter fix); no script errors. Screenshot reviewed.
+  - Positions: 39 hooks shown folded, page 2,112px; a real click opens one; searching "footer" shows and opens the 7 footer hooks; with non-positionable hooks ticked, "booking status" finds "When a booking status changes"; clearing folds them again; no script errors. Screenshot reviewed.
+- **Not tested:** dragging a module to a new position after the change (the sortable code is unchanged); installing or uninstalling from the new rows; light mode screenshots; phone width; the live server.

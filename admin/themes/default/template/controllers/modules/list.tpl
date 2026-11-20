@@ -33,26 +33,35 @@
 	</thead>
 	{if count($modules)}
 		<tbody>
+			{assign var=sb_group value=''}
 			{foreach from=$modules item=module}
 				{capture name="moduleStatutClass"}{if isset($module->id) && $module->id gt 0 && $module->active == 1}module_active{else}module_inactive{/if}{/capture}
-				<tr>
+				{if isset($module->sb_group) && $module->sb_group != $sb_group}
+					{assign var=sb_group value=$module->sb_group}
+					<tr class="sb-mod-group"><td colspan="4">
+						{if $sb_group == 'own'}{l s='Salisberg'}
+						{elseif $sb_group == 'main'}{l s='Platform modules'}
+						{else}<button type="button" class="sb-mod-unused-toggle" aria-expanded="false"><i class="icon-caret-right"></i> {l s='Not used'} <span>{$sb_nb_unused|intval}</span></button> <small>{l s='Not installed, or replaced by our own modules'}</small>{/if}
+					</td></tr>
+				{/if}
+				<tr class="{if isset($module->sb_group) && $module->sb_group == 'unused'}sb-mod-unused{/if}"{if isset($module->sb_group) && $module->sb_group == 'unused'} style="display:none"{/if}>
 					<td class="{{$smarty.capture.moduleStatutClass}} text-center" style="width: 1%;">
 						{if (isset($module->id) && $module->id > 0) || !isset($module->type) || $module->type != 'addonsMustHave'}
 						<input type="checkbox" name="modules" value="{$module->name|escape:'html':'UTF-8'}" class="noborder" title="{l s='Module %1s '|sprintf:$module->name}"{if !isset($module->confirmUninstall) OR empty($module->confirmUninstall)} data-rel="false"{else} data-rel="{$module->confirmUninstall|addslashes}"{/if}/>
 						{/if}
 					</td>
-					<td class="fixed-width-xs">
-						<img width="57" alt="{$module->displayName|escape:'html':'UTF-8'}" title="{$module->displayName|escape:'html':'UTF-8'}" src="{if isset($module->image)}{$module->image}{else}{$modules_uri}/{$module->name}/{$module->logo}{/if}" />
+					<td class="sb-mod-tile-cell">
+						<span class="sb-mod-tile{if isset($module->sb_group) && $module->sb_group == 'own'} sb-own{elseif !(isset($module->id) && $module->id gt 0 && $module->active == 1)} sb-off{/if}" aria-hidden="true">{if isset($module->sb_initials)}{$module->sb_initials|escape:'html':'UTF-8'}{/if}</span>
 					</td>
 					<td>
 						<div id="anchor{$module->name|ucfirst}" title="{$module->displayName|escape:'html':'UTF-8'}">
-							<div class="text-muted">
-								{$module->categoryName}
-							</div>
 							<div class="module_name">
 								<span style="display:none">{$module->name|escape:'html':'UTF-8'}</span>
 								{$module->displayName|escape:'html':'UTF-8'}
-								<small class="text-muted">v{$module->version} - {l s='by'} {$module->author}</small>
+								<small class="text-muted">v{$module->version|escape:'html':'UTF-8'} · {$module->categoryName|escape:'html':'UTF-8'}</small>
+								{if isset($module->id) && $module->id gt 0 && $module->active == 1}<span class="sb-state sb-state-good"><i></i>{l s='On'}</span>
+								{elseif isset($module->id) && $module->id gt 0}<span class="sb-state sb-state-warn"><i></i>{l s='Off'}</span>
+								{else}<span class="sb-state"><i></i>{l s='Not installed'}</span>{/if}
 								{if isset($module->type) && $module->type == 'addonsBought'}
 								- <span class="module-badge-bought help-tooltip text-warning" data-title="{l s="You bought this module on QloApps Addons. Thank You."}"><i class="icon-pushpin"></i> <small>{l s="Bought"}</small></span>
 								{elseif isset($module->type) && $module->type == 'addonsMustHave'}
@@ -218,6 +227,12 @@
 	{/if}
 <script type="text/javascript">
 	$(document).ready(function(){
+		$('#module-list').on('click', '.sb-mod-unused-toggle', function(){
+			var open = $(this).attr('aria-expanded') !== 'true';
+			$(this).attr('aria-expanded', open ? 'true' : 'false');
+			$(this).find('i').toggleClass('icon-caret-right', !open).toggleClass('icon-caret-down', open);
+			$('#module-list tr.sb-mod-unused').toggle(open);
+		});
 		$('.fancybox-quick-view').fancybox({
 			type: 'ajax',
 			autoDimensions: false,

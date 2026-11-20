@@ -81,6 +81,7 @@ $(function(){
 			var $this = $(this);
 			hooks_list.push({
 				'title': $this.html(),
+				'label': $this.siblings('.sb-hook-label').text().toLowerCase(),
 				'element': $this,
 				'container': $this.parents(".hook_panel")
 			});
@@ -135,8 +136,8 @@ $(function(){
 				if (hook_name != "")
 					for (id = 0; id < hooks_list.length; id++)
 					{
-						var start = hooks_list[id].title.toLowerCase().search(hook_name.toLowerCase());
-						if (start != -1)
+						var start = hooks_list[id].title.toLowerCase().indexOf(hook_name.toLowerCase());
+						if (start != -1 || hooks_list[id].label.indexOf(hook_name.toLowerCase()) != -1)
 						{
 							hooks_to_show_from_hook_name = hooks_to_show_from_hook_name.add(hooks_list[id].container);
 							hooks_list[id].element.html(hooks_list[id].title.replace(regex, '<span class="highlight">$1</span>'));
@@ -155,7 +156,25 @@ $(function(){
 				for (id = 0; id < hooks_list.length; id++)
 					if (hooks_list[id].container.is('.hook_position'))
 						hooks_list[id].container.hide();
+			// While searching or showing one module, the hooks found are opened.
+			for (id = 0; id < hooks_list.length; id++)
+				sbOpenHook(hooks_list[id].container, hook_name != "" || module_id != "all");
 		}
+		function sbOpenHook(container, open)
+		{
+			container.toggleClass('sb-open', open);
+			container.find('.sb-hook-toggle').attr('aria-expanded', open ? 'true' : 'false')
+				.find('i').toggleClass('icon-caret-right', !open).toggleClass('icon-caret-down', open);
+		}
+		$('#modulePosition').on('click', '.sb-hook-toggle', function () {
+			var container = $(this).closest('.hook_panel');
+			sbOpenHook(container, !container.hasClass('sb-open'));
+		});
+		// A link to one hook (#hookName, used after moving a module) opens it.
+		if (window.location.hash)
+			sbOpenHook($('a[name="' + window.location.hash.substr(1).replace(/"/g, '') + '"]').closest('.hook_panel'), true);
+		if ($('#show_modules').val() != 'all')
+			modulesPositionFilterHooks();
 	}
 
 	//
