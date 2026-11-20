@@ -59,13 +59,13 @@
 					<input type="hidden" name="redirect" id="redirect" value="{$redirect}"/>
 					<div class="form-group">
 						<label class="control-label" for="email">{l s='Email address'}</label>
-						<input name="email" type="email" id="email" class="form-control" value="{if isset($email)}{$email|escape:'html':'UTF-8'}{/if}" autofocus="autofocus" tabindex="1" placeholder="&#xf0e0 test@example.com" />
+						<input name="email" type="email" id="email" autocomplete="username" class="form-control" value="{if isset($email)}{$email|escape:'html':'UTF-8'}{/if}" autofocus="autofocus" tabindex="1" placeholder="&#xf0e0 test@example.com" />
 					</div>
 					<div class="form-group">
 						<label class="control-label" for="passwd">
 							{l s='Password'}
 						</label>
-						<input name="passwd" type="password" id="passwd" class="form-control" value="{if isset($password)}{$password|escape:'html':'UTF-8'}{/if}" tabindex="2" placeholder="&#xf084 {l s='Password'}" />
+						<input name="passwd" type="password" id="passwd" autocomplete="current-password" class="form-control" value="{if isset($password)}{$password|escape:'html':'UTF-8'}{/if}" tabindex="2" placeholder="&#xf084 {l s='Password'}" />
 					</div>
 					{hook h="displayAdminLoginFormFieldsAfter"}
 					<div class="form-group row-padding-top">

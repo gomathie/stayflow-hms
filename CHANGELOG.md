@@ -21,6 +21,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Fixed
 
+- **Browsers offer to save your password again.** The back office sign-in and the checkout sign-in send the password in the background, so most browsers did not offer to remember it. They now tell the browser the sign-in worked, and the sign-in fields are labelled for password managers.
+
 - **Back office on a phone.** The menu now shows its group labels properly, has no stray dashes, lists every section and scrolls. The Dashboard's empty "Menu" button is gone: it held only the vendor's hidden "Recommendations" button, which was removed. Add to home screen is now always in the account menu (it was only an occasional note on the Dashboard).
 
 - **Searching on a phone.** In the search pop-up the guest picker opened over the Search Rooms button and was cut off, so a tap on Search Rooms did nothing. The picker now sits in the form and pushes the button down.

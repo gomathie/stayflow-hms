@@ -152,7 +152,14 @@ function doAjaxLogin(redirect) {
 					displayErrors(jsonData.errors);
 					l.stop();
 				} else {
-					window.location.assign(jsonData.redirect);
+					// the form is posted by script, so tell the browser the sign-in worked
+					// and it may offer to save the password; carry on whatever it answers
+					var go = function () { window.location.assign(jsonData.redirect); };
+					if (window.PasswordCredential && navigator.credentials) {
+						navigator.credentials.store(new PasswordCredential({ id: $('#email').val(), password: $('#passwd').val() })).then(go, go);
+					} else {
+						go();
+					}
 				}
 			},
 			error: function(XMLHttpRequest, textStatus, errorThrown) {

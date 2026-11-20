@@ -17,13 +17,13 @@
 					<div class="row">
 						<div class="form-group col-sm-6">
 							<label for="login_email">{l s='Email address'}</label>
-							<input type="email" class="form-control validate" id="login_email" name="email" data-validate="isEmail" />
+							<input type="email" class="form-control validate" id="login_email" name="email" autocomplete="username" data-validate="isEmail" />
 						</div>
 					</div>
 					<div class="row">
 						<div class="form-group col-sm-6">
 							<label for="login_passwd">{l s='Password'}</label>
-							<input class="form-control validate" type="password" id="login_passwd" name="login_passwd" data-validate="isPasswd" />
+							<input class="form-control validate" type="password" id="login_passwd" name="login_passwd" autocomplete="current-password" data-validate="isPasswd" />
 						</div>
 					</div>
 					{block name='displayLoginFormFieldsAfter'}
@@ -91,7 +91,7 @@
 				<div class="row">
 					<div class="required password is_customer_param form-group col-sm-6">
 						<label for="passwd">{l s='Password'} <sup>*</sup></label>
-						<input type="password" class="text form-control validate" name="passwd" id="passwd" data-validate="isPasswd" />
+						<input type="password" class="text form-control validate" name="passwd" id="passwd" autocomplete="new-password" data-validate="isPasswd" />
 						<span class="form_info">{l s='(five characters min.)'}</span>
 					</div>
 				</div>

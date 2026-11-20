@@ -2899,3 +2899,14 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - `header.tpl`: a `li.sb-me-head` with the initials avatar, name and email, hidden from 768px up.
 - **Verification (local, Playwright, Pixel 7 width, Hotel Manager test account):** in light and dark mode the sheet is 272px tall and its bottom edge sits at the bottom of the screen; tapping outside hides it. Both screenshots were reviewed. Smoke test 33 of 33.
 - **Not tested:** a real iPhone (the safe-area inset); RTL (`admin-theme_rtl.css` still has the old rules); the live server.
+
+### 2026-11-20 — Browser "save password" on sign-in
+
+- **Owner:** check that saving or remembering the password in the browser works.
+- **What was wrong:** the website sign-in page (`authentication.tpl`) is an ordinary form post, which browsers recognise. The back office sign-in (`js/admin/login.js`, `action="#"`, posted to `ajax-tab.php`) and the checkout sign-in (`order-opc.js`, `#SubmitLogin`) send the password by script and then reload or redirect the page. Chrome only sometimes offers to save after such a sign-in, and Firefox and Safari usually do not. No sign-in field set `autocomplete`.
+- **Fix (inherited files, changed in place):**
+  - After a successful sign-in, both scripts call `navigator.credentials.store(new PasswordCredential({id, password}))` where the browser supports it (Chrome, Edge, Android). The back office redirect waits for the call and goes ahead whether it succeeds or fails.
+  - `autocomplete="username"` / `current-password` on the back office and website sign-in fields, and `new-password` on the account-creation password fields (`content.tpl`, `authentication.tpl`, `order-opc-new-account.tpl`).
+  - Nothing is stored by us: the browser asks the user, as it does for any form.
+- **Verification (local, Playwright with Chrome, desktop):** the back office fields carry the new attributes; a Hotel Manager sign-in passed that email and password to `navigator.credentials.store` and reached the back office; the role and security tests pass (5 of 5).
+- **Not tested:** the save prompt itself, because the automated browser does not show it (try it by hand in Chrome once it is deployed); Safari and Firefox, which do not support `PasswordCredential` and rely on the `autocomplete` hints and their own heuristics; the checkout sign-in in a browser; the live server.

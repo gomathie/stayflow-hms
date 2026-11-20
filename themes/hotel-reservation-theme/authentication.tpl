@@ -97,11 +97,11 @@
 						<div class="form_content clearfix">
 							<div class="form-group">
 								<label class="" for="email">{l s='Email address'}</label>
-								<input class="is_required validate account_input form-control" data-validate="isEmail" type="email" id="email" name="email" value="{if isset($smarty.post.email)}{$smarty.post.email|stripslashes}{/if}" />
+								<input class="is_required validate account_input form-control" data-validate="isEmail" type="email" id="email" name="email" autocomplete="username" value="{if isset($smarty.post.email)}{$smarty.post.email|stripslashes}{/if}" />
 							</div>
 							<div class="form-group">
 								<label class="" for="passwd">{l s='Password'}</label>
-								<input class="is_required validate account_input form-control" type="password" data-validate="isPasswd" id="passwd" name="passwd" value="" />
+								<input class="is_required validate account_input form-control" type="password" data-validate="isPasswd" id="passwd" name="passwd" autocomplete="current-password" value="" />
 							</div>
 							{block name='displayLoginFormFieldsAfter'}
 								{hook h='displayLoginFormFieldsAfter'}
@@ -486,7 +486,7 @@
 					</div>
 					<div class="required form-group">
 						<label for="email">{l s='Email'} <sup>*</sup></label>
-						<input type="email" class="is_required validate form-control" data-validate="isEmail" id="email" name="email" value="{if isset($smarty.post.email)}{$smarty.post.email}{/if}" />
+						<input type="email" class="is_required validate form-control" data-validate="isEmail" id="email" name="email" autocomplete="username" value="{if isset($smarty.post.email)}{$smarty.post.email}{/if}" />
 					</div>
 					<div class="required form-group">
 						<label for="customer_phone">{l s='Phone'} {if isset($one_phone_at_least) && $one_phone_at_least}<sup>*</sup>{/if}</label>
@@ -494,7 +494,7 @@
 					</div>
 					<div class="required password form-group">
 						<label for="passwd">{l s='Password'} <sup>*</sup></label>
-						<input type="password" class="is_required validate form-control" data-validate="isPasswd" name="passwd" id="passwd" />
+						<input type="password" class="is_required validate form-control" data-validate="isPasswd" name="passwd" id="passwd" autocomplete="new-password" />
 						<span class="form_info">{l s='(Five characters minimum)'}</span>
 					</div>
 					{if isset($birthday) && $birthday}

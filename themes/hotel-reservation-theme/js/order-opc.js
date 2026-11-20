@@ -342,6 +342,10 @@ $(document).ready(function()
 					}
 					else
 					{
+						// the form is posted by script: let the browser offer to save the password
+						if (window.PasswordCredential && navigator.credentials) {
+							navigator.credentials.store(new PasswordCredential({ id: $('#login_email').val(), password: $('#login_passwd').val() })).catch(function () {});
+						}
 						// update token
 						static_token = jsonData.token;
 						updateNewAccountToAddressBlock(that.attr('data-adv-api'));
