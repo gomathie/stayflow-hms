@@ -189,6 +189,9 @@ class ParentOrderControllerCore extends FrontController
         if ($messageContent) {
             if (!Validate::isMessage($messageContent)) {
                 $this->errors[] = Tools::displayError('Invalid message');
+            } elseif (Validate::containsLink($messageContent)) {
+                // staff read this message with the booking: no web addresses from strangers
+                $this->errors[] = Tools::displayError('Links cannot be sent with a booking. Please remove the web address.');
             } elseif ($oldMessage = Message::getMessageByCartId((int)$this->context->cart->id)) {
                 $message = new Message((int)$oldMessage['id_message']);
                 $message->message = $messageContent;

@@ -13,6 +13,10 @@ Every change to Salisberg, newest first, in plain words.
 
 - **What's New page and sign-in pop-up.** A missing closing tag on the 19 November Occupancy line stopped the What's New page and the pop-up from drawing.
 
+### Security
+
+- **Web addresses refused in every guest field.** Guest names, addresses, the city and the message added to a booking now refuse web addresses, using the same check as the Contact form (now one shared rule in `Validate::containsLink`). A scan of the live site found no links or code stored in guests, addresses, messages or bookings.
+
 ### Changed
 
 - **Front desk menu (P-17).** Hotel Staff no longer see Manage Hotel, Addresses, Booking messages, the new-customer icon or Quick Access. Refund requests moved under Bookings for everyone. The Dashboard button is called New booking.

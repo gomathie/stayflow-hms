@@ -2586,3 +2586,28 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - Dashboard: the header button is gone. The toolbar button switched Demo on (the notice appeared) and off again. Both edges measure 4px.
 - **Not tested:** Hotel Staff and Hotel Manager on these lists; filters in the phone layout (thead hidden; the stock Filters panel remains); dark mode on the phone cards; the website registration page (it uses `Customer::add`, so names are tidied, but a title-only name is not refused there); the live server.
 - **Seen, not changed:** in dark mode the "Filters:" bar on a filtered list is still white.
+
+### 2026-11-20 — Links and code typed by guests: production checked, one shared rule
+
+- **Owner question:** some people tried to book with links and commands. What happens to that?
+- **Production check (read only):**
+  - Signed in as the agent account and loaded Customers (122), Addresses (9), Inbox (all) and Bookings (145) in full.
+  - Scanned each row for web addresses, HTML or script tags, template syntax, SQL fragments (`UNION SELECT`, `DROP TABLE`, `OR 1=1`) and shell commands.
+  - Result: none stored. The only matches were ordinary email addresses (gmail.com, cua.org.gh).
+  - Refused attempts leave no record, because they are turned away before anything is saved.
+- **Why nothing typed can run:**
+  - SQL values go through `pSQL()` or casts; the Contact form was tested with injection payloads on 2026-10-13.
+  - Output is escaped.
+  - Inbox shows links as plain text.
+  - The request limiter caps form posts.
+- **Gap closed:** web addresses could still be saved in a guest name (`www.x.com`, `bit.ly`), an address, a city, or the message added at checkout.
+  - `Validate::containsLink()` is new: the Contact form's detector, moved out of `override/controllers/front/ContactController.php`. The override now calls it, and its private copy is deleted (rule 26).
+  - `Validate::isName()`, `isAddress()` and `isCityName()` refuse a value containing a link.
+  - `ParentOrderController::_updateMessage()` refuses a checkout message containing one, with a plain message.
+  - Email addresses are allowed (the detector ignores `name@host`).
+- **Not a vendor security backport**, so it is not in `PATCHES.md`.
+- **Guides:** Admin Guide section 9 table (new row); What's New 20 November (manager); CHANGELOG under Security.
+- **Verification (local):**
+  - Sample values: real names, "P.O. Box 4501, Accra", "Plot 7, Spintex Rd.", Accra and an email in a message all pass. `www.evil.com`, `bit.ly`, `freecash.xyz`, `http://`, `javascript:`, "visit www.scam.com", "scam.ru", "site.com" as a city and "cheap-hotels.com" in a message are all refused.
+  - All 290 saved customer, address and employee name values pass the new rule. The production scan above found no links either, so no existing record is blocked from being edited.
+- **Not tested:** a full website checkout carrying a message with a link (the check is in the shared save function); the live server.

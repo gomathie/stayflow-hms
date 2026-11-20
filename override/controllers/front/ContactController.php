@@ -68,7 +68,7 @@ class ContactController extends ContactControllerCore
             foreach (array('message', 'user_name', 'phone', 'subject') as $field) {
                 if (isset($_POST[$field]) && is_string($_POST[$field])) {
                     $_POST[$field] = strip_tags($_POST[$field]);
-                    if (self::containsLink($_POST[$field])) {
+                    if (Validate::containsLink($_POST[$field])) {
                         $linkFound = true;
                     }
                 }
@@ -105,18 +105,4 @@ class ContactController extends ContactControllerCore
         parent::postProcess();
     }
 
-    /**
-     * True for anything that looks like a web address: a scheme (http://,
-     * ftp://, javascript:), "www.", or a bare name ending in a common domain
-     * suffix. Plain email addresses (name@host) are not links.
-     */
-    protected static function containsLink($text)
-    {
-        $text = preg_replace('/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i', ' ', $text);
-
-        return (bool) preg_match(
-            '~(?:[a-z][a-z0-9+.\-]{1,15}://|\b(?:javascript|data|vbscript):|\bwww\d?\.|\b[a-z0-9][a-z0-9\-]*(?:\.[a-z0-9\-]+)*\.(?:com|net|org|info|biz|io|ru|cn|xyz|top|club|online|site|shop|app|link|click|live|icu|tk|ml|ga|cf|gh|uk|ly|gl)\b)~i',
-            $text
-        );
-    }
 }
