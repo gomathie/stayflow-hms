@@ -15,6 +15,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Fixed
 
+- **Admin Guide error 500 on the live site.** An apostrophe in a sentence about booking alerts cut a translation string short, so the whole Admin Guide failed to open for managers and the developer team. The sentence was reworded, and the smoke test now looks for this mistake in every Salisberg template.
+
 - **Title-only names on the website.** The sign-up form and My personal information now refuse a name that is only a title (Mr, Mrs), as the back office already did.
 - **Dark mode "Filters:" bar.** The bar above a filtered list was white in dark mode; it now uses the card colour, with the filters as small chips.
 - **Module category filter.** Choosing a category on Manage Modules kept showing every module: the saved choice was read but never applied. It now filters.

@@ -118,6 +118,20 @@ if [ "$BASE" != "${BASE#http://localhost}" ] && command -v docker >/dev/null 2>&
         bad "getRow()/getValue() called with a query that already has LIMIT (it becomes LIMIT 1 LIMIT 1):"
         printf '%s\n' "$limit_hits" | sed 's/^/          /'
     fi
+    # An unescaped apostrophe inside {l s='...'} ends the string early; the whole
+    # page then fails with an error 500 (the Admin Guide did, live, 2026-11-20).
+    echo "Translation strings broken by an apostrophe"
+    quote_hits=$(docker compose exec -T app php -r '
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator("/var/www/html/modules", FilesystemIterator::SKIP_DOTS)) as $f) {
+            if ($f->getExtension() !== "tpl" || strpos($f->getPathname(), "/salisberg") === false) { continue; }
+            foreach (file($f->getPathname()) as $n => $line) {
+                if (preg_match("/\\{l s=\\x27(?:[^\\x27\\\\\\\\]|\\\\\\\\.)*\\x27[A-Za-z]/", $line)) { echo str_replace("/var/www/html/", "", $f->getPathname()) . ":" . ($n + 1) . "\n"; }
+            }
+        }' 2>/dev/null || true)
+    if [ -z "$quote_hits" ]; then ok "no {l s='...'} string is cut short by an apostrophe"; else
+        bad "{l s='...'} string ends early at an unescaped apostrophe (write \\' or reword):"
+        printf '%s\n' "$quote_hits" | sed 's/^/          /'
+    fi
     printf '  PHP %s, MySQL %s\n' "$(docker compose exec -T app php -r 'echo PHP_VERSION;' 2>/dev/null)" "$(docker compose exec -T db mysqld --version 2>/dev/null | grep -o 'Ver [0-9.]*' | cut -d' ' -f2)"
 fi
 

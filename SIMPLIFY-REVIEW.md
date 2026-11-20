@@ -362,3 +362,40 @@ One area per working session, in this order, then start again. Note the date in 
 
 1. **Build order:** P-8 sidebar, P-9 System group, P-17 and P-16 roles, P-11 strips, P-12, P-13 and P-14 lists, P-10 and P-15 customers, P-7 Dashboard.
 2. **Test accounts:** `agent-staff` and `agent-manager` stay active on production until each change is verified there as that role, then they are switched off. Their credentials are only in the local `.env`.
+
+## Phone review of the live site, 2026-11-20
+
+Read-only check at 390px wide as Hotel Staff, Hotel Manager and SuperAdmin, plus the public website. No page scrolls sideways and no script errors. One fault (the Admin Guide error 500) was fixed straight away. The rest are proposals.
+
+### P-18 Housekeeping cards on a phone — Proposed
+- **Problem:** each room is a tall card with every field on its own line (type, floor, guest, status, last change, buttons): 28 rooms make the page 10,900px long.
+- **Proposal:** one compact card per room: room number and status chip on the first line, guest on the second, the two buttons in one row. Optionally a "Dirty first" order.
+- **Benefit:** about a quarter of the length; housekeepers find dirty rooms quickly. **Risk:** low, display only. **Undo:** remove the phone CSS block.
+
+### P-19 New booking on a phone — Proposed
+- **Problem:** the date and guest form takes a full screen (five fields stacked), and the Selected room panel sits above the room list, so the first room appears about 1,400px down. Dates show as 11/20/2026 (the phone's own format).
+- **Proposal:** Arrival and Departure side by side, Adults and Children side by side, Nights shown as text; on a phone, the room list first and the selected room as the existing fixed Book now bar.
+- **Benefit:** rooms visible on the first screen. **Risk:** low. **Undo:** CSS only.
+
+### P-20 Room types and Hotel Details lists on a phone — Proposed
+- **Problem:** Manage Room Types and Hotel Details lists collapse badly: rows overlap, the action buttons sit on top of the list. Employees has columns past the edge.
+- **Proposal:** give them the phone cards already used by Bookings, Customers and Invoices (P-14).
+- **Benefit:** usable on a phone. **Risk:** low. **Undo:** remove `sb_phone_cards` from those controllers.
+
+### P-21 Reports tables on a phone — Proposed
+- **Problem:** the Arrivals and departures tables are wider than the screen and are cut off ("Nothing in this perio…").
+- **Proposal:** the same phone cards, or a sideways scroll inside the table.
+- **Risk:** low. **Undo:** CSS only.
+
+### P-22 The phone-number prompt and the home-screen bar — Proposed
+- **Problem:** on a phone the "Add your phone number" box covers the middle of every page until answered, and the "Add the desk to your home screen" bar covers the bottom of every page until closed.
+- **Proposal:** show the phone prompt once per day at most after "Not now"; show the home-screen bar only on the Dashboard, and remember Close for 30 days.
+- **Risk:** low. **Undo:** restore the old timing.
+
+### P-23 Dashboard on a phone — Proposed
+- **Problem:** the Rooms free chart's scale stops at 20 while 26 rooms are free, so the line is off the chart; the period buttons (Day … Year-1) wrap awkwardly; the Performance tiles show 0.00 everywhere on a phone and push the desk-relevant charts down.
+- **Proposal:** fix the chart scale to include the highest value (fault, can be fixed straight away); on a phone, show the period buttons as one select and fold Performance.
+- **Risk:** low. **Undo:** revert the module changes.
+
+### Data seen, not code
+- Several bookings have guest names in small letters or only a title ("mr mr", "george wilson"); new names are now tidied and title-only names refused (P-15), but saved names were left as typed. A one-off tidy of saved names would need the owner's approval.
