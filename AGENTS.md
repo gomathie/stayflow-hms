@@ -92,7 +92,7 @@ The final repository must consistently identify the project as MIT licensed by S
     | Payment methods | `modules/salisbergpay` |
     | Platform settings changed without editing vendor files (for example the jQuery version) | `config/defines_custom.inc.php` |
     | Reports on screen and as PDF | `modules/salisbergreports` |
-    | Checking a running stack after a change | `docker/smoke-test.sh` (pages load), `tests/e2e` (browser journeys, local only) |
+    | Checking a running stack after a change | `docker/smoke-test.sh` (pages load), `tests/e2e` (browser journeys), `tests/php` (money and safety rules); the last two local only |
     | Installing, enabling or disabling modules | `docker/setup-modules.php` |
     | One-off data or schema changes on deploy | versioned steps in `docker/entrypoint.sh` |
     | Web server headers and access rules | `docker/apache.conf` |
@@ -2868,3 +2868,23 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - New general skill and workflow `inherited-web-app-maintenance`: fix at the source, prove dead code, versioned versus every-start deploy steps, verify in a running stack, and a list of traps stated by mechanism.
   - README rule 12 (owner): name skills by the job, not the project. `AGENT-INSTRUCTIONS.md` was aligned with it.
 - **Not tested:** the suite on another machine; Mobile Money, bank transfer and part payments; check-in and check-out from a booking.
+
+### 2026-11-20 — Rule tests for the money and safety rules (`tests/php`)
+
+- **Owner:** suggestion 2 from the library review (`characterization-testing` workflow).
+- **Why a runner of our own (rule 25):** the project has no Composer and no PHPUnit, and adding them would add a build step. `tests/php/run.php` is about 70 lines: `check()`, `same()`, and `rolledBack()`, which wraps writes in a transaction that is always rolled back. It sets the context a web request has (currency, cart, customer, country); without it the price code stops with "Fatal error". `run.sh` copies the folder into the container and runs it. It is excluded from the image (`tests` in `.dockerignore`).
+- **Pinned (10 tests, 49 checks):**
+  - booking codes;
+  - name tidying and title-only names;
+  - `Validate::containsLink` and `isName`;
+  - the placeholder email and `Mail::Send`;
+  - the payment cap after a part payment;
+  - the payment-name fallback for a removed module;
+  - a room's own price, desk against website;
+  - Data clean-up minimum ages, keep periods and the locked bin;
+  - a characterization of the known gap that Track my booking needs an email (to be inverted by the change that fixes it).
+- **Verification:**
+  - All 10 pass.
+  - Negative control: with the cap removed from `OrderHistory.php` in the container, the payment test failed ("expected 208.0, got 308.0"). With it restored, all pass.
+  - No trace: order payments, own prices and the code counter were 53/3/9 before and after.
+- **Not covered:** the Add payment over-the-balance refusal (it is controller code; the e2e suite is the place for it); the tax switch on a booking.

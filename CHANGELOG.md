@@ -48,6 +48,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Added
 
+- **Rule tests** (`tests/php`, run with `bash tests/php/run.sh`). Ten tests pin the money and safety rules: booking codes, guest names, web addresses, guests without email, the payment cap, a room's own price, the Data clean-up keep periods, and one known gap (Track my booking needs an email).
+
 - **End-to-end browser tests** (`tests/e2e`, Playwright, local stack only). They book on the website as a guest with a phone number (desktop and phone), book at the desk as Hotel Staff, check what each role may open, and check the protections (no SQL buttons, links refused on the Contact form, old order form redirected). Run before each push: `cd tests/e2e && npm test`.
 
 - **Mail server settings in the app.** Administration › Integrations has an Email (mail server) panel: server, port, encryption, user name, password and the address emails come from, with Send test email. It saves to the settings every email already uses. Before, there was no screen for this (the stock E-mail page shows no form), so no booking confirmation or invoice could be emailed.
