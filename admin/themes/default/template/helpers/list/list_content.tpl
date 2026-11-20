@@ -49,7 +49,9 @@
 					{if isset($params.position) && $order_by == 'position'  && $order_way != 'DESC'} dragHandle{/if}
 					{if isset($params.class)} {$params.class}{/if}
 					{if isset($params.align)} {$params.align}{/if}
-					{if isset($params.optional) && $params.optional} field_optional{/if}{/strip}"
+					{if isset($params.optional) && $params.optional} field_optional{/if}
+					{* P-14: the column name, so a phone card can place each cell *}
+					{if $key} sb-col-{$key|escape:'html':'UTF-8'}{/if}{/strip}"
 					{if (!isset($params.position) && !$no_link && !isset($params.remove_onclick))}
 						onclick="document.location = '{$current_index|escape:'html':'UTF-8'}&amp;{$identifier|escape:'html':'UTF-8'}={$tr.$identifier|escape:'html':'UTF-8'}{if $view}&amp;view{else}&amp;update{/if}{$table|escape:'html':'UTF-8'}{if $page > 1}&amp;page={$page|intval}{/if}&amp;token={$token|escape:'html':'UTF-8'}'"
 					{else}
@@ -156,7 +158,7 @@
 		</td>
 	{/if}
 	{if $has_actions}
-		<td class="text-right">
+		<td class="text-right sb-row-actions">
 			{assign var='compiled_actions' value=array()}
 			{foreach $actions AS $key => $action}
 				{if isset($tr.$action)}

@@ -2546,3 +2546,43 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
 - **Guides:** none needed, since nothing moved or was renamed. What's New (everyone) and CHANGELOG updated.
 - **Verification (local, screenshots at 1440 in light and dark, System opened):** all 12 sections show their new icon, aligned with the labels; the active pill shows its icon in the pill's text colour.
 - **Not tested:** the phone icon rail below 768px; Safari, where `-webkit-mask` is supplied too; the live server.
+
+### 2026-11-20 — Lists, names, phone cards and Dashboard: P-7, P-10, P-11, P-12, P-14, P-15
+
+- **Owner:** approved all of these after reviewing the drawings. Choices: P-11 keeps one quiet desk line; P-15 changes new and edited names only.
+- **P-11, figure strips:**
+  - `salisbergfrontdesk::splitToday()` is now the one place that splits today's lists. `assignTodayTemplate()` uses it, and so does the new `deskFigures()`.
+  - `AdminOrdersController::renderKpis()`: the list branch shows four HelperKpi tiles (in house, still to arrive, leaving today with overdue, owed), filled from `deskFigures()`. No AJAX source. They link to the Dashboard and use the neutral `sb-desk` style. The shop tiles (sales, abandoned carts, conversion, averages) are deleted.
+  - The `renderKpis()` methods of `AdminCustomersController`, `AdminProductsController`, `AdminCartsController` and `AdminTranslationsController` are deleted (rule 28). With no tiles, the base class draws no strip. The single-booking tiles on a booking page are unchanged.
+- **P-12, Bookings list cells:** new callbacks `printListDay` (12 Nov 2026), `printListStatus` (a `.sb-state` chip with a dot: green, amber while money is owed, red for cancelled, refunded or payment error) and `printListDue` (red when owed, a dash when nothing is). The colour bar and `badge_success` pills were removed. Filters and sorting are unchanged.
+- **P-10, Customers columns:**
+  - New columns: `guest` (`CONCAT` of the names, filterable), `last_stay` (latest `htl_booking_detail.date_to`) and `owed` (unpaid balance, leaving out cancelled, refunded, failed and recycle-bin bookings). Each is a subquery, so the existing join is not multiplied.
+  - The six columns lead the list. Every other column is marked `optional` and hidden by default, and can be switched on under Available Fields.
+  - Email uses `printListEmail`: "No email" for `Customer::hasNoEmail()` addresses.
+- **P-15, names:**
+  - `Customer::tidyName()` capitalises names typed all lower or all upper case; a mixed-case name is kept as typed. `Customer::isTitleOnly()` matches a name that is only a title (Mr, Mrs, Ms, Miss, Mx, Dr, Prof, Sir, Madam, Rev).
+  - `Customer::add()` tidies the names. `Customer::update()` tidies a name only when it differs from the saved one.
+  - A title-only name is refused in the guided booking (`SalisbergWalkIn`), the order form's find-or-create guest (`override/.../AdminCustomersController.php`) and the admin customer form (`processSave`).
+- **P-14, phone cards:**
+  - `list_header.tpl` uses the wrapper `sb-cards` in place of `table-responsive-row` when `sb_phone_cards` is set; `AdminOrders` and `AdminCustomers` set it in `renderList()`.
+  - `list_content.tpl` gives every cell the class `sb-col-<column>`, and the actions cell `sb-row-actions`. The Invoices template has the same classes and the wrapper.
+  - CSS at the end of `overrides.css`, below 768px, turns each row into a flex card:
+    - first line: who, and what is owed;
+    - then the reference, room and dates;
+    - then the status.
+    The selection box and the actions cell (with Delete) are left off, and Invoices keep their PDF button. From 768px it is the normal table, scrolling sideways when needed.
+  - Lists that do not opt in keep the stock stacked rows.
+- **P-7, Dashboard:**
+  - The Demo mode header button is replaced by `#sb-demo-toggle` beside the hotel filter, shown only when `sb_can_demo` is set (SuperAdmin). The server check in `ajaxProcessSetSimulationMode()` is unchanged. `dashboard.js` toggles the setting, then reloads so the notice and the charts agree.
+  - The chart hint is one line.
+  - `today.tpl` gives Overdue `sb-desk-act-bad` and Unpaid, when it has rows, `sb-desk-act-warn`: a 4px left edge, scoped above the stock panel border.
+- **Guides:** Staff Guide menu table (Customers), the guest step (names) and the list tip (phone cards); Admin Guide section 14 (Dashboard); What's New 20 November; CHANGELOG.
+- **Verification (local, files copied in):**
+  - Bookings desk line: 18 in house, 1 to arrive, 0 leaving with 14 overdue, GH₵57,978 owed, the same as Today at the desk. Customers and Room types have no strip.
+  - Bookings list: chips, plain totals and red Due checked by screenshot.
+  - Customers: six columns, "No email", Owed in red; filtering Name=Flow works; no errors.
+  - Names: a container script checked tidyName and isTitleOnly on 11 samples. A guest added as "ama" / "serwaa test" was saved as "Ama Serwaa Test". An update that did not touch the name left a lower-case name alone; editing the first name tidied it. The test guest was deleted.
+  - Phone, 390px wide: page height went from 10,086 to 2,986px on Bookings, from 7,864 to 2,277px on Customers and from 14,476 to 6,907px on Invoices; screenshots reviewed.
+  - Dashboard: the header button is gone. The toolbar button switched Demo on (the notice appeared) and off again. Both edges measure 4px.
+- **Not tested:** Hotel Staff and Hotel Manager on these lists; filters in the phone layout (thead hidden; the stock Filters panel remains); dark mode on the phone cards; the website registration page (it uses `Customer::add`, so names are tidied, but a title-only name is not refused there); the live server.
+- **Seen, not changed:** in dark mode the "Filters:" bar on a filtered list is still white.

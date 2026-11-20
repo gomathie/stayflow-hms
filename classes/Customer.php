@@ -35,6 +35,30 @@ class CustomerCore extends ObjectModel
         return (bool) preg_match('/@'.preg_quote(self::NO_EMAIL_DOMAIN, '/').'$/i', trim((string) $email));
     }
 
+    /**
+     * SIMPLIFY-REVIEW P-15: a name typed all in small or all in capital letters
+     * gets a capital at the start of each part ("george wilson" -> "George Wilson",
+     * "ABENA" -> "Abena", "mary-jane" -> "Mary-Jane"). A name already typed with
+     * mixed case ("McDonald", "van der Berg") is kept exactly as typed.
+     */
+    public static function tidyName($name)
+    {
+        $name = trim(preg_replace('/\s+/u', ' ', (string) $name));
+        if ($name === '' || ($name !== Tools::strtolower($name) && $name !== Tools::strtoupper($name))) {
+            return $name;
+        }
+
+        return preg_replace_callback('/(^|[\s\-\'])(\p{L})/u', function ($m) {
+            return $m[1].Tools::strtoupper($m[2]);
+        }, Tools::strtolower($name));
+    }
+
+    /** True when a name is only a title ("Mr", "mrs.", "Dr"), not a name */
+    public static function isTitleOnly($name)
+    {
+        return (bool) preg_match('/^(mr|mrs|ms|miss|mx|dr|prof|sir|madam|madame|rev)\.?$/i', trim((string) $name));
+    }
+
     public $id;
 
     public $id_shop;
@@ -249,6 +273,8 @@ class CustomerCore extends ObjectModel
         $this->id_lang = ($this->id_lang) ? $this->id_lang : Context::getContext()->language->id;
         $this->birthday = (empty($this->years) ? $this->birthday : (int)$this->years.'-'.(int)$this->months.'-'.(int)$this->days);
         $this->secure_key = md5(uniqid(rand(), true));
+        $this->firstname = self::tidyName($this->firstname);
+        $this->lastname = self::tidyName($this->lastname);
         $this->last_passwd_gen = date('Y-m-d H:i:s', strtotime('-'.Configuration::get('PS_PASSWD_TIME_FRONT').'minutes'));
 
         if ($this->newsletter
@@ -281,6 +307,19 @@ class CustomerCore extends ObjectModel
 
         if ($this->newsletter && !Validate::isDate($this->newsletter_date_add)) {
             $this->newsletter_date_add = date('Y-m-d H:i:s');
+        }
+        // P-15: tidy a name only when it is being changed; saved names stay as they are
+        if ($this->id) {
+            $saved = Db::getInstance()->getRow(
+                'SELECT `firstname`, `lastname` FROM `'._DB_PREFIX_.'customer` WHERE `id_customer` = '.(int) $this->id,
+                false
+            );
+            if ($saved && $saved['firstname'] !== $this->firstname) {
+                $this->firstname = self::tidyName($this->firstname);
+            }
+            if ($saved && $saved['lastname'] !== $this->lastname) {
+                $this->lastname = self::tidyName($this->lastname);
+            }
         }
         if (isset(Context::getContext()->controller) && Context::getContext()->controller->controller_type == 'admin') {
             $this->updateGroup($this->groupBox);

@@ -310,21 +310,19 @@ $(document).ready(function() {
     bindSubmitDashConfig();
     bindCancelDashConfig();
 
-    $('#page-header-desc-configuration-switch_demo').tooltip().click(function(e) {
+    // Demo figures (P-7): the button sits beside the chart filters. The page is
+    // reloaded so the "Demo mode is on" notice and every chart agree.
+    $('#sb-demo-toggle').click(function(e) {
+        $(this).prop('disabled', true);
         $.ajax({
             url: dashboard_ajax_url,
             data: {
                 ajax: true,
                 action: 'setSimulationMode',
-                PS_DASHBOARD_SIMULATION: $(this).find('i').hasClass('process-icon-toggle-on') ? 0 : 1
+                PS_DASHBOARD_SIMULATION: $(this).attr('aria-pressed') === 'true' ? 0 : 1
             },
-            success: function(result) {
-                if ($('#page-header-desc-configuration-switch_demo i').hasClass('process-icon-toggle-on')) {
-                    $('#page-header-desc-configuration-switch_demo i').removeClass('process-icon-toggle-on').addClass('process-icon-toggle-off');
-                } else {
-                    $('#page-header-desc-configuration-switch_demo i').removeClass('process-icon-toggle-off').addClass('process-icon-toggle-on');
-                }
-                refreshDashboard(false, false);
+            complete: function() {
+                window.location.reload();
             }
         });
     });

@@ -39,7 +39,7 @@
 		<div class="col-sm-3"><div class="well well-sm"><small class="text-muted">{l s='Still to pay'}</small><br /><strong style="font-size:18px;">{$sb_totals.balance|escape:'html':'UTF-8'}</strong></div></div>
 	</div>
 
-	<div class="table-responsive-row clearfix">
+	<div class="sb-cards sb-cards-invoices clearfix">
 		<table class="table">
 			<thead>
 				<tr>
@@ -58,20 +58,20 @@
 			<tbody>
 			{foreach from=$sb_invoices item=sb_row}
 				<tr>
-					<td><strong>{$sb_row.number|escape:'html':'UTF-8'}</strong></td>
-					<td>{$sb_row.date|escape:'html':'UTF-8'}</td>
-					<td><a href="{$sb_booking_link|escape:'html':'UTF-8'}{$sb_row.id_order|intval}">{$sb_row.reference|escape:'html':'UTF-8'}</a></td>
-					<td>{$sb_row.guest|escape:'html':'UTF-8'}{if $sb_row.phone}<br /><small class="text-muted">{$sb_row.phone|escape:'html':'UTF-8'}</small>{/if}</td>
-					<td>{$sb_row.stay|escape:'html':'UTF-8'}</td>
-					<td class="text-right">{$sb_row.total|escape:'html':'UTF-8'}</td>
-					<td class="text-right">{$sb_row.paid|escape:'html':'UTF-8'}</td>
-					<td class="text-right"><strong>{$sb_row.balance|escape:'html':'UTF-8'}</strong></td>
-					<td>
+					<td class="sb-col-number"><strong>{$sb_row.number|escape:'html':'UTF-8'}</strong></td>
+					<td class="sb-col-date">{$sb_row.date|escape:'html':'UTF-8'}</td>
+					<td class="sb-col-booking"><a href="{$sb_booking_link|escape:'html':'UTF-8'}{$sb_row.id_order|intval}">{$sb_row.reference|escape:'html':'UTF-8'}</a></td>
+					<td class="sb-col-guest">{$sb_row.guest|escape:'html':'UTF-8'}{if $sb_row.phone}<br /><small class="text-muted">{$sb_row.phone|escape:'html':'UTF-8'}</small>{/if}</td>
+					<td class="sb-col-stay">{$sb_row.stay|escape:'html':'UTF-8'}</td>
+					<td class="text-right sb-col-total">{$sb_row.total|escape:'html':'UTF-8'}</td>
+					<td class="text-right sb-col-paid">{$sb_row.paid|escape:'html':'UTF-8'}</td>
+					<td class="text-right sb-col-balance"><strong>{$sb_row.balance|escape:'html':'UTF-8'}</strong></td>
+					<td class="sb-col-status">
 						{if $sb_row.status == 'paid'}<span class="label label-success">{l s='Paid'}</span>
 						{elseif $sb_row.status == 'part'}<span class="label label-warning">{l s='Partly paid'}</span>
 						{else}<span class="label label-danger">{l s='Not yet paid'}</span>{/if}
 					</td>
-					<td class="text-right">
+					<td class="text-right sb-col-pdf">
 						<a class="btn btn-default" target="_blank" href="{$sb_pdf_link|escape:'html':'UTF-8'}{$sb_row.id_order_invoice|intval}"><i class="icon-file-text"></i> {if $sb_row.status == 'paid'}{l s='Receipt'}{else}{l s='Invoice'}{/if} (PDF)</a>
 					</td>
 				</tr>

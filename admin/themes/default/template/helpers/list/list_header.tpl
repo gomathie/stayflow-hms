@@ -575,7 +575,8 @@
 	</style>
 
 	{block name="preTable"}{/block}
-	<div class="table-responsive-row clearfix{if isset($use_overflow) && $use_overflow} overflow-y{/if}">
+	{* P-14: a list can ask for compact cards on phones (sb_phone_cards); others keep the stock stacked rows *}
+	<div class="{if !empty($sb_phone_cards)}sb-cards{else}table-responsive-row{/if} clearfix{if isset($use_overflow) && $use_overflow} overflow-y{/if}">
 		<table{if $table_id} id="table-{$table_id}"{/if} class="table{if $table_dnd} tableDnD{/if} {$table}" >
 			<thead>
 			{block name="tableHeadings"}

@@ -107,7 +107,7 @@ Add new ones at the top.
 
 ### P-15: Tidy guest names and hide placeholder emails
 
-- **Status:** Approved (owner, 2026-11-19). Owner's choice 2026-11-20: new and edited names only; saved names are not changed
+- **Status:** Done 2026-11-20 (AGENTS.md: "Lists, names, phone cards and Dashboard: P-7, P-10, P-11, P-12, P-14, P-15"). Approved (owner, 2026-11-19). Owner's choice 2026-11-20: new and edited names only; saved names are not changed
 - **Found by / on:** Claude, 2026-11-19 (production Customers and Invoices lists)
 - **Where:** Customers › Customers; guest names everywhere
 - **Problem:** names are stored as typed ("mr mr", "george wilson", "Mr Emmanuel" as a first name). Walk-ins without email show as `guest-20261112145856-287888@guest.invalid` in the list.
@@ -121,7 +121,7 @@ Add new ones at the top.
 
 ### P-14: Phone: compact booking cards, no Delete on the card
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Done 2026-11-20 (AGENTS.md: "Lists, names, phone cards and Dashboard: P-7, P-10, P-11, P-12, P-14, P-15"). Approved (owner, 2026-11-19)
 - **Found by / on:** Claude, 2026-11-19 (Bookings at 390px: 24,278px tall)
 - **Where:** Bookings list, Customers list and Invoices on phones
 - **Problem:** on a phone each booking is a nine-row table about 470px tall, so the page is 24,000px long. A red Delete link sits on every card next to View.
@@ -149,7 +149,7 @@ Add new ones at the top.
 
 ### P-12: Bookings list: calmer colours, one date format
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Done 2026-11-20 (AGENTS.md: "Lists, names, phone cards and Dashboard: P-7, P-10, P-11, P-12, P-14, P-15"). Approved (owner, 2026-11-19)
 - **Found by / on:** Claude, 2026-11-19 (production Bookings list)
 - **Where:** Bookings › Bookings
 - **Problem:**
@@ -167,7 +167,7 @@ Add new ones at the top.
 
 ### P-11: Replace the shop figure strips on list pages
 
-- **Status:** Approved (owner, 2026-11-19). Owner's choice 2026-11-20: keep one quiet desk line on Bookings (in house, arriving, leaving, owed)
+- **Status:** Done 2026-11-20 (AGENTS.md: "Lists, names, phone cards and Dashboard: P-7, P-10, P-11, P-12, P-14, P-15"). Approved (owner, 2026-11-19). Owner's choice 2026-11-20: keep one quiet desk line on Bookings (in house, arriving, leaving, owed)
 - **Found by / on:** Claude, 2026-11-19 (Bookings, Customers, Manage Room Types, Translations)
 - **Where:** the coloured figure strips at the top of Bookings, Customers, Manage Room Types and other lists
 - **Problem:**
@@ -183,7 +183,7 @@ Add new ones at the top.
 
 ### P-10: Customers list: hotel columns only
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Done 2026-11-20 (AGENTS.md: "Lists, names, phone cards and Dashboard: P-7, P-10, P-11, P-12, P-14, P-15"). Approved (owner, 2026-11-19)
 - **Found by / on:** Claude, 2026-11-19 (Customers: 16 columns)
 - **Where:** Customers › Customers
 - **Problem:** the list has 16 columns, including ID, Social title (always "--"), Sales, Enabled and Newsletter, and the email column is mostly placeholder addresses. Staff look guests up by name or phone, which is not even a column.
@@ -231,7 +231,7 @@ Add new ones at the top.
 
 ### P-7: Dashboard: one look for every card
 
-- **Status:** Approved (owner, 2026-11-19)
+- **Status:** Done 2026-11-20 (AGENTS.md: "Lists, names, phone cards and Dashboard: P-7, P-10, P-11, P-12, P-14, P-15"). Approved (owner, 2026-11-19)
 - **Found by / on:** Claude, 2026-11-19 (production Dashboard)
 - **Where:** Dashboard
 - **Problem:**

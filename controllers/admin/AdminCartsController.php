@@ -178,74 +178,7 @@ class AdminCartsControllerCore extends AdminController
 
         parent::initPageHeaderToolbar();
     }
-
-    public function renderKpis()
-    {
-        $time = time();
-        $kpis = array();
-
-        $daysForConversionRate = Configuration::get('PS_KPI_CONVERSION_RATE_NB_DAYS');
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-conversion-rate';
-        $helper->icon = 'icon-sort-by-attributes-alt';
-        //$helper->chart = true;
-        $helper->color = 'color1';
-        $helper->title = $this->l('Conversion Rate', null, null, false);
-        if ($daysForConversionRate == 1) {
-            $helper->subtitle = $daysForConversionRate.' '.$this->l('day', null, null, false);
-        } else {
-            $helper->subtitle = $daysForConversionRate.' '.$this->l('days', null, null, false);
-        }
-        if (ConfigurationKPI::get('CONVERSION_RATE_CHART') !== false) {
-            $helper->data = ConfigurationKPI::get('CONVERSION_RATE_CHART');
-        }
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=conversion_rate';
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-carts';
-        $helper->icon = 'icon-shopping-cart';
-        $helper->color = 'color2';
-        $helper->title = $this->l('Abandoned Carts', null, null, false);
-        $date_from = date(Context::getContext()->language->date_format_lite, strtotime('-2 day'));
-        $date_to = date(Context::getContext()->language->date_format_lite, strtotime('-1 day'));
-        $helper->subtitle = sprintf($this->l('From %s to %s', null, null, false), $date_from, $date_to);
-        $helper->href = $this->context->link->getAdminLink('AdminCarts').'&action=filterOnlyAbandonedCarts&date_from='.date('Y-m-d', strtotime('-2 day')).'&date_to='.date('Y-m-d', strtotime('-1 day'));
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=abandoned_cart';
-        $this->kpis[] = $helper;
-
-        $daysForAvgOrderVal = Configuration::get('PS_ORDER_KPI_AVG_ORDER_VALUE_NB_DAYS');
-        $helper = new HelperKpi();
-        $helper->id = 'box-average-order';
-        $helper->icon = 'icon-money';
-        $helper->color = 'color3';
-        $helper->title = $this->l('Average booking value', null, null, false);
-        if ($daysForAvgOrderVal == 1) {
-            $helper->subtitle = $daysForAvgOrderVal.' '.$this->l('day', null, null, false);
-        } else {
-            $helper->subtitle = $daysForAvgOrderVal.' '.$this->l('days', null, null, false);
-        }
-
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=average_order_value';
-        $this->kpis[] = $helper;
-
-        $daysForProfitPerVisitor = Configuration::get('PS_ORDER_KPI_PER_VISITOR_PROFIT_NB_DAYS');
-        $helper = new HelperKpi();
-        $helper->id = 'box-net-profit-visitor';
-        $helper->icon = 'icon-user';
-        $helper->color = 'color4';
-        $helper->title = $this->l('Net Profit per Visitor', null, null, false);
-        if ($daysForProfitPerVisitor == 1) {
-            $helper->subtitle = $daysForProfitPerVisitor.' '.$this->l('day', null, null, false);
-        } else {
-            $helper->subtitle = $daysForProfitPerVisitor.' '.$this->l('days', null, null, false);
-        }
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=netprofit_visit';
-        $this->kpis[] = $helper;
-
-        return parent::renderKpis();
-    }
+
 
 
     public function renderView()

@@ -199,11 +199,58 @@ class AdminCustomersControllerCore extends AdminController
             )
         ));
 
+        // SIMPLIFY-REVIEW P-10: the list shows what the desk looks for (name, phone,
+        // email, how many stays, the last one, money owed). Every other column stays
+        // in the column chooser, hidden by default; the export keeps all fields.
+        $this->fields_list = array_merge(array(
+            'guest' => array(
+                'title' => $this->l('Name'),
+                'havingFilter' => true,
+            ),
+        ), $this->fields_list);
+        foreach ($this->fields_list as $key => &$field) {
+            if (!in_array($key, array('guest', 'phone', 'email', 'total_orders', 'deleted', 'order_date'), true)) {
+                $field['optional'] = true;
+                $field['visible_default'] = false;
+            }
+        }
+        unset($field);
+        $this->fields_list['phone']['visible_default'] = true;
+        $this->fields_list['phone']['optional'] = false;
+        $this->fields_list['email']['callback'] = 'printListEmail';
+        $this->fields_list['total_orders']['title'] = $this->l('Bookings');
+        $this->fields_list['last_stay'] = array(
+            'title' => $this->l('Last stay'),
+            'type' => 'date',
+            'search' => false,
+            'havingFilter' => true,
+            'callback' => 'printListDay',
+        );
+        $this->fields_list['owed'] = array(
+            'title' => $this->l('Owed'),
+            'type' => 'price',
+            'search' => false,
+            'havingFilter' => true,
+            'align' => 'text-right',
+            'callback' => 'printListOwed',
+        );
+        $first = array();
+        foreach (array('guest', 'phone', 'email', 'total_orders', 'last_stay', 'owed') as $key) {
+            $first[$key] = $this->fields_list[$key];
+        }
+        $this->fields_list = array_merge($first, $this->fields_list);
+
         $this->shopLinkType = 'shop';
         $this->shopShareDatas = Shop::SHARE_CUSTOMER;
         parent::__construct();
 
+        $problemStates = implode(', ', array_map('intval', array(Configuration::get('PS_OS_CANCELED'), Configuration::get('PS_OS_REFUND'), Configuration::get('PS_OS_ERROR'))));
         $this->_select = '
+        CONCAT(a.`firstname`, \' \', a.`lastname`) AS `guest`,
+        (SELECT MAX(h.`date_to`) FROM `'._DB_PREFIX_.'htl_booking_detail` h WHERE h.`id_customer` = a.`id_customer`) AS `last_stay`,
+        (SELECT SUM(GREATEST(0, o2.`total_paid_tax_incl` - o2.`total_paid_real`)) FROM `'._DB_PREFIX_.'orders` o2
+            WHERE o2.`id_customer` = a.`id_customer` AND o2.`current_state` NOT IN ('.$problemStates.')
+            AND NOT EXISTS (SELECT 1 FROM `'._DB_PREFIX_.'sb_deleted_booking` sbdb WHERE sbdb.`id_order` = o2.`id_order`)) AS `owed`,
         a.date_add, gl.name as title, grl.name as default_group_name, COUNT(o.`id_order`) as total_orders,
         o.`date_add` as order_date, SUM(total_paid_real / conversion_rate) as total_spent, (
             SELECT c.date_add FROM '._DB_PREFIX_.'guest g
@@ -239,6 +286,28 @@ class AdminCustomersControllerCore extends AdminController
         if (isset($filters[$prefix.$this->table.'Filter_deleted']) && $filters[$prefix.$this->table.'Filter_deleted'] == 1) {
             $this->deleted = false;
         }
+    }
+
+    /** P-10: a walk-in's placeholder address (Customer::hasNoEmail) shows as blank */
+    public function printListEmail($value, $row)
+    {
+        return Customer::hasNoEmail($value) ? '<span class="text-muted">'.$this->l('No email').'</span>' : Tools::safeOutput($value);
+    }
+
+    public function printListDay($value, $row)
+    {
+        $time = $value ? strtotime($value) : false;
+
+        return $time ? date('j M Y', $time) : '';
+    }
+
+    public function printListOwed($value, $row)
+    {
+        if ((float) $value <= 0.009) {
+            return '<span class="sb-due-none">&mdash;</span>';
+        }
+
+        return '<span class="sb-due">'.Tools::displayPrice((float) $value, (int) Configuration::get('PS_CURRENCY_DEFAULT')).'</span>';
     }
 
     public function formatStatusAsLabel($val, $row)
@@ -393,6 +462,8 @@ class AdminCustomersControllerCore extends AdminController
 
     public function renderList()
     {
+        // P-14: compact cards on phones, no Delete on the card (it stays inside the record)
+        $this->context->smarty->assign('sb_phone_cards', true);
         if ((Tools::isSubmit('submitBulkdelete'.$this->table) || Tools::isSubmit('delete'.$this->table)) && $this->tabAccess['delete'] === 1) {
             $this->tpl_list_vars = array(
                 'delete_customer' => true,
@@ -748,114 +819,6 @@ class AdminCustomersControllerCore extends AdminController
         $customer->id_shop = $this->context->shop->id;
     }
 
-    public function renderKpis()
-    {
-        $time = time();
-        $kpis = array();
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-orders';
-        $helper->icon = 'icon-shopping-cart';
-        $helper->color = 'color1';
-        $helper->title = $this->l('Bookings per guest', null, null, false);
-        $helper->subtitle = $this->l('All Time', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=orders_per_customer';
-        $helper->tooltip = $this->l('The average number of bookings per guest in the selected period.', null, null, false);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-total-frequent-customers';
-        $helper->icon = 'icon-star';
-        $helper->color = 'color2';
-        $helper->title = $this->l('Total Frequent Customers', null, null, false);
-        $helper->subtitle = $this->l('1 year', null, null, false);
-        $helper->href = $this->context->link->getAdminLink('AdminCustomers').'&submitResetcustomer&submitFiltercustomer=1&customerFilter_total_orders%5B0%5D='.Configuration::get('PS_KPI_FREQUENT_CUSTOMER_NB_ORDERS').'&customerFilter_o%21date_add%5B0%5D='.date('Y-m-d', strtotime('-365 day')).'&customerFilter_o%21date_add%5B1%5D='.date('Y-m-d');
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_frequent_customers';
-        $helper->tooltip = $this->l('The total number of frequent customers in given period of time.', null, null, false);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-revenue-per-available-customer';
-        $helper->icon = 'icon-dollar';
-        $helper->color = 'color3';
-        $helper->title = $this->l('RevPAC', null, null, false);
-        $nbDaysRevPac = Validate::isUnsignedInt(Configuration::get('PS_KPI_REVPAC_NB_DAYS')) ? Configuration::get('PS_KPI_REVPAC_NB_DAYS') : 30;
-        if ($nbDaysRevPac == 1) {
-            $helper->subtitle = sprintf($this->l('%d Day', null, null, false), (int) $nbDaysRevPac);
-        } else {
-            $helper->subtitle = sprintf($this->l('%d Days', null, null, false), (int) $nbDaysRevPac);
-        }
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=revenue_per_available_customer';
-        $helper->tooltip = sprintf($this->l('Revenue per Available Customer (RevPAC) in the last %s day(s).', null, null, false), $nbDaysRevPac);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-total-newsletter-registrations';
-        $helper->icon = 'icon-envelope';
-        $helper->color = 'color4';
-        $helper->title = $this->l('Total Newsletter Registrations', null, null, false);
-        $helper->subtitle = $this->l('All Time', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_newsletter_registrations';
-        $helper->tooltip = $this->l('The total number of newsletter registrations in given period of time.', null, null, false);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-conversion-rate';
-        $helper->icon = 'icon-refresh';
-        $helper->color = 'color1';
-        $helper->title = $this->l('Conversion Rate', null, null, false);
-        $nbDaysConversionRate = Validate::isUnsignedInt(Configuration::get('PS_KPI_CONVERSION_RATE_NB_DAYS')) ? Configuration::get('PS_KPI_CONVERSION_RATE_NB_DAYS') : 30;
-        if ($nbDaysConversionRate == 1) {
-            $helper->subtitle = $nbDaysConversionRate.' '.$this->l('day', null, null, false);
-        } else {
-            $helper->subtitle = $nbDaysConversionRate.' '.$this->l('days', null, null, false);
-        }
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=conversion_rate';
-        $helper->tooltip = sprintf($this->l('The percentage of visitors who created a booking in last %s day(s).', null, null, false), $nbDaysConversionRate);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-total-new-customers';
-        $helper->icon = 'icon-plus-circle';
-        $helper->color = 'color4';
-        $helper->title = $this->l('New Customers', null, null, false);
-        $nbDaysNewCustomers = Validate::isUnsignedInt(Configuration::get('PS_KPI_NEW_CUSTOMERS_NB_DAYS')) ? Configuration::get('PS_KPI_NEW_CUSTOMERS_NB_DAYS') : 30;
-        if ($nbDaysNewCustomers == 1) {
-            $helper->subtitle = sprintf($this->l('%d Day', null, null, false), (int) $nbDaysNewCustomers);
-            $date_from = date('Y-m-d');
-        } else {
-            $helper->subtitle = sprintf($this->l('%d Days', null, null, false), (int) $nbDaysNewCustomers);
-            $date_from = date('Y-m-d', strtotime('-'.($nbDaysNewCustomers - 1).' day'));
-        }
-        $date_to = date('Y-m-d');
-        $helper->href = $this->context->link->getAdminLink('AdminCustomers').'&submitResetcustomer&submitFiltercustomer=1&customerFilter_a!date_add[]='.$date_from.'&customerFilter_a!date_add[]='.$date_to;
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_new_customers';
-        $helper->tooltip = sprintf($this->l('The total number of new customers who registered in last %s day(s).', null, null, false), $nbDaysNewCustomers);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-total-banned-customers';
-        $helper->icon = 'icon-ban';
-        $helper->color = 'color2';
-        $helper->title = $this->l('Banned Customers', null, null, false);
-        $helper->subtitle = $this->l('All Time', null, null, false);
-        $helper->href = $this->context->link->getAdminLink('AdminCustomers').'&submitResetcustomer&submitFiltercustomer=1&customerFilter_deleted=1';
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_banned_customers';
-        $helper->tooltip = $this->l('The total number of banned customers.', null, null, false);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-gender';
-        $helper->icon = 'icon-male';
-        $helper->color = 'color3';
-        $helper->title = $this->l('Customers', null, null, false);
-        $helper->subtitle = $this->l('All Time', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=customer_main_gender';
-        $helper->tooltip = $this->l('The main gender from all the customers.', null, null, false);
-        $this->kpis[] = $helper;
-
-        return parent::renderKpis();
-    }
 
     public function renderView()
     {
@@ -1235,6 +1198,11 @@ class AdminCustomersControllerCore extends AdminController
         if (!Tools::getValue('id_customer') && !Tools::getIsset('groupBox')) {
             $_POST['groupBox'] = array((int) Configuration::get('PS_CUSTOMER_GROUP'));
             $_POST['id_default_group'] = (int) Configuration::get('PS_CUSTOMER_GROUP');
+        }
+
+        // P-15: a title alone ("Mr") is not a name
+        if (Customer::isTitleOnly(Tools::getValue('firstname')) || Customer::isTitleOnly(Tools::getValue('lastname'))) {
+            $this->errors[] = Tools::displayError('Enter the guest name, not only a title such as Mr or Mrs.');
         }
 
         // Check that default group is selected

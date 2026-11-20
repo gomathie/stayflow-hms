@@ -473,37 +473,66 @@ class Salisbergfrontdesk extends Module
         return $this->context->smarty->fetch($this->local_path.'views/templates/admin/today.tpl');
     }
 
-    public function assignTodayTemplate($canEdit, $onDashboard = false)
+    /**
+     * Today's lists split the way the desk reads them. The one place these
+     * counts are made: Today at the desk and the line on the Bookings list
+     * (SIMPLIFY-REVIEW P-11) both use it, so they always agree.
+     */
+    public function splitToday($today = null)
     {
-        $today = $this->getToday();
+        $today = $today ?: $this->getToday();
         // due out today is the day's work; earlier stays never checked out are a separate, folded list
-        $dueOut = array();
-        $overdue = array();
-        $checkedOut = array();
+        $split = array('today' => $today, 'due_out' => array(), 'overdue' => array(), 'checked_out' => array(), 'waiting' => 0, 'owed' => 0, 'owed_now' => 0);
         foreach ($today['departures'] as $row) {
             if ((int) $row['id_status'] !== (int) HotelBookingDetail::STATUS_CHECKED_IN) {
-                $checkedOut[] = $row;
+                $split['checked_out'][] = $row;
             } elseif ($row['overdue']) {
-                $overdue[] = $row;
+                $split['overdue'][] = $row;
             } else {
-                $dueOut[] = $row;
+                $split['due_out'][] = $row;
             }
         }
-        $waiting = 0;
         foreach ($today['arrivals'] as $row) {
             if ((int) $row['id_status'] === (int) HotelBookingDetail::STATUS_ALLOTED) {
-                $waiting++;
+                $split['waiting']++;
             }
         }
-        // the unpaid list is long by nature: show the most urgent, link to the full list
-        $owed = 0;
-        $owedNow = 0;
         foreach ($today['unpaid'] as $row) {
-            $owed += $row['balance'];
+            $split['owed'] += $row['balance'];
             if ($row['current']) {
-                $owedNow++;
+                $split['owed_now']++;
             }
         }
+
+        return $split;
+    }
+
+    /** The four desk figures as display text: in house, arriving, leaving, owed */
+    public function deskFigures()
+    {
+        $s = $this->splitToday();
+
+        return array(
+            'in_house' => count($s['today']['in_house']),
+            'arriving' => (int) $s['waiting'],
+            'leaving' => count($s['due_out']),
+            'overdue' => count($s['overdue']),
+            'owed' => $this->money($s['owed']),
+            'owed_raw' => (float) $s['owed'],
+        );
+    }
+
+    public function assignTodayTemplate($canEdit, $onDashboard = false)
+    {
+        $s = $this->splitToday();
+        $today = $s['today'];
+        $dueOut = $s['due_out'];
+        $overdue = $s['overdue'];
+        $checkedOut = $s['checked_out'];
+        $waiting = $s['waiting'];
+        // the unpaid list is long by nature: show the most urgent, link to the full list
+        $owed = $s['owed'];
+        $owedNow = $s['owed_now'];
         $done = (string) Tools::getValue('sb_done');
 
         $this->context->smarty->assign(array(

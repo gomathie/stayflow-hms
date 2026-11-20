@@ -730,6 +730,9 @@ class SalisbergWalkIn
             if ($lastname === '' || !Validate::isName($lastname)) {
                 throw new Exception($this->module->l('Enter a valid last name.'));
             }
+            if (Customer::isTitleOnly($firstname) || Customer::isTitleOnly($lastname)) {
+                throw new Exception($this->module->l('Enter the guest name, not only a title such as Mr or Mrs.'));
+            }
             if ($phone === '' || !Validate::isPhoneNumber($phone)) {
                 throw new Exception($this->module->l('Enter a valid phone number.'));
             }

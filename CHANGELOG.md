@@ -17,6 +17,12 @@ Every change to Salisberg, newest first, in plain words.
 
 - **Front desk menu (P-17).** Hotel Staff no longer see Manage Hotel, Addresses, Booking messages, the new-customer icon or Quick Access. Refund requests moved under Bookings for everyone. The Dashboard button is called New booking.
 - **Income kept from Hotel Staff (P-16).** Staff no longer see Total Sales on the Bookings page, the sales and performance charts on the Dashboard, or the Bookings and Income reports. They can open Reports for the Arrivals and departures sheet.
+- **Bookings list calmer (P-12).** Dates read 19 Nov 2026, status is a small chip with a dot (red only for a problem), Total is plain and Due is red only when owed.
+- **Desk line instead of shop figures (P-11).** The Bookings list shows in house, still to arrive, leaving today (with overdue) and owed, counted like Today at the desk. The shop figure strips are gone from Bookings, Customers, Room types, Carts and Translations.
+- **Customers list (P-10).** Name, Phone, Email ("No email" for walk-ins), Bookings, Last stay and Owed; the other columns are under Available Fields.
+- **Guest names (P-15).** Names typed all in small or all in capital letters are saved with capitals; mixed-case names are kept as typed; a title alone is refused. Saved names are not changed.
+- **Phone cards (P-14).** On a phone, Bookings, Customers and Invoices show one compact card per row, with no Delete on the card.
+- **Dashboard (P-7).** Overdue and Unpaid have a coloured edge when they need action; the chart hint is one line; Demo figures moved beside the hotel filter (SuperAdmin only).
 - **Modern side menu icons.** Each menu section has a thin line icon in place of the old font icons, in light and dark.
 - **Lists in pages (P-13).** Lists show 20 rows a page by default (50 to choose). Invoices pages too, and its totals still cover every matching invoice.
 - **System group in the menu (P-9).** Modules and Services, Localization, Preferences, Advanced Parameters and Administration sit under one System heading, folded away until clicked. Permissions are unchanged.

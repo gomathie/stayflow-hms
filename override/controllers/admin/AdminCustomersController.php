@@ -21,6 +21,9 @@ class AdminCustomersController extends AdminCustomersControllerCore
         if ($lastname === '' || !Validate::isName($lastname)) {
             $errors[] = $this->l('Enter the last name, letters only.');
         }
+        if (Customer::isTitleOnly($firstname) || Customer::isTitleOnly($lastname)) {
+            $errors[] = $this->l('Enter the guest name, not only a title such as Mr or Mrs.');
+        }
         if ($phone !== '' && !Validate::isPhoneNumber($phone)) {
             $errors[] = $this->l('The phone number is not valid.');
         }

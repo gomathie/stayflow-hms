@@ -156,7 +156,7 @@
 	{/if}
 
 	{if $sb_overdue|count}
-	<details class="panel sb-desk-panel sb-desk-overdue" id="sb-overdue">
+	<details class="panel sb-desk-panel sb-desk-overdue sb-desk-act-bad" id="sb-overdue">
 		<summary><h3><i class="icon-chevron-down"></i><i class="icon-warning-sign"></i> {l s='Overdue' mod='salisbergfrontdesk'} <span class="sb-desk-count sb-desk-count-bad">{$sb_overdue|count}</span></h3></summary>
 		<div class="sb-desk-body">
 		<p class="sb-desk-note">{l s='Guests whose stay has ended but who were never checked out. Check them out, or open the booking if they are staying longer.' mod='salisbergfrontdesk'}</p>
@@ -272,7 +272,7 @@
 		</div>
 	</details>
 
-	<details class="panel sb-desk-panel" id="sb-unpaid"{if $sb_open_unpaid} open{/if}>
+	<details class="panel sb-desk-panel{if $sb_today.unpaid|count} sb-desk-act-warn{/if}" id="sb-unpaid"{if $sb_open_unpaid} open{/if}>
 		<summary><h3><i class="icon-chevron-down"></i><i class="icon-money"></i> {l s='Unpaid bookings' mod='salisbergfrontdesk'} <span class="sb-desk-count">{$sb_today.unpaid|count}</span></h3></summary>
 		<div class="sb-desk-body">
 		<p class="sb-desk-note">{l s='Most urgent first: guests staying now, then stays that have ended, then the next arrivals. Open the booking to record a payment.' mod='salisbergfrontdesk'}</p>

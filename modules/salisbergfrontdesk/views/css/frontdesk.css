@@ -353,3 +353,8 @@
 .sb-pay-breakdown > summary { cursor: pointer; color: var(--sb-link, var(--sb-accent)); font-weight: 600; }
 .sb-pay-breakdown .sb-charge-lines { margin-top: 10px; }
 @media (max-width: 480px) { .sb-pay-figures { grid-template-columns: 1fr; } }
+
+/* P-7: only the lists that need action now get a coloured edge (Overdue red,
+   Unpaid amber); the others stay plain, so the eye starts there. */
+#content.bootstrap .sb-desk-panel.sb-desk-act-bad { border-left: 4px solid var(--sb-danger); }
+#content.bootstrap .sb-desk-panel.sb-desk-act-warn { border-left: 4px solid var(--sb-warning); }

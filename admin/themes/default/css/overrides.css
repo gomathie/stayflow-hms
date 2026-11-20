@@ -724,7 +724,7 @@ body.adminstats #content div:has(> table.table),
 #content.bootstrap .table-responsive,
 #content.bootstrap .panel div:has(> table.table) { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
 @media (min-width: 992px) {
-  #content.bootstrap .table-responsive-row { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
+  #content.bootstrap .table-responsive-row, #content.bootstrap .sb-cards { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
 }
 
 /* Rooms tab of a room type: the room's own price box (added by salisbergfrontdesk) needs room to read */
@@ -1331,3 +1331,54 @@ html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard .fc-scrollgrid 
 /* Paged lists (SIMPLIFY-REVIEW P-13): "1–20 of 155", rows per page, Previous / Next */
 #content .sb-pager { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 14px; }
 #content .sb-pager-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* P-11: the one desk line on the Bookings list. Neutral, like Today at the desk;
+   only the "overdue" note is red. */
+#content .box-stats.sb-desk { border-left: 1px solid var(--sb-line); background: var(--sb-card); }
+#content .box-stats.sb-desk .kpi-icon { color: var(--sb-muted); background: transparent; }
+#content .box-stats.sb-desk .subtitle { color: var(--sb-danger); font-weight: 600; }
+
+/* P-12: Bookings list cells. Status as a quiet chip with a dot; Due red only when owed. */
+#content .sb-state { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border: 1px solid var(--sb-line); border-radius: 999px; background: var(--sb-card); color: var(--sb-ink); font-size: 12px; white-space: nowrap; }
+#content .sb-state i { width: 7px; height: 7px; border-radius: 50%; background: var(--sb-success); }
+#content .sb-state-warn i { background: var(--sb-warning); }
+#content .sb-state-bad i { background: var(--sb-danger); }
+#content .sb-due { color: var(--sb-danger); font-weight: 600; }
+#content .sb-due-none { color: var(--sb-muted); }
+
+/* P-14: lists that opt in (Bookings, Customers, Invoices) are a normal table from
+   768px; on phones each row is one compact card. The whole card opens the record
+   (the stock cells keep their row link); Delete and the select boxes stay off
+   the card, so a stray tap never starts a deletion. Cells are placed by their
+   column class (sb-col-<name>, added by list_content.tpl). */
+@media (min-width: 768px) and (max-width: 991px) {
+  #content.bootstrap .sb-cards { max-width: 100%; overflow-x: auto; }
+}
+@media (max-width: 767px) {
+  #content.bootstrap .sb-cards table,
+  #content.bootstrap .sb-cards tbody { display: block; width: 100%; }
+  #content.bootstrap .sb-cards thead { display: none; }
+  #content.bootstrap .sb-cards tbody tr {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px;
+    margin: 0 0 8px; padding: 12px 14px; border: 1px solid var(--sb-line); border-radius: 12px;
+    background: var(--sb-card); cursor: pointer;
+  }
+  #content.bootstrap .sb-cards tbody td { display: none; padding: 0; border: 0; background: transparent; white-space: normal; }
+  #content.bootstrap .sb-cards tbody td.list-empty { display: block; flex: 1 1 100%; }
+  /* the two cells on the first line: who, and money still owed */
+  #content.bootstrap .sb-cards td:is(.sb-col-customer, .sb-col-guest) { display: block; order: 1; flex: 1 1 55%; min-width: 0; font-weight: 600; color: var(--sb-ink); }
+  #content.bootstrap .sb-cards td:is(.sb-col-amount_due, .sb-col-owed, .sb-col-balance) { display: block; order: 2; text-align: right; }
+  /* smaller lines below */
+  #content.bootstrap .sb-cards td:is(.sb-col-reference, .sb-col-number, .sb-col-booking, .sb-col-phone, .sb-col-email,
+    .sb-col-stay_from, .sb-col-stay_to, .sb-col-stay, .sb-col-total_orders, .sb-col-last_stay, .sb-col-room_numbers) {
+    display: block; order: 3; color: var(--sb-muted); font-size: 12.5px;
+  }
+  #content.bootstrap .sb-cards td:is(.sb-col-reference, .sb-col-number) { flex-basis: 100%; }
+  #content.bootstrap .sb-cards td.sb-col-stay_to::before { content: "\2013\00a0"; }
+  #content.bootstrap .sb-cards td.sb-col-total_orders::before { content: "Bookings: "; }
+  #content.bootstrap .sb-cards td.sb-col-last_stay::before { content: "Last stay: "; }
+  #content.bootstrap .sb-cards td.sb-col-room_numbers::before { content: "Room "; }
+  #content.bootstrap .sb-cards td:is(.sb-col-osname, .sb-col-status) { display: block; order: 4; flex-basis: 100%; margin-top: 6px; }
+  /* Invoices: keep the PDF button on the card */
+  #content.bootstrap .sb-cards-invoices td.sb-col-pdf { display: block; order: 5; flex-basis: 100%; margin-top: 6px; text-align: left !important; }
+}

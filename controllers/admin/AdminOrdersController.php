@@ -118,11 +118,13 @@ class AdminOrdersControllerCore extends AdminController
             'stay_from' => array(
                 'title' => $this->l('Check-in'),
                 'type' => 'date',
+                'callback' => 'printListDay',
                 'filter_key' => 'hbd!date_from',
             ),
             'stay_to' => array(
                 'title' => $this->l('Check-out'),
                 'type' => 'date',
+                'callback' => 'printListDay',
                 'filter_key' => 'hbd!date_to',
             ),
             'osname' => array(
@@ -130,7 +132,7 @@ class AdminOrdersControllerCore extends AdminController
                 'type' => 'select',
                 'multiple' => true,
                 'operator' => 'or',
-                'color' => 'color',
+                'callback' => 'printListStatus',
                 'list' => $this->statuses_array,
                 'filter_key' => 'os!id_order_state',
                 'order_key' => 'osname',
@@ -142,7 +144,6 @@ class AdminOrdersControllerCore extends AdminController
                 'validation' => 'isFloat',
                 'currency' => true,
                 'callback' => 'setOrderCurrency',
-                'badge_success' => true,
             ),
             'amount_due' => array(
                 'title' => $this->l('Due'),
@@ -151,8 +152,7 @@ class AdminOrdersControllerCore extends AdminController
                 'validation' => 'isFloat',
                 'currency' => true,
                 'havingFilter' => true,
-                'callback' => 'setOrderCurrency',
-                'badge_success' => true,
+                'callback' => 'printListDue',
             ),
         );
 
@@ -192,6 +192,42 @@ class AdminOrdersControllerCore extends AdminController
         $this->_conf[51] = $this->l('Overbooking is successfully resolved');
         $this->_conf[52] = $this->l('Room in the booking is successfully reallocated');
         $this->_conf[53] = $this->l('Room in the booking is successfully swapped');
+    }
+
+    /**
+     * SIMPLIFY-REVIEW P-12: calmer Bookings list cells. A date reads 12 Nov 2026,
+     * the status is a small chip with a dot (red only for a problem), and Due is
+     * red only when money is owed. Callbacks print raw HTML, so they escape.
+     */
+    public static function printListDay($value, $row)
+    {
+        $time = $value ? strtotime($value) : false;
+
+        return $time ? date('j M Y', $time) : '';
+    }
+
+    public static function printListStatus($value, $row)
+    {
+        $state = isset($row['current_state']) ? (int) $row['current_state'] : 0;
+        $problem = array_map('intval', array(Configuration::get('PS_OS_CANCELED'), Configuration::get('PS_OS_REFUND'), Configuration::get('PS_OS_ERROR')));
+        if (in_array($state, $problem, true)) {
+            $tone = 'bad';
+        } elseif (isset($row['amount_due']) && (float) $row['amount_due'] > 0.009) {
+            $tone = 'warn';
+        } else {
+            $tone = 'good';
+        }
+
+        return '<span class="sb-state sb-state-'.$tone.'"><i></i>'.Tools::safeOutput($value).'</span>';
+    }
+
+    public static function printListDue($value, $row)
+    {
+        if ((float) $value <= 0.009) {
+            return '<span class="sb-due-none">&mdash;</span>';
+        }
+
+        return '<span class="sb-due">'.self::setOrderCurrency($value, $row).'</span>';
     }
 
     public static function setOrderCurrency($echo, $row)
@@ -1157,6 +1193,8 @@ class AdminOrdersControllerCore extends AdminController
 
     public function renderList()
     {
+        // P-14: compact cards on phones, no Delete on the card (it stays inside the record)
+        $this->context->smarty->assign('sb_phone_cards', true);
         if (Tools::getValue('sb_archived')) {
             $this->confirmations[] = $this->l('The booking was moved to the recycle bin.');
         }
@@ -2709,143 +2747,34 @@ class AdminOrdersControllerCore extends AdminController
             $this->kpis[] = $helper;
 
         } else {
-            $time = time();
             $kpis = array();
-
-            // SIMPLIFY-REVIEW P-16: the hotel's sales total is not shown to Hotel Staff
-            if (!class_exists('Salisbergguide') || Salisbergguide::seesIncome()) {
-                $helper = new HelperKpi();
-                $helper->id = 'box-total-sales';
-                $helper->icon = 'icon-money';
-                $helper->color = 'color4';
-                $helper->title = $this->l('Total Sales', null, null, false);
-                $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_sales';
-                $helper->tooltip = $this->l('Total sales from all bookings created.', null, null, false);
-                $this->kpis[] = $helper;
-            }
-
-            $helper = new HelperKpi();
-            $helper->id = 'box-total-due-amount';
-            $helper->icon = 'icon-money';
-            $helper->color = 'color2';
-            $helper->title = $this->l('Total Due Amount', null, null, false);
-            $minValue = ('0.' . str_repeat('0', (Configuration::get('PS_PRICE_DISPLAY_PRECISION') - 1)) . '1');
-
-            // get all valid order states for due amount calculations
-            $validOrderStatesFilter = '';
-            if ($allOrderStates = OrderState::getOrderStates($this->context->language->id)) {
-                $allOrderStates = array_column($allOrderStates, 'id_order_state');
-                $objHotelBooking = new HotelBookingDetail();
-                $invalidOrderStates = $objHotelBooking->getOrderStatusToFreeBookedRoom();
-
-                if ($validOrderStates = array_diff($allOrderStates, $invalidOrderStates)) {
-                    foreach ($validOrderStates as $idOrderState) {
-                        $validOrderStatesFilter .= '&orderFilter_os!id_order_state[]='.$idOrderState;
-                    }
+            // SIMPLIFY-REVIEW P-11: the shop figures (sales, abandoned carts,
+            // conversion, averages) are gone. One quiet desk line remains,
+            // counted by Salisberg Front Desk exactly as Today at the desk is,
+            // so the two can never disagree. Each figure opens the Dashboard.
+            $desk = Module::getInstanceByName('salisbergfrontdesk');
+            if ($desk && $desk->active && method_exists($desk, 'deskFigures')) {
+                $figures = $desk->deskFigures();
+                $dashboard = $this->context->link->getAdminLink('AdminDashboard');
+                $lines = array(
+                    array('box-desk-in-house', 'icon-home', $this->l('In house'), $figures['in_house'], ''),
+                    array('box-desk-arriving', 'icon-sign-in', $this->l('Still to arrive today'), $figures['arriving'], ''),
+                    array('box-desk-leaving', 'icon-sign-out', $this->l('Leaving today'), $figures['leaving'],
+                        $figures['overdue'] ? sprintf($this->l('%d overdue'), $figures['overdue']) : ''),
+                    array('box-desk-owed', 'icon-money', $this->l('Owed'), $figures['owed'], ''),
+                );
+                foreach ($lines as $line) {
+                    $helper = new HelperKpi();
+                    $helper->id = $line[0];
+                    $helper->icon = $line[1];
+                    $helper->color = 'sb-desk';
+                    $helper->title = $line[2];
+                    $helper->value = $line[3];
+                    $helper->subtitle = $line[4];
+                    $helper->href = $dashboard;
+                    $this->kpis[] = $helper;
                 }
             }
-            $helper->href = $this->context->link->getAdminLink('AdminOrders').'&submitResetorder&submitFilterorder=1&orderFilter_amount_due%5B0%5D='.$minValue.$validOrderStatesFilter;
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_due_amount';
-            $helper->tooltip = $this->l('Total amount still due across all bookings.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $arivalDate = date('Y-m-d');
-            $helper = new HelperKpi();
-            $helper->id = 'box-today-arrivals';
-            $helper->icon = 'icon-user';
-            $helper->color = 'color1';
-            $helper->title = $this->l('Arrivals', null, null, false);
-            $helper->subtitle = $this->l('Today', null, null, false);
-            $helper->href = $this->context->link->getAdminLink('AdminOrders').'&submitResetorder&submitFilterorder=1&orderFilter_hbd!is_refunded=0&orderFilter_hbd!id_status='.HotelBookingDetail::STATUS_ALLOTED.'&orderFilter_hbd!date_from[]='.pSQL(date('Y-m-d')).'&orderFilter_hbd!date_from[]='.pSQL(date('Y-m-d'));
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=today_arrivals';
-            $helper->tooltip = $this->l('Total number of arrivals for today.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $departureDate = date('Y-m-d');
-            $helper = new HelperKpi();
-            $helper->id = 'box-today-departures';
-            $helper->icon = 'icon-user';
-            $helper->color = 'color2';
-            $helper->title = $this->l('Departures', null, null, false);
-            $helper->subtitle = $this->l('Today', null, null, false);
-            $helper->href = $this->context->link->getAdminLink('AdminOrders').'&submitResetorder&submitFilterorder=1&orderFilter_hbd!is_refunded=0&orderFilter_hbd!id_status='.HotelBookingDetail::STATUS_CHECKED_IN.'&orderFilter_hbd!date_to[]='.pSQL(date('Y-m-d')).'&orderFilter_hbd!date_to[]='.pSQL(date('Y-m-d'));
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=today_departures';
-            $helper->tooltip = $this->l('Total number of departures for today.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $dateFrom = date('Y-m-d');
-            $dateTo = date('Y-m-d', strtotime('+1 day'));
-            $helper = new HelperKpi();
-            $helper->id = 'box-today-stay-over';
-            $helper->icon = 'icon-user';
-            $helper->color = 'color4';
-            $helper->title = $this->l('Occupied Rooms', null, null, false);
-            $helper->subtitle = $this->l('Today', null, null, false);
-            $helper->href = $this->context->link->getAdminLink('AdminOrders').'&submitResetorder&submitFilterorder=1&orderFilter_hbd!is_refunded=0&orderFilter_hbd!id_status='.HotelBookingDetail::STATUS_CHECKED_IN.'&orderFilter_hbd!date_to[]='.pSQL(date('Y-m-d', strtotime('+ 1 days'))).'&orderFilter_hbd!date_to[]=';
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=occupied_rooms';
-            $helper->tooltip = $this->l('The count of rooms that are currently occupied by guests.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $helper = new HelperKpi();
-            $helper->id = 'box-carts';
-            $helper->icon = 'icon-shopping-cart';
-            $helper->color = 'color2';
-            $helper->title = $this->l('Abandoned Carts', null, null, false);
-            $dateFrom = date(Context::getContext()->language->date_format_lite, strtotime('-2 day'));
-            $dateTo = date(Context::getContext()->language->date_format_lite, strtotime('-1 day'));
-            $helper->subtitle = sprintf($this->l('From %s to %s', null, null, false), $dateFrom, $dateTo);
-            $helper->href = $this->context->link->getAdminLink('AdminCarts').'&action=filterOnlyAbandonedCarts&date_from='.date('Y-m-d', strtotime('-2 day')).'&date_to='.date('Y-m-d', strtotime('-1 day'));
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=abandoned_cart';
-            $helper->tooltip = $this->l('Total number of abandoned carts  in given period of time.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $daysForConversionRate = Configuration::get('PS_KPI_CONVERSION_RATE_NB_DAYS');
-            $helper = new HelperKpi();
-            $helper->id = 'box-conversion-rate';
-            $helper->icon = 'icon-sort-by-attributes-alt';
-            $helper->color = 'color1';
-            $helper->title = $this->l('Conversion Rate', null, null, false);
-            if ($daysForConversionRate == 1) {
-                $helper->subtitle = $daysForConversionRate.' '.$this->l('day', null, null, false);
-            } else {
-                $helper->subtitle = $daysForConversionRate.' '.$this->l('days', null, null, false);
-            }
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=conversion_rate';
-            $helper->tooltip = sprintf($this->l('Percentage of visits that resulted in a booking in the last %s day(s).', null, null, false), $daysForConversionRate);
-            $this->kpis[] = $helper;
-
-            $daysForAvgOrderVal = Configuration::get('PS_ORDER_KPI_AVG_ORDER_VALUE_NB_DAYS');
-            $helper = new HelperKpi();
-            $helper->id = 'box-average-order';
-            $helper->icon = 'icon-money';
-            $helper->color = 'color3';
-            $helper->title = $this->l('Average booking value', null, null, false);
-            if ($daysForAvgOrderVal == 1) {
-                $helper->subtitle = $daysForAvgOrderVal.' '.$this->l('day', null, null, false);
-            } else {
-                $helper->subtitle = $daysForAvgOrderVal.' '.$this->l('days', null, null, false);
-            }
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=average_order_value';
-            $helper->tooltip = sprintf($this->l('Average booking value without tax in the last %s day(s).', null, null, false), $daysForAvgOrderVal);
-            $this->kpis[] = $helper;
-
-            $helper = new HelperKpi();
-            $helper->id = 'box-average-lead-time';
-            $helper->icon = 'icon-time';
-            $helper->color = 'color4';
-            $helper->title = $this->l('Average Lead Time', null, null, false);
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=average_lead_time';
-            $helper->tooltip = $this->l('Average number of days between the time guests book their rooms and the time guest schedule to arrive at the hotel.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $helper = new HelperKpi();
-            $helper->id = 'box-average-guest-in-booking';
-            $helper->icon = 'icon-users';
-            $helper->color = 'color3';
-            $helper->title = $this->l('Average Guest Per Booking', null, null, false);
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=average_guest_in_booking';
-            $helper->tooltip = $this->l('Average number of guests per booking.', null, null, false);
-            $this->kpis[] = $helper;
         }
 
         Hook::exec('action'.$this->controller_name.'KPIListingModifier', array(

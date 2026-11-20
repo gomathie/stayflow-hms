@@ -1385,43 +1385,7 @@ class AdminTranslationsControllerCore extends AdminController
         // Get all information for translations
         $this->getTranslationsInformations();
     }
-
-    public function renderKpis()
-    {
-        $time = time();
-        $kpis = array();
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-languages';
-        $helper->icon = 'icon-microphone';
-        $helper->color = 'color1';
-        $helper->href = $this->context->link->getAdminLink('AdminLanguages');
-        $helper->title = $this->l('Enabled Languages', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=enabled_languages';
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-fo-translations';
-        $helper->icon = 'icon-list';
-        $helper->color = 'color3';
-        $helper->title = $this->l('Front office Translations', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=frontoffice_translations';
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-bo-translations';
-        $helper->icon = 'icon-list';
-        $helper->color = 'color4';
-        $helper->title = $this->l('Back office Translations', null, null, false);
-        if (ConfigurationKPI::get('BACKOFFICE_TRANSLATIONS') !== false) {
-            $helper->value = ConfigurationKPI::get('BACKOFFICE_TRANSLATIONS');
-        }
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=backoffice_translations';
-        $helper->refresh = (bool)(ConfigurationKPI::get('BACKOFFICE_TRANSLATIONS_EXPIRE') < $time);
-        $this->kpis[] = $helper;
-
-        return parent::renderKpis();
-    }
+
 
     /**
      * AdminController::postProcess() override
