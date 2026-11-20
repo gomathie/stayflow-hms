@@ -92,7 +92,7 @@ The final repository must consistently identify the project as MIT licensed by S
     | Payment methods | `modules/salisbergpay` |
     | Platform settings changed without editing vendor files (for example the jQuery version) | `config/defines_custom.inc.php` |
     | Reports on screen and as PDF | `modules/salisbergreports` |
-    | Checking a running stack after a change | `docker/smoke-test.sh` |
+    | Checking a running stack after a change | `docker/smoke-test.sh` (pages load), `tests/e2e` (browser journeys, local only) |
     | Installing, enabling or disabling modules | `docker/setup-modules.php` |
     | One-off data or schema changes on deploy | versioned steps in `docker/entrypoint.sh` |
     | Web server headers and access rules | `docker/apache.conf` |
@@ -2842,3 +2842,29 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - Desktop (1440), phone-only guest: to the payment methods, no errors.
 - **Known limit:** "Track my booking" asks for an email, so a guest who gave none cannot use it. They have the reference by text and can call the hotel.
 - **Not tested:** the live server; a guest coming back later with the same phone number (each guest booking is its own guest record, as the platform does for guests).
+
+### 2026-11-20 — End-to-end browser tests (`tests/e2e`); general skill in the shared library
+
+- **Owner:** go ahead with the library suggestions in order (e2e tests, then characterization tests, then a general skill).
+- **Evaluation (workflow `e2e-testing`):**
+  - Playwright fits: a web app, Node 22 on the machine, and the installed Chrome via `channel: 'chrome'`, so no browser download. Maestro is for native mobile apps.
+  - The existing tests were `docker/smoke-test.sh` only (page loads, no browser).
+  - There is no CI (Coolify only deploys), so the suite is local, and that gap is documented.
+- **Why a new folder (rule 25):** nothing existing runs a browser. It is dev-only: excluded from the image (`.dockerignore`: `tests`), with dependencies and output git-ignored. `@playwright/test` is pinned at 1.64.1.
+- **What:**
+  - `playwright.config.js`: desktop 1440 and phone (Pixel 7). It refuses any base address that is not `http://localhost`.
+  - `support/global-setup.js` and `support/seed.php`, run in the app container each time: test employees `e2e.manager@example.com` and `e2e.staff@example.com`, marked as test accounts, plus the hotel category; the sign-in limiter is cleared.
+  - `support/helpers.js`: sign-in, and opening an admin page through the token link while skipping "My preferences".
+  - Three spec files, described in `tests/e2e/README.md`.
+- **Verification:**
+  - Full run: 8 passed, 6 skipped (desktop-only tests in the phone project), about 5.6 minutes. Bookings were created for dates 200–330 days ahead.
+  - Negative control: with the pre-fix search stylesheet (`git show 811ae396~1`) in the container, the phone search test failed ("Expected true, received false"). Restored, it passes.
+- **Found while writing the tests:**
+  - Names refuse digits, so the test people are "Test …".
+  - The sign-in page has two `submitLogin` buttons.
+  - Hotel Staff and Hotel Manager opening Employees land on their own profile (allowed by the platform).
+  - The first `AdminEmployees` link on a page is "My preferences".
+- **Shared library** (outside this repository, `Workflow and skills`):
+  - New general skill and workflow `inherited-web-app-maintenance`: fix at the source, prove dead code, versioned versus every-start deploy steps, verify in a running stack, and a list of traps stated by mechanism.
+  - README rule 12 (owner): name skills by the job, not the project. `AGENT-INSTRUCTIONS.md` was aligned with it.
+- **Not tested:** the suite on another machine; Mobile Money, bank transfer and part payments; check-in and check-out from a booking.

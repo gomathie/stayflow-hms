@@ -23,3 +23,5 @@ log/*
 node_modules
 audit
 ~$*
+# end-to-end tests are a local tool, not part of the site
+tests

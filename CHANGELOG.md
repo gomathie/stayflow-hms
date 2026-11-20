@@ -48,6 +48,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Added
 
+- **End-to-end browser tests** (`tests/e2e`, Playwright, local stack only). They book on the website as a guest with a phone number (desktop and phone), book at the desk as Hotel Staff, check what each role may open, and check the protections (no SQL buttons, links refused on the Contact form, old order form redirected). Run before each push: `cd tests/e2e && npm test`.
+
 - **Mail server settings in the app.** Administration › Integrations has an Email (mail server) panel: server, port, encryption, user name, password and the address emails come from, with Send test email. It saves to the settings every email already uses. Before, there was no screen for this (the stock E-mail page shows no form), so no booking confirmation or invoice could be emailed.
 
 - **Data clean-up** (Advanced Parameters, SuperAdmin only, module `salisbergcleanup`). Remove old unfinished drafts, abandoned carts, logs, closed Inbox conversations and guests with no bookings, by age: it shows how many and a few examples first, and removes only after you type that number. Drafts and carts older than 30 days and logs older than 90 days are cleaned automatically once a day. Paid bookings and invoices are kept 6 years; deleted bookings stay in the recycle bin. Each run is logged.
