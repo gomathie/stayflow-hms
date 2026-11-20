@@ -48,7 +48,7 @@
 			<tr><td><span class="sb-path">Bookings &rsaquo; Bookings</span></td><td>{l s='Every booking. Open one to take payment, check in, check out or change it. Use New booking at the top of this page to make one.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Invoices</span></td><td>{l s='Every invoice and receipt, with what is paid and what is still owed.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Reports</span></td><td>{l s='The Arrivals and departures sheet for any day or week: who checks in and who checks out. Click Download PDF to print it for the desk or housekeeping.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records: name, phone, email (No email for a walk-in without one), how many bookings, the last stay and any money owed. Other columns are under Available Fields.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Customers &rsaquo; Customers</span></td><td>{l s='Guest records: name, phone, email (No email for a walk-in, or a website guest, who gave none), how many bookings, the last stay and any money owed. Other columns are under Available Fields.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Customers &rsaquo; Inbox</span></td><td>{l s='Messages guests send through the website.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Bookings &rsaquo; Refund requests</span></td><td>{l s='Cancellation and refund requests from guests.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Guides</span></td><td>{l s='This guide.' mod='salisbergguide'}</td></tr>

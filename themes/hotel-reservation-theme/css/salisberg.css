@@ -927,6 +927,10 @@ div.checker span.checked::before, div.radio span.checked::before { color: var(--
 .alert.alert-warning { background: #b98a2f; border-color: #b98a2f; color: #fff; }
 
 /* ---------- Checkout ---------- */
+/* P-24: the guest-booking line above the checkout form, and the optional-email hint */
+#opc_account_choice.sb-account-choice { margin: 0 0 14px; color: var(--sb-muted); font-size: 14px; }
+#opc_account_choice.sb-account-choice a { margin-left: 6px; font-weight: 600; }
+.sb-optional { color: var(--sb-muted); font-weight: 400; font-size: 12px; }
 
 #order-opc .button-medium,
 #order-opc .opc-btn-primary,

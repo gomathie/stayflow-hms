@@ -251,6 +251,15 @@ if (!Configuration::get('SB_NAMES_TIDIED')) {
     sb_log("guest names tidied: $changed record(s); $titleOnly guest(s) still have only a title as a name");
 }
 
+// P-24, once: guests book without an account (the platform's guest checkout).
+// Done once so it can be switched off again in Preferences and stay off.
+if (!Configuration::get('SB_GUEST_CHECKOUT_SET')) {
+    $was = (int) Configuration::get('PS_GUEST_CHECKOUT_ENABLED');
+    Configuration::updateValue('PS_GUEST_CHECKOUT_ENABLED', 1);
+    Configuration::updateValue('SB_GUEST_CHECKOUT_SET', 1);
+    sb_log('guest checkout '.($was ? 'was already on' : 'switched on'));
+}
+
 // Switched off on every deploy:
 //  - qlohotelreview: guest reviews are not in use; keeping it off also keeps its
 //    upload endpoint closed (CVE-2025-67325). Remove it from this list to use reviews.

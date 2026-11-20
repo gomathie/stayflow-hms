@@ -54,6 +54,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Shorter website checkout (P-24).** Guests book as guests, with no password; "Create an account instead" is one link away. The Mr/Mrs field is gone. Email is optional: a guest may book with a phone number only and gets their confirmation by text.
+
 - **Saved guest names tidied, once.** Names saved in all small or all capital letters now read like "Ama Mensah", as new names already did. Mixed-case names are unchanged; names that are only a title (Mr, Mrs) are counted in the deploy log for the desk to correct.
 
 - **Menu.** Recycle bin and Statuses moved from Bookings, and Positions from Modules and Services, to the end of Administration. Who may open each page is unchanged.

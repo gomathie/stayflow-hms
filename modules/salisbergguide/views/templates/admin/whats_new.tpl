@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='20 November 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='Quicker booking on the website.' mod='salisbergguide'}</strong> {l s='Guests book without a password and without the Mr/Mrs field. Email is optional: a guest may give only a phone number, so some new bookings show No email and get their confirmation by text.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Phone: menu and home screen.' mod='salisbergguide'}</strong> {l s='The phone menu is tidier and scrolls. To put the desk on your home screen, tap the circle with your initials, then Add to home screen. The empty Menu button on the Dashboard is gone.' mod='salisbergguide'}</li>
 			{if $sb_is_admin}<li><strong>{l s='27 unused modules removed.' mod='salisbergguide'}</strong> {l s='Bank wire, cheque, the channel manager, four shop Dashboard boxes and the shop statistics modules are gone. Manage Modules now lists 32. Bookings paid through a removed module keep their payment name.' mod='salisbergguide'}</li>{/if}
 			{if $sb_can_read_admin_guide}<li><strong>{l s='Recycle bin, Statuses and Positions moved.' mod='salisbergguide'}</strong> {l s='They are now at the end of Administration (under System in the menu). Recycle bin and Statuses were under Bookings, Positions under Modules and Services. Who may open them is unchanged.' mod='salisbergguide'}</li>{/if}

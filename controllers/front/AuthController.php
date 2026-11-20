@@ -394,6 +394,12 @@ class AuthControllerCore extends FrontController
         }
         if (!Tools::getValue('is_new_customer', 1)) {
             $_POST['passwd'] = md5(time()._COOKIE_KEY_);
+            // P-24: a guest may book with a phone number only. Without an email
+            // they get the placeholder the desk uses for walk-ins; nothing is
+            // ever sent to it (Mail::Send), confirmations go by text.
+            if (trim((string) Tools::getValue('email')) === '' && trim((string) Tools::getValue('customer_phone', Tools::getValue('phone'))) !== '') {
+                $_POST['email'] = 'guest-'.date('YmdHis').'-'.Tools::passwdGen(4, 'NUMERIC').'@'.Customer::NO_EMAIL_DOMAIN;
+            }
         }
         if ($guest_email = Tools::getValue('guest_email')) {
             $_POST['email'] = $guest_email;

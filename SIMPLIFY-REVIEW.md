@@ -400,7 +400,7 @@ Read-only check at 390px wide as Hotel Staff, Hotel Manager and SuperAdmin, plus
 ### Data seen, not code
 - Several bookings have guest names in small letters or only a title ("mr mr", "george wilson"); new names are now tidied and title-only names refused (P-15), but saved names were left as typed. A one-off tidy of saved names would need the owner's approval.
 
-### P-24 Shorter website checkout on a phone — Approved (owner, 2026-11-20)
+### P-24 Shorter website checkout on a phone — Done 2026-11-20
 - **Problem:** the guest form asks for social title, first name, last name, email, password and phone before payment. Most guests book on a phone; every field is a chance to give up.
 - **Approved:**
   1. Drop the social title (Mr/Mrs) from the checkout form.

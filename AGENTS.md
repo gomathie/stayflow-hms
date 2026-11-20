@@ -2824,3 +2824,21 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - The account item is visible. With a prompt available, it opens the prompt. With the prompt blocked and an iPhone user agent, it shows "In Safari, tap Share, then Add to Home Screen" (screenshot reviewed).
   - No script errors.
 - **Not tested:** a real Android phone and a real iPhone; the live server.
+
+### 2026-11-20 — P-24: shorter website checkout (guest booking, no title, email optional)
+
+- **Owner approved** (SIMPLIFY-REVIEW P-24), then refined: "email should be there and not required".
+- **How it works:** it uses the platform's own guest checkout rather than a new path (rule 26).
+  - `docker/setup-modules.php` switches `PS_GUEST_CHECKOUT_ENABLED` on once (`SB_GUEST_CHECKOUT_SET`, `MODULES_VERSION=39`), so it can be switched off in Preferences and stays off.
+  - `themes/hotel-reservation-theme/order-opc-new-account.tpl`: the two "Guest checkout / Create an account" buttons became one line, "Booking as a guest: no password needed. Create an account instead". The social title select is removed and first and last name take half the row each. Email is no longer marked required; the label says it is optional for a guest and needed for the emailed invoice.
+  - `js/order-opc.js`: with guest checkout on, the form opens in guest mode (password hidden, `is_new_customer=0`, submit as `submitGuestAccount`). "Create an account instead" shows the password and submits as an account.
+  - `controllers/front/AuthController.php::processSubmitAccount()`: for a guest who gives a phone and no email, the email becomes the walk-in placeholder `guest-<time>-<4 digits>@guest.invalid` (`Customer::NO_EMAIL_DOMAIN`). `Mail::Send` never sends to it; the booking text goes to the phone. An account still needs a real email (the customer model requires it).
+  - Styles: `salisberg.css` (`?v=18`).
+- **Guides:** Staff Guide (Customers row: website guests may have no email); What's New; CHANGELOG.
+- **Verification (local, headless Chrome):**
+  - Phone (390), phone-only guest: no password, no title. It went through to payment and then to a confirmed cash booking, `SB-261120-01`. The customer has `is_guest=1`, the placeholder email and the phone. The confirmation page shows the reference, amount and payment steps with no email wording.
+  - A guest with an email is saved as a guest with that email.
+  - "Create an account instead" shows the password and saves an account (`is_guest=0`).
+  - Desktop (1440), phone-only guest: to the payment methods, no errors.
+- **Known limit:** "Track my booking" asks for an email, so a guest who gave none cannot use it. They have the reference by text and can call the hotel.
+- **Not tested:** the live server; a guest coming back later with the same phone number (each guest booking is its own guest record, as the platform does for guests).
