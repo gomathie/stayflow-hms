@@ -224,6 +224,33 @@ foreach ($forget as $name => $parts) {
     sb_log("$name removed (module deleted from the code)");
 }
 
+// Saved guest names, once (owner, 2026-11-20): the rule new names already get
+// (Customer::tidyName: all small or all capital letters become "Ama Mensah";
+// mixed case is kept as typed), applied to guests and their addresses.
+// A name that is only a title ("mr mr") cannot be guessed and is only counted.
+if (!Configuration::get('SB_NAMES_TIDIED')) {
+    $changed = 0;
+    foreach (array('customer' => 'id_customer', 'address' => 'id_address') as $table => $key) {
+        $where = $table === 'customer' ? '`deleted` = 0' : '`deleted` = 0 AND `id_customer` > 0';
+        foreach ((array) $db->executeS('SELECT `'.$key.'`, `firstname`, `lastname` FROM `'._DB_PREFIX_.$table.'` WHERE '.$where, true, false) as $row) {
+            $first = Customer::tidyName($row['firstname']);
+            $last = Customer::tidyName($row['lastname']);
+            if ($first !== $row['firstname'] || $last !== $row['lastname']) {
+                $db->update($table, array('firstname' => pSQL($first), 'lastname' => pSQL($last)), '`'.$key.'` = '.(int) $row[$key]);
+                $changed++;
+            }
+        }
+    }
+    $titleOnly = 0;
+    foreach ((array) $db->executeS('SELECT `firstname`, `lastname` FROM `'._DB_PREFIX_.'customer` WHERE `deleted` = 0', true, false) as $row) {
+        if (Customer::isTitleOnly($row['firstname']) || Customer::isTitleOnly($row['lastname'])) {
+            $titleOnly++;
+        }
+    }
+    Configuration::updateValue('SB_NAMES_TIDIED', 1);
+    sb_log("guest names tidied: $changed record(s); $titleOnly guest(s) still have only a title as a name");
+}
+
 // Switched off on every deploy:
 //  - qlohotelreview: guest reviews are not in use; keeping it off also keeps its
 //    upload endpoint closed (CVE-2025-67325). Remove it from this list to use reviews.

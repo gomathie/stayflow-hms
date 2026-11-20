@@ -55,6 +55,19 @@
 .fancybox-wrap #search_hotel_block_form .form-group.xs-calendar {
   position: relative;
 }
+/* Phone search pop-up: the guest picker opens in the flow of the form, so it
+   pushes Search Rooms down instead of covering it and is not cut off by the
+   pop-up's scrolling box. */
+.fancybox-wrap #search_occupancy_wrapper {
+  position: static;
+  float: none;
+  width: 100%;
+  min-width: 0;
+  max-height: none;
+  margin: 6px 0 0;
+  box-shadow: none;
+  border: 1px solid #e5e5e5;
+}
 @media (max-width: 767px) {
   #search_hotel_block_form .grid {
     display: block;

@@ -399,3 +399,15 @@ Read-only check at 390px wide as Hotel Staff, Hotel Manager and SuperAdmin, plus
 
 ### Data seen, not code
 - Several bookings have guest names in small letters or only a title ("mr mr", "george wilson"); new names are now tidied and title-only names refused (P-15), but saved names were left as typed. A one-off tidy of saved names would need the owner's approval.
+
+### P-24 Shorter website checkout on a phone — Approved (owner, 2026-11-20)
+- **Problem:** the guest form asks for social title, first name, last name, email, password and phone before payment. Most guests book on a phone; every field is a chance to give up.
+- **Approved:**
+  1. Drop the social title (Mr/Mrs) from the checkout form.
+  2. No password: a guest books without creating an account, using the platform's guest checkout. They can still sign in or create an account if they want.
+  3. Phone required, email optional. A guest with no email gets the placeholder address the desk already uses for walk-ins (`Customer::NO_EMAIL_DOMAIN`, nothing is sent to it) and their confirmation by text only.
+- **Risk:** a guest without email gets no emailed invoice; the booking still appears in Bookings with their phone. Guest checkout creates a guest record, not an account, so they cannot see past bookings online unless they sign up later.
+- **Undo:** switch guest checkout off and restore the two fields.
+
+### Positions page filter buttons — Not built (owner asked for a recommendation, 2026-11-20)
+- **Recommendation:** do not build. Only the developer team opens Positions; search already finds a hook by its plain or technical name, and the existing "Display non-positionable hooks" tick box already hides the invisible events. Buttons would add a second way to do the same thing (rule 26) for a page staff never see.

@@ -2774,11 +2774,31 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - `sendTestMail()` sends through `Mail::sendMailTest()` and logs the server's reply on failure.
   - The panel `#sb-int-mail` is in `integrations.tpl`. The Email card points to it and is green only for a saved SMTP server.
   - SuperAdmin only, as the rest of the page.
-- **Guides:** Admin Guide section 10 (where and what to enter, with Zoho settings), the section 9 row and the alerts paragraph now point to Administration › Integrations; CHANGELOG.
+- **Guides:** Admin Guide section 10 (where and what to enter; any SMTP provider), the section 9 row and the alerts paragraph now point to Administration › Integrations; CHANGELOG.
 - **Verification (local, browser, administrator):**
   - Invalid values were refused with plain messages.
   - Valid values saved and the panel showed email on.
   - A test to a non-existent server failed with the plain message and a log entry.
   - Switching off saved method 3.
   - `php -l`; no script errors.
-- **Not tested:** a real Zoho server (needs the mailbox password); the live server.
+- **Not tested:** a real mail server (needs the mailbox password); the live server.
+
+### 2026-11-20 — Live test, new-customer sign-up on desktop and phone; phone search fix; names tidied
+
+- **Live back office (developer account, phone width, read only):**
+  - Manage Modules lists 32. The Bookings list has no SQL buttons. The old add-order address lands on New booking.
+  - Recycle bin is under Administration. Data clean-up is present and its daily run has emptied old carts.
+  - The Email panel is not there yet (not pushed).
+- **Live sign-up as a new customer** ("Test Signup", test.signup.*@example.com), stopped after the payment methods, no booking made:
+  - **Desktop (1440):** search, Book Now, checkout, guest form (new account), payment methods. About 63 seconds, no errors.
+  - **Phone (390): failed at search.** After the dates are picked, the guest picker opens inside the search pop-up. It is absolutely positioned inside a scrolling box, so it covered Search Rooms and was cut off, and a tap on Search Rooms did nothing.
+  - Fixed in `modules/wkroomsearchblock/views/css/wk-global-search.css` (rule 11): inside `.fancybox-wrap` the picker is static, so it pushes the button down.
+  - Locally the phone flow then ran to the payment methods in about 63 seconds with no errors (screenshot reviewed).
+- **"Add to home screen" bar:** it covered the bottom of the checkout form on phones. `install-app.js` now offers it on the website homepage only (`body#index`). Checked: shown on the homepage, not at checkout.
+- **Guest names (owner approved):**
+  - `docker/setup-modules.php`, once (`SB_NAMES_TIDIED`, `MODULES_VERSION=38`), applies `Customer::tidyName()` to live customers and their addresses and logs the count.
+  - Title-only names are counted, not guessed.
+  - Checked: "ama mensah" became "Ama Mensah" and "KOFI" became "Kofi"; one title-only name was counted.
+- **Email wording:** Zoho examples removed from the Email panel, its messages and the guide; any SMTP provider works.
+- **Live data left by the test:** one or two customer accounts named "Test Signup" with @example.com addresses (no booking). Their carts are removed by the daily clean-up after 30 days.
+- Smoke test 33 of 33.

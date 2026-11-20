@@ -42,9 +42,13 @@
         } catch (e) {}
     }
 
-    // In the back office the bar is offered on the Dashboard only, not on every page.
+    // Offered on one page only, so it never covers a form: the Dashboard in the
+    // back office, the homepage on the website (it covered checkout on phones).
     function rightPage() {
-        return !isDesk() || /[?&]controller=AdminDashboard\b/.test(window.location.search);
+        if (isDesk()) {
+            return /[?&]controller=AdminDashboard\b/.test(window.location.search);
+        }
+        return document.body && document.body.id === 'index';
     }
 
     function bar() {

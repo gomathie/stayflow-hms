@@ -188,7 +188,7 @@ class AdminSalisbergIntegrationsController extends ModuleAdminController
         }
         if ($on) {
             if (!preg_match('/^[A-Za-z0-9.\-]{3,255}$/', $server)) {
-                $this->errors[] = $this->l('Enter the mail server name, for example smtp.zoho.com.');
+                $this->errors[] = $this->l('Enter the mail server name, for example smtp.example.com.');
             }
             if ($port < 1 || $port > 65535) {
                 $this->errors[] = $this->l('Enter the port, for example 587 (TLS) or 465 (SSL).');

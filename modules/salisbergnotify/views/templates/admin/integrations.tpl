@@ -83,7 +83,7 @@
 	{else}
 	<div class="alert alert-warning">{l s='No mail server is set up, so no email is sent: guests get no booking confirmation or invoice by email. Texts still work.' mod='salisbergnotify'}</div>
 	{/if}
-	<p class="help-block">{l s='Copy these from the mail provider. For Zoho Mail: server smtp.zoho.com, port 587 with TLS (or 465 with SSL), user name and password of the mailbox, for example booking@salisberg.com.' mod='salisbergnotify'}</p>
+	<p class="help-block">{l s='Any mail provider that offers SMTP works. Copy the server, port and encryption from the provider (usually port 587 with TLS, or 465 with SSL), then the user name and password of the mailbox.' mod='salisbergnotify'}</p>
 	<form method="post" action="{$sb_action|escape:'html':'UTF-8'}#sb-int-mail" autocomplete="off" class="form-horizontal">
 		<div class="form-group">
 			<label class="control-label col-lg-3">{l s='Send email' mod='salisbergnotify'}</label>
@@ -94,7 +94,7 @@
 		</div>
 		<div class="form-group">
 			<label class="control-label col-lg-3" for="sb_mail_server">{l s='Mail server (SMTP)' mod='salisbergnotify'}</label>
-			<div class="col-lg-4"><input type="text" name="sb_mail_server" id="sb_mail_server" value="{$sb_mail.server|escape:'html':'UTF-8'}" placeholder="smtp.zoho.com" class="form-control" /></div>
+			<div class="col-lg-4"><input type="text" name="sb_mail_server" id="sb_mail_server" value="{$sb_mail.server|escape:'html':'UTF-8'}" placeholder="smtp.example.com" class="form-control" /></div>
 		</div>
 		<div class="form-group">
 			<label class="control-label col-lg-3" for="sb_mail_port">{l s='Port' mod='salisbergnotify'}</label>

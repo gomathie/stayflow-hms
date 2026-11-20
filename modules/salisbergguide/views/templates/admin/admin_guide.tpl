@@ -240,7 +240,7 @@
 	<section id="sb-a10">
 		<h3>10. {l s='Email and text messages' mod='salisbergguide'}</h3>
 		{if $sb_is_admin}
-		<p>{l s='Booking confirmations and password resets are sent by email. Enter the mail server in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Integrations</span>, {l s='under Email (mail server): server, port, encryption, user name, password and the address to send from. Save, then use Send test email to check it reaches an inbox. For Zoho Mail: smtp.zoho.com, port 587, TLS.' mod='salisbergguide'}</p>
+		<p>{l s='Booking confirmations and password resets are sent by email. Enter the mail server in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Integrations</span>, {l s='under Email (mail server): server, port, encryption, user name, password and the address to send from. Any provider that offers SMTP works. Save, then use Send test email to check it reaches an inbox.' mod='salisbergguide'}</p>
 		<p>{l s='That one setting is used for every email the system sends: booking confirmations, payment and status notices, password resets, Contact form notices and replies written in Inbox. There is no second mail server or mailbox to configure anywhere else.' mod='salisbergguide'}</p>
 		<p>{l s='A guest recorded at the desk without an email address is stored with a placeholder ending in guest.invalid. Nothing is ever sent to those addresses.' mod='salisbergguide'}</p>
 		<h4>{l s='What a guest is sent' mod='salisbergguide'}</h4>

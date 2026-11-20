@@ -21,6 +21,9 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Fixed
 
+- **Searching on a phone.** In the search pop-up the guest picker opened over the Search Rooms button and was cut off, so a tap on Search Rooms did nothing. The picker now sits in the form and pushes the button down.
+- **"Add to home screen" bar on the website** covered the bottom of the checkout form on phones. It now shows on the homepage only.
+
 - **Marking a booking paid with several invoices.** The payment name was read from the payment module on the first invoice and then from text on the next, which could fail. The name is now taken once, and falls back to the name saved on the booking if its payment module has been removed.
 
 - **Light/dark switch on a phone.** The sun and moon were stacked on top of each other, because the switch relied on a top-bar rule that the phone layout replaces. It now lays itself out; the black ring left after tapping it is gone (kept for keyboard use).
@@ -48,6 +51,8 @@ Every change to Salisberg, newest first, in plain words.
 - **Data clean-up** (Advanced Parameters, SuperAdmin only, module `salisbergcleanup`). Remove old unfinished drafts, abandoned carts, logs, closed Inbox conversations and guests with no bookings, by age: it shows how many and a few examples first, and removes only after you type that number. Drafts and carts older than 30 days and logs older than 90 days are cleaned automatically once a day. Paid bookings and invoices are kept 6 years; deleted bookings stay in the recycle bin. Each run is logged.
 
 ### Changed
+
+- **Saved guest names tidied, once.** Names saved in all small or all capital letters now read like "Ama Mensah", as new names already did. Mixed-case names are unchanged; names that are only a title (Mr, Mrs) are counted in the deploy log for the desk to correct.
 
 - **Menu.** Recycle bin and Statuses moved from Bookings, and Positions from Modules and Services, to the end of Administration. Who may open each page is unchanged.
 - **No more overrides (O1–O7).** The seven files in `override/` were moved into the classes they changed (bookings form redirect, no mail to placeholder addresses, Dashboard period, vendor name in text, Excel import, Contact form checks); the unused find-or-create-guest endpoint was deleted instead. Nothing looks or works differently. The smoke test now fails if a PHP override appears again.
