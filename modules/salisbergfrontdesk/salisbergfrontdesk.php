@@ -48,6 +48,8 @@ class Salisbergfrontdesk extends Module
     const TAB_HOUSEKEEPING = 'AdminSalisbergHousekeeping';
     const TAB_RECYCLE_BIN = 'AdminSalisbergRecycleBin';
     const TAB_PARENT = 'AdminParentOrders';
+    /** The recycle bin sits under Administration (owner, 2026-11-20) */
+    const TAB_RECYCLE_PARENT = 'AdminAdmin';
 
     const ROOM_CLEAN = 1;
     const ROOM_DIRTY = 2;
@@ -133,7 +135,7 @@ class Salisbergfrontdesk extends Module
             $tab = new Tab();
             $tab->class_name = self::TAB_RECYCLE_BIN;
             $tab->module = $this->name;
-            $tab->id_parent = (int) Tab::getIdFromClassName(self::TAB_PARENT);
+            $tab->id_parent = (int) Tab::getIdFromClassName(self::TAB_RECYCLE_PARENT);
             $tab->active = 1;
             foreach (Language::getLanguages(false) as $language) {
                 $tab->name[(int) $language['id_lang']] = $this->l('Recycle bin');

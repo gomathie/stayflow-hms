@@ -206,6 +206,7 @@ class Salisbergguide extends Module
             && $this->renameMenuEntries()
             && $this->orderMenus()
             && $this->deskOnlyStaffMenu()
+            && $this->moveToAdministration()
             && $this->hideUnusedMenus()
             && $this->removeMenus()
             && $this->registerHook('header')
@@ -367,6 +368,48 @@ class Salisbergguide extends Module
         }
 
         return Configuration::updateValue('SBGUIDE_STAFF_DESK_MENU', 1);
+    }
+
+    /**
+     * Owner, 2026-11-20: Recycle bin and Statuses leave Bookings, and Positions
+     * leaves Modules and Services; all three go to the end of Administration.
+     * An entry is moved only while it is still in its original section, and
+     * once (SBGUIDE_ADMIN_MOVES), so a menu moved later by hand is kept.
+     * Permissions are per page, not per section, so nobody gains or loses access.
+     */
+    protected function moveToAdministration()
+    {
+        if (Configuration::get('SBGUIDE_ADMIN_MOVES')) {
+            return true;
+        }
+        $db = Db::getInstance();
+        $idAdmin = (int) Tab::getIdFromClassName('AdminAdmin');
+        if (!$idAdmin) {
+            return false;
+        }
+        $moves = array(
+            'AdminSalisbergRecycleBin' => 'AdminParentOrders',
+            'AdminStatuses' => 'AdminParentOrders',
+            'AdminModulesPositions' => 'AdminParentModules',
+        );
+        $moved = array();
+        foreach ($moves as $className => $fromClass) {
+            $idTab = (int) Tab::getIdFromClassName($className);
+            $idFrom = (int) Tab::getIdFromClassName($fromClass);
+            if (!$idTab || !$idFrom
+                || (int) $db->getValue('SELECT `id_parent` FROM `'._DB_PREFIX_.'tab` WHERE `id_tab` = '.$idTab) !== $idFrom
+            ) {
+                continue;
+            }
+            $last = (int) $db->getValue('SELECT MAX(`position`) FROM `'._DB_PREFIX_.'tab` WHERE `id_parent` = '.$idAdmin);
+            $db->update('tab', array('id_parent' => $idAdmin, 'position' => $last + 1), 'id_tab = '.$idTab);
+            $moved[] = $className;
+        }
+        if ($moved) {
+            PrestaShopLogger::addLog('salisbergguide: moved under Administration: '.implode(', ', $moved), 1);
+        }
+
+        return Configuration::updateValue('SBGUIDE_ADMIN_MOVES', 1);
     }
 
     /**

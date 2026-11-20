@@ -34,6 +34,9 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **Menu.** Recycle bin and Statuses moved from Bookings, and Positions from Modules and Services, to the end of Administration. Who may open each page is unchanged.
+- **No more overrides (O1–O7).** The seven files in `override/` were moved into the classes they changed (bookings form redirect, no mail to placeholder addresses, Dashboard period, vendor name in text, Excel import, Contact form checks); the unused find-or-create-guest endpoint was deleted instead. Nothing looks or works differently. The smoke test now fails if a PHP override appears again.
+
 - **New booking on a phone (P-19).** Arrival and Departure side by side, Nights, Adults and Children on one row, and the rooms listed before the Selected room panel (the Book now bar stays at the bottom). The first room now shows about half as far down.
 - **More lists as phone cards (P-20).** Room types, Hotel Details and Employees show one short card per row on a phone, like Bookings and Customers. Tap a card to open it.
 - **Reports on a phone (P-21).** Each row of a report is a small card with every value labelled, instead of a table cut off at the edge.

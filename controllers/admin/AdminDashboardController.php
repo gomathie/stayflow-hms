@@ -158,8 +158,41 @@ class AdminDashboardControllerCore extends AdminController
         return $forms;
     }
 
+    /**
+     * Keeps the dashboard charts on a period that includes today, unless the
+     * employee chose Day-1, Month-1 or Year-1. A saved range such as last
+     * September would otherwise stay on screen, because the daily reset below
+     * only runs when this browser has not opened the dashboard yet today. The
+     * desk lists always use the calendar day and are not affected.
+     */
+    protected function keepChartsOnAUsefulPeriod()
+    {
+        $employee = $this->context->employee;
+        if (!$employee || !(int) $employee->id) {
+            return;
+        }
+        $preselect = (string) $employee->preselect_date_range;
+        if (in_array($preselect, array('prev-day', 'prev-month', 'prev-year'), true)) {
+            return;
+        }
+        $today = date('Y-m-d');
+        $from = (string) $employee->stats_date_from;
+        $to = (string) $employee->stats_date_to;
+        if ($from !== '' && $to !== '' && $from <= $today && $to >= $today) {
+            return;
+        }
+        $employee->stats_date_from = $today;
+        $employee->stats_date_to = $today;
+        $employee->preselect_date_range = 'day';
+        $employee->update();
+        $this->context->cookie->stats_date_update = strtotime($today);
+        $this->context->cookie->write();
+    }
+
     public function renderView()
     {
+        $this->keepChartsOnAUsefulPeriod();
+
         if (Tools::isSubmit('profitability_conf')) {
             return parent::renderOptions();
         }

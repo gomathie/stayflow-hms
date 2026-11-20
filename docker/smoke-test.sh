@@ -118,6 +118,14 @@ if [ "$BASE" != "${BASE#http://localhost}" ] && command -v docker >/dev/null 2>&
         bad "getRow()/getValue() called with a query that already has LIMIT (it becomes LIMIT 1 LIMIT 1):"
         printf '%s\n' "$limit_hits" | sed 's/^/          /'
     fi
+    # Rule 11: override/ is not used. A change to an inherited class is made in
+    # that class, so a PHP file appearing under override/ is a mistake.
+    echo "Overrides"
+    override_hits=$(docker compose exec -T app sh -c 'find /var/www/html/override -name "*.php" ! -name index.php' 2>/dev/null | sed 's#/var/www/html/##' || true)
+    if [ -z "$override_hits" ]; then ok "no PHP file under override/"; else
+        bad "override/ is not used (rule 11); move these into the class they change:"
+        printf '%s\n' "$override_hits" | sed 's/^/          /'
+    fi
     # An unescaped apostrophe inside {l s='...'} ends the string early; the whole
     # page then fails with an error 500 (the Admin Guide did, live, 2026-11-20).
     echo "Translation strings broken by an apostrophe"

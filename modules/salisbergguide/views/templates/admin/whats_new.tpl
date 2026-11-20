@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='20 November 2026' mod='salisbergguide'}</h3>
 		<ul>
+			{if $sb_can_read_admin_guide}<li><strong>{l s='Recycle bin, Statuses and Positions moved.' mod='salisbergguide'}</strong> {l s='They are now at the end of Administration (under System in the menu). Recycle bin and Statuses were under Bookings, Positions under Modules and Services. Who may open them is unchanged.' mod='salisbergguide'}</li>{/if}
 			{if $sb_is_admin}<li><strong>{l s='Data clean-up.' mod='salisbergguide'}</strong> {l s='Advanced Parameters, Data clean-up removes old drafts, carts, logs, closed messages and guests with no bookings, after showing how many and asking you to type that number. Drafts and carts older than 30 days and logs older than 90 are cleaned automatically once a day. Paid bookings are kept for 6 years. The old Data Cleaner with its delete-everything buttons is gone.' mod='salisbergguide'}</li>{/if}
 			<li><strong>{l s='New booking and lists on a phone.' mod='salisbergguide'}</strong> {l s='New booking shows the dates side by side and the rooms straight under the form. Room types, Hotel Details, Employees and Reports show one short card per row.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Easier on a phone.' mod='salisbergguide'}</strong> {l s='Housekeeping shows one short card per room with both buttons in one row. After Not now, the phone number box waits until the next day. The add to home screen bar shows on the Dashboard only, and Close hides it for 30 days.' mod='salisbergguide'}</li>

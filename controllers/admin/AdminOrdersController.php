@@ -240,6 +240,18 @@ class AdminOrdersControllerCore extends AdminController
         return Tools::displayPrice($echo, (int)$idCurrency);
     }
 
+    /**
+     * The old cart form is no longer a way to make a booking: New booking (the
+     * Room board and its guided steps) is. Existing bookings still open here.
+     */
+    public function init()
+    {
+        parent::init();
+        if (Tools::isSubmit('addorder') || Tools::isSubmit('submitAddOrder')) {
+            Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergRoomBoard'));
+        }
+    }
+
     public function initPageHeaderToolbar()
     {
         if (empty($this->display)) {

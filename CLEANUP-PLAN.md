@@ -124,6 +124,8 @@ Module templates overridden from the theme (`themes/hotel-reservation-theme/modu
 
 ## Progress
 
+- **Overrides O1–O7: done 2026-11-20.** O1–O5 and O7 moved into their classes; O6 (`findOrCreateGuest`) deleted as dead code: its only caller is the old order form, which O1 always redirects. The guest box in `admin/themes/default/template/controllers/orders/form.tpl` is unreachable for the same reason and is a candidate for the next clean-up. `docker/smoke-test.sh` fails on any PHP file under `override/`. Theme module templates (`themes/hotel-reservation-theme/modules/…`) still to be listed.
+
 | Step | Status |
 |---|---|
 | 0. Booking codes | Live: pushed to production 2026-11-19 |

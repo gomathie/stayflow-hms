@@ -30,11 +30,126 @@ class ContactControllerCore extends FrontController
     public $ssl = true;
 
     /**
+     * Checks the contact form before the code below stores it. Returns false
+     * when the message must not be saved; the reason is in $this->errors.
+     *
+     *  - With "Allow file uploading" off (Inbox settings), a file sent to the
+     *    form directly is dropped, not only hidden on the page.
+     *  - A value sent as a list (message[]=x) is emptied and refused.
+     *  - Each field must have the shape the form can produce (a second line
+     *    of defence: the code below already uses pSQL() and casts).
+     *  - Links are refused and markup stripped, so staff are never one click
+     *    from an address a stranger typed (Validate::containsLink()).
+     *  - The form has no Title or Send To: the title is the start of the
+     *    message, and it goes to the customer service contact.
+     */
+    protected function checkContactForm()
+    {
+        if (!Configuration::get('PS_CUSTOMER_SERVICE_FILE_UPLOAD')) {
+            unset($_FILES['fileUpload']);
+        }
+
+        // A form value sent as a list (message[]=x) would stop the page with an
+        // error; the form only ever sends text, so such values are emptied.
+        foreach (array('message', 'user_name', 'phone', 'subject', 'from', 'token', 'contactKey', 'id_contact', 'id_product', 'id_order', 'url') as $field) {
+            if (isset($_POST[$field]) && !is_string($_POST[$field])) {
+                $_POST[$field] = '';
+                $listSent = true;
+            }
+            if (isset($_GET[$field]) && !is_string($_GET[$field])) {
+                $_GET[$field] = '';
+                $listSent = true;
+            }
+        }
+
+        if (Tools::isSubmit('submitMessage')) {
+            if (!empty($listSent)) {
+                $this->errors[] = Tools::displayError('Some of the details sent are not valid. Please check the form and try again.');
+
+                return false;
+            }
+
+            // Every value reaches the database through pSQL() or a cast in the
+            // stock code. This is a second line of defence: each field must
+            // have the shape the form can produce, so nothing else is passed on.
+            $shapes = array(
+                'token' => '/^[A-Za-z0-9]{0,64}$/',
+                'contactKey' => '/^[A-Za-z0-9]{0,64}$/',
+                'id_contact' => '/^[0-9]{0,10}$/',
+                'id_product' => '/^[0-9]{0,10}$/',
+                'id_order' => '/^[#A-Za-z0-9_\-]{0,64}$/',
+                'from' => '/^[^\x00-\x1F\'"`;\\\\<>]{0,254}$/',
+            );
+            $badShape = false;
+            foreach (array('message', 'user_name', 'phone', 'subject', 'from', 'token', 'contactKey', 'id_contact', 'id_product', 'id_order', 'url') as $field) {
+                if (!isset($_POST[$field])) {
+                    continue;
+                }
+                if (!is_string($_POST[$field])
+                    || (isset($shapes[$field]) && !preg_match($shapes[$field], $_POST[$field]))
+                ) {
+                    $badShape = true;
+                }
+            }
+            if ($badShape) {
+                $this->errors[] = Tools::displayError('Some of the details sent are not valid. Please check the form and try again.');
+
+                return false;
+            }
+
+            // Links are refused: staff read these messages and should never be
+            // one click from an address a stranger typed. Markup is stripped
+            // first so a link cannot hide inside a tag.
+            $linkFound = false;
+            foreach (array('message', 'user_name', 'phone', 'subject') as $field) {
+                if (isset($_POST[$field]) && is_string($_POST[$field])) {
+                    $_POST[$field] = strip_tags($_POST[$field]);
+                    if (Validate::containsLink($_POST[$field])) {
+                        $linkFound = true;
+                    }
+                }
+            }
+            if ($linkFound) {
+                $this->errors[] = Tools::displayError('Links cannot be sent through this form. Please remove the web address and send your message again.');
+
+                return false;
+            }
+
+            // The form has no Title or Send To field: the title is the start of
+            // the message, and the message goes to the shop's customer service
+            // contact (or the first contact), which staff read under
+            // Customers > Customer Service.
+            if (!trim((string) Tools::getValue('subject'))) {
+                $text = trim(preg_replace('/\s+/', ' ', strip_tags((string) Tools::getValue('message'))));
+                $title = Tools::substr($text, 0, 70);
+                if (Tools::strlen($text) > 70) {
+                    // end on a whole word
+                    $title = preg_replace('/\s+\S*$/u', '', $title).'...';
+                }
+                $_POST['subject'] = $title;
+            }
+            if (!(int) Configuration::get('PS_CUSTOMER_SERVICE_DISPLAY_CONTACT')
+                && !Validate::isLoadedObject(new Contact((int) Configuration::get('PS_CUSTOMER_SERVICE_CONTACT')))
+            ) {
+                $contacts = Contact::getContacts($this->context->language->id);
+                if ($contacts) {
+                    Configuration::updateValue('PS_CUSTOMER_SERVICE_CONTACT', (int) $contacts[0]['id_contact']);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
     * Start forms process
     * @see FrontController::postProcess()
     */
     public function postProcess()
     {
+        if (!$this->checkContactForm()) {
+            return;
+        }
         if (Tools::isSubmit('submitMessage')) {
             $saveContactKey = $this->context->cookie->contactFormKey;
             $extension = array('.txt', '.rtf', '.doc', '.docx', '.pdf', '.zip', '.png', '.jpeg', '.gif', '.jpg');
