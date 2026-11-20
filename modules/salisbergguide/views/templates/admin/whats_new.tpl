@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='20 November 2026' mod='salisbergguide'}</h3>
 		<ul>
+			<li><strong>{l s='New booking and lists on a phone.' mod='salisbergguide'}</strong> {l s='New booking shows the dates side by side and the rooms straight under the form. Room types, Hotel Details, Employees and Reports show one short card per row.' mod='salisbergguide'}</li>
 			<li><strong>{l s='Easier on a phone.' mod='salisbergguide'}</strong> {l s='Housekeeping shows one short card per room with both buttons in one row. After Not now, the phone number box waits until the next day. The add to home screen bar shows on the Dashboard only, and Close hides it for 30 days.' mod='salisbergguide'}</li>
 			{if $sb_can_read_admin_guide}<li><strong>{l s='Dashboard on a phone.' mod='salisbergguide'}</strong> {l s='The period buttons fit on one row, Performance starts folded (tap its heading), and the Rooms free chart no longer draws its line on the top edge.' mod='salisbergguide'}</li>{/if}
 			{if $sb_is_admin}<li><strong>{l s='Test accounts hidden.' mod='salisbergguide'}</strong> {l s='An employee form has a Test account switch. Yes hides that login from everyone who is not a SuperAdmin, the same way SuperAdmin accounts are hidden.' mod='salisbergguide'}</li>{/if}

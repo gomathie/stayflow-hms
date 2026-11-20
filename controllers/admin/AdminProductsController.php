@@ -2607,7 +2607,7 @@ class AdminProductsControllerCore extends AdminController
 
         parent::initContent();
     }
-
+
 
     /** A room type with no rooms cannot be booked: say so in the list */
     public function printRoomCount($count, $row)
@@ -2627,6 +2627,8 @@ class AdminProductsControllerCore extends AdminController
         $this->addRowAction('delete');
 
         $this->tpl_list_vars['title'] = $this->l('Room Types');
+        // P-20: compact cards on phones; tap a card to open the room type
+        $this->context->smarty->assign('sb_phone_cards', true);
 
         // A room type guests can see but that has no room to give them is
         // shown as sold out on the website for every date

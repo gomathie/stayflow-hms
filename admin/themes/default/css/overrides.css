@@ -1378,6 +1378,18 @@ html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard .fc-scrollgrid 
   #content.bootstrap .sb-cards td.sb-col-last_stay::before { content: "Last stay: "; }
   #content.bootstrap .sb-cards td.sb-col-room_numbers::before { content: "Room "; }
   #content.bootstrap .sb-cards td:is(.sb-col-osname, .sb-col-status) { display: block; order: 4; flex-basis: 100%; margin-top: 6px; }
+  /* Room types, hotels, employees (P-20): the name first, the price on the right */
+  #content.bootstrap .sb-cards td:is(.sb-col-name, .sb-col-hotel_name) { display: block; order: 1; flex: 1 1 55%; min-width: 0; font-weight: 600; color: var(--sb-ink); }
+  #content.bootstrap .sb-cards td:is(.sb-col-firstname, .sb-col-lastname) { display: block; order: 1; font-weight: 600; color: var(--sb-ink); }
+  #content.bootstrap .sb-cards td.sb-col-price_final { display: block; order: 2; margin-left: auto; text-align: right; font-weight: 600; }
+  #content.bootstrap .sb-cards td:is(.sb-col-num_rooms, .sb-col-max_guests, .sb-col-city, .sb-col-profile) { display: block; order: 3; color: var(--sb-muted); font-size: 12.5px; }
+  #content.bootstrap .sb-cards td.sb-col-num_rooms::before { content: "Rooms: "; }
+  #content.bootstrap .sb-cards td.sb-col-max_guests::before { content: "Up to "; }
+  #content.bootstrap .sb-cards td.sb-col-max_guests::after { content: " guests"; }
+  /* optional columns are shown by the list script with an inline style, which only !important beats */
+  #content.bootstrap .sb-cards td.field_optional:is(.sb-col-show_at_front, .sb-col-advance_payment, .sb-col-hotel_name) { display: none !important; }
+  #content.bootstrap .sb-cards td.sb-col-active { display: block; order: 4; flex-basis: 100%; margin-top: 4px; text-align: left !important; }
+  #content.bootstrap .sb-cards td.sb-col-active::before { content: "Active: "; color: var(--sb-muted); font-size: 12.5px; }
   /* Invoices: keep the PDF button on the card */
   #content.bootstrap .sb-cards-invoices td.sb-col-pdf { display: block; order: 5; flex-basis: 100%; margin-top: 6px; text-align: left !important; }
 }

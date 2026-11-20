@@ -211,6 +211,8 @@ class AdminEmployeesControllerCore extends AdminController
             }
         }
         $this->_use_found_rows = false;
+        // P-20: compact cards on phones; tap a card to open the employee
+        $this->context->smarty->assign('sb_phone_cards', true);
 
         return parent::renderList();
     }

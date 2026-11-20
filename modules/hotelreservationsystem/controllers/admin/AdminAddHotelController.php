@@ -102,6 +102,8 @@ class AdminAddHotelController extends ModuleAdminController
     {
         $this->addRowAction('edit');
         $this->addRowAction('delete');
+        // P-20: compact cards on phones; tap a card to open the hotel
+        $this->context->smarty->assign('sb_phone_cards', true);
 
         $this->_new_list_header_design = true;
 

@@ -276,7 +276,13 @@
 }
 
 @media (max-width: 767px) {
-    .sb-board-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* P-19: dates side by side, the three numbers on one row, rooms before the selected-room panel */
+    .sb-board-filters { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px 10px; padding: 12px; }
+    .sb-board-filters > .sb-filter-field:nth-child(-n+2) { grid-column: span 3; }
+    .sb-board-filters > .sb-filter-field:nth-child(n+3) { grid-column: span 2; }
+    #content.bootstrap .sb-board-filters input { min-width: 0; padding-left: 8px; padding-right: 8px; }
+    .sb-board-layout > .sb-room-groups { order: 1; }
+    .sb-board-layout > :not(.sb-room-groups) { order: 2; }
     .sb-update-board { grid-column: 1 / -1; }
     .sb-room-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .sb-form-grid { grid-template-columns: 1fr; }
@@ -320,7 +326,6 @@
 }
 
 @media (max-width: 479px) {
-    .sb-board-filters,
     .sb-room-grid { grid-template-columns: 1fr; }
     .sb-fd-links { width: 100%; }
     .sb-fd-links .btn { flex: 1; }

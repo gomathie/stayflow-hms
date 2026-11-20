@@ -69,7 +69,7 @@ class AdminSalisbergReportsController extends ModuleAdminController
             'sb_token' => Tools::getAdminTokenLite('AdminSalisbergReports'),
             'sb_pdf_link' => $self.'&sb_pdf=1&sb_report='.urlencode($type).'&sb_period=custom&sb_from='.urlencode($from).'&sb_to='.urlencode($to),
             'sb_report' => $this->module->buildReport($type, $from, $to),
-            'sb_css' => $this->module->getPathUri().'views/css/reports.css',
+            'sb_css' => $this->module->getPathUri().'views/css/reports.css?v=2',
         ));
         $this->content .= $this->context->smarty->fetch($this->module->getLocalPath().'views/templates/admin/reports.tpl');
         $this->context->smarty->assign('content', $this->content);

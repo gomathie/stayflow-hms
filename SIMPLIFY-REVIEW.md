@@ -372,17 +372,17 @@ Read-only check at 390px wide as Hotel Staff, Hotel Manager and SuperAdmin, plus
 - **Proposal:** one compact card per room: room number and status chip on the first line, guest on the second, the two buttons in one row. Optionally a "Dirty first" order.
 - **Benefit:** about a quarter of the length; housekeepers find dirty rooms quickly. **Risk:** low, display only. **Undo:** remove the phone CSS block.
 
-### P-19 New booking on a phone — Proposed
+### P-19 New booking on a phone — Done 2026-11-20 (the phone keeps its own date format)
 - **Problem:** the date and guest form takes a full screen (five fields stacked), and the Selected room panel sits above the room list, so the first room appears about 1,400px down. Dates show as 11/20/2026 (the phone's own format).
 - **Proposal:** Arrival and Departure side by side, Adults and Children side by side, Nights shown as text; on a phone, the room list first and the selected room as the existing fixed Book now bar.
 - **Benefit:** rooms visible on the first screen. **Risk:** low. **Undo:** CSS only.
 
-### P-20 Room types and Hotel Details lists on a phone — Proposed
+### P-20 Room types and Hotel Details lists on a phone — Done 2026-11-20 (Employees too)
 - **Problem:** Manage Room Types and Hotel Details lists collapse badly: rows overlap, the action buttons sit on top of the list. Employees has columns past the edge.
 - **Proposal:** give them the phone cards already used by Bookings, Customers and Invoices (P-14).
 - **Benefit:** usable on a phone. **Risk:** low. **Undo:** remove `sb_phone_cards` from those controllers.
 
-### P-21 Reports tables on a phone — Proposed
+### P-21 Reports tables on a phone — Done 2026-11-20 (cards with labelled values)
 - **Problem:** the Arrivals and departures tables are wider than the screen and are cut off ("Nothing in this perio…").
 - **Proposal:** the same phone cards, or a sideways scroll inside the table.
 - **Risk:** low. **Undo:** CSS only.

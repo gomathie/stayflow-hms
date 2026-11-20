@@ -29,6 +29,11 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Changed
 
+- **New booking on a phone (P-19).** Arrival and Departure side by side, Nights, Adults and Children on one row, and the rooms listed before the Selected room panel (the Book now bar stays at the bottom). The first room now shows about half as far down.
+- **More lists as phone cards (P-20).** Room types, Hotel Details and Employees show one short card per row on a phone, like Bookings and Customers. Tap a card to open it.
+- **Reports on a phone (P-21).** Each row of a report is a small card with every value labelled, instead of a table cut off at the edge.
+
+
 - **Housekeeping on a phone (P-18).** One short card per room: number and status, type, guest, and the two buttons in one row. About a third of the length it was.
 - **Fewer interruptions on a phone (P-22).** After "Not now" the phone-number box stays away until the next day (it was back on the next browser session). The "add to home screen" bar shows on the Dashboard only, and Close hides it for 30 days.
 - **Dashboard on a phone (P-23).** The period buttons sit in one row that scrolls sideways; the Performance figures start folded (tap the heading to open).

@@ -20,3 +20,18 @@
 .sb-report-scroll { max-width: 100%; overflow-x: auto; }
 .sb-report-scroll .table { margin: 0; }
 .sb-report-empty { padding: 26px 10px !important; text-align: center; color: var(--sb-muted); }
+
+/* On a phone each row is a small card, every value labelled with its column (P-21) */
+@media (max-width: 767px) {
+    #content.bootstrap .sb-report-scroll { overflow: visible; }
+    #content.bootstrap .sb-report-scroll table,
+    #content.bootstrap .sb-report-scroll tbody,
+    #content.bootstrap .sb-report-scroll tr { display: block; width: 100%; }
+    #content.bootstrap .sb-report-scroll thead { display: none; }
+    #content.bootstrap .sb-report-scroll tbody tr { margin: 0 0 8px; padding: 8px 12px; border: 1px solid var(--sb-line); border-radius: 10px; background: var(--sb-card); }
+    #content.bootstrap .sb-report-scroll tbody td { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; border: 0; text-align: right; }
+    #content.bootstrap .sb-report-scroll tbody td::before { content: attr(data-label); color: var(--sb-muted); text-align: left; }
+    #content.bootstrap .sb-report-scroll tbody td.sb-report-empty { display: block; text-align: left; }
+    #content.bootstrap .sb-report-scroll tbody td.sb-report-empty::before { content: none; }
+    #content.bootstrap .sb-report-scroll tbody tr:has(.sb-report-empty) { border: 0; padding: 0; background: transparent; }
+}
