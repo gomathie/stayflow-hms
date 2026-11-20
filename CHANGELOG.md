@@ -16,6 +16,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Fixed
 
+- **Phone menu button.** It showed a row of vertical bars (a text-align icon turned on its side); it is now the usual three-line menu icon.
+
 - **Rooms free chart.** The scale ended exactly at the highest value, so a flat line (every room free) sat on the top edge with no label above it. The scale now ends at the next round number above.
 - **Admin Guide error 500 on the live site.** An apostrophe in a sentence about booking alerts cut a translation string short, so the whole Admin Guide failed to open for managers and the developer team. The sentence was reworded, and the smoke test now looks for this mistake in every Salisberg template.
 - **Title-only names on the website.** The sign-up form and My personal information now refuse a name that is only a title (Mr, Mrs), as the back office already did.
@@ -24,6 +26,8 @@ Every change to Salisberg, newest first, in plain words.
 - **What's New page and sign-in pop-up.** A missing closing tag on the 19 November Occupancy line stopped the What's New page and the pop-up from drawing.
 
 ### Security
+
+- **No SQL on list pages.** Every back office list had a ">_" button that showed the database query behind the list and a button that sent it to SQL Manager; the query was also written into the page source. Both buttons and the hidden query are removed for everyone. The developer team still has Advanced Parameters, SQL Manager.
 
 - **Test accounts can be hidden.** A SuperAdmin can set Test account to Yes on an employee form; that login is then hidden from everyone who is not a SuperAdmin (left out of Employees, cannot be opened, edited, disabled or deleted by them), using the same check that hides SuperAdmin accounts.
 - **Web addresses refused in every guest field.** Guest names, addresses, the city and the message added to a booking now refuse web addresses, using the same check as the Contact form (now one shared rule in `Validate::containsLink`). A scan of the live site found no links or code stored in guests, addresses, messages or bookings.

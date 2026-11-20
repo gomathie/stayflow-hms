@@ -223,7 +223,7 @@ $(document).ready(function() {
 		$('span.menu-collapse').off();
 		navigation.on('click.collapse','span.menu-collapse',function(){
 			if ($(this).hasClass('expanded')){
-				$(this).html('<i class="icon-align-justify"></i>');
+				$(this).html('<i class="icon-reorder"></i>');
 				navigation.find('ul.menu').hide();
 				navigation.removeClass('expanded');
 				$(this).removeClass('expanded');
@@ -260,7 +260,7 @@ $(document).ready(function() {
 	function removeMobileNav(){
 		var navigation = $('#nav-mobile');
 		$('#nav-mobile-submenu').remove();
-		$('span.menu-collapse').html('<i class="icon-align-justify"></i>');
+		$('span.menu-collapse').html('<i class="icon-reorder"></i>');
 		navigation.off();
 		if ($('body').hasClass('page-sidebar')){
 			navigation.attr('id',"nav-sidebar");

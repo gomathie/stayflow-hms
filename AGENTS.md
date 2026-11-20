@@ -2691,3 +2691,15 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
 - **Menu (owner):** `Salisbergguide::moveToAdministration()`, once (`SBGUIDE_ADMIN_MOVES`), moves `AdminSalisbergRecycleBin` and `AdminStatuses` from Bookings and `AdminModulesPositions` from Modules and Services to the end of Administration, each only while still in its original section; logged. New installs create the Recycle bin under Administration (`Salisbergfrontdesk::TAB_RECYCLE_PARENT`). `MODULES_VERSION=36`. Admin Guide paths and What's New updated.
 - **Verification (local):** the class index rebuilt with the core classes (`get_parent_class('Mail')` is `MailCore`). O1: `AdminOrders&addorder` lands on the Room board. O2: a send to a placeholder returns true without sending. O3: a saved September range was reset to today on sign-in. O4: "QloApps version:" reads "Salisberg version:" in admin, module and PDF text; "qloapps.com/addons" is kept. O5: the sample `hotels_import.xlsx` became a semicolon CSV named `.csv`; a `.csv` name is refused. O7 (the attack tests of 2026-10-13): an `http://` and a `www.` link refused, a list value and a quote in the token refused, a plain message stored (thread 6) with its generated title. Menu: the three entries are under Administration at positions 7–9 and the move was logged. Smoke test 33 of 33, including the new override check.
 - **Not tested:** the Excel upload through the browser (the conversion was run directly); the live server.
+
+### 2026-11-20 — List SQL buttons removed; phone menu icon
+
+- **Owner report (phone and desktop):** the list toolbar's ">_" button showed the full SQL query behind the list, and the database button exported it to SQL Manager.
+  - The buttons showed for any profile with view on SQL Manager, and the query was always in a hidden form field in the page source.
+  - Removed for everyone (rule 28): the two buttons and the hidden `sql_form_*` in `admin/themes/default/template/helpers/list/list_header.tpl`, the `sql` value in `HelperList::displayListHeader()` (`classes/helper/HelperList.php`), and `createSqlQueryName()` in `js/admin.js` (its only caller was that button). Searched all templates and scripts: no other copy.
+  - The developer team keeps Advanced Parameters › SQL Manager.
+- **Phone menu button:**
+  - `admin/themes/default/template/nav.tpl` used `icon-align-justify icon-rotate-90`, which drew vertical bars.
+  - The template and the two places in `admin/themes/default/js/admin-theme.js` that redraw it after closing the menu now use `icon-reorder` (≡).
+- **Verification (local, 390px, administrator):** the button shows ≡, opens the menu (icon becomes ×) and closes it (≡ again). The Bookings toolbar has 3 buttons and no SQL button or hidden query. No script errors. Smoke test passes.
+- **Not tested:** other list pages one by one (they share the one template); the live server.
