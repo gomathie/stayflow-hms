@@ -21,9 +21,16 @@
         return isDesk() ? 'sb-pwa-dismiss-desk' : 'sb-pwa-dismiss';
     }
 
+    // Close hides the bar for 30 days on this browser (P-22).
+    var REST = 30 * 24 * 3600 * 1000;
+
     function dismissed() {
         try {
-            return localStorage.getItem(storageKey()) === '1';
+            if (localStorage.getItem(storageKey()) === '1') {
+                rememberDismiss(); // closed before the 30-day rule: count from now
+            }
+            var at = parseInt(localStorage.getItem(storageKey()), 10);
+            return at > 1 && Date.now() - at < REST;
         } catch (e) {
             return false;
         }
@@ -31,8 +38,13 @@
 
     function rememberDismiss() {
         try {
-            localStorage.setItem(storageKey(), '1');
+            localStorage.setItem(storageKey(), String(Date.now()));
         } catch (e) {}
+    }
+
+    // In the back office the bar is offered on the Dashboard only, not on every page.
+    function rightPage() {
+        return !isDesk() || /[?&]controller=AdminDashboard\b/.test(window.location.search);
     }
 
     function bar() {
@@ -66,11 +78,11 @@
     }
 
     function show(mode) {
-        if (dismissed()) {
-            return;
-        }
         if (!document.body) {
             document.addEventListener('DOMContentLoaded', function () { show(mode); });
+            return;
+        }
+        if (dismissed() || !rightPage()) {
             return;
         }
         var node = bar();

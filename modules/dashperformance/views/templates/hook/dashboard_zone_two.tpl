@@ -117,3 +117,16 @@
 	</section>
 </div>
 <div class="clearfix"></div>
+<script type="text/javascript">
+	// On a phone the Performance figures start folded; tap the heading to open them (P-23).
+	$(function () {
+		var panel = $('#dashperformance');
+		if (window.innerWidth < 768) {
+			panel.addClass('sb-folded');
+		}
+		panel.find('> header').css('cursor', 'pointer').on('click', function (e) {
+			if ($(e.target).closest('a').length) { return; }
+			panel.toggleClass('sb-folded');
+		});
+	});
+</script>

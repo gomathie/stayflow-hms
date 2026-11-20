@@ -1,15 +1,16 @@
 /**
- * Shows a one-time prompt in the back office asking anyone with no phone saved
- * to add it. It is the same number as Phone (for texts) on their employee form. Dismissing it, or saving a
- * number, stops it coming back for the rest of the browser session.
+ * Asks anyone in the back office with no phone saved to add it. It is the same
+ * number as Phone (for texts) on their employee form. "Not now" hides it on
+ * this browser until the next day (P-22); saving a number stops it for good.
  */
 (function () {
   'use strict';
   if (typeof sbNotifyPhone === 'undefined' || !sbNotifyPhone.url) { return; }
   var DISMISS = 'sbNotifyPhoneDismissed';
-  try { if (window.sessionStorage.getItem(DISMISS) === '1') { return; } } catch (e) {}
+  var today = new Date().toISOString().slice(0, 10);
+  try { if (window.localStorage.getItem(DISMISS) === today) { return; } } catch (e) {}
 
-  function dismiss() { try { window.sessionStorage.setItem(DISMISS, '1'); } catch (e) {} }
+  function dismiss() { try { window.localStorage.setItem(DISMISS, today); } catch (e) {} }
 
   function build() {
     var name = (sbNotifyPhone.name || '').toString();

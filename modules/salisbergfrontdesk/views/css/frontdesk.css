@@ -305,6 +305,18 @@
     .sb-desk-scroll td.sb-desk-act form,
     .sb-desk-scroll td.sb-desk-act .btn { display: flex; width: 100%; justify-content: center; }
     .sb-desk-scroll tr:has(.sb-desk-empty) { padding: 0; border: 0; background: transparent; }
+    /* Housekeeping (P-18): room and status, then type and guest, then the buttons in one row */
+    #content.bootstrap .sb-desk-scroll .sb-hk-table tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 8px 12px; margin-bottom: 8px; }
+    #content.bootstrap .sb-desk-scroll .sb-hk-table td { width: auto; padding: 0; border: 0; line-height: 1.4; }
+    .sb-desk-scroll .sb-hk-table .sb-hk-room { grid-column: 1; grid-row: 1; font-size: 15px; }
+    .sb-desk-scroll .sb-hk-table .sb-hk-state { grid-column: 2; grid-row: 1; text-align: right; }
+    .sb-desk-scroll .sb-hk-table .sb-hk-type { grid-column: 1 / -1; color: var(--sb-muted); font-size: 12px; }
+    .sb-desk-scroll .sb-hk-table .sb-hk-guest { grid-column: 1 / -1; }
+    .sb-desk-scroll .sb-hk-table .sb-hk-floor,
+    .sb-desk-scroll .sb-hk-table .sb-hk-changed { display: none; }
+    .sb-desk-scroll .sb-hk-table td.sb-desk-act { grid-column: 1 / -1; margin-top: 6px; }
+    .sb-desk-scroll .sb-hk-table td.sb-desk-act > * { display: flex; gap: 6px; }
+    .sb-desk-scroll .sb-hk-table td.sb-desk-act .btn { flex: 1 1 0; width: auto; padding: 5px 6px; font-size: 12px; }
 }
 
 @media (max-width: 479px) {

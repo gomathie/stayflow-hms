@@ -15,8 +15,8 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Fixed
 
+- **Rooms free chart.** The scale ended exactly at the highest value, so a flat line (every room free) sat on the top edge with no label above it. The scale now ends at the next round number above.
 - **Admin Guide error 500 on the live site.** An apostrophe in a sentence about booking alerts cut a translation string short, so the whole Admin Guide failed to open for managers and the developer team. The sentence was reworded, and the smoke test now looks for this mistake in every Salisberg template.
-
 - **Title-only names on the website.** The sign-up form and My personal information now refuse a name that is only a title (Mr, Mrs), as the back office already did.
 - **Dark mode "Filters:" bar.** The bar above a filtered list was white in dark mode; it now uses the card colour, with the filters as small chips.
 - **Module category filter.** Choosing a category on Manage Modules kept showing every module: the saved choice was read but never applied. It now filters.
@@ -28,6 +28,11 @@ Every change to Salisberg, newest first, in plain words.
 - **Web addresses refused in every guest field.** Guest names, addresses, the city and the message added to a booking now refuse web addresses, using the same check as the Contact form (now one shared rule in `Validate::containsLink`). A scan of the live site found no links or code stored in guests, addresses, messages or bookings.
 
 ### Changed
+
+- **Housekeeping on a phone (P-18).** One short card per room: number and status, type, guest, and the two buttons in one row. About a third of the length it was.
+- **Fewer interruptions on a phone (P-22).** After "Not now" the phone-number box stays away until the next day (it was back on the next browser session). The "add to home screen" bar shows on the Dashboard only, and Close hides it for 30 days.
+- **Dashboard on a phone (P-23).** The period buttons sit in one row that scrolls sideways; the Performance figures start folded (tap the heading to open).
+
 
 - **Front desk menu (P-17).** Hotel Staff no longer see Manage Hotel, Addresses, Booking messages, the new-customer icon or Quick Access. Refund requests moved under Bookings for everyone. The Dashboard button is called New booking.
 - **Income kept from Hotel Staff (P-16).** Staff no longer see Total Sales on the Bookings page, the sales and performance charts on the Dashboard, or the Bookings and Income reports. They can open Reports for the Arrivals and departures sheet.

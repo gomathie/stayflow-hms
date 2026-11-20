@@ -367,7 +367,7 @@ One area per working session, in this order, then start again. Note the date in 
 
 Read-only check at 390px wide as Hotel Staff, Hotel Manager and SuperAdmin, plus the public website. No page scrolls sideways and no script errors. One fault (the Admin Guide error 500) was fixed straight away. The rest are proposals.
 
-### P-18 Housekeeping cards on a phone — Proposed
+### P-18 Housekeeping cards on a phone — Done 2026-11-20
 - **Problem:** each room is a tall card with every field on its own line (type, floor, guest, status, last change, buttons): 28 rooms make the page 10,900px long.
 - **Proposal:** one compact card per room: room number and status chip on the first line, guest on the second, the two buttons in one row. Optionally a "Dirty first" order.
 - **Benefit:** about a quarter of the length; housekeepers find dirty rooms quickly. **Risk:** low, display only. **Undo:** remove the phone CSS block.
@@ -387,12 +387,12 @@ Read-only check at 390px wide as Hotel Staff, Hotel Manager and SuperAdmin, plus
 - **Proposal:** the same phone cards, or a sideways scroll inside the table.
 - **Risk:** low. **Undo:** CSS only.
 
-### P-22 The phone-number prompt and the home-screen bar — Proposed
+### P-22 The phone-number prompt and the home-screen bar — Done 2026-11-20
 - **Problem:** on a phone the "Add your phone number" box covers the middle of every page until answered, and the "Add the desk to your home screen" bar covers the bottom of every page until closed.
 - **Proposal:** show the phone prompt once per day at most after "Not now"; show the home-screen bar only on the Dashboard, and remember Close for 30 days.
 - **Risk:** low. **Undo:** restore the old timing.
 
-### P-23 Dashboard on a phone — Proposed
+### P-23 Dashboard on a phone — Done 2026-11-20 (period buttons kept as one scrolling row instead of a select)
 - **Problem:** the Rooms free chart's scale stops at 20 while 26 rooms are free, so the line is off the chart; the period buttons (Day … Year-1) wrap awkwardly; the Performance tiles show 0.00 everywhere on a phone and push the desk-relevant charts down.
 - **Proposal:** fix the chart scale to include the highest value (fault, can be fixed straight away); on a phone, show the period buttons as one select and fold Performance.
 - **Risk:** low. **Undo:** revert the module changes.

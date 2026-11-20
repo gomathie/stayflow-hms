@@ -1423,3 +1423,11 @@ html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard .fc-scrollgrid 
 #content .sb-drag { color: var(--sb-muted); cursor: move; letter-spacing: -3px; margin-right: 4px; }
 #content .module_list .module_description { font-size: 13px; }
 #content .hook_panel_header .hook_name .highlight { background: var(--sb-accent-soft); color: var(--sb-ink); }
+
+/* Dashboard on a phone (P-23): period buttons in one scrolling row; Performance folds */
+#dashperformance.sb-folded > section { display: none; }
+@media (max-width: 767px) {
+  #content #calendar_form .btn-group { display: flex; flex-wrap: nowrap; overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch; }
+  #content #calendar_form .btn-group > .btn { flex: 0 0 auto; float: none; }
+  #dashperformance.sb-folded > header::after { content: "\25B8"; margin-left: 8px; color: var(--sb-muted); }
+}

@@ -43,13 +43,22 @@ function line_chart_availability(widget_name, chart_details) {
         series.area = true;
     });
 
+    // Scale up to a round number above the highest value, so a flat line (every
+    // room free) is drawn inside the chart with a labelled tick above it.
+    var top = 0;
+    $.each(chart_details.data, function (i, series) {
+        $.each(series.values || [], function (j, p) { top = Math.max(top, parseInt(p[1], 10) || 0); });
+    });
+    var step = top > 50 ? 10 : 5;
+    var yMax = Math.max(step, Math.ceil((top + 1) / step) * step);
+
     nv.addGraph(function() {
         var chart = nv.models.lineChart()
             .useInteractiveGuideline(true)
             .showLegend(false)
             .x(function(d) { return (d !== undefined ? d[0] : 0); })
             .y(function(d) { return (d !== undefined ? parseInt(d[1], 10) : 0); })
-            .forceY([0])
+            .forceY([0, yMax])
             .margin({ top: 16, left: 40, right: 40, bottom: 36 });
 
         // One date label per ~90px of chart, at most 7, so they never collide
@@ -66,7 +75,7 @@ function line_chart_availability(widget_name, chart_details) {
                 return ticks;
             });
 
-        chart.yAxis.tickFormat(function(d) {
+        chart.yAxis.tickValues(d3.range(0, yMax + 1, step)).tickFormat(function(d) {
             return Number.isInteger(d) ? d : '';
         });
 

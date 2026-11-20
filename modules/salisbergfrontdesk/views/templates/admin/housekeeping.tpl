@@ -23,7 +23,7 @@
 
 	<div class="panel sb-desk-panel">
 		<div class="sb-desk-scroll">
-			<table class="table">
+			<table class="table sb-hk-table">
 				<thead>
 					<tr>
 						<th>{l s='Room' mod='salisbergfrontdesk'}</th>
@@ -38,17 +38,17 @@
 				<tbody>
 				{foreach from=$sb_rooms item=sb_room}
 					<tr>
-						<td><strong>{$sb_room.room_num|escape:'html':'UTF-8'}</strong></td>
-						<td>{$sb_room.room_type|escape:'html':'UTF-8'}</td>
-						<td>{$sb_room.floor|escape:'html':'UTF-8'}</td>
-						<td>
+						<td class="sb-hk-room"><strong>{$sb_room.room_num|escape:'html':'UTF-8'}</strong></td>
+						<td class="sb-hk-type">{$sb_room.room_type|escape:'html':'UTF-8'}</td>
+						<td class="sb-hk-floor">{$sb_room.floor|escape:'html':'UTF-8'}</td>
+						<td class="sb-hk-guest">
 							{if $sb_room.guest_in}{l s='Guest in room:' mod='salisbergfrontdesk'} {$sb_room.guest_in|escape:'html':'UTF-8'}
 							{elseif $sb_room.arriving}<span class="sb-chip sb-chip-warn">{l s='Guest arrives today' mod='salisbergfrontdesk'}</span>
 							{else}<span class="sb-desk-muted">{l s='Empty' mod='salisbergfrontdesk'}</span>{/if}
 							{if $sb_room.state == 'out' && $sb_room.coming}<br /><span class="sb-chip sb-chip-bad">{l s='Has coming bookings: move them to another room' mod='salisbergfrontdesk'} ({$sb_room.coming|intval})</span>{/if}
 						</td>
-						<td>{include file="./room_state.tpl" sb_state=$sb_room.state}</td>
-						<td>{if $sb_room.changed}{$sb_room.changed|escape:'html':'UTF-8'}{if $sb_room.changed_by}<br /><small>{$sb_room.changed_by|escape:'html':'UTF-8'}</small>{/if}{/if}</td>
+						<td class="sb-hk-state">{include file="./room_state.tpl" sb_state=$sb_room.state}</td>
+						<td class="sb-hk-changed">{if $sb_room.changed}{$sb_room.changed|escape:'html':'UTF-8'}{if $sb_room.changed_by}<br /><small>{$sb_room.changed_by|escape:'html':'UTF-8'}</small>{/if}{/if}</td>
 						<td class="sb-desk-act">
 							{if $sb_can_edit}
 							<form method="post" action="{$sb_action|escape:'html':'UTF-8'}&amp;sb_show={$sb_show|escape:'html':'UTF-8'}">
