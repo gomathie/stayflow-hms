@@ -41,7 +41,7 @@
 					<tr class="sb-mod-group"><td colspan="4">
 						{if $sb_group == 'own'}{l s='Salisberg'}
 						{elseif $sb_group == 'main'}{l s='Platform modules'}
-						{else}<button type="button" class="sb-mod-unused-toggle" aria-expanded="false"><i class="icon-caret-right"></i> {l s='Not used'} <span>{$sb_nb_unused|intval}</span></button> <small>{l s='Not installed, or replaced by our own modules'}</small>{/if}
+						{else}<button type="button" class="sb-mod-unused-toggle" aria-expanded="false"><i class="icon-caret-right"></i> {l s='Not installed'} <span>{$sb_nb_unused|intval}</span></button>{/if}
 					</td></tr>
 				{/if}
 				<tr class="{if isset($module->sb_group) && $module->sb_group == 'unused'}sb-mod-unused{/if}"{if isset($module->sb_group) && $module->sb_group == 'unused'} style="display:none"{/if}>

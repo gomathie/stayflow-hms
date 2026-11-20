@@ -164,6 +164,10 @@ body.ps_back-office,
 /* light/dark switch, added by theme-toggle.js: sun and moon with a sliding knob */
 #header_infos #sb-theme-toggle {
   position: relative;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  box-sizing: border-box;
   justify-content: space-between;
   width: 60px;
   height: 32px;
@@ -189,6 +193,7 @@ body.ps_back-office,
 html[data-sb-theme="light"] #header_infos #sb-theme-toggle svg:first-child,
 html[data-sb-theme="dark"] #header_infos #sb-theme-toggle svg:last-child { color: var(--sb-ink); }
 html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: translateX(26px); }
+#header_infos #sb-theme-toggle:focus:not(:focus-visible) { outline: none; }
 
 @media (min-width: 768px) {
   .bootstrap #header_infos { height: var(--sb-top); min-height: var(--sb-top); }
@@ -714,7 +719,6 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 #dashboard .stats-list > li:has(> #dash_traffic_source) > .item-label { flex: 0 0 100%; margin-bottom: 8px; }
 #dashboard #dash_traffic_source,
 #dashboard #dash_traffic_chart2 { flex: 0 0 100%; }
-#content.bootstrap #dashboard #dashproducts nav { font-family: inherit; text-transform: none; }
 
 /* Tables wider than the space beside the menu (lists, bookings, Stats reports)
    used to push the whole page sideways. Each one scrolls inside its own box.

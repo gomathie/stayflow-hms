@@ -11,10 +11,17 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Removed
 
+- **27 unused modules (clean-up batches 2–4).** Bank wire, cheque and the channel manager (replaced by Salisberg Pay, or never used); the shop Dashboard boxes (activity, products, goals, insights), which were no longer drawn; and the 20 shop statistics modules with search keywords and the 404 log, behind the hidden Stats menu. Each is forgotten by the database on the next deploy and logged. Bookings paid through a removed module keep their payment name. The Modules page lists 32 modules instead of 58.
+- **Unused theme images (batch 6).** 15 images nothing refers to, and the bank wire and cheque icons.
+
 - **The vendor Data Cleaner (`qlocleaner`).** Never installed. Its two delete-everything buttons and its "Clean & Optimize" (which deleted old carts without releasing their rooms and renumbered every menu entry) are gone; its database check moved into Data clean-up.
 - **Unused PayPal module.** `modules/qlopaypalcommerce` was never installed and nothing referred to it. Cards, if ever added, would use a Ghana provider.
 
 ### Fixed
+
+- **Marking a booking paid with several invoices.** The payment name was read from the payment module on the first invoice and then from text on the next, which could fail. The name is now taken once, and falls back to the name saved on the booking if its payment module has been removed.
+
+- **Light/dark switch on a phone.** The sun and moon were stacked on top of each other, because the switch relied on a top-bar rule that the phone layout replaces. It now lays itself out; the black ring left after tapping it is gone (kept for keyboard use).
 
 - **Phone menu button.** It showed a row of vertical bars (a text-align icon turned on its side); it is now the usual three-line menu icon.
 

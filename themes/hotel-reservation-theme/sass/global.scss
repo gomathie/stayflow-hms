@@ -2597,16 +2597,10 @@ p.payment_module {
 		padding: 33px 40px 34px 99px;
 		letter-spacing: -1px;
 		position: relative;
-		&.bankwire {
-			background: url(../img/bankwire.png) 15px 12px no-repeat $base-box-bg;
-		}
-		&.cheque {
-			background: url(../img/cheque.png) 15px 15px no-repeat $base-box-bg;
-		}
 		&.cash {
 			background: url(../img/cash.png) 15px 15px no-repeat $base-box-bg;
 		}
-		&.cheque, &.bankwire, &.cash {
+		&.cash {
 			&:after {
 				display: block;
 				content: "\f054";
@@ -2633,10 +2627,6 @@ p.payment_module {
 
 .payment_module.box {
 	margin-top: 20px;
-}
-
-p.cheque-indent {
-	margin-bottom: 9px;
 }
 
 .cheque-box {

@@ -238,19 +238,13 @@ class Salisbergfrontdesk extends Module
     }
 
     /**
-     * Shop dashboard boxes a hotel does not use. The modules stay installed.
+     * The guest cycle box a hotel does not need here: the module stays installed.
      * Only the hooks that draw them, and the data call those boxes make, are
      * dropped. Order and customer hooks on the same modules are left alone.
      */
     protected function replaceLegacyTodayWidget()
     {
         $retire = array(
-            'dashactivity' => array('dashboardZoneOne', 'dashboardData'),
-            'dashproducts' => array('dashboardZoneTwo', 'dashboardData'),
-            // Web-shop targets (traffic, conversion). Not occupancy or revenue.
-            'dashgoals' => array('dashboardZoneTwo', 'dashboardData'),
-            // Extra stay charts beside Occupancy and Performance.
-            'dashinsights' => array('dashboardZoneOne', 'dashboardZoneTwo', 'dashboardData'),
             // Arrivals, departures and in-house already live on Today at the desk.
             'dashguestcycle' => array('dashboardZoneTwo', 'dashboardData'),
         );

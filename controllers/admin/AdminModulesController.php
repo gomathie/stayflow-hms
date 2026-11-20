@@ -1565,14 +1565,12 @@ class AdminModulesControllerCore extends AdminController
             $this->confirmations[] = $this->l('Everything is up-to-date');
         }
 
-        // Our own modules first, then the rest; modules the hotel does not use
-        // (not installed, or replaced by our own) last, in a folded group.
-        $unused = array('bankwire', 'cheque', 'qlochannelmanagerconnector');
+        // Our own modules first, then the rest; modules not installed last, in a folded group.
         $groups = array('own' => array(), 'main' => array(), 'unused' => array());
         foreach ($modules as $module) {
             if (strpos($module->name, 'salisberg') === 0) {
                 $module->sb_group = 'own';
-            } elseif (empty($module->id) || in_array($module->name, $unused)) {
+            } elseif (empty($module->id)) {
                 $module->sb_group = 'unused';
             } else {
                 $module->sb_group = 'main';

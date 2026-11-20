@@ -152,12 +152,82 @@ if ($idPay && $idGhana) {
     }
 }
 
+// Modules deleted from the code (CLEANUP-PLAN.md batch 2): their database rows are
+// removed here, because a module whose folder is gone cannot uninstall itself.
+// Acts only when the folder is gone and the row still exists, and logs what it did
+// (rule 22). Bookings keep their payment name: OrderHistory falls back to it.
+$forget = array(
+    'bankwire' => array('config' => array('BANK_WIRE_DETAILS', 'BANK_WIRE_OWNER', 'BANK_WIRE_ADDRESS', 'BANK_WIRE_CURRENCIES'), 'tables' => array()),
+    'cheque' => array('config' => array('CHEQUE_NAME', 'CHEQUE_ADDRESS', 'CHEQUE_CURRENCIES'), 'tables' => array()),
+    'qlochannelmanagerconnector' => array('config' => array(), 'tables' => array('qcmc_channel_manager_booking')),
+    // Batch 4: Dashboard boxes for a web shop, not drawn on the Dashboard since 2026-11-09
+    'dashactivity' => array('config' => array('DASHACTIVITY_CART_ABANDONED_MAX', 'DASHACTIVITY_CART_ABANDONED_MIN', 'DASHACTIVITY_CART_ACTIVE', 'DASHACTIVITY_VISITOR_ONLINE'), 'tables' => array()),
+    'dashproducts' => array('config' => array('DASHPRODUCT_NBR_SHOW_BEST_SELLER', 'DASHPRODUCT_NBR_SHOW_LAST_ORDER', 'DASHPRODUCT_NBR_SHOW_MOST_VIEWED', 'DASHPRODUCT_NBR_SHOW_TOP_SEARCH'), 'tables' => array()),
+    'dashgoals' => array('config' => array('PS_DASHGOALS_CURRENT_YEAR'), 'tables' => array()),
+    'dashinsights' => array('config' => array(), 'tables' => array()),
+    // Batch 3: shop statistics (the Stats menu has been hidden since 2026-11-09).
+    // The graph and grid engines (graphnvd3, gridhtml) stay: the Stats screens load them by name.
+    'statsbestcategories' => array('config' => array(), 'tables' => array()),
+    'statsbestcustomers' => array('config' => array(), 'tables' => array()),
+    'statsbestproducts' => array('config' => array(), 'tables' => array()),
+    'statsbestvouchers' => array('config' => array(), 'tables' => array()),
+    'statscatalog' => array('config' => array(), 'tables' => array()),
+    'statscheckup' => array('config' => array(), 'tables' => array()),
+    'statsdata' => array('config' => array('PS_STATSDATA_CUSTOMER_PAGESVIEWS', 'PS_STATSDATA_PAGESVIEWS', 'PS_STATSDATA_PLUGINS'), 'tables' => array()),
+    'statsequipment' => array('config' => array(), 'tables' => array()),
+    'statsforecast' => array('config' => array(), 'tables' => array()),
+    'statslive' => array('config' => array(), 'tables' => array()),
+    'statsnewsletter' => array('config' => array(), 'tables' => array()),
+    'statsorigin' => array('config' => array(), 'tables' => array()),
+    'statspersonalinfos' => array('config' => array(), 'tables' => array()),
+    'statsproduct' => array('config' => array(), 'tables' => array()),
+    'statsregistrations' => array('config' => array(), 'tables' => array()),
+    'statssales' => array('config' => array(), 'tables' => array()),
+    'statsvisits' => array('config' => array(), 'tables' => array()),
+    'sekeywords' => array('config' => array('SEK_FILTER_KW', 'SEK_MIN_OCCURENCES'), 'tables' => array('sekeyword')),
+    'pagesnotfound' => array('config' => array(), 'tables' => array('pagenotfound')),
+    'qlostatsserviceproducts' => array('config' => array(), 'tables' => array()),
+);
+$db = Db::getInstance();
+foreach ($forget as $name => $parts) {
+    $idModule = (int) $db->getValue('SELECT `id_module` FROM `'._DB_PREFIX_.'module` WHERE `name` = \''.pSQL($name).'\'', false);
+    if (!$idModule || is_dir(_PS_MODULE_DIR_.$name)) {
+        continue;
+    }
+    foreach (array('module_access', 'module_shop', 'module_group', 'module_country', 'module_currency', 'hook_module', 'hook_module_exceptions') as $table) {
+        $db->delete($table, '`id_module` = '.$idModule);
+    }
+    $db->delete('module_preference', '`module` = \''.pSQL($name).'\'');
+    foreach ((array) $db->executeS('SELECT `id_tab` FROM `'._DB_PREFIX_.'tab` WHERE `module` = \''.pSQL($name).'\'', true, false) as $tab) {
+        foreach (array('tab_lang', 'access', 'tab_module_preference') as $table) {
+            $db->delete($table, '`id_tab` = '.(int) $tab['id_tab']);
+        }
+        $db->delete('tab', '`id_tab` = '.(int) $tab['id_tab']);
+    }
+    foreach ($parts['config'] as $key) {
+        Configuration::deleteByName($key);
+    }
+    foreach ($parts['tables'] as $table) {
+        $exists = $db->executeS('SHOW TABLES LIKE \''.pSQL(_DB_PREFIX_.$table).'\'', true, false);
+        if ($exists && !(int) $db->getValue('SELECT COUNT(*) FROM `'._DB_PREFIX_.bqSQL($table).'`', false)) {
+            $db->execute('DROP TABLE `'._DB_PREFIX_.bqSQL($table).'`');
+        } elseif ($exists) {
+            sb_log("$name: table $table kept, it holds rows");
+        }
+    }
+    foreach ((array) $db->executeS('SELECT `id_meta` FROM `'._DB_PREFIX_.'meta` WHERE `page` LIKE \''.pSQL('module-'.$name.'-').'%\'', true, false) as $meta) {
+        foreach (array('meta_lang', 'theme_meta', 'meta') as $table) {
+            $db->delete($table, '`id_meta` = '.(int) $meta['id_meta']);
+        }
+    }
+    $db->delete('module', '`id_module` = '.$idModule);
+    sb_log("$name removed (module deleted from the code)");
+}
+
 // Switched off on every deploy:
-//  - bankwire, cheque: bank transfer is offered through Salisberg Pay, in the same way as Mobile Money
 //  - qlohotelreview: guest reviews are not in use; keeping it off also keeps its
 //    upload endpoint closed (CVE-2025-67325). Remove it from this list to use reviews.
-//  - qlochannelmanagerconnector: this hotel does not sell through a channel manager.
-foreach (array('bankwire', 'cheque', 'qlohotelreview', 'qlochannelmanagerconnector') as $name) {
+foreach (array('qlohotelreview') as $name) {
     if (Module::isInstalled($name) && Module::isEnabled($name)) {
         Module::getInstanceByName($name)->disable();
         sb_log("$name disabled");

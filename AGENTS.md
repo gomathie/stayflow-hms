@@ -2703,3 +2703,41 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - The template and the two places in `admin/themes/default/js/admin-theme.js` that redraw it after closing the menu now use `icon-reorder` (≡).
 - **Verification (local, 390px, administrator):** the button shows ≡, opens the menu (icon becomes ×) and closes it (≡ again). The Bookings toolbar has 3 buttons and no SQL button or hidden query. No script errors. Smoke test passes.
 - **Not tested:** other list pages one by one (they share the one template); the live server.
+
+### 2026-11-20 — Light/dark switch on a phone
+
+- **Owner report:** the switch looked broken on a phone. On the live site at 390px `#sb-theme-toggle` was `display: block`, so the two icons stacked (measured: both at x 249, y 11 and 25). It had no display rule of its own and relied on a top-bar link rule that the phone layout replaces.
+- **Fix (`overrides.css`, the switch's own rule):** `display: inline-flex; flex-wrap: nowrap; align-items: center; box-sizing: border-box`, and `:focus:not(:focus-visible) { outline: none }` so a tap leaves no black ring while keyboard focus still shows.
+- **Verification (local, 390px, 3x zoom screenshots):** icons side by side (x 249 and 273) in light and dark, the knob slides, no ring after a tap.
+
+### 2026-11-20 — Clean-up batches 2, 3, 4 and 6
+
+- **Owner:** complete the batches (the other agent was not active).
+- **Removed (27 module folders, rule 28):**
+  - Batch 2: `bankwire`, `cheque`, `qlochannelmanagerconnector`. `qlohotelreview` is kept, because it is switched off but may be switched on (rule 28).
+  - Batch 3: the 20 `stats*` modules, `sekeywords`, `pagesnotfound`, `qlostatsserviceproducts`. `graphnvd3` and `gridhtml` are kept: the Stats screens load them by name (`PS_STATS_RENDER`, `PS_STATS_GRID_RENDER`).
+  - Batch 4: `dashactivity`, `dashproducts`, `dashgoals`, `dashinsights`.
+  - Theme copies of the bank wire and cheque templates and their two icons.
+- **Evidence:**
+  - Whole-tree search for each name, excluding cache, .git, audit, history, translations and compiled vendor CSS.
+  - The remaining callers all check existence first: `AdminReferrersController` (statsdata), `AdminStatsTabController` (statsforecast) and `AdminProductsController` (statsproduct). The room type "Statistics" button code was removed.
+  - None is used by the website or a booking. No local booking was paid through bank wire or cheque.
+- **References removed:**
+  - The installer module list (`install/models/install.php`), the themes native list (`AdminThemesController`) and the theme module/hook list (`config/xml/themes/default.xml`).
+  - The page entries in `install/data/xml/meta.xml`, the mail list in `Language.php`, and the payment styles in the theme's `global.css`/`global.scss` (`.cheque-box` is kept: Salisberg Pay uses it).
+  - The Dashboard list in `salisbergfrontdesk::replaceLegacyTodayWidget()`, the reload branch in `js/admin/dashboard.js`, the `#dashproducts` rule in `overrides.css`, the channel manager entry in `$hiddenMenus`, and the "replaced by ours" list on the Modules page (the folded group is now "Not installed").
+- **Database (live site), `docker/setup-modules.php`, `MODULES_VERSION=37`:**
+  - A removed module cannot uninstall itself. For each one whose folder is gone and whose row still exists, the step deletes its module, shop, group, country, currency, hook and preference rows, its menu tabs with their rights, its settings, and its `module-<name>-*` page entries.
+  - It drops its own tables only when empty (the 404 log `pagenotfound` was kept locally because it holds rows). Each removal is logged.
+- **Fault fixed on the way (`classes/order/OrderHistory.php`):**
+  - Marking a booking paid read the payment name from `$payment_method->displayName`, but the first invoice loop overwrote `$payment_method` with the name, so a second invoice read a property of a string. It also failed outright when the payment module no longer exists.
+  - The name is now taken once (`$payment_name`), falling back to `$order->payment`.
+- **Batch 6:** 15 unreferenced theme images removed (each also searched by part of its name). The 46 non-English module translation files are kept: they are needed if a second language is added.
+- **Batch 5:** proposed in `CLEANUP-PLAN.md`, waiting for the owner. It includes the unreachable old order form.
+- **Verification (local, image rebuilt):**
+  - The setup log showed all 27 removed. Smoke test 33 of 33.
+  - Marking a Pay-later booking paid recorded "Back office order". A booking switched to the removed `bankwire` module recorded its saved name "Bank wire (old)", with no error.
+  - Dashboard as SuperAdmin, Hotel Manager and Hotel Staff: every box finished loading, no PHP or script errors.
+  - Manage Modules: 32 modules (was 58).
+- **Not tested:** a website checkout to the payment step (the smoke test loads the pages only); the live server, where the step runs on the next deploy.
+- Also in this change: the light/dark switch fix recorded above.

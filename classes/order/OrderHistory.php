@@ -300,6 +300,11 @@ class OrderHistoryCore extends ObjectModel
                     $payment_method = Module::getInstanceByName($order->module);
                 }
             }
+            // The name once: a payment module removed since the booking was made
+            // falls back to the name saved on the booking, and a booking with
+            // several invoices gets the same name on each payment.
+            $payment_name = isset($payment_method) && is_object($payment_method) && !empty($payment_method->displayName)
+                ? $payment_method->displayName : $order->payment;
 
             // if order has invoices then create payment entry for all the invoices
             if ($invoices = $order->getInvoicesCollection()->getResults()) {
@@ -310,7 +315,7 @@ class OrderHistoryCore extends ObjectModel
                     $rest_paid = min($invoice->getRestPaid(), Tools::ps_round($order->total_paid_tax_incl - $order->total_paid_real, 2));
                     if ($rest_paid > 0) {
                         if ($order->total_paid != 0) {
-                            $payment_method = $payment_method->displayName;
+                            $payment_method = $payment_name;
                         } else {
                             $payment_method = null;
                         }
@@ -328,7 +333,7 @@ class OrderHistoryCore extends ObjectModel
                 $rest_paid = $order->total_paid_tax_incl - $order->total_paid_real;
                 if ($rest_paid > 0) {
                     if ($order->total_paid != 0) {
-                        $payment_method = $payment_method->displayName;
+                        $payment_method = $payment_name;
                     } else {
                         $payment_method = null;
                     }

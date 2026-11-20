@@ -136,7 +136,6 @@ class Salisbergguide extends Module
      */
     public static $hiddenMenus = array(
         'AdminModulesCatalog',
-        'AdminQloappsChannelManagerConnector',
         'AdminZones',
         'AdminSlip',
         // shop screens a single hotel does not open

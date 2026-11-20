@@ -2750,15 +2750,6 @@ class AdminNormalProductsControllerCore extends AdminController
                     );
                 }
 
-                // adding button for preview this product statistics
-                // if (file_exists(_PS_MODULE_DIR_.'statsproduct/statsproduct.php')) {
-                //     $this->page_header_toolbar_btn['stats'] = array(
-                //     'short' => $this->l('Statistics', null, null, false),
-                //     'href' => $this->context->link->getAdminLink('AdminStats').'&module=statsproduct&id_product='.(int)$product->id,
-                //     'desc' => $this->l('Room Type Sales', null, null, false),
-                // );
-                // }
-
                 // adding button for delete this product
                 if ($this->tabAccess['delete']) {
                     $this->page_header_toolbar_btn['delete'] = array(

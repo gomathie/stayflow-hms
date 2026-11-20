@@ -40,10 +40,6 @@
         <meta meta_page="category" left="1" right="0"/>
         <meta meta_page="cms" left="0" right="0"/>
         <meta meta_page="product" left="0" right="0"/>
-        <meta meta_page="module-cheque-payment" left="0" right="0"/>
-        <meta meta_page="module-cheque-validation" left="0" right="0"/>
-        <meta meta_page="module-bankwire-validation" left="0" right="0"/>
-        <meta meta_page="module-bankwire-payment" left="0" right="0"/>
         <meta meta_page="module-cashondelivery-validation" left="0" right="0"/>
         <meta meta_page="module-blocknewsletter-verification" left="1" right="0"/>
     </metas>
@@ -55,11 +51,7 @@
         <module action="enable" name="blocklanguages"/>
         <module action="enable" name="blockcurrencies"/>
         <module action="enable" name="qlohotelreview"/>
-        <module action="enable" name="dashactivity"/>
         <module action="enable" name="dashtrends"/>
-        <module action="enable" name="dashgoals"/>
-        <module action="enable" name="dashproducts"/>
-        <module action="enable" name="statsdata"/>
         <module action="enable" name="blockcart"/>
         <module action="enable" name="blockuserinfo"/>
         <hooks>
@@ -140,29 +132,11 @@
             <hook module="qlohotelreview" hook="displayBookingAction" position="1"/>
             <hook module="qlohotelreview" hook="displayBackOfficeHeader" position="2"/>
             <hook module="qlohotelreview" hook="displayAdminAfterHeader" position="1"/>
-            <hook module="dashactivity" hook="actionAdminControllerSetMedia" position="2"/>
-            <hook module="dashactivity" hook="dashboardZoneOne" position="1"/>
-            <hook module="dashactivity" hook="dashboardData" position="1"/>
-            <hook module="dashactivity" hook="actionObjectOrderAddAfter" position="1"/>
-            <hook module="dashactivity" hook="actionObjectCustomerAddAfter" position="1"/>
-            <hook module="dashactivity" hook="actionObjectCustomerMessageAddAfter" position="1"/>
-            <hook module="dashactivity" hook="actionObjectCustomerThreadAddAfter" position="1"/>
-            <hook module="dashactivity" hook="actionObjectOrderReturnAddAfter" position="1"/>
             <hook module="dashtrends" hook="actionOrderStatusPostUpdate" position="3"/>
             <hook module="dashtrends" hook="actionAdminControllerSetMedia" position="3"/>
             <hook module="dashtrends" hook="dashboardData" position="2"/>
             <hook module="dashguestcycle" hook="dashboardZoneTwo" position="1"/>
             <hook module="dashtrends" hook="dashboardZoneTwo" position="2"/>
-            <hook module="dashgoals" hook="actionAdminControllerSetMedia" position="4"/>
-            <hook module="dashgoals" hook="dashboardData" position="3"/>
-            <hook module="dashgoals" hook="dashboardZoneTwo" position="3"/>
-            <hook module="dashproducts" hook="actionSearch" position="1"/>
-            <hook module="dashproducts" hook="dashboardData" position="4"/>
-            <hook module="dashproducts" hook="actionObjectOrderAddAfter" position="2"/>
-            <hook module="dashproducts" hook="dashboardZoneTwo" position="4"/>
-            <hook module="statsdata" hook="actionAuthentication" position="1"/>
-            <hook module="statsdata" hook="displayFooter" position="7"/>
-            <hook module="statsdata" hook="actionCustomerAccountAdd" position="2"/>
             <hook module="blockcart" hook="Header" position="12"/>
             <hook module="blockcart" hook="displayTop" position="5"/>
             <hook module="blockcart" hook="actionCartListOverride" position="1"/>

@@ -130,5 +130,21 @@ Module templates overridden from the theme (`themes/hotel-reservation-theme/modu
 |---|---|
 | 0. Booking codes | Live: pushed to production 2026-11-19 |
 | 1. Never installed (`qlopaypalcommerce`) | Done 2026-11-20: folder removed; no reference outside it, not installed locally, no tables |
-| 2–6 | Not started |
+| 2 | Done 2026-11-20: bankwire, cheque, qlochannelmanagerconnector removed; qlohotelreview kept (switched off, may be switched on: rule 28) |
+| 3 | Done 2026-11-20: 20 statistics modules, sekeywords, pagesnotfound, qlostatsserviceproducts removed; graphnvd3 and gridhtml kept (the Stats screens load them by name) |
+| 4 | Done 2026-11-20: dashactivity, dashproducts, dashgoals, dashinsights removed |
+| 5 | Proposed, waiting for the owner (see below) |
+| 6 | Done 2026-11-20: 15 unreferenced theme images removed; non-English module translations kept (needed if a language is added) |
 | O1–O7 Overrides | Rule 11 change approved 2026-11-19; not started |
+
+## Batch 5 proposal (waiting for the owner)
+
+Inherited shop features. Higher risk than batches 2–4: the platform loads these files by fixed path, by hook and through the class index, so each item needs its own proof and a rebuild before it goes.
+
+| Item | What it is | Evidence so far | Proposed |
+|---|---|---|---|
+| The old "Add new order" form (`admin/themes/default/template/controllers/orders/form.tpl`, 2,531 lines, and `AdminOrdersController::renderForm()` with its `submitAddOrder` handling) | The cart-based booking form New booking replaced | `AdminOrdersController::init()` redirects `addorder` and `submitAddOrder` to the Room board, so nothing renders it; its only AJAX caller (`findOrCreateGuest`) was removed with O6 | Remove, after checking `AdminCartsController` calls it makes |
+| Suppliers and manufacturers (controllers, templates, menu tabs) | Shop features with no hotel use | Front pages removed 2026-10-13; admin side still present | Remove controllers and tabs; keep the classes if room-type code still reads them |
+| Stock classes (`classes/stock/`) | Warehouse stock | Used by room and product code (2026-10-13 entry) | Keep |
+| Comparison leftovers | Product comparison | Front pages removed 2026-10-13 | Search for remaining selectors and settings, then remove |
+| Unused admin tabs and controllers already hidden (Groups, Titles, Shopping Carts, Catalog Price Rules, Search, Geolocation, States) | Hidden 2026-11-09 | Still reachable by address; some are used by other screens (carts by bookings) | Decide one by one; most stay hidden |
