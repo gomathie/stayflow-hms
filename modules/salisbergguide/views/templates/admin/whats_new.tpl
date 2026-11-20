@@ -21,6 +21,7 @@
 	<section>
 		<h3>{l s='20 November 2026' mod='salisbergguide'}</h3>
 		<ul>
+			{if $sb_is_admin}<li><strong>{l s='Test accounts hidden.' mod='salisbergguide'}</strong> {l s='An employee form has a Test account switch. Yes hides that login from everyone who is not a SuperAdmin, the same way SuperAdmin accounts are hidden.' mod='salisbergguide'}</li>{/if}
 			{if $sb_is_admin}<li><strong>{l s='Modules and Positions redesigned.' mod='salisbergguide'}</strong> {l s='Manage Modules has one totals line, category buttons, On and Off labels, Salisberg modules first and unused ones folded. Positions shows each hook as one folded line with a plain name; click to open, drag to reorder. The category buttons now really filter the list.' mod='salisbergguide'}</li>{/if}
 			<li><strong>{l s='Refund requests moved.' mod='salisbergguide'}</strong> {l s='Refund requests is now under Bookings, next to the other booking pages.' mod='salisbergguide'}</li>
 <li><strong>{l s='Lists in pages.' mod='salisbergguide'}</strong> {l s='Long lists such as Bookings, Customers and Invoices show 20 rows at a time, with page buttons and a choice of 50. On Invoices the totals at the top still count every invoice that matches your search.' mod='salisbergguide'}</li>

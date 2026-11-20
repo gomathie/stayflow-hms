@@ -507,6 +507,42 @@ class EmployeeCore extends ObjectModel
         return $this->id_profile == _PS_ADMIN_PROFILE_;
     }
 
+    /** Ids of the accounts a SuperAdmin has marked as test accounts. */
+    public static function getTestAccountIds()
+    {
+        $ids = json_decode((string) Configuration::get('SB_TEST_EMPLOYEES'), true);
+
+        return is_array($ids) ? array_values(array_unique(array_map('intval', $ids))) : array();
+    }
+
+    public function isTestAccount()
+    {
+        return (int) $this->id && in_array((int) $this->id, self::getTestAccountIds(), true);
+    }
+
+    public function setTestAccount($on)
+    {
+        $ids = array_diff(self::getTestAccountIds(), array((int) $this->id));
+        if ($on && (int) $this->id) {
+            $ids[] = (int) $this->id;
+        }
+
+        return Configuration::updateValue('SB_TEST_EMPLOYEES', json_encode(array_values($ids)));
+    }
+
+    /**
+     * SuperAdmin accounts and test accounts are hidden from everyone who is
+     * not a SuperAdmin. An account is never hidden from itself.
+     */
+    public function isHiddenFrom(Employee $viewer)
+    {
+        if ($viewer->isSuperAdmin() || (int) $viewer->id == (int) $this->id) {
+            return false;
+        }
+
+        return $this->isSuperAdmin() || $this->isTestAccount();
+    }
+
     public function getImage()
     {
         return Context::getContext()->link->getMediaLink(_PS_IMG_.Configuration::get('PS_LOGO'));

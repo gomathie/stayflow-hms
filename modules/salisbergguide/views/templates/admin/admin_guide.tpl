@@ -46,6 +46,7 @@
 			<li>{l s='Type their mobile number in Phone (for texts). Set Receive booking alerts to Yes if they should get a text and an email for each new booking, payment, cancellation and milestone. Anyone without a number is asked for it in a small box the next time they sign in; what they type appears here.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Save</span> {l s='and give them the back office address. Ask them to change the password on first sign-in.' mod='salisbergguide'}</li>
 		</ol>
+		{if $sb_is_admin}<p class="sb-tip">{l s='Test account: on an employee form, set Test account to Yes to hide that login from everyone who is not a SuperAdmin. It is left out of their Employees list and they cannot open, edit, disable or delete it. It can still sign in. Use it for logins the developer team keeps for checking the live site.' mod='salisbergguide'}</p>{/if}
 		<h4>{l s='When someone leaves' mod='salisbergguide'}</h4>
 		<p>{l s='Open their record in Employees and switch Active to No the same day. Do not delete the account: their name stays on the bookings they handled.' mod='salisbergguide'}</p>
 		<h4>{l s='Change what a profile can do' mod='salisbergguide'}</h4>

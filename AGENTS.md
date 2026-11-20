@@ -2631,3 +2631,17 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - Modules: summary "58 modules · 53 on · 5 off · 0 not installed · all up to date"; Salisberg group first; 55 rows shown, 3 folded; opening Not used shows 58; searching "bank" finds 2; the Payments and Gateways chip shows 3 (it showed all 58 before the filter fix); no script errors. Screenshot reviewed.
   - Positions: 39 hooks shown folded, page 2,112px; a real click opens one; searching "footer" shows and opens the 7 footer hooks; with non-positionable hooks ticked, "booking status" finds "When a booking status changes"; clearing folds them again; no script errors. Screenshot reviewed.
 - **Not tested:** dragging a module to a new position after the change (the sortable code is unchanged); installing or uninstalling from the new rows; light mode screenshots; phone width; the live server.
+
+### 2026-11-20 — Test accounts hidden; title-only names on the website; dark Filters bar; PayPal module removed
+
+- **Test accounts (owner request):**
+  - `classes/Employee.php`: `getTestAccountIds()`, `isTestAccount()`, `setTestAccount()` (ids stored as JSON in `SB_TEST_EMPLOYEES`; no schema change) and `isHiddenFrom($viewer)`: SuperAdmin and test accounts are hidden from any viewer who is not a SuperAdmin, never from themselves.
+  - `controllers/admin/AdminEmployeesController.php`: the six SuperAdmin-only checks (list filter, form, `_childValidation`, `processSave`, single and bulk delete/status) now use `isHiddenFrom()` (rule 26: one rule). The list also leaves out test accounts. A SuperAdmin's form has a **Test account** switch, saved in `afterAdd`/`afterUpdate`.
+  - **Limit:** hidden from the Employees page only. A test account's name can still appear where the platform names employees on records (for example Inbox "Handled by", booking history).
+  - Verified locally: admin set staff.test as a test account ("Successful update", stored `[3]`); signed in as the Hotel Manager, the Employees list left it out but showed the manager's own row; opening it by address gave no form; the switch is not on the manager's form.
+- **Title-only names on the website:** `AuthController::processSubmitAccount()` and `IdentityController` refuse a first or last name that is only a title, using `Customer::isTitleOnly()` like the back office.
+- **Dark "Filters:" bar:** `#selected_filter_container` and its filter chips in `admin-theme.css` use the tokens instead of `#fff` and pale blue (rule 11).
+- **Occupancy period one day behind:** reproduced with a stale range (19 Oct–19 Nov); on the next Dashboard load the saved range was reset to today and the panel read "20 Nov". Working as designed; no change.
+- **Cleanup batch 1:** `modules/qlopaypalcommerce` deleted (rule 28). Evidence: no reference outside its folder except the "Not used" list on the Modules page (entry removed); not installed locally; no PayPal tables. It had never been installed on the live site.
+- **Data clean-up tool:** owner answers recorded in `CLEANUP-PLAN.md` (6 years, recycle bin 90 days, automatic drafts/carts/logs). Not built yet.
+- **Not tested:** website sign-up with a title-only name in a browser (code path only); the Filters bar by screenshot; production.

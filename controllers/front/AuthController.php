@@ -429,6 +429,11 @@ class AuthControllerCore extends FrontController
                 $this->errors[] = Tools::displayError('Phone number is required.');
             }
 
+            // A title alone (Mr, Mrs) is not a name; the back office forms refuse it too.
+            if (Customer::isTitleOnly(Tools::getValue('firstname')) || Customer::isTitleOnly(Tools::getValue('lastname'))) {
+                $this->errors[] = Tools::displayError('Please enter a real first and last name, not only a title such as Mr or Mrs.');
+            }
+
             if (!Tools::getValue('is_new_customer', 1)) {
                 if (Validate::isEmail($email = Tools::getValue('email'))
                     && $idCustomer = Customer::customerExists(Tools::getValue('email'), true, false)

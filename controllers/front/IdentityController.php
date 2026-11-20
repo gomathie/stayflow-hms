@@ -89,6 +89,10 @@ class IdentityControllerCore extends FrontController
                 }
             }
 
+            if (Customer::isTitleOnly(Tools::getValue('firstname')) || Customer::isTitleOnly(Tools::getValue('lastname'))) {
+                $this->errors[] = Tools::displayError('Please enter a real first and last name, not only a title such as Mr or Mrs.');
+            }
+
             if (!count($this->errors)) {
                 $this->customer->phone = $phone;
                 $this->customer->id_default_group = (int)$prev_id_default_group;

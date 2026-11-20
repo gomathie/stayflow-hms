@@ -89,10 +89,10 @@ Never move or rename an inherited file (rule 29). One batch per change.
 
 **Where:** the module is renamed in place: its display name becomes "Data clean-up" and the menu entry goes under Advanced Parameters. Its folder is not renamed (rule 29). It is installed by `docker/setup-modules.php`. It reuses the archive (`sb_deleted_booking`) for bookings, so a deleted booking goes to the recycle bin first, then can be removed for good after a set time.
 
-**Open questions for the owner before building:**
-1. How long must paid bookings and invoices be kept?
-2. Should deleted bookings always pass through the recycle bin first?
-3. Which items, if any, should be cleaned automatically on a schedule?
+**Owner answers (2026-11-20):**
+1. Paid bookings and invoices are kept for **6 years**; nothing paid or invoiced younger than that can be deleted.
+2. Deleted bookings always go to the **recycle bin first, for 90 days**, before they may be removed for good.
+3. **Automatic, on a schedule:** unfinished booking drafts older than 30 days, abandoned carts older than 30 days, and logs older than 90 days. Everything else only when an admin runs the tool.
 
 ## Overrides: fold them into the code they change
 
@@ -125,6 +125,6 @@ Module templates overridden from the theme (`themes/hotel-reservation-theme/modu
 | Step | Status |
 |---|---|
 | 0. Booking codes | Live: pushed to production 2026-11-19 |
-| 1. Never installed (`qlopaypalcommerce`) | Ready to start once production is checked |
+| 1. Never installed (`qlopaypalcommerce`) | Done 2026-11-20: folder removed; no reference outside it, not installed locally, no tables |
 | 2–6 | Not started |
 | O1–O7 Overrides | Rule 11 change approved 2026-11-19; not started |

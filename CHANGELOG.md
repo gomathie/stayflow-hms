@@ -9,13 +9,20 @@ Every change to Salisberg, newest first, in plain words.
 
 ## 2026-11-20
 
+### Removed
+
+- **Unused PayPal module.** `modules/qlopaypalcommerce` was never installed and nothing referred to it. Cards, if ever added, would use a Ghana provider.
+
 ### Fixed
 
+- **Title-only names on the website.** The sign-up form and My personal information now refuse a name that is only a title (Mr, Mrs), as the back office already did.
+- **Dark mode "Filters:" bar.** The bar above a filtered list was white in dark mode; it now uses the card colour, with the filters as small chips.
 - **Module category filter.** Choosing a category on Manage Modules kept showing every module: the saved choice was read but never applied. It now filters.
 - **What's New page and sign-in pop-up.** A missing closing tag on the 19 November Occupancy line stopped the What's New page and the pop-up from drawing.
 
 ### Security
 
+- **Test accounts can be hidden.** A SuperAdmin can set Test account to Yes on an employee form; that login is then hidden from everyone who is not a SuperAdmin (left out of Employees, cannot be opened, edited, disabled or deleted by them), using the same check that hides SuperAdmin accounts.
 - **Web addresses refused in every guest field.** Guest names, addresses, the city and the message added to a booking now refuse web addresses, using the same check as the Contact form (now one shared rule in `Validate::containsLink`). A scan of the live site found no links or code stored in guests, addresses, messages or bookings.
 
 ### Changed

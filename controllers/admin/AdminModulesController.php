@@ -1567,7 +1567,7 @@ class AdminModulesControllerCore extends AdminController
 
         // Our own modules first, then the rest; modules the hotel does not use
         // (not installed, or replaced by our own) last, in a folded group.
-        $unused = array('bankwire', 'cheque', 'qlopaypalcommerce', 'qlochannelmanagerconnector');
+        $unused = array('bankwire', 'cheque', 'qlochannelmanagerconnector');
         $groups = array('own' => array(), 'main' => array(), 'unused' => array());
         foreach ($modules as $module) {
             if (strpos($module->name, 'salisberg') === 0) {
