@@ -11,6 +11,7 @@ Every change to Salisberg, newest first, in plain words.
 
 ### Removed
 
+- **The vendor Data Cleaner (`qlocleaner`).** Never installed. Its two delete-everything buttons and its "Clean & Optimize" (which deleted old carts without releasing their rooms and renumbered every menu entry) are gone; its database check moved into Data clean-up.
 - **Unused PayPal module.** `modules/qlopaypalcommerce` was never installed and nothing referred to it. Cards, if ever added, would use a Ghana provider.
 
 ### Fixed
@@ -26,6 +27,10 @@ Every change to Salisberg, newest first, in plain words.
 
 - **Test accounts can be hidden.** A SuperAdmin can set Test account to Yes on an employee form; that login is then hidden from everyone who is not a SuperAdmin (left out of Employees, cannot be opened, edited, disabled or deleted by them), using the same check that hides SuperAdmin accounts.
 - **Web addresses refused in every guest field.** Guest names, addresses, the city and the message added to a booking now refuse web addresses, using the same check as the Contact form (now one shared rule in `Validate::containsLink`). A scan of the live site found no links or code stored in guests, addresses, messages or bookings.
+
+### Added
+
+- **Data clean-up** (Advanced Parameters, SuperAdmin only, module `salisbergcleanup`). Remove old unfinished drafts, abandoned carts, logs, closed Inbox conversations and guests with no bookings, by age: it shows how many and a few examples first, and removes only after you type that number. Drafts and carts older than 30 days and logs older than 90 days are cleaned automatically once a day. Paid bookings and invoices are kept 6 years; deleted bookings stay in the recycle bin. Each run is logged.
 
 ### Changed
 

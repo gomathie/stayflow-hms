@@ -1,115 +1,86 @@
 <?php
-/*
- * 2007-2016 PrestaShop
+/**
+ * Data clean-up (Advanced Parameters > Data clean-up).
  *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Academic Free License (AFL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/afl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@prestashop.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to http://www.prestashop.com for more information.
- *
- *  @author PrestaShop SA <contact@prestashop.com>
- *  @copyright  2007-2016 PrestaShop SA
- *  @version  Release: $Revision: 7060 $
- *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- *  International Registered Trademark & Property of PrestaShop SA
+ * Replaces the vendor's Data Cleaner (qlocleaner, removed 2026-11-20): its
+ * "delete everything" buttons and "Clean & Optimize" are gone; its database
+ * integrity check is kept here. Removing old data by kind and date is in SalisbergDataCleanup; the
+ * page is AdminSalisbergCleanupController.
  */
 
-if (!defined('_CAN_LOAD_FILES_')) {
+if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once dirname(__FILE__).'/classes/QcCleanerHelper.php';
+require_once dirname(__FILE__).'/classes/SalisbergDataCleanup.php';
 
-class QloCleaner extends Module
+class Salisbergcleanup extends Module
 {
+    const TAB = 'AdminSalisbergCleanup';
+    const TAB_PARENT = 'AdminTools';
+
     public function __construct()
     {
-        $this->name = 'qlocleaner';
+        $this->name = 'salisbergcleanup';
         $this->tab = 'administration';
-        $this->version = '1.0.2';
-        $this->author = 'PrestaShop';
+        $this->version = '1.0.0';
+        $this->author = 'Salisberg Hotels';
         $this->need_instance = 0;
 
         $this->bootstrap = true;
         parent::__construct();
 
-        $this->displayName = $this->l('QloApps Data Cleaner');
-        $this->description = $this->l('Check and fix functional integrity constraints and remove default data');
+        $this->displayName = $this->l('Data clean-up');
+        $this->description = $this->l('Remove old drafts, carts, logs, messages and guests with no bookings, by date, and check the database.');
     }
 
     public function install()
     {
-        if (!parent::install()
-            ||  !$this->registerHook('actionAdminControllerSetMedia')
-        ) {
-            return false;
-        }
-        return true;
+        return parent::install() && $this->ensureSetup();
     }
 
-    public function hookActionAdminControllerSetMedia()
+    /** Menu entry under Advanced Parameters (SuperAdmin only: no profile is granted it), the daily hook and settings */
+    public function ensureSetup()
     {
-        if (Tools::getValue('controller') == 'AdminModules'
-            && Tools::getValue('configure') == $this->name
-        ) {
-            Media::addJsDef(array(
-                'confirm_txt' => $this->l('Are you sure, you want to perform the following action?')
-            ));
-            $this->context->controller->addJS($this->_path.'views/js/qlocleaner_config.js');
+        $this->registerHook('actionAdminControllerSetMedia');
+        if (Configuration::get('SBCLEAN_AUTO') === false) {
+            Configuration::updateValue('SBCLEAN_AUTO', 1);
         }
+        if (Tab::getIdFromClassName(self::TAB)) {
+            return true;
+        }
+        $tab = new Tab();
+        $tab->class_name = self::TAB;
+        $tab->module = $this->name;
+        $tab->id_parent = (int) Tab::getIdFromClassName(self::TAB_PARENT);
+        $tab->active = 1;
+        foreach (Language::getLanguages(false) as $lang) {
+            $tab->name[(int) $lang['id_lang']] = 'Data clean-up';
+        }
+        // add() also reports failure when only its permission bookkeeping fails
+        // (no employee in context), so judge by whether the tab now exists
+        $tab->add();
+
+        return (bool) Tab::getIdFromClassName(self::TAB);
     }
 
+    /** The configure link on the Modules page opens the clean-up page */
     public function getContent()
     {
-        $html = '<h2>'.$this->l('Be really careful with this tool - There is no possible rollback!').'</h2>';
-        if (Tools::isSubmit('submitCheckAndFix')) {
-            $logs = self::checkAndFix();
-            if (count($logs)) {
-                $this->context->smarty->assign('logs', $logs);
-                $conf = $this->context->smarty->fetch(_PS_MODULE_DIR_.$this->name.'/views/templates/admin/functional_integrity_conf.tpl');
-            } else {
-                $conf = $this->l('Nothing that need to be fixed please run database cleaning to clean your database');
-            }
-            Hook::exec('actionCleanData', array('method' => 'checkAndFix'));
-            $html .= $this->displayConfirmation($conf);
-            Cache::getInstance()->flush();
-        } elseif (Tools::isSubmit('submitCleanAndOptimize')) {
-            $logs = self::cleanAndOptimize();
-            if (count($logs)) {
-                $this->context->smarty->assign('logs', $logs);
-                $conf = $this->context->smarty->fetch(_PS_MODULE_DIR_.$this->name.'/views/templates/admin/databases_cleaning_conf.tpl');
-            } else {
-                $conf = $this->l('Nothing that need to be cleaned');
-            }
-            Hook::exec('actionCleanData', array('method' => 'cleanAndOptimize'));
-            $html .= $this->displayConfirmation($conf);
-            Cache::getInstance()->flush();
-        } elseif (Tools::getValue('submitTruncateCatalog') && Tools::getValue('checkTruncateCatalog')) {
-            self::truncate('catalog');
-            Hook::exec('actionCleanData', array('method' => 'catalog'));
-            $html .= $this->displayConfirmation($this->l('Catalog truncated successfuly, please run functional Integrity constraints to clean the database.'));
-            Cache::getInstance()->flush();
-        } elseif (Tools::getValue('submitTruncateSales') && Tools::getValue('checkTruncateSales')) {
-            self::truncate('sales');
-            Hook::exec('actionCleanData', array('method' => 'sales'));
-            $html .= $this->displayConfirmation($this->l('Orders and customers truncated successfuly, please run functional Integrity constraints to clean the database'));
-            Cache::getInstance()->flush();
+        Tools::redirectAdmin($this->context->link->getAdminLink(self::TAB));
+    }
+
+    /** Runs the daily automatic clean-up from the first back office page of the day */
+    public function hookActionAdminControllerSetMedia()
+    {
+        if (Tools::getValue('ajax')) {
+            return;
         }
-
-        $html .= $this->context->smarty->fetch(_PS_MODULE_DIR_.$this->name.'/views/templates/admin/qlocleaner_script.tpl');
-
-        return $html.$this->renderForm();
+        try {
+            SalisbergDataCleanup::runAutomatic();
+        } catch (Throwable $e) {
+            PrestaShopLogger::addLog('Data clean-up (automatic) failed: '.$e->getMessage(), 3, null, 'SalisbergDataCleanup', 0, true);
+        }
     }
 
     public static function checkAndFix()
@@ -225,157 +196,6 @@ class QloCleaner extends Module
         return $logs;
     }
 
-    public function truncate($case)
-    {
-        $db = Db::getInstance();
-        $db->execute('SET FOREIGN_KEY_CHECKS = 0;');
-
-        switch ($case) {
-            case 'catalog':
-                $id_root = Configuration::getMultiShopValues('PS_ROOT_CATEGORY');
-                $id_home = Configuration::getMultiShopValues('PS_HOME_CATEGORY');
-                $id_locations = Configuration::getMultiShopValues('PS_LOCATIONS_CATEGORY');
-                $id_services = Configuration::getMultiShopValues('PS_SERVICE_CATEGORY');
-
-                $not_in = implode(',', array_map('intval', $id_root)).','.
-                implode(',', array_map('intval', $id_home)).','.
-                implode(',', array_map('intval', $id_locations)).','.
-                implode(',', array_map('intval', $id_services));
-
-                $db->execute('DELETE FROM `'._DB_PREFIX_.'category` WHERE id_category NOT IN ('.$not_in.')');
-                $db->execute('DELETE FROM `'._DB_PREFIX_.'category_lang` WHERE id_category NOT IN ('.$not_in.')');
-                $db->execute('DELETE FROM `'._DB_PREFIX_.'category_shop` WHERE id_category NOT IN ('.$not_in.')');
-                foreach (scandir(_PS_CAT_IMG_DIR_) as $dir) {
-                    if (preg_match('/^[0-9]+(\-(.*))?\.jpg$/', $dir)) {
-                        unlink(_PS_CAT_IMG_DIR_.$dir);
-                    }
-                }
-                $tables = self::getCatalogRelatedTables();
-                foreach ($tables as $table) {
-                    $db->execute('TRUNCATE TABLE `'._DB_PREFIX_.bqSQL($table).'`');
-                }
-                $db->execute('DELETE FROM `'._DB_PREFIX_.'address` WHERE id_manufacturer > 0 OR id_supplier > 0 OR id_warehouse > 0');
-
-                Image::deleteAllImages(_PS_PROD_IMG_DIR_);
-                if (!file_exists(_PS_PROD_IMG_DIR_)) {
-                    mkdir(_PS_PROD_IMG_DIR_);
-                }
-
-                foreach (scandir(_PS_MANU_IMG_DIR_) as $dir) {
-                    if (preg_match('/^[0-9]+(\-(.*))?\.jpg$/', $dir)) {
-                        unlink(_PS_MANU_IMG_DIR_.$dir);
-                    }
-                }
-                foreach (scandir(_PS_SUPP_IMG_DIR_) as $dir) {
-                    if (preg_match('/^[0-9]+(\-(.*))?\.jpg$/', $dir)) {
-                        unlink(_PS_SUPP_IMG_DIR_.$dir);
-                    }
-                }
-
-                Image::deleteAllImages(_PS_HOTEL_IMG_DIR_);
-                if (!file_exists(_PS_HOTEL_IMG_DIR_)) {
-                    mkdir(_PS_HOTEL_IMG_DIR_);
-                }
-
-                // Delete qlo modules's images
-                QcCleanerHelper::deleteFolderImages(
-                    _PS_MODULE_DIR_.'wkabouthotelblock/views/img/hotel_interior/'
-                );
-                QcCleanerHelper::deleteFolderImages(
-                    _PS_MODULE_DIR_.'wkhotelfeaturesblock/views/img/hotels_features_img/'
-                );
-                QcCleanerHelper::deleteFolderImages(
-                    _PS_MODULE_DIR_.'wktestimonialblock/views/img/hotels_testimonials_img/'
-                );
-                //delete Qlo modules configurations from configuration table
-                QcCleanerHelper::deleteModulesConfigurations();
-
-                break;
-
-            case 'sales':
-                $tables = self::getSalesRelatedTables();
-
-                $modules_tables = array(
-                    'sekeywords' => array('sekeyword'),
-                    'pagesnotfound' => array('pagenotfound'),
-                    'paypal' => array('paypal_customer', 'paypal_order')
-                );
-
-                foreach ($modules_tables as $name => $module_tables) {
-                    if (Module::isInstalled($name)) {
-                        $tables = array_merge($tables, $module_tables);
-                    }
-                }
-
-                foreach ($tables as $table) {
-                    $db->execute('TRUNCATE TABLE `'._DB_PREFIX_.bqSQL($table).'`');
-                }
-
-                $objHotelBookingDocument =  new HotelBookingDocument();
-                if ($objHotelBookingDocument->documentsBaseDir && file_exists($objHotelBookingDocument->documentsBaseDir) && ($docs = scandir($objHotelBookingDocument->documentsBaseDir))) {
-                    foreach ($docs as $doc) {
-                        if ($doc != '.' && $doc != '..' && $doc != 'index.php') {
-                            if (is_dir($objHotelBookingDocument->documentsBaseDir.'/'.$doc)) {
-                                Tools::deleteDirectory($objHotelBookingDocument->documentsBaseDir.'/'.$doc, true);
-                            }
-                        }
-                    }
-                }
-                $db->execute('DELETE FROM `'._DB_PREFIX_.'address` WHERE id_customer > 0');
-                $db->execute('DELETE FROM `'._DB_PREFIX_.'specific_price` WHERE id_cart > 0');
-                $db->execute('UPDATE `'._DB_PREFIX_.'employee` SET `id_last_order` = 0,`id_last_customer_message` = 0,`id_last_customer` = 0');
-
-                break;
-        }
-        self::clearAllCaches();
-        $db->execute('SET FOREIGN_KEY_CHECKS = 1;');
-    }
-
-    public static function cleanAndOptimize()
-    {
-        $logs = array();
-
-        $query = '
-        DELETE FROM `'._DB_PREFIX_.'cart`
-        WHERE id_cart NOT IN (SELECT id_cart FROM `'._DB_PREFIX_.'orders`)
-        AND date_add < "'.pSQL(date('Y-m-d', strtotime('-1 month'))).'"';
-        if (Db::getInstance()->Execute($query)) {
-            if ($affected_rows = Db::getInstance()->Affected_Rows()) {
-                $logs[$query] = $affected_rows;
-            }
-        }
-
-        $query = '
-        DELETE FROM `'._DB_PREFIX_.'cart_rule`
-        WHERE (
-            active = 0
-            OR quantity = 0
-            OR date_to < "'.pSQL(date('Y-m-d')).'"
-        )
-        AND date_add < "'.pSQL(date('Y-m-d', strtotime('-1 month'))).'"';
-        if (Db::getInstance()->Execute($query)) {
-            if ($affected_rows = Db::getInstance()->Affected_Rows()) {
-                $logs[$query] = $affected_rows;
-            }
-        }
-
-        $parents = Db::getInstance()->ExecuteS('SELECT DISTINCT id_parent FROM '._DB_PREFIX_.'tab');
-        foreach ($parents as $parent) {
-            $children = Db::getInstance()->ExecuteS('SELECT id_tab FROM '._DB_PREFIX_.'tab WHERE id_parent = '.(int)$parent['id_parent'].' ORDER BY IF(class_name IN ("AdminHome", "AdminDashboard"), 1, 2), position ASC');
-            $i = 1;
-            foreach ($children as $child) {
-                $query = 'UPDATE '._DB_PREFIX_.'tab SET position = '.(int)($i++).' WHERE id_tab = '.(int)$child['id_tab'].' AND id_parent = '.(int)$parent['id_parent'];
-                if (Db::getInstance()->Execute($query)) {
-                    if ($affected_rows = Db::getInstance()->Affected_Rows()) {
-                        $logs[$query] = $affected_rows;
-                    }
-                }
-            }
-        }
-
-        return $logs;
-    }
-
     protected static function bulle($array)
     {
         $sorted = false;
@@ -402,133 +222,6 @@ class QloCleaner extends Module
         Tools::deleteDirectory(_PS_TMP_IMG_DIR_, false);
         file_put_contents(_PS_TMP_IMG_DIR_.'index.php', $index);
         Context::getContext()->smarty->clearAllCache();
-    }
-
-    public function renderForm()
-    {
-        $fields_form_1 = array(
-            'form' => array(
-                'legend' => array(
-                    'title' => $this->l('Catalog'),
-                    'icon' => 'icon-cogs'
-                ),
-                'input' => array(
-                    array(
-                        'type' => 'switch',
-                        'is_bool' => true,
-                        'label' => $this->l('I understand that all the catalog data will be removed without possible rollback: hotels, roomtypes, features, tags, images, prices..'),
-                        'name' => 'checkTruncateCatalog',
-                        'values' => array(
-                            array(
-                                'id' => 'checkTruncateCatalog_on',
-                                'value' => 1,
-                                'label' => $this->l('Enabled')
-                            ),
-                            array(
-                                'id' => 'checkTruncateCatalog_off',
-                                'value' => 0,
-                                'label' => $this->l('Disabled')
-                            )
-                        )
-                    )
-                ),
-                'submit' => array(
-                    'title' => $this->l('Delete Catalog'),
-                    'class' => 'btn btn-default pull-right',
-                    'name' => 'submitTruncateCatalog',
-                    'id' => 'submitTruncateCatalog',
-                )
-            )
-        );
-
-        $fields_form_2 = array(
-            'form' => array(
-                'legend' => array(
-                    'title' => $this->l('Orders and Customers'),
-                    'icon' => 'icon-cogs'
-                ),
-                'input' => array(
-                    array(
-                        'type' => 'switch',
-                        'is_bool' => true,
-                        'label' => $this->l('I understand that all the orders and customers will be removed without possible rollback: customers, carts, orders, connections, guests, messages, stats...'),
-                        'name' => 'checkTruncateSales',
-                        'values' => array(
-                            array(
-                                'id' => 'checkTruncateSales_on',
-                                'value' => 1,
-                                'label' => $this->l('Enabled')
-                            ),
-                            array(
-                                'id' => 'checkTruncateSales_off',
-                                'value' => 0,
-                                'label' => $this->l('Disabled')
-                            )
-                        )
-                    )
-                ),
-                'submit' => array(
-                    'title' => $this->l('Delete orders & customers'),
-                    'class' => 'btn btn-default pull-right',
-                    'name' => 'submitTruncateSales',
-                    'id' => 'submitTruncateSales',
-                )
-            )
-        );
-
-        $fields_form_3 = array(
-            'form' => array(
-                'legend' => array(
-                    'title' => $this->l('Functional integrity constraints'),
-                    'icon' => 'icon-cogs'
-                ),
-                'description' => $this->l('Integrity constraint is used to maintain the quality of information.'),
-                'submit' => array(
-                    'title' => $this->l('Check & fix'),
-                    'class' => 'btn btn-default pull-right',
-                    'name' => 'submitCheckAndFix',
-                )
-            )
-        );
-        $fields_form_4 = array(
-            'form' => array(
-                'legend' => array(
-                    'title' => $this->l('Database Cleaning'),
-                    'icon' => 'icon-cogs'
-                ),
-                'description' => $this->l('Cleaning your database will reclaim unused space in your tables, reducing storage space and improving table access efficiency.'),
-                'submit' => array(
-                    'title' => $this->l('Clean & Optimize'),
-                    'class' => 'btn btn-default pull-right',
-                    'name' => 'submitCleanAndOptimize',
-                )
-            )
-        );
-
-        $helper = new HelperForm();
-        $helper->module = $this;
-        $helper->show_toolbar = false;
-        $helper->table =  $this->table;
-        $lang = new Language((int)Configuration::get('PS_LANG_DEFAULT'));
-        $helper->default_form_language = $lang->id;
-        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ? Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') : 0;
-        $helper->id = (int)Tools::getValue('id_carrier');
-        $helper->identifier = $this->identifier;
-        $helper->submit_action = 'btnSubmit';
-        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false).'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
-        $helper->token = Tools::getAdminTokenLite('AdminModules');
-        $helper->tpl_vars = array(
-            'fields_value' => $this->getConfigFieldsValues(),
-            'languages' => $this->context->controller->getLanguages(),
-            'id_language' => $this->context->language->id
-        );
-
-        return $helper->generateForm(array($fields_form_1, $fields_form_2, $fields_form_3, $fields_form_4));
-    }
-
-    public function getConfigFieldsValues()
-    {
-        return array('checkTruncateSales' => 0, 'checkTruncateCatalog' => 0);
     }
 
     public static function getCheckAndFixQueries()
@@ -699,7 +392,7 @@ class QloCleaner extends Module
                 array('htl_room_type_feature_pricing_restriction', 'id_feature_price', 'htl_room_type_feature_pricing', 'id_feature_price'),
                 array('htl_room_type_feature_pricing_group', 'id_group', 'group', 'id_group'),
                 array('htl_booking_demands_tax', 'id_tax', 'tax', 'id_tax'),
-                array('htl_booking_detail', 'id_product', 'product', 'id_product'),
+                // htl_booking_detail -> product is left out on purpose: deleting a room type must never erase booking history
                 array('htl_booking_detail', 'id_order', 'orders', 'id_order'),
                 array('htl_booking_demands', 'id_htl_booking', 'htl_booking_detail', 'id_htl_booking'),
                 array('htl_cart_booking_data', 'id_order', 'orders', 'id_order'),
@@ -735,157 +428,4 @@ class QloCleaner extends Module
         );
     }
 
-    public static function getCatalogRelatedTables()
-    {
-        $append = array();
-        return array_merge(
-            $append,
-            array(
-                'product',
-                'product_shop',
-                'feature_product',
-                'product_lang',
-                'category_product',
-                'product_tag',
-                'tag',
-                'image',
-                'image_lang',
-                'image_shop',
-                'specific_price',
-                'specific_price_priority',
-                'product_carrier',
-                'cart_product',
-                'product_attachment',
-                'product_country_tax',
-                'product_download',
-                'product_group_reduction_cache',
-                'product_sale',
-                'product_supplier',
-                'warehouse_product_location',
-                'stock',
-                'stock_available',
-                'stock_mvt',
-                'customization',
-                'customization_field',
-                'supply_order_detail',
-                'attribute_impact',
-                'product_attribute',
-                'product_attribute_shop',
-                'product_attribute_combination',
-                'product_attribute_image',
-                'attribute_impact',
-                'attribute_lang',
-                'attribute_group',
-                'attribute_group_lang',
-                'attribute_group_shop',
-                'attribute_shop',
-                'product_attribute',
-                'product_attribute_shop',
-                'product_attribute_combination',
-                'product_attribute_image',
-                'stock_available',
-                'manufacturer',
-                'manufacturer_lang',
-                'manufacturer_shop',
-                'supplier',
-                'supplier_lang',
-                'supplier_shop',
-                'customization',
-                'customization_field',
-                'customization_field_lang',
-                'customized_data',
-                'feature_product',
-                'pack',
-                'search_index',
-                'search_word',
-                'specific_price',
-                'specific_price_priority',
-                'specific_price_rule',
-                'specific_price_rule_condition',
-                'specific_price_rule_condition_group',
-                'stock',
-                'stock_available',
-                'stock_mvt',
-                'warehouse',
-                //Qlo modules tables
-                'htl_room_type',
-                'htl_room_information',
-                'htl_branch_info',
-                'htl_branch_info_lang',
-                'htl_image',
-                'htl_branch_features',
-                'htl_advance_payment',
-                'htl_branch_refund_rules',
-                'htl_order_restrict_date',
-                'htl_room_type_feature_pricing',
-                'htl_room_type_feature_pricing_restriction',
-                'htl_room_type_feature_pricing_lang',
-                'htl_room_type_feature_pricing_group',
-                'htl_room_type_demand_price',
-                'htl_room_type_demand',
-                'htl_room_disable_dates',
-                'htl_interior_image',
-                'htl_room_block_data',
-                'htl_features_block_data',
-                'htl_testimonials_block_data',
-                'htl_room_type_global_demand',
-                'htl_room_type_service_product',
-                'htl_room_type_service_product_price',
-                'htl_bed_type',
-                'htl_bed_type_lang',
-                'htl_room_type_bed_type',
-            )
-        );
-    }
-
-    public static function getSalesRelatedTables()
-    {
-        return array(
-            'customer',
-            'cart',
-            'cart_product',
-            'connections',
-            'connections_page',
-            'connections_source',
-            'customer_group',
-            'customer_message',
-            'customer_message_sync_imap',
-            'customer_thread',
-            'guest',
-            'message',
-            'message_readed',
-            'orders',
-            'order_carrier',
-            'order_cart_rule',
-            'order_detail',
-            'order_detail_tax',
-            'order_history',
-            'order_invoice',
-            'order_invoice_payment',
-            'order_invoice_tax',
-            'order_message',
-            'order_message_lang',
-            'order_payment',
-            'order_payment_detail',
-            'order_return',
-            'order_return_detail',
-            'order_slip',
-            'order_slip_detail',
-            'page',
-            'page_type',
-            'page_viewed',
-            'product_sale',
-            'referrer_cache',
-            //Qlo modules order tables
-            'htl_cart_booking_data',
-            'htl_booking_detail',
-            'htl_booking_demands',
-            'htl_booking_demands_tax',
-            'service_product_order_detail',
-            'service_product_cart_detail',
-            'order_customer_guest_detail',
-            'customer_guest_detail',
-            'cart_customer_guest'
-        );
-    }
 }

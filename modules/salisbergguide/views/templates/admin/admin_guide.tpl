@@ -385,7 +385,19 @@
 			<tr><td><span class="sb-path">SQL Manager</span></td><td>{l s='Saved database questions whose answers can be exported to a spreadsheet, for reports the other pages do not offer.' mod='salisbergguide'}</td><td>{l s='Click Add new SQL query, give it a name and the query, and Save. Only SELECT queries are accepted, so nothing can be changed or deleted from here.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Logs</span></td><td>{l s='A record of back office sign-ins and of errors, with a severity from 1 (informative) to 4 (major issue).' mod='salisbergguide'}</td><td>{l s='Check it when a sign-in looks suspicious or something failed. Logs by email at the bottom can send serious entries to the shop email.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Webservice</span></td><td>{l s='Lets other software read or change bookings, guests and rooms with an access key, without anyone signing in.' mod='salisbergguide'}</td><td>{l s='Leave it switched off. See below.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Data clean-up</span></td><td>{l s='Removes old data on purpose: unfinished booking drafts, abandoned carts, system logs, closed Inbox conversations and guests with no bookings. Paid bookings and invoices are kept for 6 years and are never removed here.' mod='salisbergguide'}</td><td>{l s='See Data clean-up below.' mod='salisbergguide'}</td></tr>
 		</table>
+
+		<h4>{l s='Data clean-up' mod='salisbergguide'}</h4>
+		<ol>
+			<li>{l s='The table at the top shows how many items of each kind could go now.' mod='salisbergguide'}</li>
+			<li>{l s='Under Remove old data, choose What and Older than (days), then click Show what would go. Nothing is removed yet: you see the number and a few examples.' mod='salisbergguide'}</li>
+			<li>{l s='To remove them, type that number in the box and click Remove. A wrong number removes nothing. Each run is written to Logs with your name.' mod='salisbergguide'}</li>
+		</ol>
+		<p>{l s='Each kind has a shortest age it accepts (for example 2 days for drafts, 90 days for guests), so a booking someone is still making is never caught. A guest with any booking, and a cart holding a booking, are never removed.' mod='salisbergguide'}</p>
+		<p>{l s='Automatic clean-up: once a day, from the first back office page opened that day, unfinished drafts and abandoned carts older than 30 days and logs older than 90 days are removed. It can be switched off on the page.' mod='salisbergguide'}</p>
+		<p>{l s='Deleted bookings stay in the recycle bin. Removing them for good is not offered until a deleted booking is both 90 days in the bin and more than 6 years old.' mod='salisbergguide'}</p>
+		<p>{l s='Database check (Check and fix) removes leftover rows that point to records which no longer exist. It never removes bookings, guests or rooms.' mod='salisbergguide'}</p>
 
 		<h4>{l s='Configuration Information' mod='salisbergguide'}</h4>
 		<ul>

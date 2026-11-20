@@ -71,7 +71,9 @@ Never move or rename an inherited file (rule 29). One batch per change.
 
 **Today** it is the vendor's "Data Cleaner" (not installed). It has two all-or-nothing buttons, Delete Catalog and Delete Orders and Customers, plus a database integrity check. Nothing can be undone, and there is no way to pick dates.
 
-**What it becomes** (proposal to approve in detail before building, rule 31):
+**Status: built 2026-11-20** as our own module `modules/salisbergcleanup` (owner, 2026-11-20: "delete the old one"; `qlocleaner` was removed instead of renamed in place, which rule 29 allows because nothing loads it by path). Differences from the proposal below: no "test data" kind (no reliable way to tell test data apart); "Backup first" relies on the nightly backup, because the app container cannot reach the backup volume; the schedule runs from the first back office page of the day, because the platform has no cron.
+
+**What it becomes** (proposal, approved 2026-11-20):
 
 | Part | What it does |
 |---|---|

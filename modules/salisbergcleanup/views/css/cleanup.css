@@ -1,0 +1,12 @@
+/* Advanced Parameters > Data clean-up (cleanup.tpl). Colours from the back office tokens. */
+.sb-clean-scroll { max-width: 100%; overflow-x: auto; }
+.sb-clean-choose { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.sb-clean-choose .form-group { margin: 0; min-width: 180px; }
+.sb-clean-result { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--sb-line); }
+.sb-clean-count { font-size: 15px; color: var(--sb-ink); }
+.sb-clean-count strong { font-size: 20px; margin-right: 4px; }
+.sb-clean-sample { margin: 0 0 14px; padding: 0; list-style: none; }
+.sb-clean-sample li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid var(--sb-line); }
+.sb-clean-sample small { color: var(--sb-muted); white-space: nowrap; }
+.sb-clean-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.sb-clean-confirm .form-control { width: 120px; }

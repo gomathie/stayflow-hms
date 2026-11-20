@@ -42,7 +42,7 @@ if ($idGhana) {
     }
 }
 
-foreach (array('salisbergpay', 'salisbergguide', 'salisbergreports', 'salisbergfrontdesk', 'salisbergnotify') as $name) {
+foreach (array('salisbergpay', 'salisbergguide', 'salisbergreports', 'salisbergfrontdesk', 'salisbergnotify', 'salisbergcleanup') as $name) {
     $module = Module::getInstanceByName($name);
     if (!$module) {
         sb_log("ERROR: module $name not found");
@@ -105,6 +105,17 @@ if ($desk && Module::isInstalled('salisbergfrontdesk')) {
         sb_log('front desk pages in place');
     } else {
         sb_log('ERROR: front desk pages could not be created');
+        $failed = true;
+    }
+}
+
+// Advanced Parameters > Data clean-up. SuperAdmin only, so no other profile is granted it.
+$cleanup = Module::getInstanceByName('salisbergcleanup');
+if ($cleanup && Module::isInstalled('salisbergcleanup')) {
+    if ($cleanup->ensureSetup()) {
+        sb_log('data clean-up page in place');
+    } else {
+        sb_log('ERROR: data clean-up page could not be created');
         $failed = true;
     }
 }
