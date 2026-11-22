@@ -17,7 +17,7 @@
 			<li><a href="#sb-a7">{l s='Currency and taxes' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a8">{l s='Cancellations and refunds' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a9">{l s='Website content' mod='salisbergguide'}</a></li>
-			<li><a href="#sb-a10">{l s='Email' mod='salisbergguide'}</a></li>
+			<li><a href="#sb-a10">{l s='Email and text messages' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a11">{l s='Closing the site for maintenance' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a12">{l s='Backups' mod='salisbergguide'}</a></li>
 			<li><a href="#sb-a13">{l s='Things that must be done by the developer' mod='salisbergguide'}</a></li>
@@ -33,26 +33,35 @@
 		<table>
 			<tr><th>{l s='Profile' mod='salisbergguide'}</th><th>{l s='Who it is for' mod='salisbergguide'}</th><th>{l s='What it can do' mod='salisbergguide'}</th></tr>
 			<tr><td>SuperAdmin</td><td>{l s='The developer team' mod='salisbergguide'}</td><td>{l s='Everything, including how the system is installed and built: modules, payment settings, currency and taxes, email, maintenance, backups, profiles and permissions.' mod='salisbergguide'}</td></tr>
-			<tr><td>Hotel Manager</td><td>{l s='The person who runs the hotel' mod='salisbergguide'}</td><td>{l s='Everything about the hotel itself: bookings (including deleting), guests, room types, prices and discounts, extra services, refund rules and requests, hotel details, website pages and homepage content, staff accounts, reports, and both guides. Cannot open modules, system settings, profiles or permissions.' mod='salisbergguide'}</td></tr>
-			<tr><td>Hotel Staff</td><td>{l s='Front desk and reservations' mod='salisbergguide'}</td><td>{l s='Make and edit bookings, record payments, check guests in and out, manage guest records, answer messages, view refund requests, read the Staff Guide. Cannot delete anything, and cannot see prices setup, settings, modules, staff accounts or this guide.' mod='salisbergguide'}</td></tr>
+			<tr><td>Hotel Manager</td><td>{l s='The person who runs the hotel' mod='salisbergguide'}</td><td>{l s='Everything about the hotel itself: bookings (including archiving and restoring deleted bookings), guests, room types, prices and discounts, extra services, refund rules and requests, hotel details, website pages and homepage content, staff accounts, reports, and both guides. Cannot open modules, system settings, profiles or permissions.' mod='salisbergguide'}</td></tr>
+			<tr><td>Hotel Staff</td><td>{l s='Front desk and bookings' mod='salisbergguide'}</td><td>{l s='Make and edit bookings, archive a mistaken booking with a reason, record payments, check guests in and out, manage guest records, answer messages, view refund requests, and read the Staff Guide. Cannot see or restore archived bookings, and cannot see prices setup, settings, modules, staff accounts or this guide.' mod='salisbergguide'}</td></tr>
 		</table>
+		<h4>{l s='Deleted bookings' mod='salisbergguide'}</h4>
+		<p>{l s='Hotel Managers with permission can open Administration > Recycle bin to review the deletion time, staff member, reason, saved guest contact details and full booking value. The totals show the number and value of archived bookings by currency. Use Restore only after checking that the room dates are still available; the system refuses a restore that would conflict with another active booking. Hotel Staff can move a booking to the bin but cannot see the bin or restore it.' mod='salisbergguide'}</p>
 		<h4>{l s='Add a member of staff' mod='salisbergguide'}</h4>
 		<ol>
 			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Employees</span> {l s='and click Add new employee.' mod='salisbergguide'}</li>
 			<li>{l s='Enter their name, their own email address and a strong password.' mod='salisbergguide'}</li>
-			<li>{l s='Set Permission profile to Hotel Staff for front desk and reservations, or Hotel Manager for someone who runs the hotel. Only the developer team can give out SuperAdmin.' mod='salisbergguide'}</li>
+			<li>{l s='Set Permission profile to Hotel Staff for front desk and bookings, or Hotel Manager for someone who runs the hotel. Only the developer team can give out SuperAdmin.' mod='salisbergguide'}</li>
+			<li>{l s='Type their mobile number in Phone (for texts). Set Receive booking alerts to Yes if they should get a text and an email for each new booking, payment, cancellation and milestone. Anyone without a number is asked for it in a small box the next time they sign in; what they type appears here.' mod='salisbergguide'}</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Save</span> {l s='and give them the back office address. Ask them to change the password on first sign-in.' mod='salisbergguide'}</li>
 		</ol>
+		{if $sb_is_admin}<p class="sb-tip">{l s='Test account: on an employee form, set Test account to Yes to hide that login from everyone who is not a SuperAdmin. It is left out of their Employees list and they cannot open, edit, disable or delete it. It can still sign in. Use it for logins the developer team keeps for checking the live site.' mod='salisbergguide'}</p>{/if}
 		<h4>{l s='When someone leaves' mod='salisbergguide'}</h4>
 		<p>{l s='Open their record in Employees and switch Active to No the same day. Do not delete the account: their name stays on the bookings they handled.' mod='salisbergguide'}</p>
 		<h4>{l s='Change what a profile can do' mod='salisbergguide'}</h4>
 		{if $sb_is_admin}
 		<p>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Permissions</span>, {l s='pick the profile on the left, and tick View, Add, Edit or Delete for each page. To create another role (for example Housekeeping), add it in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Profiles</span> {l s='first.' mod='salisbergguide'}</p>
 		<p>{l s='The What is New page under Guides is one of those pages: tick or untick View on its row to decide which profiles can read it. Hotel Staff and Hotel Manager have it to begin with.' mod='salisbergguide'}</p>
+		<p>{l s='The front desk permissions are New booking, Today and Housekeeping. New booking and Today are workflow pages opened from buttons rather than separate sidebar entries. Today View shows Today at the desk on Dashboard, and Edit allows Check in and Check out there. Housekeeping Edit allows room state changes. Hotel Staff and Hotel Manager receive these rights when the pages are first created; later changes are kept.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='Anyone who takes bookings needs View and Edit on New booking, and the hotel ticked in the Hotel Permissions panel beside the grid. Without the hotel ticked, room availability and dashboard figures are empty. Hotel Staff and Hotel Manager are given both when the front desk pages are installed.' mod='salisbergguide'}</p>
+		<p>{l s='The Hotel Staff profile receives Delete on Bookings once so staff can archive mistaken bookings; change that right on the Bookings row if your procedure requires it. The Hotel Manager receives View and Edit on Recycle bin when that page is created. Edit permits restoring; later permission changes are kept.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='Only a SuperAdmin can see SuperAdmin employee accounts. Hotel Managers and Hotel Staff do not see those accounts in Employees.' mod='salisbergguide'}</p>
 		{else}
 		<p>{l s='What each profile may open is set by the developer team. Tell them if a member of staff needs a page they cannot see, or should lose one.' mod='salisbergguide'}</p>
 		{/if}
 		<p class="sb-tip">{l s='Back office sessions end after 12 hours, so everyone signs in again each working day.' mod='salisbergguide'}</p>
+		<p>{l s='On a phone the back office is shown at full size, and Add to home screen is in the account menu (the circle with your initials) on every page: the phone asks to install it, or shows the steps. The Dashboard may also offer it in a note at the bottom. The icon opens the desk and does not keep a copy of bookings on the phone.' mod='salisbergguide'}</p>
 		<h4>{l s='Sign-in and form limits' mod='salisbergguide'}</h4>
 		<p>{l s='To slow down password guessing and spam, the site limits how often the same internet connection can use certain forms. When a limit is reached the person sees "Too many attempts" and the time to wait.' mod='salisbergguide'}</p>
 		<table>
@@ -79,7 +88,7 @@
 					<li><strong>Restrictions</strong> &ndash; {l s='how far ahead guests can book and minimum notice.' mod='salisbergguide'}</li>
 					<li><strong>Refund Policies</strong> &ndash; {l s='which refund rules apply to this hotel (see section 8).' mod='salisbergguide'}</li>
 					<li><strong>Features</strong> &ndash; {l s='facilities shown on the room pages.' mod='salisbergguide'}</li>
-					<li><strong>Seo</strong> &ndash; {l s='the title and description search engines show.' mod='salisbergguide'}</li>
+					{if $sb_is_admin}<li><strong>Search engines</strong> &ndash; {l s='the website link and the title search engines show. Leave it empty: both are made from the hotel name.' mod='salisbergguide'}</li>{/if}
 				</ul>
 			</li>
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Save and stay</span> {l s='after each tab.' mod='salisbergguide'}</li>
@@ -92,14 +101,14 @@
 		<h3>3. {l s='Room types and rooms' mod='salisbergguide'}</h3>
 		<p>{l s='A room type is what guests choose on the website (for example Deluxe Room). Each type contains the actual numbered rooms.' mod='salisbergguide'}</p>
 		<ol>
-			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Catalog &rsaquo; Manage Room Types</span>. {l s='Click a type to edit it, or Add new.' mod='salisbergguide'}</li>
+			<li>{l s='Go to' mod='salisbergguide'} <span class="sb-path">Rooms &amp; Services &rsaquo; Manage Room Types</span>. {l s='Click a type to edit it, or Add new.' mod='salisbergguide'}</li>
 			<li>{l s='Fill in the tabs:' mod='salisbergguide'}
 				<ul>
 					<li><strong>Information</strong> &ndash; {l s='name, hotel, descriptions, and whether it is shown on the website.' mod='salisbergguide'}</li>
 					<li><strong>Prices</strong> &ndash; {l s='the price per night and its tax rule.' mod='salisbergguide'}</li>
 					<li><strong>Images</strong> &ndash; {l s='photos; the cover image is the one used in lists.' mod='salisbergguide'}</li>
 					<li><strong>Features</strong> &ndash; {l s='amenities such as Wi-Fi.' mod='salisbergguide'}</li>
-					<li><strong>Rooms</strong> &ndash; {l s='the individual rooms of this type and whether each is available.' mod='salisbergguide'}</li>
+					<li><strong>Rooms</strong> &ndash; {l s='the individual rooms of this type: room number, floor, whether each is available, Extra Information (shown on the room card at the front desk) and an optional Own price.' mod='salisbergguide'}</li>
 					<li><strong>Occupancy</strong> &ndash; {l s='how many adults and children it sleeps.' mod='salisbergguide'}</li>
 					<li><strong>Service Products</strong> / <strong>Additional Facilities</strong> &ndash; {l s='extras offered with this room.' mod='salisbergguide'}</li>
 					<li><strong>Length of Stay</strong> &ndash; {l s='minimum and maximum nights.' mod='salisbergguide'}</li>
@@ -107,7 +116,17 @@
 			</li>
 			<li>{l s='Save. The room type appears on the website when it is enabled and has at least one available room.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-tip">{l s='To take one room out of service (repairs, deep clean), change that room in the Rooms tab rather than disabling the whole type.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='A room type that is switched on but has no room in service cannot be booked: the website shows it as sold out for every date and New booking offers nothing for it. The Manage Room Types list marks it No rooms in red and shows a warning at the top naming it. Add its rooms in the Rooms tab, or switch the room type off until it is ready.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='To take one room out of service (repairs, a fault), use' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Housekeeping</span> {l s='and click Out of service on the room; it is the same as setting the room to Inactive in the Rooms tab. To close a room for set dates only, use the Rooms tab.' mod='salisbergguide'}</p>
+		<h4>{l s='Different prices for rooms of the same type' mod='salisbergguide'}</h4>
+		<p>{l s='All rooms of a type share the price on the Prices tab. When one room is worth more or less, for example a Standard room with a fridge and a steam iron at 400 beside Standard rooms at 300, give that room its own price:' mod='salisbergguide'}</p>
+		<ol>
+			<li>{l s='Open the room type and go to the' mod='salisbergguide'} <strong>Rooms</strong> {l s='tab.' mod='salisbergguide'}</li>
+			<li>{l s='In the row of that room, type the price per night before tax in' mod='salisbergguide'} <strong>Own price</strong>. {l s='Leave it empty and the room uses the room type price.' mod='salisbergguide'}</li>
+			<li>{l s='Write what makes the room different in' mod='salisbergguide'} <strong>Extra Information</strong> {l s='(for example Fridge, steam iron). It is shown on the room card in New booking, so the front desk can explain the price.' mod='salisbergguide'}</li>
+			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Save</span>. {l s='To go back to the room type price, empty the Own price box and save again.' mod='salisbergguide'}</li>
+		</ol>
+		<p class="sb-tip">{l s='The own price is used when staff book that room in New booking. The website sells the room type at the room type price, whichever room the guest is given, because guests do not choose a room there. Bookings already made keep the price they were made at. Special prices set for the room type on certain dates (a season, a promotion) still apply on top: the room keeps the same difference from the room type price on those dates.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminProducts|escape:'html':'UTF-8'}">{l s='Open Manage Room Types' mod='salisbergguide'} &rarr;</a>
 	</section>
 
@@ -125,10 +144,17 @@
 	<section id="sb-a5">
 		<h3>5. {l s='Extra services' mod='salisbergguide'}</h3>
 		<ul>
-			<li><strong>{l s='Paid extras' mod='salisbergguide'}</strong> {l s='such as breakfast, dinner or airport transfer:' mod='salisbergguide'} <span class="sb-path">Catalog &rsaquo; Manage Service Products</span>.</li>
+			<li><strong>{l s='Paid extras' mod='salisbergguide'}</strong> {l s='such as breakfast, dinner or airport transfer:' mod='salisbergguide'} <span class="sb-path">Rooms &amp; Services &rsaquo; Manage Service Products</span>.</li>
 			<li><strong>{l s='Room add-ons' mod='salisbergguide'}</strong> {l s='such as an extra bed:' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; General Settings &rsaquo; Additional Facilities</span>.</li>
 		</ul>
 		<p>{l s='Attach them to room types in that type\'s Service Products and Additional Facilities tabs.' mod='salisbergguide'}</p>
+		<h4>{l s='Charges added to every booking, and tax' mod='salisbergguide'}</h4>
+		<p>{l s='Some charges are added to every booking by themselves, without the guest choosing them. Go to' mod='salisbergguide'} <span class="sb-path">Rooms &amp; Services &rsaquo; Charges &amp; Tax</span> {l s='to see them and untick any you do not want. The page also says how each is charged: per night or once per stay, and whether it is hidden inside the room rate the guest sees or shown as a separate fee.' mod='salisbergguide'}</p>
+		<p class="sb-warn">{l s='The system came with two sample charges switched on: Room Maintenance Fees (GH₵250 per room per night, added inside the room rate, so a GH₵200 room is charged GH₵450) and Internet Handling Charges (GH₵250 per room per stay). Untick them unless the hotel means to charge them.' mod='salisbergguide'}</p>
+		<p>{l s='While tax is on, a second tick, Let staff leave tax off a single booking, puts a Charge tax switch on the booking form (on Yes by default). Staff use it for a guest who is not to be charged tax. Untick it and every booking is charged tax.' mod='salisbergguide'}</p>
+		<p>{l s='On the same page, Charge tax on bookings switches tax on or off for new bookings. The tax rates that came with the system are United States rates, not Ghana VAT and levies; leave tax off until the right ones are set up with your accountant.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='Changes apply to new bookings. Bookings already made keep what they were charged.' mod='salisbergguide'}</p>
+		<a class="sb-go" href="{$sb_links.AdminSalisbergCharges|escape:'html':'UTF-8'}">{l s='Open Charges & Tax' mod='salisbergguide'} &rarr;</a>
 	</section>
 
 	<section id="sb-a6">
@@ -148,7 +174,7 @@
 		<p class="sb-tip">{l s='Card payments are not set up. They need an account with a payment company (for example Paystack or Hubtel in Ghana), which then has to be connected to the site by the developer team.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminModules|escape:'html':'UTF-8'}&amp;configure=salisbergpay">{l s='Open Salisberg Pay settings' mod='salisbergguide'} &rarr;</a>
 		{else}
-		<p class="sb-tip">{l s='This is looked after by the developer team. Ask them when it needs to change.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='Setting up tax rates is looked after by the developer team. You can switch tax on or off yourself under Rooms & Services, Charges & Tax (see section 5).' mod='salisbergguide'}</p>
 		{/if}
 	</section>
 
@@ -168,9 +194,9 @@
 	<section id="sb-a8">
 		<h3>8. {l s='Cancellations and refunds' mod='salisbergguide'}</h3>
 		<ol>
-			<li>{l s='Set the rules in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Rules</span>: {l s='how much is kept depending on how many days before check-in the guest cancels.' mod='salisbergguide'}</li>
+			<li>{l s='Set the rules in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Refund rules</span>: {l s='how much is kept depending on how many days before check-in the guest cancels.' mod='salisbergguide'}</li>
 			<li>{l s='Attach rules to the hotel in Hotel Details, Refund Policies tab.' mod='salisbergguide'}</li>
-			<li>{l s='Guest requests arrive in' mod='salisbergguide'} <span class="sb-path">Manage Hotel &rsaquo; Manage Order Refund Requests</span>. {l s='Open one, decide, and set its status. The system does not send money: return cash or Mobile Money yourself, then record it on the booking.' mod='salisbergguide'}</li>
+			<li>{l s='Guest requests arrive in' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Refund requests</span>. {l s='Open one, decide, and set its status. The system does not send money: return cash or Mobile Money yourself, then record it on the booking.' mod='salisbergguide'}</li>
 		</ol>
 	</section>
 
@@ -184,13 +210,16 @@
 			{if $sb_is_admin}
 			<tr><td>{l s='Homepage guest reviews, room list, footer payment icons' mod='salisbergguide'}</td><td><span class="sb-path">Modules and Services &rsaquo; Manage Modules</span>, {l s='then Configure on the block' mod='salisbergguide'}</td></tr>
 			{/if}
-			<tr><td>{l s='Pages such as About Us, Terms, Legal Notice' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; CMS</span></td></tr>
+			<tr><td>{l s='Pages such as About Us, Terms, Legal Notice (enter the Page title and the content only: the website link is made from the title, and the description search engines show from the start of the content. A page keeps its link when you rename it, so links already shared keep working)' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; CMS</span></td></tr>
 			{if $sb_is_admin}
-			<tr><td>{l s='Page titles and descriptions for search engines' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; SEO &amp; URLs</span></td></tr>
+			<tr><td>{l s='Search engine fields (description, keywords, Friendly URL) on a page or a hotel, only shown to the developer team: fill one in only to replace what is made automatically' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; CMS</span>, <span class="sb-path">Manage Hotel &rsaquo; Hotel Details &rsaquo; Search engines</span></td></tr>
+			<tr><td>{l s='Titles and descriptions for the homepage and other fixed pages' mod='salisbergguide'}</td><td><span class="sb-path">Preferences &rsaquo; SEO &amp; URLs</span></td></tr>
 			<tr><td>{l s='Friendly URL (website links read salisberg.com/room-name instead of salisberg.com/index.php?...)' mod='salisbergguide'}</td><td>{l s='Switched on and kept on by the deploy. Leave Friendly URL set to Yes here; turning it off is undone on the next deploy.' mod='salisbergguide'}</td></tr>
 			{/if}
-			<tr><td>{l s='Who receives messages from the Contact form' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Contacts</span></td></tr>
-			<tr><td>{l s='Whether guests can attach a file to a Contact form message (switched off: the form takes messages only)' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Customer Service</span>, {l s='Contact options, Allow file uploading' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Who receives messages from the Contact form (the form has no Title or Send To choice: every message goes to this one contact and appears under Inbox, titled with the start of the message)' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Contacts</span></td></tr>
+			<tr><td>{l s='Contact form settings (name and phone fields, default reply text). All email, including replies sent from Inbox, goes out through the one mail server set under Administration, Integrations, Email; there is no separate mailbox to set up' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Inbox</span></td></tr>
+			<tr><td>{l s='Whether guests can attach a file to a Contact form message (switched off: the form takes messages only)' mod='salisbergguide'}</td><td><span class="sb-path">Customers &rsaquo; Inbox</span>, {l s='Contact form settings, Allow file uploading' mod='salisbergguide'}</td></tr>
+<tr><td>{l s='Web addresses typed by guests' mod='salisbergguide'}</td><td>{l s='Refused everywhere a guest types: the Contact form, guest names, addresses, the city and the message added to a booking. Email addresses are allowed. Text that looks like code is saved as plain text and never runs.' mod='salisbergguide'}</td></tr>
 		</table>
 		<p class="sb-tip">{l s='The Hotel Reviews feature (guests rating their stay after check-out) is switched off for now. Ask the developer to switch it on when you want to start collecting reviews; it cannot be enabled from the Modules page because it is switched off again at every update.' mod='salisbergguide'}</p>
 		<h4>{l s='Homepage guest reviews ("What our guests say")' mod='salisbergguide'}</h4>
@@ -209,9 +238,35 @@
 	</section>
 
 	<section id="sb-a10">
-		<h3>10. {l s='Email' mod='salisbergguide'}</h3>
+		<h3>10. {l s='Email and text messages' mod='salisbergguide'}</h3>
 		{if $sb_is_admin}
-		<p>{l s='Booking confirmations and password resets are sent by email. Set how they are sent in' mod='salisbergguide'} <span class="sb-path">Advanced Parameters &rsaquo; E-mail</span>.</p>
+		<p>{l s='Booking confirmations and password resets are sent by email. Enter the mail server in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Integrations</span>, {l s='under Email (mail server): server, port, encryption, user name, password and the address to send from. Any provider that offers SMTP works. Save, then use Send test email to check it reaches an inbox.' mod='salisbergguide'}</p>
+		<p>{l s='That one setting is used for every email the system sends: booking confirmations, payment and status notices, password resets, Contact form notices and replies written in Inbox. There is no second mail server or mailbox to configure anywhere else.' mod='salisbergguide'}</p>
+		<p>{l s='A guest recorded at the desk without an email address is stored with a placeholder ending in guest.invalid. Nothing is ever sent to those addresses.' mod='salisbergguide'}</p>
+		<h4>{l s='What a guest is sent' mod='salisbergguide'}</h4>
+		<table>
+			<tr><th>{l s='When' mod='salisbergguide'}</th><th>{l s='Email' mod='salisbergguide'}</th><th>{l s='Text message' mod='salisbergguide'}</th></tr>
+			<tr><td>{l s='Booking made' mod='salisbergguide'}</td><td>{l s='Confirmation, with the invoice as a PDF' mod='salisbergguide'}</td><td>{l s='Booking confirmed, with the dates and the total' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Part payment recorded' mod='salisbergguide'}</td><td>{l s='Notice, with the invoice showing what is still due' mod='salisbergguide'}</td><td>{l s='Amount received and what is still to pay' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Paid in full' mod='salisbergguide'}</td><td>{l s='Notice, with the receipt as a PDF' mod='salisbergguide'}</td><td>{l s='Payment received, with the amount and booking reference' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Checked in (first room of the booking)' mod='salisbergguide'}</td><td>{l s='Welcome, with the invoice or receipt as a PDF' mod='salisbergguide'}</td><td>{l s='Welcome, with the room number and check-out date' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Checked out (last room of the booking)' mod='salisbergguide'}</td><td>{l s='Thank you, with a summary of the stay and any balance still open' mod='salisbergguide'}</td><td>{l s='Thank you and safe travels' mod='salisbergguide'}</td></tr>
+			<tr><td>{l s='Booking cancelled' mod='salisbergguide'}</td><td>{l s='Cancellation notice' mod='salisbergguide'}</td><td>{l s='Booking cancelled, with the dates' mod='salisbergguide'}</td></tr>
+		</table>
+		<p>{l s='The invoice and the receipt are one document: it is headed Invoice while money is owed and Receipt once it is settled. It carries the hotel logo, the stay, the payments received, the balance due, and the payment details entered in Salisberg Pay.' mod='salisbergguide'}</p>
+		<p>{l s='All invoices are listed under' mod='salisbergguide'} <span class="sb-path">Bookings &rsaquo; Invoices</span>{l s=', with totals for what is billed, paid and still to pay. Filter by status or dates, then use the two forms underneath to print many invoices in one PDF. The numbering and layout settings at the bottom of that page are shown to the developer team only.' mod='salisbergguide'}</p>
+		<h4>{l s='Text messages' mod='salisbergguide'}</h4>
+		<p>{l s='A guest who has a phone number on the booking is texted at check-in, with the room and the check-out date, and again when the booking is paid in full. Nothing is sent until an API key is saved in' mod='salisbergguide'} <span class="sb-path">Administration &rsaquo; Integrations</span>.</p>
+		<p>{l s='Paste the API key from the mNotify account. The sender name is what appears on the guest phone. It must be a sender ID already approved on that account, letters and numbers only, at most 11 characters, and it starts as Salisberg.' mod='salisbergguide'}</p>
+		<p>{l s='Leave the key box empty to keep the saved key. Tick Remove the saved key to stop texts. With no key saved, check-in and payment still work and no text is sent. A guest with no phone number on the booking is not texted. A Ghana number can start with 0 or with +233.' mod='salisbergguide'}</p>
+		<p>{l s='Use Send a test text on that page, to your own number, before relying on it for guests.' mod='salisbergguide'}</p>
+		<p>{l s='The page opens with one card per integration (Text messages, Booking alerts, Email, Error tracking) showing whether each is on; click a card to go to its settings. In Booking alerts for staff, Test beside a chosen person sends one text to their saved number and says whether it was accepted. Only the developer team can send tests.' mod='salisbergguide'}</p>
+		<p>{l s='Texts are kept short, one SMS each, and write the currency as GHS so every phone can show it. Emails carry the full details. Booking alerts for staff work the same way: a one-line text, and an email with the guest, phone, rooms, dates, payment method, total, paid and still to pay. Staff are alerted on a new booking, a part payment, payment in full and a cancellation.' mod='salisbergguide'}</p>
+		<h4>{l s='Booking alerts for staff' mod='salisbergguide'}</h4>
+		<p>{l s='Booking milestones (50, 100, then every 100 up to 1,000, then every 500) are sent to the same people, by text and email, and shown on the Dashboard.' mod='salisbergguide'}</p>
+		<p>{l s='On the same Integrations page, Booking alerts for staff is a list of your back-office people. Tick anyone who should be told about a new booking or a payment. Each person you tick is alerted by text (if a key is saved above and they have a phone number) and by email, at the address on their staff account.' mod='salisbergguide'}</p>
+		<p>{l s='You can also set the phone of each person and Receive booking alerts on their employee form (Administration, Employees); a Hotel Manager can do it there too. Anyone without a phone is asked for it the next time they sign in. Email alerts need the mail server set up (Email, on the same page). A person with no phone still gets the email.' mod='salisbergguide'}</p>
+		<a class="sb-go" href="{$sb_links.AdminSalisbergIntegrations|escape:'html':'UTF-8'}">{l s='Open Integrations' mod='salisbergguide'} &rarr;</a>
 		<ol>
 			<li>{l s='Choose to send through your own SMTP server and enter the details from your email provider (server, port, username, password, encryption).' mod='salisbergguide'}</li>
 			<li>{l s='Use the Test your email configuration box at the bottom to send yourself a test.' mod='salisbergguide'}</li>
@@ -274,22 +329,24 @@
 			<li>{l s='Click' mod='salisbergguide'} <span class="sb-btn">Show report</span> {l s='to see it on screen, or' mod='salisbergguide'} <span class="sb-btn">Download PDF</span> {l s='to save or print it.' mod='salisbergguide'}</li>
 		</ol>
 		<p class="sb-tip">{l s='Totals leave out cancelled and refunded bookings. The Bookings report still lists them, so nothing goes missing from the record.' mod='salisbergguide'}</p>
+		<p>{l s='Hotel Staff see only the Arrivals and departures report. The hotel income is kept from them: they do not see the Bookings and Income reports, the Total Sales figure on the Bookings page, or the sales and performance charts on the Dashboard. Managers and the developer team see everything.' mod='salisbergguide'}</p>
 		<p class="sb-warn">{l s='A report contains guest names and phone numbers. Keep printed copies and downloaded files private.' mod='salisbergguide'}</p>
 		<a class="sb-go" href="{$sb_links.AdminSalisbergReports|escape:'html':'UTF-8'}">{l s='Open Reports' mod='salisbergguide'} &rarr;</a>
 		<h4>{l s='Other places to look' mod='salisbergguide'}</h4>
 		<ul>
-			<li><span class="sb-path">Dashboard</span> &ndash; {l s='bookings, income and occupancy for a period you choose at the top.' mod='salisbergguide'}</li>
-			<li><span class="sb-path">Stats</span> &ndash; {l s='detailed reports: sales, best room types, visitors and more.' mod='salisbergguide'}</li>
+			<li><span class="sb-path">Dashboard</span> &ndash; {l s='Today at the desk, then the charts. The chart tiles are neutral; red marks only a problem. Occupancy shows tonight (rooms with a guest checked in, free, out of service) as one bar, and the occupancy rate for the chosen period: booked room-nights out of room-nights available. The Overdue and Unpaid lists have a coloured edge when they need action. Demo figures (sample numbers in the charts) is a button beside the hotel filter, shown only to a SuperAdmin; a notice says when it is on. Day is today. Month and Year change only the charts. A period that no longer includes today is set back to Day when the page opens. Day-1, Month-1 and Year-1 stay as they were set.' mod='salisbergguide'}</li>
+			<li>{l s='The old Stats section and its statistics modules were removed. Use the reports above.' mod='salisbergguide'}</li>
 			<li><span class="sb-path">Bookings &rsaquo; Bookings</span> &ndash; {l s='filter the list, then export it to a spreadsheet with the export button at the top.' mod='salisbergguide'}</li>
 		</ul>
 	</section>
 
 	<section id="sb-a15">
 		<h3>15. {l s='Showing or hiding menu sections' mod='salisbergguide'}</h3>
+		<p>{l s='The technical sections (Modules and Services, Localization, Preferences, Advanced Parameters and Administration) are grouped under the System heading in the menu, folded away. Click System to show or hide them. A section opens by itself while you are on one of its pages. You only see the sections your role may use; Hotel Staff have none, so they have no System heading.' mod='salisbergguide'}</p>
 		{if $sb_is_admin}
-		<p>{l s='Sections the hotel does not use can be taken out of the menu on the left, for everyone. Nothing is deleted or switched off: a hidden section only disappears from the menu, and its pages still open from the links in this guide for those with permission.' mod='salisbergguide'}</p>
+		<p>{l s='Manage Modules opens with one line of totals, then category buttons and a search box. Each module shows On, Off or Not installed. Salisberg modules come first; modules that are not installed are folded under Not installed. Positions (now under Administration) lists each place on the website or back office where modules appear, folded to one line with a plain name and the technical name beside it; click a line to see its modules, and drag to reorder them. Searching opens what it finds. Tick Display non-positionable hooks to include the behind-the-scenes events, such as When a booking status changes.' mod='salisbergguide'}</p>
+		<p>{l s='The technical Modules and Services section can be taken out of the menu on the left for everyone. Nothing is deleted or switched off: it only disappears from the menu.' mod='salisbergguide'}</p>
 		<ul>
-			<li><strong>Channel Manager</strong> &ndash; {l s='only needed if rooms are also sold through booking sites such as Booking.com or Expedia, and it does nothing until a channel manager service is bought and connected.' mod='salisbergguide'}</li>
 			<li><strong>Modules and Services</strong> &ndash; {l s='the building blocks of the system. Hide it to keep the menu short once setup is finished.' mod='salisbergguide'}</li>
 		</ul>
 		<form method="post" action="{$sb_links.AdminSalisbergAdminGuide|escape:'html':'UTF-8'}#sb-a15" class="sb-menu-form">
@@ -307,7 +364,8 @@
 			{/foreach}
 			<button type="submit" name="submitSbMenu" class="btn btn-primary">{l s='Save' mod='salisbergguide'}</button>
 		</form>
-		<p class="sb-tip">{l s='Each profile already sees only the sections it has permission for. Hotel Staff and Hotel Manager never see Modules and Services or Channel Manager, whatever is chosen here.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='Each profile already sees only the sections it has permission for. Hotel Staff and Hotel Manager never see Modules and Services, whatever is chosen here.' mod='salisbergguide'}</p>
+		<p>{l s='These shop pages are also kept out of the menu, and a deploy puts them back out if they are switched on again: Groups, Titles, Shopping Carts, Catalog Price Rules, Stats, Themes, Search, Geolocation and States. Voucher codes stay under Manage Discounts, Cart Rules. The pages are not deleted. Check-in, prices and the website do not use those menu links.' mod='salisbergguide'}</p>
 		{else}
 		<p class="sb-tip">{l s='This is looked after by the developer team. Ask them when it needs to change.' mod='salisbergguide'}</p>
 		{/if}
@@ -322,12 +380,24 @@
 			<tr><td><span class="sb-path">Configuration Information</span></td><td>{l s='A read-only summary of the server, database, website and mail setup, plus two checks.' mod='salisbergguide'}</td><td>{l s='Look here first when something is wrong, and copy it into any problem report. See below.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Performance</span></td><td>{l s='How pages are prepared and cached.' mod='salisbergguide'}</td><td>{l s='If a page looks out of date or broken after a change, click Clear cache at the top right. Leave the other settings as described below.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">E-mail</span></td><td>{l s='How the site sends email.' mod='salisbergguide'}</td><td>{l s='See section 10.' mod='salisbergguide'}</td></tr>
-			<tr><td><span class="sb-path">CSV Import</span></td><td>{l s='Loads many records at once from a spreadsheet file: Hotels, Room Types, Rooms, Categories, Service Products, Bookings or Customers. Accepts a .csv or an Excel .xlsx file.' mod='salisbergguide'}</td><td>{l s='Useful when moving from another system. See below before using it.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">CSV Import</span></td><td>{l s='Loads many records at once from a spreadsheet file: Hotels, Room Types, Rooms, Categories, Service Products, Bookings or Customers. Takes Excel (.xlsx) files only.' mod='salisbergguide'}</td><td>{l s='Useful when moving from another system. See below before using it.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">DB Backup</span></td><td>{l s='Makes a copy of the database by hand.' mod='salisbergguide'}</td><td>{l s='See section 12. The nightly automatic backup is the one to rely on.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">SQL Manager</span></td><td>{l s='Saved database questions whose answers can be exported to a spreadsheet, for reports the other pages do not offer.' mod='salisbergguide'}</td><td>{l s='Click Add new SQL query, give it a name and the query, and Save. Only SELECT queries are accepted, so nothing can be changed or deleted from here.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Logs</span></td><td>{l s='A record of back office sign-ins and of errors, with a severity from 1 (informative) to 4 (major issue).' mod='salisbergguide'}</td><td>{l s='Check it when a sign-in looks suspicious or something failed. Logs by email at the bottom can send serious entries to the shop email.' mod='salisbergguide'}</td></tr>
 			<tr><td><span class="sb-path">Webservice</span></td><td>{l s='Lets other software read or change bookings, guests and rooms with an access key, without anyone signing in.' mod='salisbergguide'}</td><td>{l s='Leave it switched off. See below.' mod='salisbergguide'}</td></tr>
+			<tr><td><span class="sb-path">Data clean-up</span></td><td>{l s='Removes old data on purpose: unfinished booking drafts, abandoned carts, system logs, closed Inbox conversations and guests with no bookings. Paid bookings and invoices are kept for 6 years and are never removed here.' mod='salisbergguide'}</td><td>{l s='See Data clean-up below.' mod='salisbergguide'}</td></tr>
 		</table>
+
+		<h4>{l s='Data clean-up' mod='salisbergguide'}</h4>
+		<ol>
+			<li>{l s='The table at the top shows how many items of each kind could go now.' mod='salisbergguide'}</li>
+			<li>{l s='Under Remove old data, choose What and Older than (days), then click Show what would go. Nothing is removed yet: you see the number and a few examples.' mod='salisbergguide'}</li>
+			<li>{l s='To remove them, type that number in the box and click Remove. A wrong number removes nothing. Each run is written to Logs with your name.' mod='salisbergguide'}</li>
+		</ol>
+		<p>{l s='Each kind has a shortest age it accepts (for example 2 days for drafts, 90 days for guests), so a booking someone is still making is never caught. A guest with any booking, and a cart holding a booking, are never removed.' mod='salisbergguide'}</p>
+		<p>{l s='Automatic clean-up: once a day, from the first back office page opened that day, unfinished drafts and abandoned carts older than 30 days and logs older than 90 days are removed. It can be switched off on the page.' mod='salisbergguide'}</p>
+		<p>{l s='Deleted bookings stay in the recycle bin. Removing them for good is not offered until a deleted booking is both 90 days in the bin and more than 6 years old.' mod='salisbergguide'}</p>
+		<p>{l s='Database check (Check and fix) removes leftover rows that point to records which no longer exist. It never removes bookings, guests or rooms.' mod='salisbergguide'}</p>
 
 		<h4>{l s='Configuration Information' mod='salisbergguide'}</h4>
 		<ul>
@@ -349,11 +419,11 @@
 		<h4>{l s='CSV Import' mod='salisbergguide'}</h4>
 		<ol>
 			<li>{l s='Make a backup first (section 12). An import cannot be undone.' mod='salisbergguide'}</li>
-			<li>{l s='Choose what to import, then download the matching file under Download sample csv files and fill it in the same layout. The Available fields box lists every column; those marked * are required.' mod='salisbergguide'}</li>
+			<li>{l s='Choose what to import, then download the matching file under Download sample Excel files and fill it in the same layout. The Available fields box lists every column; those marked * are required.' mod='salisbergguide'}</li>
 			<li>{l s='Upload the file, match the columns on the next screen, and import a file with two or three rows first to check the result before loading the rest.' mod='salisbergguide'}</li>
 		</ol>
-		<p class="sb-tip">{l s='The file can be a .csv or an ordinary Excel .xlsx file (not the old .xls format): save the spreadsheet as .xlsx and upload it directly, no need to export to CSV first.' mod='salisbergguide'}</p>
-		<p class="sb-tip">{l s='The ".xlsx" sample downloads only have the columns a non-technical user is likely to fill in by hand (name, price, beds, description and similar). Columns left out, such as the web address, search-engine text and tax rule, are filled in by the system from the name and the shop defaults. The full .csv files still have every column, for anyone who wants to set those by hand.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='Only Excel .xlsx files are accepted, not .csv and not the old .xls format: save the spreadsheet as .xlsx and upload it directly.' mod='salisbergguide'}</p>
+		<p class="sb-tip">{l s='The sample downloads only have the columns a non-technical user is likely to fill in by hand (name, price, beds, description and similar). Columns left out, such as the web address, search-engine text and tax rule, are filled in by the system from the name and the shop defaults.' mod='salisbergguide'}</p>
 		<p class="sb-warn">{l s='Importing with the same ID as an existing record replaces that record. Leave the ID column empty to add new ones.' mod='salisbergguide'}</p>
 
 		<h4>{l s='Webservice' mod='salisbergguide'}</h4>

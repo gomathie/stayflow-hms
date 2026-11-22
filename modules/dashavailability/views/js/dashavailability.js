@@ -23,60 +23,70 @@
 var dashavailability_data;
 var dashavailability_chart;
 
+// Colour of "free rooms", shared with the Occupancy panel (--sb-occ-free).
+function sbAvailColour() {
+    var c = getComputedStyle(document.documentElement).getPropertyValue('--sb-occ-free');
+    return $.trim(c) || '#cf931f';
+}
+
+function sbAvailDay(ts) {
+    var d = new Date(ts * 1000);
+    var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return days[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()];
+}
+
 function line_chart_availability(widget_name, chart_details) {
+    var colour = sbAvailColour();
+    $.each(chart_details.data, function (i, series) {
+        series.color = colour;
+        series.area = true;
+    });
+
+    // Scale up to a round number above the highest value, so a flat line (every
+    // room free) is drawn inside the chart with a labelled tick above it.
+    var top = 0;
+    $.each(chart_details.data, function (i, series) {
+        $.each(series.values || [], function (j, p) { top = Math.max(top, parseInt(p[1], 10) || 0); });
+    });
+    var step = top > 50 ? 10 : 5;
+    var yMax = Math.max(step, Math.ceil((top + 1) / step) * step);
+
     nv.addGraph(function() {
         var chart = nv.models.lineChart()
             .useInteractiveGuideline(true)
+            .showLegend(false)
             .x(function(d) { return (d !== undefined ? d[0] : 0); })
-            .y(function(d) { return (d !== undefined ? parseInt(d[1]) : 0); })
-            .forceY(0)
-            .margin({
-                left: 30,
-                right: 30,
-            }
-        );
+            .y(function(d) { return (d !== undefined ? parseInt(d[1], 10) : 0); })
+            .forceY([0, yMax])
+            .margin({ top: 16, left: 40, right: 40, bottom: 36 });
 
+        // One date label per ~90px of chart, at most 7, so they never collide
         chart.xAxis
-        .tickFormat(function(d) {
-            date = new Date(d * 1000);
-            return date.format(chart_details['date_format']);
-        })
-        // through this function we are also fixing the x axis date and values alignment issue
-        .tickValues(function(values) {
-            var indexInterval = Math.floor(values[0].values.length / 10);
-
-            var dates = [];
-            for (var i = 0; i < 10; i++) {
-                if (values[0].values[(indexInterval+1) * i]) {
-                    dates.push(values[0].values[(indexInterval+1) * i]);
+            .tickFormat(function(d) { return sbAvailDay(d); })
+            .tickValues(function(values) {
+                var points = values[0].values;
+                var room = Math.max(2, Math.min(7, Math.floor(($("#availability_line_chart1").width() || 600) / 90)));
+                var step = Math.max(1, Math.ceil(points.length / room));
+                var ticks = [];
+                for (var i = step; i < points.length - 1; i += step) {
+                    ticks.push(points[i][0]);
                 }
-            }
-            var dates =  dates.map(function(v) {
-                return v[0]
+                return ticks;
             });
 
-            return dates;
-        });
-
-        chart.yAxis.tickFormat(function(d) {
+        chart.yAxis.tickValues(d3.range(0, yMax + 1, step)).tickFormat(function(d) {
             return Number.isInteger(d) ? d : '';
         });
 
-        // create content for the tooltip of chart
-        chart.interactiveLayer.tooltip.contentGenerator((obj, element) => {
-            if (typeof obj.series[0] !== 'undefined') {
-                var date = new Date(obj.value * 1000);
-                date = date.format(chart_details['date_format']);
-
-                tooltipContent = '';
-                tooltipContent += '<p>' + date_txt + ': <b>' + date + '</b></p>';
-                tooltipContent += '<p>' + avail_rooms_txt + ': <b>' + obj.series[0].value + '</b></p>';
+        chart.interactiveLayer.tooltip.contentGenerator(function(obj) {
+            if (typeof obj.series[0] === 'undefined') {
+                return '';
             }
-
-            return getTooltipContent(obj.series[0].key, tooltipContent, obj.series[0].color);
+            var content = '<p><b>' + sbAvailDay(obj.value) + '</b></p>'
+                + '<p>' + avail_rooms_txt + ': <b>' + obj.series[0].value + '</b></p>';
+            return getTooltipContent(obj.series[0].key, content, obj.series[0].color);
         });
-
-        chart.legend.updateState(false);
 
         dashavailability_data = chart_details.data;
         dashavailability_chart = chart;
@@ -90,50 +100,39 @@ function line_chart_availability(widget_name, chart_details) {
 }
 
 function refreshAvailabilityBarData() {
-    var days = parseInt($('#dashavailability').find('.avail-bar-btn.bar-btn-active').attr('data-days'));
-    fetchAvailablityBarData(days, $("#bardate").val());
+    var days = parseInt($('#dashavailability .avail-bar-btn.bar-btn-active').attr('data-days'), 10) || 7;
+    fetchAvailablityBarData(days, $('#bardate').val());
 }
 
-// select fetch bar chart data
-function fetchAvailablityBarData(days, date_from = false) {
-    if (!date_from) {
-        date_from = $("#bardate").val();
-    }
-
-    var extra = JSON.stringify({
-        date_from: date_from,
-        days: days,
-    });
-
-    refreshDashboard('dashavailability', true, extra);
+function fetchAvailablityBarData(days, date_from) {
+    refreshDashboard('dashavailability', true, JSON.stringify({
+        date_from: date_from || $('#bardate').val(),
+        days: days
+    }));
 }
 
 function availDatePicker() {
     $('#bardate').datepicker('show');
 }
 
-$(document).on('click', '.avail-bar-btn', function() {
-    $('.avail-bar-btn').removeClass('bar-btn-active');
-    $(this).addClass('bar-btn-active');
+$(document).on('click', '#dashavailability .avail-bar-btn', function() {
+    $('#dashavailability .avail-bar-btn').removeClass('bar-btn-active').attr('aria-pressed', 'false');
+    $(this).addClass('bar-btn-active').attr('aria-pressed', 'true');
     refreshAvailabilityBarData();
 });
 
 $(document).ready(function() {
-    $("#bardate").val($("#date-start").val());
-    $(".bar-date").find("strong").text($("#date-start").val());
-
-    $("#bardate").datepicker({
+    $('#bardate').datepicker({
         dateFormat: 'yy-mm-dd',
         beforeShow: function(input, inst) {
             setTimeout(function() {
-                inst.dpDiv.css({
-                    top: $(".datepicker").offset().top + 35,
-                    left: $(".datepicker").offset().left
-                });
+                var btn = $('#avail_datepicker');
+                inst.dpDiv.css({ top: btn.offset().top + btn.outerHeight() + 4, left: btn.offset().left });
             }, 0);
         },
         onSelect: function(date) {
-            $(".bar-date").find("strong").text(date);
+            var p = date.split('-');
+            $('#dashavailability .bar-date').text(sbAvailDay(new Date(p[0], p[1] - 1, p[2]).getTime() / 1000).replace(/^\w+ /, '') + ' ' + p[0]);
             refreshAvailabilityBarData();
         }
     });

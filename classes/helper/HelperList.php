@@ -775,7 +775,6 @@ class HelperListCore extends Helper
             'selected_pagination' => $selected_pagination,
             'pagination' => $this->_pagination,
             'list_total' => $this->listTotal,
-            'sql' => isset($this->sql) && $this->sql ? str_replace('\n', ' ', str_replace('\r', '', $this->sql)) : false,
             'table' => $this->table,
             'bulk_actions' => $this->bulk_actions,
             'show_toolbar' => $this->show_toolbar,

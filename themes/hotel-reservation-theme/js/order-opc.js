@@ -264,24 +264,21 @@ $(document).ready(function()
 	{
 		if (guestCheckoutEnabled && !isLogged && !isGuest)
 		{
+			// P-24: the form opens as a guest booking (no password); an account
+			// is one link away for those who want one.
 			$('#opc_account_choice').show();
-			$('#opc_account_form, #opc_invoice_address').hide();
+			$('#opc_invoice_address').hide();
+			$('.is_customer_param').hide();
+			$('#opc_account_form').show();
+			$('#is_new_customer').val('0');
+			$('#submitAccount').attr({id : 'submitGuestAccount', name : 'submitGuestAccount'});
 
 			$(document).on('click', '#opc_createAccount',function(e){
 				e.preventDefault();
 				$('.is_customer_param').show();
-				$('#opc_account_form').slideDown('slow');
 				$('#is_new_customer').val('1');
-				if (typeof bindUniform !=='undefined')
-					bindUniform();
-			});
-			$(document).on('click', '#opc_guestCheckout', function(e){
-				e.preventDefault();
-				$('.is_customer_param').hide();
-				$('#opc_account_form').slideDown('slow');
-				$('#is_new_customer').val('0');
-				$('#new_account_title').html(txtInstantCheckout);
-				$('#submitAccount').attr({id : 'submitGuestAccount', name : 'submitGuestAccount'});
+				$('#submitGuestAccount').attr({id : 'submitAccount', name : 'submitAccount'});
+				$('#opc_account_choice').hide();
 				if (typeof bindUniform !=='undefined')
 					bindUniform();
 			});
@@ -345,6 +342,10 @@ $(document).ready(function()
 					}
 					else
 					{
+						// the form is posted by script: let the browser offer to save the password
+						if (window.PasswordCredential && navigator.credentials) {
+							navigator.credentials.store(new PasswordCredential({ id: $('#login_email').val(), password: $('#login_passwd').val() })).catch(function () {});
+						}
 						// update token
 						static_token = jsonData.token;
 						updateNewAccountToAddressBlock(that.attr('data-adv-api'));

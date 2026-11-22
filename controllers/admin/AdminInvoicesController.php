@@ -127,7 +127,7 @@ class AdminInvoicesControllerCore extends AdminController
     {
         $this->fields_form = array(
             'legend' => array(
-                'title' => $this->l('By date'),
+                'title' => $this->l('Print every invoice between two dates'),
                 'icon' => 'icon-calendar'
             ),
             'input' => array(
@@ -171,20 +171,20 @@ class AdminInvoicesControllerCore extends AdminController
     {
         $this->fields_form = array(
             'legend' => array(
-                'title' => $this->l('By order status'),
+                'title' => $this->l('Print every invoice of bookings in a status'),
                 'icon' => 'icon-time'
             ),
             'input' => array(
                 array(
                     'type' => 'checkboxStatuses',
-                    'label' => $this->l('Order statuses'),
+                    'label' => $this->l('Booking statuses'),
                     'name' => 'id_order_state',
                     'values' => array(
                         'query' => OrderState::getOrderStates($this->context->language->id),
                         'id' => 'id_order_state',
                         'name' => 'name'
                     ),
-                    'hint' => $this->l('You can also export orders which have not been charged yet.')
+                    'hint' => $this->l('You can also export bookings which have not been charged yet.')
                 )
             ),
             'submit' => array(
@@ -226,10 +226,14 @@ class AdminInvoicesControllerCore extends AdminController
         $this->initTabModuleList();
         $this->initToolbar();
         $this->initPageHeaderToolbar();
+        $this->content .= $this->renderInvoiceList();
         $this->content .= $this->initFormByDate();
         $this->content .= $this->initFormByStatus();
         $this->table = 'invoice';
-        $this->content .= $this->renderOptions();
+        // numbering, prefix and layout settings are for the developer team
+        if ($this->context->employee->isSuperAdmin()) {
+            $this->content .= $this->renderOptions();
+        }
 
         $this->context->smarty->assign(array(
             'content' => $this->content,
@@ -238,6 +242,151 @@ class AdminInvoicesControllerCore extends AdminController
             'page_header_toolbar_title' => $this->page_header_toolbar_title,
             'page_header_toolbar_btn' => $this->page_header_toolbar_btn
         ));
+    }
+
+    /** Rows per page the list offers (SIMPLIFY-REVIEW P-13); the first is the default */
+    public static $perPageChoices = array(20, 50);
+
+    /** The choices on the list's form, cleaned */
+    protected function getListFilters()
+    {
+        $status = (string) Tools::getValue('sb_status', 'all');
+        $from = (string) Tools::getValue('sb_from');
+        $to = (string) Tools::getValue('sb_to');
+        $isDay = function ($day) {
+            return (bool) preg_match('/^\d{4}-\d{2}-\d{2}$/', $day) && Validate::isDate($day);
+        };
+
+        return array(
+            'q' => Tools::substr(trim((string) Tools::getValue('sb_q')), 0, 64),
+            'status' => in_array($status, array('all', 'unpaid', 'part', 'paid'), true) ? $status : 'all',
+            'from' => $isDay($from) ? $from : '',
+            'to' => $isDay($to) ? $to : '',
+            'per' => in_array((int) Tools::getValue('sb_per'), self::$perPageChoices, true) ? (int) Tools::getValue('sb_per') : self::$perPageChoices[0],
+            'page' => max(1, (int) Tools::getValue('sb_page', 1)),
+        );
+    }
+
+    /**
+     * The invoices themselves, newest first: number, booking, guest, stay,
+     * total, paid, what is still owed, and the PDF.
+     */
+    public function renderInvoiceList()
+    {
+        $filters = $this->getListFilters();
+        $where = '';
+        if ($filters['q'] !== '') {
+            // % and _ are wildcards in LIKE: taken out, the rest is escaped
+            $like = pSQL(str_replace(array('%', '_'), '', $filters['q']));
+            $digits = (int) preg_replace('/\D+/', '', $filters['q']);
+            $where .= ' AND (o.`reference` LIKE \'%'.$like.'%\'
+                OR CONCAT(c.`firstname`, \' \', c.`lastname`) LIKE \'%'.$like.'%\'
+                OR c.`phone` LIKE \'%'.$like.'%\''
+                .($digits ? ' OR oi.`number` = '.$digits : '').')';
+        }
+        if ($filters['from'] !== '') {
+            $where .= ' AND oi.`date_add` >= \''.pSQL($filters['from']).' 00:00:00\'';
+        }
+        if ($filters['to'] !== '') {
+            $where .= ' AND oi.`date_add` <= \''.pSQL($filters['to']).' 23:59:59\'';
+        }
+        $owed = '(o.`total_paid_tax_incl` - o.`total_paid_real`)';
+        if ($filters['status'] == 'paid') {
+            $where .= ' AND '.$owed.' <= 0.009';
+        } elseif ($filters['status'] == 'part') {
+            $where .= ' AND '.$owed.' > 0.009 AND o.`total_paid_real` > 0.009';
+        } elseif ($filters['status'] == 'unpaid') {
+            $where .= ' AND '.$owed.' > 0.009 AND o.`total_paid_real` <= 0.009';
+        }
+
+        $from = 'FROM `'._DB_PREFIX_.'order_invoice` oi
+            INNER JOIN `'._DB_PREFIX_.'orders` o ON o.`id_order` = oi.`id_order`
+            INNER JOIN `'._DB_PREFIX_.'htl_booking_detail` hbd ON hbd.`id_order` = oi.`id_order`
+            LEFT JOIN `'._DB_PREFIX_.'customer` c ON c.`id_customer` = o.`id_customer`
+            WHERE o.`id_shop` IN ('.implode(', ', array_map('intval', Shop::getContextListShopID())).')
+                '.HotelBranchInformation::addHotelRestriction(false, 'hbd').'
+                AND oi.`number` > 0'.$where.'
+            GROUP BY oi.`id_order_invoice`';
+
+        // totals cover every invoice the filter matches, not only this page (P-13)
+        $sum = Db::getInstance()->executeS(
+            'SELECT COUNT(*) AS `count`, SUM(x.`t`) AS `total`, SUM(x.`p`) AS `paid`,
+                SUM(GREATEST(0, ROUND(x.`t` - x.`p`, 2))) AS `balance`
+            FROM (SELECT o.`total_paid_tax_incl` AS `t`, o.`total_paid_real` AS `p` '.$from.') x'
+        );
+        $sum = $sum ? $sum[0] : array('count' => 0, 'total' => 0, 'paid' => 0, 'balance' => 0);
+        $count = (int) $sum['count'];
+        $per = (int) $filters['per'];
+        $pages = max(1, (int) ceil($count / $per));
+        $page = min((int) $filters['page'], $pages);
+
+        $rows = (array) Db::getInstance()->executeS(
+            'SELECT oi.`id_order_invoice`, oi.`date_add`, o.`id_order`, o.`reference`, o.`id_currency`, o.`id_lang`, o.`id_shop`,
+                o.`total_paid_tax_incl`, o.`total_paid_real`,
+                CONCAT(c.`firstname`, \' \', c.`lastname`) AS `guest`, c.`phone`,
+                MIN(hbd.`date_from`) AS `stay_from`, MAX(hbd.`date_to`) AS `stay_to`
+            '.$from.'
+            ORDER BY oi.`date_add` DESC, oi.`number` DESC
+            LIMIT '.(int) (($page - 1) * $per).', '.$per
+        );
+
+        $idCurrency = (int) Configuration::get('PS_CURRENCY_DEFAULT');
+        $invoices = array();
+        foreach ($rows as $row) {
+            $total = (float) $row['total_paid_tax_incl'];
+            $paid = (float) $row['total_paid_real'];
+            $balance = max(0, Tools::ps_round($total - $paid, 2));
+            $invoice = new OrderInvoice((int) $row['id_order_invoice']);
+            $invoices[] = array(
+                'id_order_invoice' => (int) $row['id_order_invoice'],
+                'id_order' => (int) $row['id_order'],
+                'number' => $invoice->getInvoiceNumberFormatted((int) $row['id_lang'], (int) $row['id_shop']),
+                'date' => HTMLTemplateInvoice::dateInWords($row['date_add']),
+                'reference' => $row['reference'],
+                'guest' => $row['guest'],
+                'phone' => $row['phone'],
+                'stay' => HTMLTemplateInvoice::dateInWords($row['stay_from']).' - '.HTMLTemplateInvoice::dateInWords($row['stay_to']),
+                'total' => Tools::displayPrice($total, (int) $row['id_currency']),
+                'paid' => Tools::displayPrice($paid, (int) $row['id_currency']),
+                'balance' => Tools::displayPrice($balance, (int) $row['id_currency']),
+                'status' => ($balance <= 0.009) ? 'paid' : (($paid > 0.009) ? 'part' : 'unpaid'),
+            );
+        }
+
+        $this->context->smarty->assign(array(
+            'sb_invoices' => $invoices,
+            'sb_filters' => $filters,
+            'sb_statuses' => array(
+                'all' => $this->l('All'),
+                'unpaid' => $this->l('Not yet paid'),
+                'part' => $this->l('Partly paid'),
+                'paid' => $this->l('Paid'),
+            ),
+            'sb_totals' => array(
+                'count' => $count,
+                'total' => Tools::displayPrice((float) $sum['total'], $idCurrency),
+                'paid' => Tools::displayPrice((float) $sum['paid'], $idCurrency),
+                'balance' => Tools::displayPrice((float) $sum['balance'], $idCurrency),
+            ),
+            'sb_pager' => array(
+                'page' => $page,
+                'pages' => $pages,
+                'per' => $per,
+                'choices' => self::$perPageChoices,
+                'first' => $count ? ($page - 1) * $per + 1 : 0,
+                'last' => min($count, $page * $per),
+                // the address of this list with the current filters, ready for &sb_page=/&sb_per=
+                'base' => self::$currentIndex.'&token='.$this->token
+                    .'&sb_q='.urlencode($filters['q']).'&sb_status='.urlencode($filters['status'])
+                    .'&sb_from='.urlencode($filters['from']).'&sb_to='.urlencode($filters['to']),
+            ),
+            'sb_token' => $this->token,
+            'sb_self' => self::$currentIndex.'&token='.$this->token,
+            'sb_booking_link' => $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order=',
+            'sb_pdf_link' => $this->context->link->getAdminLink('AdminPdf').'&submitAction=generateInvoicePDF&id_order_invoice=',
+        ));
+
+        return $this->context->smarty->fetch(_PS_ADMIN_DIR_.'/themes/'.$this->bo_theme.'/template/controllers/invoices/list.tpl');
     }
 
     public function initToolbarTitle()
@@ -271,7 +420,7 @@ class AdminInvoicesControllerCore extends AdminController
             }
         } elseif (Tools::isSubmit('submitAddinvoice_status')) {
             if (!is_array($status_array = Tools::getValue('id_order_state')) || !count($status_array)) {
-                $this->errors[] = $this->l('You must select at least one order status.');
+                $this->errors[] = $this->l('You must select at least one booking status.');
             } else {
                 foreach ($status_array as $id_order_state) {
                     if (count(OrderInvoice::getByStatus((int)$id_order_state))) {

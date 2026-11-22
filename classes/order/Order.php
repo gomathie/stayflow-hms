@@ -987,7 +987,11 @@ class OrderCore extends ObjectModel
 
         $sql = 'SELECT o.*, (SELECT SUM(od.`product_quantity`) FROM `'._DB_PREFIX_.'order_detail` od WHERE od.`id_order` = o.`id_order`) nb_products
         FROM `'._DB_PREFIX_.'orders` o
-        WHERE o.`id_customer` = '.(int)$id_customer;
+        WHERE o.`id_customer` = '.(int)$id_customer.'
+        AND NOT EXISTS (
+            SELECT 1 FROM `'._DB_PREFIX_.'sb_deleted_booking` archived
+            WHERE archived.`id_order` = o.`id_order`
+        )';
 
         // if you want orders from / not from a specific id_address_invoice
         if (!is_null($id_address_invoice)) {
@@ -1784,7 +1788,23 @@ class OrderCore extends ObjectModel
      */
     public static function generateReference()
     {
-        return strtoupper(Tools::passwdGen(9, 'NO_NUMERIC'));
+        // Salisberg: SB-YYMMDD-NN, the booking day and its running number (SB-261119-07).
+        // The counter row is raised atomically, so two bookings at the same moment
+        // get different numbers. Codes already issued are never changed.
+        $day = date('ymd');
+        $db = Db::getInstance();
+        $ok = $db->execute(
+            'INSERT INTO `'._DB_PREFIX_.'sb_reference_counter` (`day`, `n`) VALUES (\''.pSQL($day).'\', LAST_INSERT_ID(1))
+            ON DUPLICATE KEY UPDATE `n` = LAST_INSERT_ID(`n` + 1)',
+            false
+        );
+        $n = $ok ? (int) $db->Insert_ID() : 0;
+        if ($n < 1) {
+            // the counter table is created by the deploy's schema step; until then keep the stock code
+            return strtoupper(Tools::passwdGen(9, 'NO_NUMERIC'));
+        }
+
+        return 'SB-'.$day.'-'.sprintf('%02d', $n);
     }
 
     public function orderContainProduct($id_product)
@@ -2577,10 +2597,9 @@ class OrderCore extends ObjectModel
                     )) {
                         $totals = array_reduce($serviceProductDetail, function ($carry, $item) use ($order_detail) {
                             $objHotelBookingDetail = new HotelBookingDetail((int) $item['id_htl_booking_detail']);
-                            if ((Product::PRICE_CALCULATION_METHOD_PER_DAY == $order_detail['product_price_calculation_method'])
-                                && (!$numDays = HotelHelper::getNumberOfDays($objHotelBookingDetail->date_from, $objHotelBookingDetail->date_to))
-                            ) {
-                                $numDays = 1;
+                            $numDays = 1;
+                            if (Product::PRICE_CALCULATION_METHOD_PER_DAY == $order_detail['product_price_calculation_method']) {
+                                $numDays = max(1, (int) HotelHelper::getNumberOfDays($objHotelBookingDetail->date_from, $objHotelBookingDetail->date_to));
                             }
 
                             if (!empty($item['id_tax_rules_group'])) {

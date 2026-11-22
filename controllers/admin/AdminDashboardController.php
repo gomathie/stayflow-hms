@@ -57,11 +57,7 @@ class AdminDashboardControllerCore extends AdminController
     public function initPageHeaderToolbar()
     {
         $this->page_header_toolbar_title = $this->l('Dashboard');
-        $this->page_header_toolbar_btn['switch_demo'] = array(
-            'desc' => $this->l('Demo mode', null, null, false),
-            'icon' => 'process-icon-toggle-'.(Configuration::get('PS_DASHBOARD_SIMULATION') ? 'on' : 'off'),
-            'help' => $this->l('This mode displays sample data so you can try your dashboard without real numbers.', null, null, false)
-        );
+        // P-7: Demo mode lives with the charts it changes (view.tpl), not in the page header
 
         parent::initPageHeaderToolbar();
 
@@ -162,8 +158,41 @@ class AdminDashboardControllerCore extends AdminController
         return $forms;
     }
 
+    /**
+     * Keeps the dashboard charts on a period that includes today, unless the
+     * employee chose Day-1, Month-1 or Year-1. A saved range such as last
+     * September would otherwise stay on screen, because the daily reset below
+     * only runs when this browser has not opened the dashboard yet today. The
+     * desk lists always use the calendar day and are not affected.
+     */
+    protected function keepChartsOnAUsefulPeriod()
+    {
+        $employee = $this->context->employee;
+        if (!$employee || !(int) $employee->id) {
+            return;
+        }
+        $preselect = (string) $employee->preselect_date_range;
+        if (in_array($preselect, array('prev-day', 'prev-month', 'prev-year'), true)) {
+            return;
+        }
+        $today = date('Y-m-d');
+        $from = (string) $employee->stats_date_from;
+        $to = (string) $employee->stats_date_to;
+        if ($from !== '' && $to !== '' && $from <= $today && $to >= $today) {
+            return;
+        }
+        $employee->stats_date_from = $today;
+        $employee->stats_date_to = $today;
+        $employee->preselect_date_range = 'day';
+        $employee->update();
+        $this->context->cookie->stats_date_update = strtotime($today);
+        $this->context->cookie->write();
+    }
+
     public function renderView()
     {
+        $this->keepChartsOnAUsefulPeriod();
+
         if (Tools::isSubmit('profitability_conf')) {
             return parent::renderOptions();
         }
@@ -285,6 +314,8 @@ class AdminDashboardControllerCore extends AdminController
             'dashboard_use_push' => Configuration::get('PS_DASHBOARD_USE_PUSH'),
             'calendar' => $calendar_helper->generate(),
             'PS_DASHBOARD_SIMULATION' => Configuration::get('PS_DASHBOARD_SIMULATION'),
+            // only the developer team may switch sample figures on (ajaxProcessSetSimulationMode checks too)
+            'sb_can_demo' => (bool) ($this->context->employee && $this->context->employee->isSuperAdmin()),
             'datepickerFrom' => Tools::getValue('datepickerFrom', $this->context->employee->stats_date_from),
             'datepickerTo' => Tools::getValue('datepickerTo', $this->context->employee->stats_date_to),
             'preselect_date_range' => Tools::getValue('preselectDateRange', $this->context->employee->preselect_date_range),
@@ -403,6 +434,9 @@ class AdminDashboardControllerCore extends AdminController
 
     public function ajaxProcessSetSimulationMode()
     {
+        if (!$this->context->employee || !$this->context->employee->isSuperAdmin()) {
+            die('k'.Configuration::get('PS_DASHBOARD_SIMULATION').'k');
+        }
         Configuration::updateValue('PS_DASHBOARD_SIMULATION', (int)Tools::getValue('PS_DASHBOARD_SIMULATION'));
         die('k'.Configuration::get('PS_DASHBOARD_SIMULATION').'k');
     }

@@ -22,17 +22,19 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 *}
-<table id="summary-tab" width="100%">
+<table id="summary-tab" width="100%" cellpadding="5" cellspacing="0">
 	<tr>
-		<th class="header small" valign="middle">{l s='Invoice Number' pdf='true'}</th>
-		<th class="header small" valign="middle">{l s='Invoice Date' pdf='true'}</th>
-		<th class="header small" valign="middle">{l s='Order Reference' pdf='true'}</th>
-		<th class="header small" valign="middle">{l s='Order date' pdf='true'}</th>
+		<th class="header small" valign="middle">{l s='Invoice number' pdf='true'}</th>
+		<th class="header small" valign="middle">{l s='Invoice date' pdf='true'}</th>
+		<th class="header small" valign="middle">{l s='Booking reference' pdf='true'}</th>
+		<th class="header small" valign="middle">{l s='Booked on' pdf='true'}</th>
+		<th class="header small" valign="middle">{l s='Status' pdf='true'}</th>
 	</tr>
 	<tr>
-		<td class="center small white">{$title|escape:'html':'UTF-8'}</td>
-		<td class="center small white">{dateFormat date=$order->invoice_date full=0}</td>
-		<td class="center small white">{$order->getUniqReference()}</td>
-		<td class="center small white">{dateFormat date=$order->date_add full=0}</td>
+		<td class="center white">{$sb.number|escape:'html':'UTF-8'}</td>
+		<td class="center white">{$sb.date|escape:'html':'UTF-8'}</td>
+		<td class="center white bold">{$sb.booking_reference|escape:'html':'UTF-8'}</td>
+		<td class="center white">{$sb.booking_date|escape:'html':'UTF-8'}</td>
+		<td class="center white bold status-{$sb.status|escape:'html':'UTF-8'}">{$sb.status_label|escape:'html':'UTF-8'}</td>
 	</tr>
 </table>

@@ -7,6 +7,297 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
+## 2026-11-22
+
+### Removed
+
+- **An unused cart page that showed errors to search engines.** `module/blockcart/checkroomavailabilityajaxprocess` was a background-only page that no part of the site called. When Google's crawler opened it directly it tried to draw a full page without the parts a page needs, and logged three warnings. The page is removed and its address now returns "not found".
+
+## 2026-11-20
+
+### Removed
+
+- **Old shop code (clean-up batch 5).** The old "Add new order" form (about 2,700 lines of form and saving code no page could reach since New booking replaced it), the supplier, manufacturer and supply-order screens (no menu entry since installation), and the leftover product comparison code. Anyone who opens the old form address goes to New booking.
+
+- **27 unused modules (clean-up batches 2–4).** Bank wire, cheque and the channel manager (replaced by Salisberg Pay, or never used); the shop Dashboard boxes (activity, products, goals, insights), which were no longer drawn; and the 20 shop statistics modules with search keywords and the 404 log, behind the hidden Stats menu. Each is forgotten by the database on the next deploy and logged. Bookings paid through a removed module keep their payment name. The Modules page lists 32 modules instead of 58.
+- **Unused theme images (batch 6).** 15 images nothing refers to, and the bank wire and cheque icons.
+
+- **The vendor Data Cleaner (`qlocleaner`).** Never installed. Its two delete-everything buttons and its "Clean & Optimize" (which deleted old carts without releasing their rooms and renumbered every menu entry) are gone; its database check moved into Data clean-up.
+- **Unused PayPal module.** `modules/qlopaypalcommerce` was never installed and nothing referred to it. Cards, if ever added, would use a Ghana provider.
+
+### Fixed
+
+- **Browsers offer to save your password again.** The back office sign-in and the checkout sign-in send the password in the background, so most browsers did not offer to remember it. They now tell the browser the sign-in worked, and the sign-in fields are labelled for password managers.
+
+- **Back office on a phone.** The menu now shows its group labels properly, has no stray dashes, lists every section and scrolls. The Dashboard's empty "Menu" button is gone: it held only the vendor's hidden "Recommendations" button, which was removed. Add to home screen is now always in the account menu (it was only an occasional note on the Dashboard).
+
+- **Searching on a phone.** In the search pop-up the guest picker opened over the Search Rooms button and was cut off, so a tap on Search Rooms did nothing. The picker now sits in the form and pushes the button down.
+- **"Add to home screen" bar on the website** covered the bottom of the checkout form on phones. It now shows on the homepage only.
+
+- **Marking a booking paid with several invoices.** The payment name was read from the payment module on the first invoice and then from text on the next, which could fail. The name is now taken once, and falls back to the name saved on the booking if its payment module has been removed.
+
+- **Light/dark switch on a phone.** The sun and moon were stacked on top of each other, because the switch relied on a top-bar rule that the phone layout replaces. It now lays itself out; the black ring left after tapping it is gone (kept for keyboard use).
+
+- **Phone menu button.** It showed a row of vertical bars (a text-align icon turned on its side); it is now the usual three-line menu icon.
+
+- **Rooms free chart.** The scale ended exactly at the highest value, so a flat line (every room free) sat on the top edge with no label above it. The scale now ends at the next round number above.
+- **Admin Guide error 500 on the live site.** An apostrophe in a sentence about booking alerts cut a translation string short, so the whole Admin Guide failed to open for managers and the developer team. The sentence was reworded, and the smoke test now looks for this mistake in every Salisberg template.
+- **Title-only names on the website.** The sign-up form and My personal information now refuse a name that is only a title (Mr, Mrs), as the back office already did.
+- **Dark mode "Filters:" bar.** The bar above a filtered list was white in dark mode; it now uses the card colour, with the filters as small chips.
+- **Module category filter.** Choosing a category on Manage Modules kept showing every module: the saved choice was read but never applied. It now filters.
+- **What's New page and sign-in pop-up.** A missing closing tag on the 19 November Occupancy line stopped the What's New page and the pop-up from drawing.
+
+### Security
+
+- **No SQL on list pages.** Every back office list had a ">_" button that showed the database query behind the list and a button that sent it to SQL Manager; the query was also written into the page source. Both buttons and the hidden query are removed for everyone. The developer team still has Advanced Parameters, SQL Manager.
+
+- **Test accounts can be hidden.** A SuperAdmin can set Test account to Yes on an employee form; that login is then hidden from everyone who is not a SuperAdmin (left out of Employees, cannot be opened, edited, disabled or deleted by them), using the same check that hides SuperAdmin accounts.
+- **Web addresses refused in every guest field.** Guest names, addresses, the city and the message added to a booking now refuse web addresses, using the same check as the Contact form (now one shared rule in `Validate::containsLink`). A scan of the live site found no links or code stored in guests, addresses, messages or bookings.
+
+### Added
+
+- **Rule tests** (`tests/php`, run with `bash tests/php/run.sh`). Ten tests pin the money and safety rules: booking codes, guest names, web addresses, guests without email, the payment cap, a room's own price, the Data clean-up keep periods, and one known gap (Track my booking needs an email).
+
+- **End-to-end browser tests** (`tests/e2e`, Playwright, local stack only). They book on the website as a guest with a phone number (desktop and phone), book at the desk as Hotel Staff, check what each role may open, and check the protections (no SQL buttons, links refused on the Contact form, old order form redirected). Run before each push: `cd tests/e2e && npm test`.
+
+- **Mail server settings in the app.** Administration › Integrations has an Email (mail server) panel: server, port, encryption, user name, password and the address emails come from, with Send test email. It saves to the settings every email already uses. Before, there was no screen for this (the stock E-mail page shows no form), so no booking confirmation or invoice could be emailed.
+
+- **Data clean-up** (Advanced Parameters, SuperAdmin only, module `salisbergcleanup`). Remove old unfinished drafts, abandoned carts, logs, closed Inbox conversations and guests with no bookings, by age: it shows how many and a few examples first, and removes only after you type that number. Drafts and carts older than 30 days and logs older than 90 days are cleaned automatically once a day. Paid bookings and invoices are kept 6 years; deleted bookings stay in the recycle bin. Each run is logged.
+
+### Changed
+
+- **Account menu on a phone.** Tapping your initials opens a panel from the bottom of the screen, showing your name and email. It has larger buttons and Sign out in red, and closes when you tap outside it. The old full-screen dark menu is gone.
+
+- **Shorter website checkout (P-24).** Guests book as guests, with no password; "Create an account instead" is one link away. The Mr/Mrs field is gone. Email is optional: a guest may book with a phone number only and gets their confirmation by text.
+
+- **Saved guest names tidied, once.** Names saved in all small or all capital letters now read like "Ama Mensah", as new names already did. Mixed-case names are unchanged; names that are only a title (Mr, Mrs) are counted in the deploy log for the desk to correct.
+
+- **Menu.** Recycle bin and Statuses moved from Bookings, and Positions from Modules and Services, to the end of Administration. Who may open each page is unchanged.
+- **No more overrides (O1–O7).** The seven files in `override/` were moved into the classes they changed (bookings form redirect, no mail to placeholder addresses, Dashboard period, vendor name in text, Excel import, Contact form checks); the unused find-or-create-guest endpoint was deleted instead. Nothing looks or works differently. The smoke test now fails if a PHP override appears again.
+
+- **New booking on a phone (P-19).** Arrival and Departure side by side, Nights, Adults and Children on one row, and the rooms listed before the Selected room panel (the Book now bar stays at the bottom). The first room now shows about half as far down.
+- **More lists as phone cards (P-20).** Room types, Hotel Details and Employees show one short card per row on a phone, like Bookings and Customers. Tap a card to open it.
+- **Reports on a phone (P-21).** Each row of a report is a small card with every value labelled, instead of a table cut off at the edge.
+
+
+- **Housekeeping on a phone (P-18).** One short card per room: number and status, type, guest, and the two buttons in one row. About a third of the length it was.
+- **Fewer interruptions on a phone (P-22).** After "Not now" the phone-number box stays away until the next day (it was back on the next browser session). The "add to home screen" bar shows on the Dashboard only, and Close hides it for 30 days.
+- **Dashboard on a phone (P-23).** The period buttons sit in one row that scrolls sideways; the Performance figures start folded (tap the heading to open).
+
+
+- **Front desk menu (P-17).** Hotel Staff no longer see Manage Hotel, Addresses, Booking messages, the new-customer icon or Quick Access. Refund requests moved under Bookings for everyone. The Dashboard button is called New booking.
+- **Income kept from Hotel Staff (P-16).** Staff no longer see Total Sales on the Bookings page, the sales and performance charts on the Dashboard, or the Bookings and Income reports. They can open Reports for the Arrivals and departures sheet.
+- **Bookings list calmer (P-12).** Dates read 19 Nov 2026, status is a small chip with a dot (red only for a problem), Total is plain and Due is red only when owed.
+- **Desk line instead of shop figures (P-11).** The Bookings list shows in house, still to arrive, leaving today (with overdue) and owed, counted like Today at the desk. The shop figure strips are gone from Bookings, Customers, Room types, Carts and Translations.
+- **Customers list (P-10).** Name, Phone, Email ("No email" for walk-ins), Bookings, Last stay and Owed; the other columns are under Available Fields.
+- **Guest names (P-15).** Names typed all in small or all in capital letters are saved with capitals; mixed-case names are kept as typed; a title alone is refused. Saved names are not changed.
+- **Phone cards (P-14).** On a phone, Bookings, Customers and Invoices show one compact card per row, with no Delete on the card.
+- **Dashboard (P-7).** Overdue and Unpaid have a coloured edge when they need action; the chart hint is one line; Demo figures moved beside the hotel filter (SuperAdmin only).
+- **Manage Modules redesigned.** One totals line instead of the Alert and Updates tabs, the figure strip and the vendor's addons banner; category chips above the list; each module with a letter tile, an On, Off or Not installed label, and its category; Salisberg modules first; bank wire, cheque, PayPal, the channel manager and anything not installed folded under Not used.
+- **Positions redesigned.** Each hook is one folded line with a plain name (written for the hooks this hotel uses) and the technical name beside it; click to open; a drag handle beside each module; search also matches the plain names and opens what it finds; brand colours instead of the bright blue.
+- **Modern side menu icons.** Each menu section has a thin line icon in place of the old font icons, in light and dark.
+- **Lists in pages (P-13).** Lists show 20 rows a page by default (50 to choose). Invoices pages too, and its totals still cover every matching invoice.
+- **System group in the menu (P-9).** Modules and Services, Localization, Preferences, Advanced Parameters and Administration sit under one System heading, folded away until clicked. Permissions are unchanged.
+
+- **Licence rule for inherited files.** Old QloApps/PrestaShop headers in inherited platform files may be removed; bundled third-party libraries keep their licence files and notices (`AGENTS.md`, rule 14).
+
+## 2026-11-19
+
+### Fixed
+
+- **Recycle bin booking codes.** The Recycle bin now shows each deleted booking's code; it was blank and logged a warning per row (Sentry SALISBERG-2).
+- **Newsletter sign-up hit directly.** A visit or bot request to the newsletter sign-up address that is not the footer form's own call is sent to the homepage, instead of drawing a broken page and logging errors (Sentry SALISBERG-3 to 6).
+- **Newsletter sign-up without its action field.** A sign-up request missing the form's hidden action field is treated as a sign-up instead of logging a warning (Sentry SALISBERG-7, 8).
+
+### Changed
+
+- **Dashboard availability chart is now "Rooms free".** It shows the tightest night and the average rooms free per night above the chart, offers 7, 14 or 30 nights (exactly that many points), labels days as "Thu 19 Nov", uses the brand colours in light and dark mode, and fits a phone.
+
+- **Integrations page tidied.** It opens with one card per integration (Text messages, Booking alerts, Email, Error tracking) and its status; each booking-alert recipient has a Test button that texts their saved number and reports the result by name. SuperAdmin only.
+
+- **Occupancy panel rebuilt.** Tonight is one bar (in house, free, out of service), counted like Today at the desk, with plain numbers; the period figure is now the occupancy rate (booked room-nights out of available). The old "rooms with any booking in the period" figure, the donut with clipped labels and the zero-padded numbers (00, 02) are gone.
+
+- **What's New pop-up.** After an update, each person sees a box with that date's changes for their role (up to five), once, with View more (What's New) and a button to their guide. Opening What's New also counts as seen.
+
+- **Clearer side menu** (simplify review P-8). The current page is dark text with a green bar instead of white on pale green; the other pages are in normal text instead of light grey; small headings group the menu (Front desk, Hotel, System, Help). The two inherited colour rules were corrected in `admin-theme.css`.
+- **Phone numbers and booking alerts on the employee form.** Administration › Employees has Phone (for texts) for everyone and Receive booking alerts for SuperAdmins and Hotel Managers. Anyone with no phone saved is now asked for it after signing in, not only alert recipients; it is the same number.
+
+- **Faster front-desk booking** (simplify review P-1, P-2, P-5). Room cards have a Book button that starts the booking in one click; the guided booking is two steps, Guest then Payment & confirm, with the old Confirm page removed; cash is recorded as received without the "received and verified" tick, which stays for Mobile Money and bank transfer. The payment step shows Total and Still to pay in large figures, with the breakdown behind Show breakdown (P-4).
+
+- **Booking milestones.** At 50, 100, then every 100 up to 1,000 and every 500 after, the Dashboard shows a congratulations banner (each person closes it once), the booking-alert recipients get a text and an email, and a Milestones list on the Dashboard keeps the history. Cancelled, refunded and deleted bookings do not count. Milestones already passed when this ships are recorded quietly.
+
+- **Simpler booking codes.** New bookings get a code like `SB-261119-07`: the year, month and day the booking was made, then its number that day. Every booking already in the system keeps its existing nine-letter code. The two database columns that hold the code were widened from 9 to 16 characters on deploy.
+
+### Added
+
+- **Error tracking with Sentry.** PHP errors and crashes on the website and back office are sent to the Sentry project "salisberg" when `SENTRY_DSN` is set in Coolify. No guest or staff personal data is sent; notices and deprecation warnings are not reported.
+
+## 2026-11-09
+
+### Added
+
+- **Booking alerts for staff.** Chosen back-office people are told about a new booking and about a payment, by text (through mNotify, when a key is saved and they have a phone) and by email (at their staff address, when the mail server is set up). Pick the recipients under Administration › Integrations. A chosen person with no phone saved is asked for one, in a small box, the next time they sign in. Email now works alongside text: if SMTP (or PHP mail) is set up under Advanced Parameters › E-mail, the alert is emailed even to a recipient who has not given a phone.
+
+### Security
+
+- **Native PHP session upload-progress switched off.** A defence-in-depth setting (`session.upload_progress.enabled = Off` in `docker/php.ini`). Nothing in Salisberg uses this PHP feature, and leaving it on lets a file upload write into the session through a crafted field name. Ordinary file uploads are unaffected.
+
+### Added
+
+- **Guest texts through mNotify.** Administration › Integrations, visible to the developer team only, takes the mNotify API key and the sender name. With a key saved, a guest who has a phone number is texted at check-in and when the booking is paid in full. With no key saved, nothing is sent and check-in still works.
+
+### Changed
+
+- **Search engine details are made automatically.** When a page is added or edited under Preferences › CMS, the first box is now called Page title; the website link is made from the title and the description search engines show from the start of the content. In Hotel Details the Search engines tab is shown to the developer team only; the link and title are made from the hotel name. A page or hotel keeps its link when renamed, so links already shared keep working.
+- **Guest and staff messages rewritten: short texts, fuller emails.** Guests are texted on booking made, part payment, payment in full, check-in, check-out and cancellation (one SMS each, currency written GHS), and emailed a thank-you with a stay summary at check-out. The platform's own confirmation, payment and cancellation emails are unchanged. Staff alerts now cover cancellations too; the text is one line and the email adds a table of guest, phone, rooms, dates, payment method, total, paid and still to pay.
+- **Dashboard made shorter and calmer.** Each top count has a line saying what it means and opens its list; overdue departures are a separate folded list with days over; Unpaid shows the six most urgent with a link to all of them in Invoices; dates are short (13–15 Oct). Chart tiles are neutral cards in the brand colours, red only for problems; occupancy reads Booked, Free and Blocked. Demo mode can be switched only by a SuperAdmin, and a notice shows while it is on.
+- **The Dashboard opens on the work for today.** Today at the desk is first. A list is open when someone still needs to be checked in, checked out, or still owes money. Rooms in house, and rooms already checked out today, stay closed until you click them. Check in and Check out are unchanged.
+- **The charts stay on the Dashboard, and Day means today.** Day, Month and Year change only the charts. A saved period that no longer includes today is set back to Day when the page opens. Day-1, Month-1 and Year-1 are left as they were. The coloured tiles that repeated arrivals and departures with a different count are gone. Operations Today remains with the charts.
+
+### Added
+
+- **Add to home screen.** A note at the bottom of the website and the back office offers to put Salisberg on a phone home screen. On an iPhone the note says to use Share, then Add to Home Screen. The website icon opens the hotel site. The desk icon opens the back office. Bookings are not stored on the phone.
+
+### Changed
+
+- **Phones show the back office at full size.** The back office no longer forces a zoomed-out page, so a phone gets the named menu instead of a row of icons, and pinch-zoom works. Sign-in, contact and account forms use less padding on a narrow screen, and the Today counts sit two across.
+
+### Removed
+
+- **Shop pages are off the menu.** Groups, Titles, Shopping Carts, Catalog Price Rules, Stats, Themes, Search, Geolocation and States no longer appear. The pages are not deleted, and check-in still works. Voucher codes stay under Manage Discounts → Cart Rules.
+- **Shop panels are off the Dashboard.** Visitor counts, abandoned carts, newsletter numbers, best-selling room types and top searches are no longer drawn. Today at the desk and the charts stay.
+
+### Fixed
+
+- **The "Menu" button on a phone is no longer cut off.** On a narrow screen the back office page header shows a "Menu" button that holds the page's actions; its label was clipped at the right edge. It now sits inside the edge with the full word shown, in both light and dark mode.
+
+## 2026-10-19
+
+### Added
+
+- **A room can have its own price.** In Manage Room Types, on the Rooms tab, an **Own price** box lets one room of a type cost more or less than the others (for example a Standard room with a fridge and a steam iron at 400 beside Standard rooms at 300). Left empty, the room uses the room type price. The Room board shows each room's own price on its card, and a room's **Extra Information** now shows on its card too, so the front desk can explain the difference. The own price applies to bookings made at the front desk; the website still sells the room type at the room type price.
+
+## 2026-10-16
+
+### Added
+
+- **Booking Recycle bin:** deleting a booking now requires a reason and archives it instead of permanently removing it. The archive records who deleted it and when, the reason, guest contact details, full booking value and original room states. Hotel Managers with access can review deletion counts and value by currency, and restore a booking when its rooms are still available. Archived bookings are excluded from active bookings, room availability and booking reports.
+
+### Fixed
+
+- **The Change room status dropdown now applies its choice.** The Checked in and Checked out options in a booking's Change room status dropdown were given the confirmation class used by the direct Check in / Check out buttons, but that handler stops the click and looks for a confirmation panel those dropdown options do not have. The result was a dropdown that did nothing when its only enabled options were clicked. Those options now submit immediately again, while the direct Check in / Check out buttons keep their Yes/No confirmation.
+- **Confirm & check in now submits its selected action.** The submit handler disabled both confirmation buttons before the browser collected form values, so clicking either option could leave the staff member on the Confirm step without creating the booking. The selected action is now preserved while duplicate submissions are blocked.
+- **Changing the dates or room of a booking in progress no longer fails with a database error.** On New booking, choosing Edit stay details and saving showed "SQLSTATE[42000] Syntax error ... near 'LIMIT 1'" and nothing changed. Dates, nights, guests and room can now be edited at any step before confirming; an unavailable room or too many guests gives a plain message. The release also adds a check to the smoke test so this kind of mistake is caught before it ships.
+- **Website dark mode: the guest booking pages are readable.** The "Already have an account?" strip and the terms-of-service line at checkout were white boxes with near-invisible text; on the booking confirmation the room name and the "Awaiting payment" label were dark grey on dark; the room amenity icons on search results were almost invisible; the "Hotel Location" placeholder was too faint; and white text sat on the gold Search Rooms and Subscribe buttons (contrast 1.9 to 2.4). All now meet readable contrast; light mode is unchanged.
+- **The Room board no longer shows a room as Ready while a guest is still checked in.** If a guest stayed past their departure date, or was never checked out, the board listed the room as Ready but the booking steps then said it was not. Both now treat such a room as Occupied until it is checked out, the same as the Today panel.
+
+### Changed
+
+- **README.md refreshed.** It now reflects the current stack (PHP 8.3, MySQL 8.0 with an 8.4 option), the front-desk and reports modules, bank transfer alongside cash and Mobile Money, the booking recycle bin, SuperAdmin concealment, the current editing rules, and the project's MIT licence.
+- **Booking details and back-office access:** the booking summary now shows only total, paid, due and room count, avoiding a long row of secondary figures. The employee, theme and website controls sit at the far right of the top bar. SuperAdmin employee accounts are hidden from non-SuperAdmins. Hotel Staff can archive a mistaken booking with a reason but cannot view or restore the archive.
+- **Room status editing stays beside the room.** On a booking, **Change room status** expands the Rooms Status section to show the complete status list together, without a scrollbar or pop-up. Choose a status to apply it immediately; there is no separate save button. Check-in and check-out buttons sit above the room status badge, and open a small Yes/No confirmation beside the action. When checking in, staff can optionally set or adjust the actual check-in time.
+- **Check in and check out are now direct actions on the booking.** Each room row in Rooms Status shows a clear status badge and the action available for that room, so staff no longer need to open Edit to check a guest in or out. Check-out still triggers the normal housekeeping update.
+- **Printing a booking now gives a customer-ready document.** The browser printout has Salisberg branding and the booking reference, guest contact, room and stay, payments, total and balance. Back-office navigation, editing controls and private notes are omitted.
+- **Bookings now comes straight after Dashboard in the side menu**, ahead of Rooms & Services. The same order is used by a fresh install, which also names that section Rooms & Services from the start instead of renaming it afterwards.
+- **Confirm now, check in later.** On New booking, a room that is ready today offers two ways to finish: **Confirm & check in**, or **Confirm booking — check in later** for a guest who paid by phone or has not arrived. After confirming, the page shows **Check in now** (or says why it cannot: the stay is on a later day, or the room is not ready). A guest who is not checked in can be found under Bookings (by name or reference) and checked in with the new **Check in** button on the booking, or from Today on the Dashboard.
+- **Date boxes open the calendar wherever you click.** On the New booking page and the guided booking's stay screen (Arrival and Departure), clicking the empty part of the box opens the calendar; you no longer have to find the small icon.
+- **The selected room now comes first on the Room Board.** Its summary is on the left before the room list, and the action is consistently named **Book now** for same-day and future bookings.
+- **Room types and matching counts stay together.** Each heading now reads like `Standard Room 1 — [5 rooms]` on one row, with the count as a badge; it updates with the active filter or search.
+- **New booking page is easier to scan.** The Selected room panel is one third of the width and the room list two thirds, both starting at the same height; the panel now stays in view while you scroll the rooms. The duplicate "Front desk / Room board" heading, the blue availability banner and the sentence under Unfinished bookings are gone, so the rooms start higher on the screen. The search box icon no longer covers the placeholder text.
+- **Bookings is the consistent name.** Back-office menus, page headings, booking details, dashboard figures, the top-bar notification panel, statistics, reports and guest account labels no longer switch between Reservations and Orders. Internal controller, database and integration identifiers remain unchanged.
+- **Room Board summaries are easier to scan.** The selected-room card is wider, uses readable dates and guest wording, highlights the estimated total, and omits a redundant nightly breakdown unless rates vary during the stay.
+- Room cards now label capacity explicitly and show a check mark and accessible pressed state for the selected room. On smaller laptops the board switches to one column and keeps its Continue action visible instead of squeezing the summary beside the room grid.
+
+### Fixed
+
+- Long capacity and nightly-rate values in Selected room now wrap inside the card instead of crossing its divider or being clipped.
+
+### Removed
+
+- **New booking is no longer a permanent sidebar item.** Staff open **Bookings > Bookings** and use the **New booking** button; the hidden Room Board controller and legacy room-reallocation endpoint remain available where the workflow needs them.
+
+## 2026-10-15
+
+### Changed
+
+- **Add new booking now opens the Room board.** The Reservations toolbar button and the visible Bookings menu entry both start the guided flow. Walk-ins can be checked in at completion; future stays use the same Guest, Payment and Confirm steps and are saved as reservations without opening the old cart screens.
+- **Faster front-desk booking.** The Room board now puts available and ready rooms first and adds status filters, room search, compact cards, a recommended room and a persistent tablet/phone Continue action. The guide is reduced to Guest, Payment and Confirm; payment starts with Paid in full, Part payment or Pay later, and Pay later no longer asks for a payment method.
+- **Today is on the Dashboard.** Arrivals, departures, rooms in house, unpaid reservations, and the Check in and Check out actions are now part of the Dashboard instead of a separate Bookings menu page.
+
+### Added
+
+- **Resume unfinished bookings.** The Room board lists the current employee's active drafts with Resume and Discard actions. Discard releases the room and removes the unused internal cart.
+
+### Fixed
+
+- Guest details now remain in the form after validation fails, field errors appear beside the relevant input, exact phone matches rank first, and an existing matching guest can be selected immediately instead of retyping the booking.
+- Guided bookings can now be completed. Final confirmation previously built its draft and room locking queries as `FOR UPDATE LIMIT 1`, which MySQL rejects; they now use the required `LIMIT 1 FOR UPDATE` order while keeping the duplicate-confirmation locks.
+
+### Removed
+
+- **Unused back-office menu items:** Channel Manager, Zones, Credit Slips, the old cart-based Add new booking page, and the separate Today page no longer appear in navigation. Shared geography, refund, and room-reallocation code remains in place so existing workflows are not broken; the Channel Manager module is disabled.
+- **Dead code from the retired cart booking screen:** removed its sticky selection bar, automatic occupancy copy, result auto-scroll, obsolete per-booking tax field, and the deploy-time permission repair that only the old flow required. Shared Cart and room-reallocation code remains because live back-office pages still use it.
+
+## 2026-10-14
+
+### Added
+
+- **Bookings > Room board and guided walk-in check-in.** Choose dates and guests, see complete-stay availability separately from current room readiness, select a room, then work through Stay, Guest, Payment and Review without opening the old cart screens. Existing guests can be found by name, phone or email; new guests need no email. Full, part and pay-later arrangements keep pending money separate from confirmed money. Final confirmation checks availability, capacity, readiness and price again, prevents duplicate completion, then creates the normal booking and checks the room in. A future arrival goes to the existing reservation completion flow instead.
+- **Quicker Add new booking.** After Search the page scrolls to the free rooms; Add To Cart adds a room at the first click with the guests from the Booking Form (it used to open a second guest box and add nothing); a bar at the bottom of the screen shows the rooms chosen, the total, and a Continue to guest and payment button (the small Cart button in the calendar's corner was easy to miss). The cart window's Book Now button is now called Continue to guest and payment too.
+- **Charge tax switch on the booking form.** On Yes by default; staff choose No for a guest who is not to be charged tax, and only that booking is made without tax. A tick on Rooms & Services › Charges & Tax lets the manager remove the switch.
+- **Rooms & Services › Charges & Tax.** Tick or untick each charge added to every booking by itself, see how it is charged, and switch tax on or off. For the Hotel Manager and the developer team.
+
+### Changed
+
+- **Bookings › Bookings is now Bookings › Reservations** (the list of every booking), so the section and its first page no longer share a name. The guides use the new path.
+
+### Fixed
+
+- **Layout on tablets, small laptops and phones.** Website: the location field's icon no longer covers its text; the search filters and the room booking panel sit above the content below 992px instead of being squeezed beside it; a room card no longer makes the phone homepage scroll sideways; the closed menu panel no longer shows as a dark strip at the right edge; "/Per Night" no longer splits over two lines. Back office: page titles are no longer covered by their buttons (the buttons move under the title when both do not fit); wide lists and tables scroll inside their box instead of pushing the page sideways; the figure tiles at the top of Bookings and a booking no longer overlap; the fold arrows are hidden in the phone menu rail; the Staff Guide's tables and the occupancy chart fit a phone.
+- **Room amenities ran together** ("FanTV") in the room lists: the short descriptions written on 12 October now read "Fan, TV".
+- **Payments can no longer be counted twice.** A payment larger than what is still owed is refused with a plain message, and marking a booking Complete payment received records only the amount still owed, even if earlier payments were not linked to the invoice.
+- The booking page said "Warning: X paid instead of Y" in red for every part payment. It now says "Paid so far: X of Y. Still to pay: Z", and is red only when more than the total was recorded.
+
+## 2026-10-13
+
+### Added
+
+- **Bookings › Invoices lists the invoices.** Number, date, booking, guest, stay, total, paid, still to pay and status, with search, a status filter, dates and a PDF button per row. Totals for what is shown. The numbering and layout settings are shown to SuperAdmins only.
+- **Redesigned invoice, which doubles as the receipt.** Logo, who it is from and for, the stay (room numbers, dates, nights, guests, rate), each payment received, total, paid and balance due, and how to pay the balance (the details from Salisberg Pay). Headed Receipt once nothing is owed. Dates are written as 13 Oct 2026. Fits one page.
+- **Check-in email** with the invoice or receipt attached, and **text messages** at check-in and when a booking is paid in full. Texts are handed to a hook and go nowhere until an SMS provider is connected.
+- **Bookings › Today.** One page for the front desk: arrivals, departures, rooms in house and unpaid bookings, with Check in and Check out buttons.
+- **Bookings › Housekeeping.** Every room as clean, dirty or out of service. A room turns dirty when its guest is checked out; out of service takes it off sale.
+- **Warning for room types with no rooms.** Manage Room Types marks them "No rooms" and names them in a warning; they cannot be booked.
+- **Guest details on the booking form.** The form asks for first name, last name, phone and email. A guest already on record (same email, or same phone) is used; anyone else is added. Email may be left empty. The separate Add new customer form is also shorter.
+
+### Removed
+
+- **Stock menu** (Warehouses, Stock Management, Stock Movement, Instant Stock Status, Stock Coverage, Configuration): menu entries and their pages.
+- **Shop pages on the website:** Suppliers, Manufacturers, Best sales, New products, Prices drop, Products Comparison. Their addresses now show Page not found.
+- **1-Click Upgrade module** (`modules/qloautoupgrade`). It was never installed and must not be used here.
+- **IMAP mailbox sync under Inbox.** All email uses the one mail server under Advanced Parameters › E-mail.
+
+### Changed
+
+- **Every booking gets its invoice when it is made**, not only once money has come in. The part-payment email now carries the PDF as well.
+- **Book Now and Add new order are both "Add new booking"** in the back office (menu page under Manage Hotel, and the button on Bookings). The website's Book Now button is unchanged.
+- **No index.php in the address bar, website and back office.** Back office pages now show as /admin-name/?controller=... instead of /admin-name/index.php?controller=.... On the website the last link that still showed index.php, Our Properties, now reads /our-properties.
+- **Customer Service renamed Inbox and simplified.** The Customers menu page is now Inbox. The list keeps From, Email, Phone, Message, Status, Handled by and Received (ID, Contact, Language, Last Reply by, Has Private and the full message text columns are gone); the message start is a link that opens the conversation; statuses read Open, In progress, Waiting for guest, Closed. The mail-server (IMAP) settings are shown to SuperAdmins only. Message titles end on a whole word.
+- **Contact form refuses links.** A message with a web address in it is not sent, and the guest is asked to remove it. Links already stored are shown as plain text in the back office instead of clickable ones, so front desk staff cannot click one by accident.
+- **Import is Excel only.** Advanced Parameters › CSV Import now accepts .xlsx files only. All the .csv sample files and their download links are removed; the samples are Excel files. The upload box on that page now also accepts .xlsx in the browser (it was still filtering for .csv there, which would have blocked an Excel file).
+- **Contact form simplified.** The website Contact page no longer asks for a Title or a Send To choice: it takes name, email, phone and the message. Every message goes to the one contact set in Customers › Contacts and appears under Customers › Customer Service, titled with the start of the message.
+
+### Fixed
+
+- Invoice PDF: the logo was missing (it was fetched over the web instead of read from disk), the footer printed "Tel: %s", and a hidden "Powered by TCPDF" line was added.
+- Two warnings logged whenever an invoice PDF was made (a missing PDF translation file, and an unset day count for items not priced per night).
+- **Front desk staff could not finish a booking in Book Now.** The rooms stayed in the cart and nothing was recorded. The last step (Bookings › Add new) attaches the guest to the cart through the Booking Carts page, which needs Add and Edit rights there; Hotel Staff and Hotel Manager had been created with View only. Both are now given those rights automatically on deploy, and the Admin Guide lists the three things a profile needs to take bookings.
+
+### Security
+
+- **Contact form checked against injection.** Review of the stock code found every value already escaped or cast before it reaches the database. As a second line of defence, each field must now have the shape the form can send (token, keys and ids letters and digits only, email without quotes or markup, no list values), anything else is refused with a plain message, and a list value no longer causes a server error.
+
+
 ## 2026-10-12
 
 ### Added
@@ -19,10 +310,13 @@ Every change to Salisberg, newest first, in plain words.
 ### Changed
 
 - **Menu rename:** the back office sidebar section "Hotel Reservation System" is now "Manage Hotel". Its "Manage Hotel" sub-page (hotel address and details) is renamed to "Hotel Details" so the two no longer share a name.
+- **Menu rename:** "Catalog" is now "Rooms & Services", which is what it actually holds (room types, service products, categories, features, bed types).
+- **Admin Guide warning added:** a new room type with no rooms entered in its Rooms tab can still be found, added to cart and taken through to a confirmation page by a guest, but the booking is not properly recorded and will not appear under Bookings. The guide now says, clearly, to add at least one room number before switching a new room type on.
 
 ### Fixed
 
 - **CSV Import's sample-file downloads were all broken.** `.dockerignore` excluded the whole `docs/` folder, so every "Download sample csv files" link on that page returned 404 on a real deploy. Fixed by keeping `docs/csv_import/` while still dropping the unrelated vendor readmes and licence copies.
+- **Hotel Staff and Hotel Manager could make a booking but never see it again, and the dashboard showed no revenue or check-ins/outs for either role.** QloApps has a second permission layer, separate from the usual Permissions grid, that grants or refuses each profile access to each hotel; it was never granted to either role, so it silently defaulted to no access. Bookings, the booking they had just taken, and every hotel-scoped dashboard and stats widget all rendered empty or refused for exactly this reason. Now granted automatically on deploy.
 
 ## 2026-10-07
 

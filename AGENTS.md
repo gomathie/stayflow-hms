@@ -31,11 +31,11 @@ Add or update SPDX headers to MIT where the project uses SPDX headers.
 
 Search the entire repository, including hidden files and configuration directories, for stale OSL references.
 
-Do not modify third-party dependency licenses or license notices belonging to external projects.
+Do not modify the licence files or notices of bundled third-party libraries (for example `tools/`, `js/jquery`, `js/tiny_mce`, Smarty, TCPDF, SimpleXLSX). The inherited QloApps/PrestaShop platform code is ours (section 1): its old file headers may be removed (owner, 2026-11-20; rule 14).
 
 Do not modify historical changelogs or archived documents unless they incorrectly claim that the current version of this project is licensed under OSL.
 
-Preserve existing copyright notices and attribution for third-party code.
+Preserve existing copyright notices and attribution for those bundled libraries.
 
 The copyright holder for this project is Salisberg.
 
@@ -62,10 +62,10 @@ The final repository must consistently identify the project as MIT licensed by S
 
 ### Code
 
-11. **Fix things where they are defined.** The inherited platform code is ours (section 1, Direction), so a fault or an unwanted default in an inherited file is corrected in that file, not papered over from somewhere else. For styling this means changing the inherited stylesheet's rule instead of out-ranking it with `!important`. New behaviour still goes in `override/` and in modules, as PrestaShop 1.6 intends, because that keeps our features in one findable place; an override is no longer preferred merely to leave the original untouched. Every change to an inherited file is verified in a running stack and recorded in section 6.
+11. **Fix things where they are defined.** The inherited platform code is ours (section 1, Direction), so a fault or an unwanted default in an inherited file is corrected in that file, not papered over from somewhere else. For styling this means changing the inherited stylesheet's rule instead of out-ranking it with `!important`. **`override/` is not used** (owner, 2026-11-19): a change to an inherited class or controller is made in that file, so the code says what it does where it lives. The existing overrides are being folded in (`CLEANUP-PLAN.md`, O1-O7). Features of our own that are not changes to inherited behaviour still go in our modules. Every change to an inherited file is verified in a running stack and recorded in section 6.
 12. **Do not rename the `qlo_` table prefix or internal `QloApps`/`PrestaShop` identifiers** as part of branding work. Branding is done through shop name, theme, logos and translations.
 13. **Match the surrounding code style** (PrestaShop 1.6 conventions: PSR-2-ish PHP, Smarty `.tpl`).
-14. **Keep the upstream license headers** in files you touch (OSL-3.0 requirement).
+14. **Licence headers (owner, 2026-11-20).** Old QloApps/PrestaShop headers in inherited platform files may be removed; do not add them back. Bundled third-party libraries keep their licence files and notices.
 
 ### Process
 
@@ -92,12 +92,13 @@ The final repository must consistently identify the project as MIT licensed by S
     | Payment methods | `modules/salisbergpay` |
     | Platform settings changed without editing vendor files (for example the jQuery version) | `config/defines_custom.inc.php` |
     | Reports on screen and as PDF | `modules/salisbergreports` |
-    | Checking a running stack after a change | `docker/smoke-test.sh` |
+    | Checking a running stack after a change | `docker/smoke-test.sh` (pages load), `tests/e2e` (browser journeys), `tests/php` (money and safety rules); the last two local only |
     | Installing, enabling or disabling modules | `docker/setup-modules.php` |
     | One-off data or schema changes on deploy | versioned steps in `docker/entrypoint.sh` |
     | Web server headers and access rules | `docker/apache.conf` |
     | Request limits | `docker/ratelimit.php` |
     | Brand images | `docker/branding/make.php` |
+    | Removing old data on purpose (by kind and age, and the daily automatic clean-up) | `modules/salisbergcleanup` |
 
 26. **One way of doing each thing.** Follow the pattern already used in the file being edited: the same naming (`sb-`/`--sb-` prefixes, `SBPAY_` settings, `*_VERSION` step markers), the same structure, the same comment style. Do not introduce a second approach beside an existing one; if the existing approach is wrong, replace it everywhere in the same change.
 27. **Leave no layered fixes.** When a rule or function is superseded, change or delete the original instead of adding an override after it. Sections titled "corrections" or "fix" appended to a file are not acceptable in a finished change.
@@ -110,6 +111,13 @@ The final repository must consistently identify the project as MIT licensed by S
 29. **Never move or rename a vendor file.** The back office, the installer and the autoloader locate files by path. (Background: change log, 2026-10-06, `admin/functions.php`.)
 
 30. **Record every change in two more places besides section 6.** `CHANGELOG.md` gets a line for every change, in plain words, under the date and one of Added / Changed / Fixed / Security / Removed. If someone using the back office will notice the change, it also gets a line on the What's New page (`modules/salisbergguide/views/templates/admin/whats_new.tpl`), under the same date, placed for the role it concerns (everyone, manager, or developer team). Section 6 of this file remains the detailed record of how and why.
+
+31. **Look for simplifications; propose them, then wait for approval.** The goal is a system a front-desk employee can use without training. Every agent follows `SIMPLIFY-REVIEW.md`:
+    - check the screens you touch, plus one area from its rota each working session;
+    - record each finding as a proposal there, with the problem, evidence, why it is needed, benefits, risks and how to undo it;
+    - build only what the owner has marked Approved.
+
+    Faults may still be fixed straight away. Code removal follows `CLEANUP-PLAN.md`.
 
 ### Guides
 
@@ -1445,3 +1453,1469 @@ The edits were made by a small script that names each rule by its selector and o
 - **Lesson:** a deploy step that writes to the filesystem (not the database) cannot share a run-once-per-version gate with database steps, even when they are triggered by the same feature and even when the first test — a single rebuild-and-recreate — looked completely clean. The project's `AGENTS.md` rule 7 ("the entrypoint must stay idempotent... safe to repeat") was followed for each step individually; the bug was in assuming "ran once, version marker set" was equivalent to "the file is now on disk," which is only true for state that lives in a persisted volume.
 - **Verification:** rebuilt and recreated once (clean, 29 of 29, `.htaccess` present), then force-recreated the *same* image a second time with no rebuild in between — the exact sequence that triggered the bug. `.htaccess` was present both times; the entrypoint log on the second recreation showed only `[generate-htaccess] .htaccess written (Friendly URLs)`, with no `Modules step`/`Room types step` lines, confirming the database-gated steps correctly stayed skipped while the filesystem step correctly ran anyway. `docker/smoke-test.sh`: 29 of 29 on both recreations.
 - **Not tested:** the live server; CMS pages other than Contact Us; search-engine indexing of the new URLs (no canonical/redirect strategy was reviewed for already-indexed `index.php?...` links, since the site has not been live/indexed yet).
+
+### 2026-10-12 — Live incident: a booking vanished; traced to a room type with no rooms; Admin Guide now warns about it
+
+**What happened**
+
+- The owner reported, on the live site: a guest completed checkout and reached a confirmation page, but the booking is nowhere in Bookings, and every room shows as available regardless. The room type involved was "Standard Room" (GH₵500), created directly in the live back office by a Hotel Staff employee who had been given elevated Products permissions for the purpose (confirmed intentional, not a permissions bug — `AdminProducts` has been view-only for `$staffAccess` since the Hotel Staff profile was first introduced; a grant made by hand in Permissions is never reset by a deploy, by design, so it is expected to persist).
+- Production was found to be three commits behind `develop` at the time (none of this session's room-type, Friendly URL or CSV/Excel import work had reached it), so the live "Standard Room" is unrelated to the six room types added earlier in this file's 2026-10-12 entries; it is a separate, real room type the owner's team created on the live site.
+- Checked via `WebFetch` against `https://salisberg.com` (read-only; no production data was changed): the homepage listed Delux Rooms, Executive Rooms, Standard Room and Luxury Rooms, with Standard Room's price (GH₵500) matching nothing in this repository's history — confirming it genuinely was created independently on the live site, not by any commit here.
+
+**Root cause, traced through the code (not the live database, which was not accessible)**
+
+- `modules/hotelreservationsystem/classes/HotelRoomInformation.php`'s `getRoomTypeAvailableRoomsForDateRange()` computes availability as "all rows in `htl_room_information` for this room type, minus the ones with a conflicting row in `htl_booking_detail`." A room type with zero rows in `htl_room_information` — because nobody used its "Rooms" tab to add individual room numbers after creating it — returns an empty set from that query every time, for every date range, which is indistinguishable at that layer from "every room is booked." The storefront listing itself does not appear to gate on this count before showing a room type as bookable; it was reproduced locally (see the 2026-10-12 room-types entries above) that a product with no `htl_room_information` rows still renders a working product page.
+- `HotelCartBookingData::updateCartBooking()` does guard the final add-to-cart step on `$totalAvailableRooms >= $roomsRequired`, which should refuse a room type with zero rooms. The owner's account confirms the guest nonetheless reached a confirmation page, so either that guard did not fire on the specific code path exercised, or the failure is further down the booking/order-validation flow; this was not pinned down exactly, because there is no shell or database access to the production server from this environment, and the exact live request could not be replayed.
+- This was **not fixed in code** this session: the mechanism is understood well enough to document and warn about, not well enough to safely patch blind, and production is still three commits behind `develop` with no deploy requested.
+
+**Fix applied: guide warning, not a deploy**
+
+- `modules/salisbergguide/views/templates/admin/admin_guide.tpl`, section 3 ("Room types and rooms"): a new `sb-warn` paragraph, right after the existing "Save" step, states plainly that a room type with nothing in its Rooms tab can still be found, added to cart and taken to a confirmation page by a guest, but the booking will not be recorded, and to always add at least one real room number before switching a new room type on.
+- `CHANGELOG.md` and the What's New page (manager section, 12 October 2026) updated to match.
+- No change was made to `$staffAccess`, Permissions, or any booking/availability code. The owner was advised that Hotel Staff being able to add room types, when given the right by hand in Permissions, is working as intended, not a bug to close.
+
+**Why this stayed as a guide fix and not a code patch**
+
+- Fixing the underlying gap properly — refusing to show a room type as bookable at all until it has at least one room, or blocking checkout earlier with a clear message — is real behaviour change to vendor booking code (`hotelreservationsystem`), which under rule 11 belongs in `override/` or a module, done deliberately and tested end to end, not guessed at without being able to see the actual failing request on the live server. It is a good candidate for a follow-up change once there is a way to reproduce it (for example, creating a fresh empty room type on the local stack and deliberately walking it through checkout) rather than reasoning from code alone.
+
+**Verification**
+
+- Confirmed via `git log -p` that `AdminProducts` has only ever been `array(1, 0, 0, 0)` (view-only) in `$staffAccess`, in every commit since the Hotel Staff profile was introduced — ruling out a regression in this repository's code as the cause of staff being able to add a room type (the access was granted by hand in Permissions, which is expected to be possible and to persist).
+- The two guide/changelog files were copied into the running local container and reloaded as a signed-in SuperAdmin: the Admin Guide's section 3 shows the new warning and the What's New page shows the new manager-facing line, both with no PHP or Smarty errors.
+- **Not tested:** reproducing the exact failure (an empty room type reaching a confirmation page) on the local stack; the live server, which was only read via `WebFetch`, never modified; whether the guard in `updateCartBooking()` is actually what's being bypassed, versus a different step in checkout.
+- **Still needed from the owner:** add at least one room number under Standard Room's Rooms tab (Rooms & Services › Manage Room Types › Standard Room › Rooms); worth checking Delux Rooms, Executive Rooms and Luxury Rooms have real rooms too, since they were edited independently of this repository and their state on the live server is not known from here.
+
+### 2026-10-12 — The real cause of "staff can't see their own bookings": a second, undocumented permission layer
+
+**What the owner reported, in order**
+
+1. A guest booking "doesn't appear" and all rooms show available (the entry above — traced to Standard Room having no rooms in its Rooms tab).
+2. "We tried to book with admin and it works fine. We gave the staff rights and still cannot book. The staff clicks book now but the booking doesn't register. It still remains in the cart." All of this in the **back office** Book Now page, not the website.
+3. "No showing on the dashboard. No revenue data. No check-ins and out showing."
+
+Reports 2 and 3 turned out to share one cause, found by reproducing the exact flow locally rather than reasoning from code alone.
+
+**Reproduced locally, step by step, as both roles**
+
+- Created a throwaway Hotel Staff employee (`staff.test@example.com`) and used `curl` to drive the *exact* back office flow as both that account and the SuperAdmin account: `ajaxProcessAddDataToCart` (Book Now's "add room to cart"), then `submitAddOrder` (the "create order" submit on `AdminOrders&addorder`), reading the real JSON/HTML responses and the database after each step — not guessing from the source.
+- **Add to cart:** succeeded for both roles identically (`{"success":true,...}`), and a row appeared in `htl_cart_booking_data` for both. Staff's default permissions (`$staffAccess`, unchanged since this profile was introduced) were sufficient for this step.
+- **Create order:** also succeeded for both roles — an `qlo_orders` row and a matching `htl_booking_detail` row were created correctly for staff's booking (order reference, correct customer, correct total, state "Payment accepted", `valid=1`). The booking **was** being recorded.
+- **What staff actually saw:** `submitAddOrder` redirects to `...&id_order=N&vieworder&conf=3` to show the new order. For staff, that redirect landed on a page titled just "Bookings" with the error "You do not have permission to view this." — even though `AdminOrders` view access is granted in `$staffAccess`. From the owner's or a staff member's point of view this looks exactly like "the booking didn't register" and "it still remains in the cart": nothing confirms success, and clicking back shows the same cart.
+
+**Root cause: `qlo_htl_access`, a permission layer this project never touched**
+
+- QloApps has a *second* access-control table, separate from PrestaShop's own tab-based Permissions grid (the one `$staffAccess`/`$managerAccess` configure): `htl_access` (`id_profile`, `id_hotel`, `access`), consumed by `getProfileAccessedHotels()` in `HotelBranchInformation.php` and checked directly in `AdminOrdersController`, `AdminDashboardController`, `AdminProductsController`, `AdminCartsController`, `AdminStatsController`, `dashinsights`, `statssales` and several other controllers — every one of them silently filtering out, or outright refusing, anything tied to a hotel the signed-in employee's profile isn't granted. It is managed from a "Hotel Permissions" panel that appears on the **same** Administration › Permissions page as the normal grid, once a profile is selected, easy to miss because it looks like a second, unrelated panel rather than part of the same screen.
+- `SELECT * FROM qlo_htl_access` locally showed exactly the bug: `(SuperAdmin, hotel 1, access=1)`, `(Hotel Staff, hotel 1, access=0)`, `(Hotel Manager, hotel 1, access=0)`. These rows are created automatically by the vendor's own profile-creation code with `access=0` by default; nothing in this project's setup (`installProfile()`, `ensureSetup()`) ever touched them, because this layer was never discovered when the Hotel Staff and Hotel Manager roles were first built (2026-10-06). **Hotel Manager was affected too**, not just Hotel Staff — the owner had not yet tested booking visibility or the dashboard as a manager, so this had not surfaced for that role yet.
+- This single gap explains report 2 (booking created, then refused on view) and report 3 in full: the dashboard's revenue, occupancy and check-in/out widgets all scope their SQL to `getProfileAccessedHotels()`'s result, which is empty for both roles, so they render with no data and no error — indistinguishable, from the screen, from "nothing has been booked."
+
+**Fix**
+
+- `modules/salisbergguide/salisbergguide.php`: new method `grantHotelAccess()`, called from `ensureSetup()` (so it runs on every deploy, like the rest of that method). For Hotel Staff and Hotel Manager, for every currently active hotel, it sets `access = 1` in `htl_access` if the row is missing or still 0; it only ever raises 0 to 1, never touches a row already at 1, and is not gated by a "ran once" flag the way `$staffAccess`/`$managerAccess` deliberately are — because, unlike a tab permission an admin might deliberately narrow, "this role cannot see the one hotel this project runs" is never a correct state to leave standing, and the method already only acts on rows that are still at the broken default.
+- `MODULES_VERSION` bumped to 14 so this reaches the live database on the next deploy without any other action.
+
+**Verification (local, running stack)**
+
+- Reset `htl_access` to `0` for both roles by hand, deployed the fix, ran `setup-modules.php`: both rows flipped to `1`, logged `salisbergguide: granted hotel access to 2 profile/hotel row(s)...` (PrestaShop Logs, severity 1). Ran it again immediately after: no change, no log line — idempotent.
+- Re-ran the exact `vieworder` request for the order staff had created earlier in this session, with no other change: before, "You do not have permission to view this."; after, the real "Bookings > View" page. Same isolated A/B result for loading the dashboard as staff (200, no errors; full data verification through the dashboard's own AJAX widgets was not done — see below).
+- `docker/smoke-test.sh`: 29 of 29.
+- **Not tested:** the dashboard's actual revenue/occupancy/check-in figures before and after (only that the page loads without error in both states) — the widgets fetch their numbers through further AJAX calls this session did not individually replay; `AdminCarts`, `AdminStatsController` and the other controllers in the "uses htl_access" list, beyond Orders and Dashboard; a second hotel (this fix reads "every active hotel" and should extend correctly, but there is only one hotel to test against); the live server.
+- **Still needed on the live server:** this fix is on `develop`, not yet deployed (see the branch-state note elsewhere in this file). Until it is deployed, the owner can unblock staff and manager accounts immediately, with no deploy needed, from **Administration › Permissions**: select the Hotel Staff (then Hotel Manager) tab, find the **Hotel Permissions** panel, and tick the hotel there.
+
+### 2026-10-12 — "Catalog" renamed "Rooms & Services"
+
+- The sidebar section "Catalog" (Manage Room Types, Manage Service Products, Categories, Features, Bed Types) is now "Rooms & Services" — e-commerce terminology replaced with what the section actually is, matching the direction already applied to "Orders" → "Bookings" and "Hotel Reservation System" → "Manage Hotel".
+- Added to the same `$menuLabels` mechanism (rule 25/26) in `modules/salisbergguide/salisbergguide.php`; `MODULES_VERSION` stayed at 14 (bundled with the `htl_access` fix above, both deployed by the same version bump). Admin Guide's two `Catalog ›` paths (section 3, section on paid extras) updated to match; What's New given a line.
+- **Verification:** ran `setup-modules.php` locally, confirmed `qlo_tab_lang` for `AdminCatalog` reads "Rooms & Services"; Admin Guide page reloaded with the new path text and no errors; `docker/smoke-test.sh` 29 of 29.
+
+### 2026-10-13 — Staff still could not finish a booking: Booking Carts needs Add and Edit
+
+**Report**
+
+- After the hotel was ticked for Hotel Staff in Hotel Permissions (previous entry), the owner reported that a Hotel Manager could book but Hotel Staff still could not: the rooms stayed in the cart.
+
+**Why the previous entry missed it**
+
+- The local reproduction on 2026-10-12 attached the guest to the test cart with an SQL `UPDATE` to save time, then submitted the order. That skipped the one step that fails. The order submit worked, so the flow was wrongly recorded as working for staff apart from the view step.
+
+**Cause, reproduced without the shortcut**
+
+- Book Now's cart button opens `AdminOrders&addorder&cart_id=N`. That form (`admin/themes/default/template/controllers/orders/form.tpl`) does all its cart work by AJAX against `AdminCarts`: choosing the guest, addresses, vouchers, occupancy, extra services. `AdminCartsController::ajaxPreProcess()`, which sets `id_customer` and `secure_key` on the cart, runs only when `tabAccess['edit'] === 1`; the service calls need `add`. With view only, every call returns a normal-looking JSON summary and changes nothing.
+- `$staffAccess` and `$managerAccess` both had `'AdminCarts' => array(1, 0, 0, 0)`.
+- Run as a Hotel Staff test account with those defaults: add to cart succeeded; after the form's AdminCarts call the cart still had `id_customer = 0`; `submitAddOrder` returned HTTP 500 (`Column 'secure_key' cannot be null`, from `validateOrder()` on a cart with no customer); no order row. With `edit` set on AdminCarts and nothing else changed: `id_customer = 2`, order created, the booking page opened.
+- The owner's Hotel Manager works on the live site although its default is the same; that profile's rights on the live server were presumably widened by hand. It is not known from here.
+
+**Fix**
+
+- `modules/salisbergguide/salisbergguide.php`: `AdminCarts` is `array(1, 1, 1, 0)` in both access lists, for new installs. New `grantCartEditing()`, called from `ensureSetup()` after `grantHotelAccess()`, raises `add` and `edit` on `AdminCarts` for both profiles where either is still off (existing profiles are never reset by `installProfile()`, so the defaults alone would not reach the live site). It never lowers a right and logs each profile it changed. `MODULES_VERSION=15`.
+- Guide (rule 23): Admin Guide section 1, "Change what a profile can do", has a warning listing the three things a profile needs to take bookings (Bookings, Booking Carts, Hotel Permissions). SuperAdmin only, as Permissions is. What's New and `CHANGELOG.md` have 13 October entries.
+
+**Verification (local, running stack)**
+
+- Reset `add` and `edit` to 0 for both profiles, copied the module in, ran `setup-modules.php`: both rows became `1,1,1,0` and two lines were logged. A second run changed nothing and logged nothing.
+- The full flow as the staff test account (sign in, add to cart, open Add new, the form's AdminCarts call, submit): guest attached, order created, "Bookings > View" opened. Three runs in all: broken defaults (fails as reported), right granted by hand (works), right granted by the new method (works).
+- Admin Guide and What's New pages load with the new text; `docker/smoke-test.sh`: 29 of 29.
+- **Not tested:** the flow in a real browser (the calls were made with `curl`, in the order the form makes them); vouchers, extra services and occupancy changes on the form as staff; a new guest created from the form; the live server.
+- Local test data: employee `staff.test@example.com` and bookings for December 2026 exist only in the local database.
+
+### 2026-10-13 — Contact form: no Title, no Send To
+
+- The website Contact form lost its Title field (`themes/hotel-reservation-theme/contact-form.tpl`) and its "Send To" choice. The owner asked for it to be simple, with messages going to users in the back office.
+- "Send To" uses the platform's own switch, `PS_CUSTOMER_SERVICE_DISPLAY_CONTACT`, set to 0 by the content step (`CONTENT_VERSION=5`). The stock controller then uses `PS_CUSTOMER_SERVICE_CONTACT`.
+- The controller still requires a title and a valid contact, so `override/controllers/front/ContactController.php` fills them in: the title is the first 60 characters of the message; if `PS_CUSTOMER_SERVICE_CONTACT` is not a real contact it is set to the first contact. Messages are stored as customer threads (Customers › Customer Service) and mailed to that contact's address, as before.
+- Admin Guide section 9, CHANGELOG and What's New updated.
+- **Verification (local, hot-patched into the running container):** with the switch at 0, the Contact page has no Title and no Send To field; posting a message created customer thread 2 (contact 2, the message start as its title) and showed the success notice, with no PHP errors logged. The `PS_CUSTOMER_SERVICE_CONTACT` setting was unset locally, so the first-contact fallback is what was exercised.
+- **Not tested:** the content step through a rebuilt image (the switch was set by hand locally); the email to the contact address (no SMTP); the live server.
+
+### 2026-10-13 — Import is Excel only
+
+- Owner: remove the CSV imports and examples, keep Excel only. All `docs/csv_import/*.csv` samples are deleted and their links removed from the import form (`admin/themes/default/template/controllers/import/helpers/form/form.tpl`); the supply-order links went too (no such entity in this product, and no Excel version). The folder keeps its name because the page links to it by path (rule 29).
+- `override/controllers/admin/AdminImportController.php` now refuses anything that is not `.xlsx` (the error shows in the upload box). The stock engine still reads CSV internally, so the `.xlsx` is converted to a temporary CSV exactly as before.
+- **Bug found in the earlier Excel feature:** the form's browser-side filter was still `acceptFileTypes: /(csv)$/`, so a real browser would have refused an `.xlsx` before it reached the server. The earlier tests used `curl` and missed it. The filter is now `xlsx`.
+- Admin Guide section 16, CHANGELOG and What's New updated.
+- **Verification (local, hot-patched):** the import page loads with 0 `.csv` links and 8 `.xlsx` links and the `xlsx` filter; uploading a `.csv` returns "Please upload an Excel (.xlsx) file."; uploading `hotels_import.xlsx` is converted and accepted; a `.csv` sample URL returns 404.
+- **Not tested:** the upload box in a real browser (the filter text was read from the page, not exercised); completing an import of a converted file; the live server.
+
+
+### 2026-10-13 — Contact form: links refused and never clickable; Customer Service renamed Inbox; Webmaster kept
+
+- **Owner:** links must not be sendable through the Contact form, and any that exist must not be clickable, so non-technical staff cannot click a malicious link. Webmaster stays as a contact (the earlier removal step was dropped before deploy); the Customer Service page is renamed Inbox.
+- `override/controllers/front/ContactController.php`: markup is stripped from message, name, phone and subject, then anything that looks like an address (a scheme such as http:// or javascript:, `www.`, or a bare name ending in a common domain suffix) refuses the submission with a form error. Plain email addresses are allowed. Short suffixes that are ordinary words after a missing space (`.to`, `.us`, `.me`, `.co`, `.de`) are deliberately not in the list.
+- `controllers/admin/AdminCustomerThreadsController.php` (inherited, fixed at the source per rule 11): the stock code wrapped URLs in `<a>` tags when showing a message; that is removed, so stored links show as text. The template escapes the text.
+- `$menuLabels` in `modules/salisbergguide/salisbergguide.php`: `AdminCustomerThreads` Customer Service to Inbox (`MODULES_VERSION=16`). The page's own heading and some vendor sentences may still say Customer Service.
+- Guides: Staff Guide menu table and messages section, Admin Guide section 9 rows; What's New and CHANGELOG updated.
+- **Verification (local, hot-patched):** detector unit-tested on 11 samples; real form posts with `http://` and `www.` links were refused with the message; a plain message was not seen stored (likely the 6-per-hour rate limit, not confirmed). **Not tested:** the rename and the plain-message path after rebuild; email client behaviour for bare text in staff notification mails.
+
+- **Inbox design (same day):** `controllers/admin/AdminCustomerThreadsController.php` list reduced to From, Email, Phone, Message (link to the conversation via `getMessageLink()`, escaped), Status, Handled by, Received; the IMAP options panel is dropped for non-SuperAdmins (`isSuperAdmin()` in the constructor); status labels renamed; `getCustomerLink()` now escapes the name. The Contact form's generated title ends on a whole word. Guides: Staff Guide section 9 explains the columns and statuses, and that links are never clickable; Admin Guide section 9 rows. **Verified locally:** the Inbox loads as SuperAdmin with the new columns and a working link; plain message accepted and stored, link refused (needs the hidden `url` and `contactKey` fields in a hand-made post, which is why earlier curl tests of the plain path failed). **Not tested:** the Inbox as Hotel Staff and Hotel Manager; the conversation page; rebuilt image.
+- **SQL injection review of the Contact form (same day):** read every query on the path (`ContactController`, `CustomerThread::getIdCustomerThreadByToken` and `ByEmailAndIdOrder`, `Order::getByReference`, `CustomerThread`/`CustomerMessage` saves): all values go through `pSQL()`, `(int)` or the object model, so no injectable query was found. Added a second line of defence in `override/controllers/front/ContactController.php`: list values (`message[]=`) are emptied for both POST and GET (before, they caused a fatal TypeError, a 500), and `token`, `contactKey`, `id_contact`, `id_product`, `id_order` and `from` must match a strict pattern or the submission is refused. Free text (message, name) is deliberately not pattern-matched for SQL keywords: ordinary sentences contain them, and escaping is the real protection. **Verified locally:** quote/`OR 1=1`/`UNION`/`DROP TABLE` payloads in message, name, email, token and order id were stored as plain text or refused; `qlo_customer` untouched; smoke test 29 of 29. **Not tested:** automated scanners (sqlmap); other front forms.
+
+### 2026-10-13 — No index.php in the address bar, back office and website
+
+- **Owner:** the .php extension was still visible, "both admin and user".
+- **Back office:** its links are generated as `index.php?controller=...` in hundreds of places, so the links are left alone and the address is corrected by the web server. `docker/apache.conf` (rule 25) redirects a GET or HEAD for `/<one folder>/index.php` to `/<that folder>/`, keeping the query string; the same file answers through DirectoryIndex. Guards: only when the browser asked for `index.php` by name (`THE_REQUEST`), so the internal DirectoryIndex lookup cannot loop; POSTs are never redirected, so forms and sign-in are untouched; a separate rule builds an `https://` address when the proxy reports HTTPS, because Apache itself only sees HTTP. The rule is not tied to the admin folder name, which is set at runtime by `ADMIN_DIR`.
+- **Why the Dockerfile changed:** rewrite rules in the server-wide config are not applied inside a virtual host unless it inherits them. The first build showed no redirect for that reason. The Dockerfile now adds `RewriteEngine On` and `RewriteOptions Inherit` to the stock `000-default` virtual host.
+- **Website:** every link was already friendly except Our Properties. The installer had stored that menu link in `htl_custom_navigation_link` as an absolute address of the install-time domain (`http://<domain>/index.php?controller=our-properties`), so it ignored Friendly URLs and would also have pointed at the old domain after a domain change. `docker/setup-modules.php` rewrites rows still holding that form to the relative `/our-properties` and logs the count (`MODULES_VERSION=17`).
+- **Not hidden:** AJAX addresses such as `ajax-tab.php` and the file manager pop-up; they never appear in the main address bar.
+- What's New (everyone) and CHANGELOG updated. No guide change: no menu path moved.
+- **Verification (local, image rebuilt twice):** `apachectl -t` Syntax OK; back office GET `index.php?controller=AdminLogin` gives 302 to `/admin-salisberg/?controller=AdminLogin`; with `X-Forwarded-Proto: https` and a `salisberg.com` Host the target is `https://salisberg.com/admin-salisberg/?...`; POST to `index.php` is answered directly (200); signed in, Inbox, Bookings, Room Types and the Staff Guide each end on an address without `index.php` and render with no errors; the homepage has no link containing `.php`; `/our-properties` and a room page return 200; `docker/smoke-test.sh` 29 of 29, no PHP errors logged.
+- **Not tested:** a real browser session (clicks, form saves, pop-ups) after the redirect; behind Coolify's real proxy; the live server.
+
+### 2026-10-13 — Front desk (Today, Housekeeping), no-rooms warning, walk-in guests, one mailer; Stock, shop pages and 1-Click Upgrade removed
+
+#### Empty room types: checked first, then flagged
+
+- **Tested before changing anything.** Room types 11, 12 and 13 locally have no rooms. On the website they are absent from search results, their page says "sold out", and a direct add-to-cart request is refused ("Rooms are unavailable"). Book Now offers nothing for them. So an empty room type was already unbookable; the 2026-10-12 incident note that a guest could reach a confirmation page was wrong (that incident was the hotel-permission gap found the same day). The Admin Guide warning that repeated it is corrected.
+- **What was missing was telling the manager.** `controllers/admin/AdminProductsController.php` (inherited, rule 11): the Total Rooms column shows a red "No rooms" badge (`printRoomCount()`), and `renderList()` adds a warning naming every switched-on room type with no room in service.
+
+#### New module `salisbergfrontdesk` (rule 25: why a new one)
+
+- Nothing existing fits: `salisbergreports` is read-only documents, `salisbergguide` is help, roles and menus. This one changes booking and room state, has its own table and its own two permission rows. It follows the same patterns (tabs created in `ensureSetup()`, installed by `docker/setup-modules.php`, `sb-` naming, CSS from the back office tokens). `MODULES_VERSION=18`.
+- **Bookings > Today** (`AdminSalisbergToday`, placed first in the Bookings section, so clicking Bookings opens it): arrivals (due today, due earlier and not arrived, arrived today), departures (in the room and due out today or earlier, left today), rooms in house, unpaid bookings (stay coming, current, or ended in the last 30 days). Rows are limited to the hotels the profile may see (`htl_access`).
+- **Check in / Check out** (`changeBookingStatus()`): same rules as the booking page (time within the stay, in before out), a late departure is recorded at the end of the booked stay, and it fires the same `actionRoomBookingStatusUpdateAfter` hook. It is a second implementation beside `AdminOrdersController::changeRoomStatus()`, which reads the request and redirects to the booking and could not be called; the rules are kept identical on purpose. A failed save is reported on the page and logged, never an error page.
+- **Bookings > Housekeeping** (`AdminSalisbergHousekeeping`): clean / dirty per room in the new table `sb_room_status`; a room with no row is clean. The module listens to `actionRoomBookingStatusUpdateAfter`, so a check-out from either page marks the room dirty.
+- **Out of service is not a new flag.** It is the platform's room status Inactive, which the availability search already excludes, so the Rooms tab and this page cannot disagree (rule 26). A room with a guest checked in cannot be taken out; one with coming bookings can, and the page says so in red. A room closed for set dates (Temporary inactive) is shown as out of service and is changed in its room type.
+- **Permissions:** two ordinary rows, View to see and Edit to change. Hotel Staff and Hotel Manager get both once, when the pages are first created.
+- `docker/smoke-test.sh` now loads both pages.
+
+#### Walk-in guests
+
+- `controllers/admin/AdminCustomersController.php` (inherited): the form for a NEW guest shows title, first name, last name, email, phone and Enabled only; password, birthday, newsletter, opt-in and the two group fields are on the edit form. `processSave()` supplies the usual customer group when the short form posts none. Email is optional on add: an empty one becomes `guest-<time>-<4 digits>@guest.invalid` (`Customer::NO_EMAIL_DOMAIN`, `Customer::hasNoEmail()` in `classes/Customer.php`).
+- `override/classes/Mail.php`: `Mail::Send()` returns without sending when the recipient is such a placeholder. `.invalid` is reserved (RFC 2606) and can never be a real address.
+- **Email to the guest** is the platform's booking confirmation, sent by `validateOrder()` when Send mails is Yes on the order form (the default). **SMS is not built**; the owner will add a provider. The places to send from are the hooks `actionValidateOrder` (booking created) and `actionRoomBookingStatusUpdateAfter` (check-in, check-out), reading the phone from the customer.
+
+#### One mailer
+
+- Searched for anything sending mail outside `classes/Mail.php` (`mail(`, Swift transports, PHPMailer, sockets): none. Every email already used the settings under Advanced Parameters > E-mail.
+- The only other mail configuration was the IMAP mailbox sync under Inbox (reading a mailbox into conversations). Removed from `controllers/admin/AdminCustomerThreadsController.php`: the options panel, `renderOptions()`, `updateOptionPsSavImapOpt()`, `ajaxProcessSyncImap()`, `renderProcessSyncImap()`, `syncImap()` and the sync call in `renderList()`; and the template folder `customer_threads/helpers/options` (its only content was the Run sync button). The `PS_SAV_IMAP_*` settings and the `customer_message_sync_imap` table are left in the database, unused.
+
+#### Removed (rule 28, with the evidence)
+
+| Removed | Evidence |
+|---|---|
+| Stock menu: tabs `AdminStock`, `AdminWarehouses`, `AdminStockManagement`, `AdminStockMvt`, `AdminStockInstantState`, `AdminStockCover`, `AdminStockConfiguration` | Deleted on every deploy by `removeMenus()` in `salisbergguide.php` (`$removedMenus`), with every profile's rights to them. The installer still creates them on a fresh install; the same step then deletes them. |
+| Their six controllers and the template folders `warehouses`, `stock_mvt`, `stock_instant_state`, `stock_cover` | A search of the whole tree (outside `install/`, caches, translations, docs) for each class name found only the controller itself and its own templates. Not in `ConfigurationTest.php`. The stock classes under `classes/stock/` are used by room and product code and stay. |
+| Front controllers `BestSales`, `NewProducts`, `PricesDrop`, `Compare`, `Manufacturer`, `Supplier`; theme files `best-sales.tpl`, `new-products.tpl`, `prices-drop.tpl`, `manufacturer.tpl`, `manufacturer-list.tpl`, `supplier.tpl`, `supplier-list.tpl`, `products-comparison.tpl`, `product-compare.tpl`, `css/comparator.css`, `js/products-comparison.js` | References were: `sitemap.tpl` (the "Our offers" block, removed), `search.tpl` (two includes of `product-compare.tpl`, removed), `FrontController` (loaded the comparison script when the comparator was on; lines removed), `config/xml/themes/default.xml` and the theme's `lang/en.php` (lists and strings, harmless). Content step v6 (`CONTENT_VERSION=6`) deletes their `meta`, `meta_lang` and `theme_meta` rows and sets `PS_COMPARATOR_MAX_ITEM` to 0. |
+| `modules/qloautoupgrade` | Not installed, no tab. Remaining mentions are a string passed to `Module::isInstalled()` in `Tools.php` and vendor version-check fields in `Upgrader.php`, neither of which loads the module. |
+
+#### Fixed on the way (inherited, found in the log while testing)
+
+- `classes/Translate.php`: including the PDF translation file of a language that has none logged two warnings per string. It is included only if it exists.
+- `classes/order/Order.php`: `$numDays` was unset for items not priced per night, logging a warning and multiplying their quantity by nothing in the invoice tax breakdown. It now starts at 1. **This changes that quantity from 0 to the real quantity on invoices with such items.**
+
+#### Guides (rule 23)
+
+- Staff Guide: menu table (Today, Housekeeping); section 3 (new guest, no email, confirmation email); section 6 rewritten in three parts (Today, Housekeeping, from the booking). Admin Guide: section 1 (the two permission rows), section 3 (no-rooms warning corrected, out of service), section 9 (Inbox row), section 10 (one mail server, placeholder addresses). What's New for all three roles; CHANGELOG.
+
+#### Verification (local, image rebuilt, PHP 8.3)
+
+- **Deploy log:** `Content v6 applied (... shop pages removed: 6)`, `salisbergfrontdesk installed`, `Modules step v18 done`. Database: both tabs under Bookings with Today first, no Stock tabs left, both profiles with view and edit, table and hook present.
+- **Today, as SuperAdmin, with stays moved to today by SQL:** counts and rows correct (a late arrival, three arrivals owing GH₵8,580, an overdue departure). Check in recorded the time; a second check-in, a check-out before check-in, and a stay that has not started were each refused with a message; a wrong token changed nothing. Check out recorded the end of the booked stay for the overdue room and the room became dirty through the hook.
+- **Housekeeping:** mark clean; out of service refused for a room with a guest in it; allowed for a room with coming bookings, with the red note and `id_status` 2; an invalid state refused; back in service restored `id_status` 1.
+- **As the Hotel Staff test account:** Today opens with its buttons; the new-guest form has only the six fields; a guest with no email was created (placeholder address, customer group, bcrypt password); an already-used email was refused; that guest was booked through Book Now and the order form with Send mails on, the booking page opened, and no mail was attempted.
+- **Removed pages:** all six shop addresses, in both the old and the friendly form, return 404; home, sitemap, search and contact return 200 with no errors.
+- **Bug found and fixed while testing:** the computed columns on Today were blank because the loops modified a copy (`foreach ((array) $rows as &$row)`).
+- **Why earlier smoke tests sometimes failed right after a file was copied in:** opcache rechecks files every 60 seconds (`docker/php.ini`), so a hot-patched file is not seen at once. Reload Apache (`apachectl -k graceful`) after copying a PHP file into a running container.
+- **Not tested:** a real browser (all of this was driven with `curl`); Hotel Manager on the new pages; a check-out made from the booking page marking the room dirty (same hook, not exercised from that page); real email through SMTP, including an invoice attachment after the two fixes; the Inbox reply and options save after the IMAP removal beyond loading the page; dark mode screenshots of the new pages; a fresh install; the live server.
+
+### 2026-10-13 — "Add new booking"; guest details on the booking form
+
+- **Owner:** Book Now and Add new order are the same job, call both "Add new booking"; and when booking a walk-in, the form should collect name, email and number, use the guest if they exist and create them if not.
+- **Labels:** menu entry `AdminHotelRoomsBooking` Book Now to Add new booking (`$menuLabels`, `MODULES_VERSION=19`); the page title in `AdminHotelRoomsBookingController`; the toolbar button on Bookings in `AdminOrdersController` (was "Add new order"); the button on the Today page. The cart button inside the page and the website's Book Now button keep their names.
+- **Guest box on the order form** (`admin/themes/default/template/controllers/orders/form.tpl`, an admin template, edited in place): the Customer panel is now Guest, with First name, Last name, Phone, Email address and a "Continue with this guest" button, followed by the existing search box ("Or search for a guest on record"). The "Add new customer" pop-up link is gone from this form; the shortened Add new customer form remains under Customers.
+- **Find or create** (`override/controllers/admin/AdminCustomersController.php`, new behaviour so an override): `ajaxProcessFindOrCreateGuest()` validates the four values (`Validate::isName`, `isPhoneNumber`, `isEmail`; a phone or an email is required), looks for a live guest by email, then by phone compared on digits only (at least 7), and otherwise creates one (customer group, random bcrypt password, placeholder address when there is no email). Creating needs the Add right on Customers. The script then builds the same card a search result produces and clicks its Choose button, so everything after that is the existing flow (rule 26).
+- **Known limit:** two people sharing one phone number resolve to the more recent record. The page shows the name found and says to click Change if it is someone else.
+- Guides: Staff Guide menu table and section 3 (steps rewritten for the Guest box); Admin Guide wording; What's New; CHANGELOG.
+- **Verification (local, image rebuilt, as the Hotel Staff test account, driven with `curl`):** the menu shows Add new booking; the order form renders with the five new elements and no template errors; the endpoint created a guest from a phone only, found the same guest from the same number written differently and under another name, found an existing guest by email, created one with an email, refused no contact details and refused a script tag, a bad phone and a bad email with one message each; a request without a token got the platform's invalid-token page. A booking for the new guest was then created and its page opened. `docker/smoke-test.sh` 31 of 31. The PDF translation warnings fixed earlier no longer appear in the log.
+- **Not tested:** the Guest box in a real browser (the button, the message box, the automatic Choose click); Hotel Manager; the live server. Seen in the local log and left alone: a warning at `AdminCartsController.php:470` during the cart step, and the invoice logo fetched over `http://localhost:8080` failing inside the container (a local-only address).
+
+### 2026-10-13 — Invoice reviewed and redesigned; receipt; check-in and payment notices
+
+#### What the invoice flow did (read from the code and the database before changing it)
+
+- An invoice (number `#IN000001` onward, table `order_invoice`) is created the first time a booking enters an order state whose `invoice` flag is on. That was: Complete payment received, Processing, Refunded, Partial payment received, Remote payment accepted. **Awaiting payment was not one of them**, so a guest paying cash on arrival, or still to send Mobile Money, had no document at all.
+- The PDF (`classes/pdf/HTMLTemplateInvoice.php`, templates in `pdf/invoice*.tpl`, `pdf/header.tpl`, `pdf/footer.tpl`) is attached to the booking confirmation email when the booking already has an invoice, and to a status email when that state's `pdf_invoice` flag is on (only Complete payment received).
+- **Faults found on a real invoice:** no logo (it was fetched over the public web address, which the server cannot always reach); the footer printed `Tel: %s`; an invisible "Powered by TCPDF" line; dates as 10/13/2026; amounts wrapping onto two lines; nothing about what had been paid or was still owed; the guest's email missing; payment method shown as the module name.
+
+#### Flow changes
+
+- **Awaiting payment now issues the invoice** (`order_state.invoice = 1` for the state in `PS_OS_AWAITING_PAYMENT`), so every booking has one from the start, showing the balance due. Content step, `CONTENT_VERSION=7`. Undo it under Bookings > Statuses, Awaiting payment, "Allow a customer to download and view PDF versions of his/her invoices". Bookings already sitting in Awaiting payment get their invoice at their next status change.
+- **Part payment emails carry the PDF** (`pdf_invoice = 1` for the full and part payment states), `CONTENT_VERSION=8`.
+- **The paid document is the receipt:** `getHeader()` titles it Receipt once nothing is owed, Invoice otherwise. Same number, same file.
+
+#### Design (inherited templates, edited in place; licence headers kept)
+
+- `pdf/header.tpl` (shared by every PDF): logo at a fixed width, document name in brand green, number in gold, date, a green rule.
+- `pdf/footer.tpl` (shared): address, phone and email on a hairline. The vendor's "electronic version in your account" and Fax lines are gone.
+- `invoice.addresses-tab` (From / Billed to, with the guest's phone and email), `invoice.summary-tab` (number, date, booking reference, booked on, status in colour), `invoice.product-tab` ("Your stay": room type and room numbers, check-in, check-out, nights, guests, rate per night, amount), `invoice.payment-tab` (each payment with date, method and reference; then "How to pay the balance" when money is owed), `invoice.total-tab` (lines, Total, Paid, Balance due in red or green), `invoice.style-tab` (brand colours, new classes). The tax, extra-services and other-items tables keep their content and take the same heading band.
+- `invoice.tpl`: the bottom block is one row of two cells. The old `rowspan` layout pushed the last line onto a second page.
+- **Data added in `HTMLTemplateInvoice`:** `getBookingSummary()` (guest, totals, paid, balance, status, payments, how to pay from `Salisbergpay::getAvailableMethods()`, `getMomoDetails()`, `getBankDetails()`), `dateInWords()` (13 Oct 2026, the same everywhere), room numbers and worded dates on each stay line.
+- **Fixes at the source:** `HTMLTemplate::getLogo()` returns the file path; `PDFGenerator` switches the TCPDF line off; `Translate::getPdfTranslation()` fills `%s` placeholders when a language has no PDF translation file.
+
+#### Notices to the guest (`modules/salisbergfrontdesk`, `MODULES_VERSION=20`)
+
+- **Check-in** (`actionRoomBookingStatusUpdateAfter`, first room of a booking only): an email from the module's own template (`mails/en/checkin.html`, `.txt`) with the invoice or receipt attached, and a text.
+- **Paid in full** (`actionOrderStatusPostUpdate`, new state with `paid = 1`): a text. The platform's own payment email already carries the PDF.
+- **Texts** go through `Hook::exec('actionSalisbergSendSms', array('phone', 'message', 'id_order', 'reference'))`. No module listens to it yet, so nothing is sent; a provider module registers that hook and sends. A mail or text failure is logged and never blocks a check-in.
+
+#### Found and left for the owner (data, not code)
+
+- **Two installer sample charges are added to every booking automatically:** "Room Maintenance Fees" and "Internet Handling Charges", GH₵250 each, shown on the invoice as Fees. Rooms & Services > Manage Service Products.
+- **A 4% sample tax** is applied to rooms and fees.
+- The hotel address and phone on the invoice are still the installer's (Montgomery, Alabama; 0987654321).
+- **Marking a booking Complete payment received records the full amount as a payment by itself.** A payment also added by hand is then counted twice (seen in testing: paid GH₵17,160 on a GH₵8,580 booking). Staff Guide section 5 now warns about it.
+- The status and confirmation emails are still the vendor's design and wording ("order", "powered by Webkul"); only the new check-in email is in the brand style.
+
+#### Guides (rule 23)
+
+- Staff Guide section 5 (the invoice, what the guest is sent, record a payment once). Admin Guide section 10 (table of what is sent when; the text hook, SuperAdmin only). What's New; CHANGELOG.
+
+#### Verification (local, image rebuilt; PDFs opened and read)
+
+- Before/after of the same paid invoice; an unpaid one (NOT YET PAID, balance in red, how-to-pay block with the test Mobile Money and bank details); the same booking after payment (headed RECEIPT, two payments listed, balance GH₵0.00). Each is one page, with the logo, and no amount or heading wraps.
+- With a throwaway listener module installed in the local container only (it logged instead of sending): checking in the first room of a booking produced the welcome text and an email with `#IN000004.pdf` (486 KB) attached; checking in a second room of another booking produced nothing more; marking a booking paid produced the payment text and the platform's payment email with `#IN000007.pdf` attached. No PHP errors or warnings logged. `docker/smoke-test.sh` passes.
+- **Not tested:** real delivery of any email (this machine has no mail server; the send step itself failed with a sendmail error after the message was built); a real SMS provider; the invoice with discounts, extra services, refunds or several pages of rooms; the credit slip and other PDFs with the new shared header and footer; the guest's own download from the website; the live server.
+
+#### Follow-up, same day: the Invoices page
+
+- **Before:** Bookings > Invoices had no list at all, only two bulk-print forms and a block of numbering settings.
+- **Now** (`controllers/admin/AdminInvoicesController.php`, inherited; new template `admin/themes/default/template/controllers/invoices/list.tpl`): `renderInvoiceList()` shows up to 200 invoices, newest first, limited to the hotels the profile may see, with number, date, booking (link), guest and phone, stay, total, paid, still to pay, a status label and a PDF button (labelled Receipt when settled). Filters, all validated: free text (invoice number, booking reference, guest name, phone; `%` and `_` removed, the rest through `pSQL()`), status against a fixed list, two dates against a pattern and `Validate::isDate`. Four totals for the rows shown. Stock Bootstrap classes only, no new stylesheet.
+- The two bulk forms are kept under clearer titles. The options block (prefix, numbering, model, cache) is rendered for SuperAdmins only.
+- Guides: Staff Guide menu table and section 5; Admin Guide section 10; What's New; CHANGELOG.
+- **Verification (local, image rebuilt):** as SuperAdmin the page lists the 7 local invoices with correct totals; filters by status, by guest name and by invoice number return the right rows; a script tag as status, an impossible date and a quote and percent sign as search text give an empty list with no error. As Hotel Staff the list shows and the options block does not.
+- **Not tested:** more than 200 invoices; a profile limited to one of several hotels; the two bulk-print forms after the change (their code is untouched); a real browser.
+
+### 2026-10-14 — Charges & Tax page; payments cannot be counted twice
+
+#### Charges & Tax (Rooms & Services)
+
+- **Owner:** provide a way to tick or untick the two sample charges and the sample tax.
+- **What the samples really do** (read from the database): "Room Maintenance Fees" GH₵250 per room per night, `price_addition_type` 1, i.e. added inside the room rate the guest sees (a GH₵200 room shows and is charged GH₵450); "Internet Handling Charges" GH₵250 per room per stay, shown as a separate fee. Both `auto_add_to_cart = 1`, hidden from guests (`show_at_front = 0`). The tax is the installer's "US-AL Rate (4%)" rule group on 12 room types and charges; it applies because the hotel address is still the sample Alabama one.
+- **Where (rule 25):** a new page in the existing `modules/salisbergpay`, because it is about what the guest pays. `controllers/admin/AdminSalisbergChargesController.php`, `views/templates/admin/charges.tpl`, and in `salisbergpay.php`: `ensureChargesPage()` (menu entry under Rooms & Services; Hotel Manager given view and edit once, when created), `getAutoCharges()`, `setChargeAutoAdded()`, `getTaxesInUse()`. Created by `docker/setup-modules.php` after the profiles exist (`MODULES_VERSION=21`).
+- **What the switches change:** a charge's tick is `auto_add_to_cart` on `product` and `product_shop`, and only for products the page lists (service products that are added by themselves or hidden from guests); optional extras are refused. The tax tick is the platform's own `PS_TAX` (Localization > Taxes, "Enable tax"). New bookings only; bookings already made keep their lines.
+- **Left as they were:** both sample charges and tax are still ticked. Removing them is a pricing decision for the owner.
+
+#### Payments counted twice
+
+- **How it could happen:** marking a booking Complete payment received records a payment for what the *invoice* has not been paid (`OrderInvoice::getRestPaid()`), counting only payments linked to that invoice. A payment recorded before the invoice existed, or without the link, was then taken a second time. Recording the same payment twice by hand was also possible.
+- **Fixed at the source:** `classes/order/OrderHistory.php` caps that automatic payment at what the booking still owes (`total_paid_tax_incl - total_paid_real`); `controllers/admin/AdminOrdersController.php` (Add payment) refuses an amount above what is still owed, converted to the booking's currency, with a message naming the amount. Refunds (negative amounts) are unchanged. Since 13 October every booking has its invoice from the start, so payments are linked as they are recorded.
+- `admin/themes/default/template/controllers/orders/helpers/view/view.tpl`: the red "Warning X paid instead of Y" shown for every part payment now reads "Paid so far: X of Y. Still to pay: Z" in amber, and is red only when more than the total has been recorded.
+
+#### Guides (rule 23)
+
+- Admin Guide section 5 (new "Charges added to every booking, and tax", with the sample charges spelled out) and section 7 (managers pointed to the switch). Staff Guide section 5 (the double-count warning replaced by what the system now does). What's New 14 October (everyone, and manager); CHANGELOG.
+
+#### Verification (local, image rebuilt)
+
+- Charges & Tax as SuperAdmin: lists the two charges with how each is charged and the tax group in use. Unticking Room Maintenance Fees changed the website price of Standard Room 1 from GH₵450 to GH₵200; ticking it again restored GH₵450. Trying to switch an optional extra (Airport Shuttle) was refused. The tax switch saved and showed its message; its effect on a booking total was not checked. Everything was put back as it was.
+- As the Hotel Staff test account: a new unpaid booking (GH₵832) got invoice #IN000008 at once; a GH₵100 payment was recorded and linked to it; a GH₵999,999 payment was refused ("more than the GH₵732.00 still owed"); marking it Complete payment received recorded exactly GH₵732, total paid GH₵832.
+- **Not tested:** the tax switch on a real booking total; the Charges & Tax page as Hotel Manager; a booking in another currency; the new booking-page notice in a browser.
+
+### 2026-10-14 — Layout on tablets, laptops and phones; Charge tax switch on the booking form
+
+#### How the faults were found
+
+- A checker (outside the repository) opens pages in headless Chrome at 390, 768 and 1024 wide, lists elements that run past the right edge (not inside a scrolling or clipped box) and visible elements that overlap, and saves a screenshot of each. Run over 7 website pages and 14 back office pages, before and after. Overlaps that are by design were set aside after looking at the screenshots: the password eye inside its field, the menu fold arrows on their rows, the switch knobs, the gallery's scroll button on its thumbnails, calendar day numbers under booking bars.
+- **Lesson:** the browser profile used by the checker cached the back office stylesheet between runs (it is served with no version in its address), so one run showed old rules. Start each run with a clean profile. Returning staff will see the same for a while after a deploy, until their browser refetches `overrides.css`.
+
+#### Website (`salisberg.css` `?v=15` and inherited theme files)
+
+| Fault | Fix |
+|---|---|
+| Location field: the pin icon covered "Hotel Location" | `css/global.css`: `.input-location`'s left padding was out-ranked by `.form-control`; the selector is now `.form-control.input-location` (rule 11) |
+| Search filters and the room booking panel squeezed into a third of a tablet screen (dates cut off, prices wrapping) | `header.tpl` (left and centre columns) and `product.tpl` (room page columns): `col-sm-*` became `col-md-*`, so below 992px they stack, filters and booking panel first |
+| Phone homepage scrolled sideways by 16px | a room card's flex item took its content's width; `min-width: 0` on it |
+| A dark strip along the right edge at every width | the closed menu panel's shadow; the shadow is now only on the open panel |
+| "/Per Night" split over two lines beside the price | `css/category.css`: `.rm_price_txt` does not wrap |
+| Amenities ran together ("FanTV") | `docker/setup-room-types.php` wrote the amenity list as HTML into the short description, which the platform stores as plain text. It now writes "Fan, TV"; a pass rewrites the six room types where the text is still in the run-together form (`ROOM_TYPES_VERSION=2`, logged per room) |
+
+#### Back office
+
+| Fault | Fix |
+|---|---|
+| Page titles covered by the buttons beside them ("Order PBSTLDFNA - Salis[View Hotel]", "Edit: Sta[Preview]") | New `modules/salisbergguide/views/js/page-head.js` (loaded by `addInterfaceAssets()`): measures each title bar (a booking draws two, one over the other) and, when the title's text and the buttons would meet, adds `sb-head-stacked` to that bar and moves the content down by the extra height. `overrides.css` section 6 puts the buttons on a row under the title. The stock rule holds the button list as `display:block !important`, so the buttons are inline blocks rather than flex items |
+| Lists and tables wider than the space beside the menu pushed the whole page sideways (Bookings 1733px at a 1024px window, Customers 1865px, Room types 1602px) | `overrides.css` section 7: the existing Stats-only rule generalised to `.table-responsive`, tables directly in a panel, and, from 992px, `.table-responsive-row`; each scrolls inside its box. Below 992px the stock theme already turns lists into stacked cards |
+| Figure tiles at the top of Bookings and of a booking overlapped ("GH₵22,200.00" outside its tile, "Today"/"30 Days" over the labels) | `admin-theme.css` (inherited): tiles were a fifth of the width each whatever the space; now `flex: 1 1 190px` with wrapping, and the two width-by-window media rules removed |
+| Phone (below 768px): fold arrows drawn in the icon rail; Staff Guide tables and the dashboard occupancy chart wider than the screen | arrows hidden in that range (`overrides.css` section 11); `guide.css` lets a guide table scroll inside itself on phones; the chart's SVG is limited to its box |
+
+#### Charge tax switch on the booking form
+
+- **Owner:** a tick for tax, on by default, that staff can untick for a booking; the manager or admin can turn it off.
+- **Booking form** (`admin/themes/default/template/controllers/orders/form.tpl`, beside Send mails): "Charge tax" Yes/No, Yes by default, shown only when `sb_tax_choice` is set.
+- **New `override/controllers/admin/AdminOrdersController.php`:** `renderForm()` sets `sb_tax_choice`; `postProcess()`, when the booking is submitted with `sb_charge_tax=0` and the choice is allowed, sets `PS_TAX` to 0 for that request only with `Configuration::set()` (nothing saved). The platform's own tax code (`TaxRulesTaxManager::getTaxCalculator()`, `Tax::excludeTaxeOption()`) then builds the booking without tax.
+- **Who controls it:** `Salisbergpay::taxChoiceAllowed()` is true while tax is on (`PS_TAX`) and the new setting `SBPAY_TAX_PER_BOOKING` (default 1, created by `ensureSettings()`) is on. Rooms & Services › Charges & Tax has the tick "Let staff leave tax off a single booking", shown while tax is on. `MODULES_VERSION=22`.
+- **Known limit:** the totals shown on the form above the switch still include tax; the help text says so. The booking, the full-payment amount and the invoice do not.
+
+#### Guides (rule 23)
+
+- Staff Guide section 3 (the Charge tax switch). Admin Guide section 5 (the new tick). What's New 14 October (everyone: the switch and the layout; manager: the tick). CHANGELOG.
+
+#### Verification (local, image rebuilt)
+
+- **Checker after the fixes:** website at 390, 768 and 1024: no page scrolls sideways, no unexpected overlaps; screenshots reviewed (search results at 768 and 1024, room page at 768). Back office at 768 and 1024 on 14 pages: no page scrolls sideways and no unexpected overlaps; screenshots reviewed (Bookings, a booking, the room type form). At 390, left as they are: the booking page's "Menu" button over its status badge, and the dashboard date button over its hidden field.
+- **Tax switch, as the Hotel Staff test account:** the switch is on the form; the same room type booked with Yes came to GH₵728 (GH₵700 + GH₵28 tax), with No to GH₵700, invoice GH₵700 / GH₵700; `PS_TAX` was still 1 afterwards. With the manager's tick off (set as SuperAdmin on Charges & Tax) the switch was gone from the form, and a booking posted with No anyway was charged tax (GH₵728). The tick was put back on.
+- `docker/smoke-test.sh` 31 of 31.
+- **Not tested:** a real browser on a real tablet or phone; Safari and Firefox; right-to-left; back office pages outside the 14 checked; the switch as Hotel Manager; the live server.
+
+### 2026-10-14 — Add new booking: one click per room, and the next step always in view
+
+- **Owner:** the back office booking flow is hard, especially choosing the room and the occupancy, and then having to open the cart, which staff sometimes do not see.
+- **Seen in screenshots taken as the Hotel Staff test account before changing anything:** (1) the guests chosen in the Booking Form were not used by the room rows; clicking Add To Cart on a row only opened that row's own guest box and added nothing, so every room needed the guests entered twice and a second click; (2) after Search the room list sat below the calendar and the counts, out of view; (3) the only way on was a small "Cart" button in the calendar panel's corner, then "Book Now" in a pop-up.
+- **Changes** (inherited `hotelreservationsystem` files, edited in place, rule 11):
+  - `views/js/admin/hotel_rooms_booking.js`: `useSearchOccupancy()`, called by both Add To Cart handlers (available and partially available rooms) before the row's guests are read. A row with no guests chosen takes the first room of the Booking Form's occupancy: adults, children and each child's age (the age boxes are built by triggering the platform's own change handler). A row whose guests were set by hand is left alone. `updateBookingBar()`, called from `refreshCartData()` and on page load, keeps the new bar's count, total and link in step with the cart.
+  - `views/templates/admin/hotel_rooms_booking/helpers/view/view.tpl`: the bar (`#sb-booking-bar`: rooms chosen, total before tax, Review selection opening the existing cart window, Continue to guest and payment going to the same address as the cart's old Book Now button); the room list wrapped in `#sb-room-results`; after a search (the search redirects to an address carrying `date_from`) the page scrolls to it.
+  - `_partials/booking-cart.tpl`: the cart window's "Book Now" now reads "Continue to guest and payment".
+  - Styles in `admin/themes/default/css/overrides.css` (section 7): the bar is fixed to the bottom of the content area, beside the side menu, and the page gets room below so nothing hides under it.
+- **Guide (rule 23):** Staff Guide section 3, steps rewritten. What's New (everyone); CHANGELOG.
+- **Verification (local, image rebuilt, headless Chrome as the Hotel Staff test account):** after Search the page scrolled to the room list (837px down; screenshot reviewed); one click on Add To Cart added the room (cart 0 to 1, row button became Remove) and the bar showed "1 selected for this booking, Total before tax: GH₵700.00"; Continue to guest and payment opened Bookings > Add new for that cart. A search for 2 adults and a 7-year-old, then one click, stored adults 2, children 1, ages ["7"] for the room. Leftover test carts were removed from the local database.
+- **Not tested:** a real browser by hand; a booking form with two rooms of different guests (each row takes the first room's guests; a different second room is set in its own Guests box); partially available rooms (same function, not exercised); phone width; the live server.
+- **Menu: the list of bookings is now "Reservations" (2026-10-14).** `$menuLabels` in `modules/salisbergguide/salisbergguide.php`: `AdminOrders` now lists the names it may still carry (`Orders` or `Bookings`) and becomes `Reservations`; `renameMenuEntries()` accepts a list (`MODULES_VERSION=23`). The section `AdminParentOrders` stays "Bookings". Staff Guide menu table and section 4 and Admin Guide section 14 say `Bookings > Reservations`. The page's own heading still reads "Orders" (vendor controller text, as recorded 2026-10-06). **Verified locally:** after a rebuild and a manual run of `setup-modules.php` the tab reads Reservations in the database and in the menu. **Not tested:** the live server, where the rename acts only while the entry still reads Orders or Bookings.
+
+### 2026-10-15 — Room board is the booking entry; Today moved to Dashboard; unused menus removed
+
+**What**
+
+- `Bookings > Add new booking` is now the `AdminSalisbergRoomBoard` tab. The Reservations toolbar button opens it, and the old `AdminHotelRoomsBooking` tab is hidden. Direct visits to the old room-search controller and `AdminOrders&addorder` redirect to Room board; its AJAX room-reallocation and swap endpoints remain available for existing bookings.
+- Future arrivals now enter the same guided Guest, Payment and Confirm workspace as walk-ins. Completion uses `reserve`, while only a ready same-day room offers `checkin`. The old visible cart/search/form pipeline is no longer used; the inherited Cart and hotel-cart records remain the booking engine's internal staging model.
+- The full Today workspace is rendered from `salisbergfrontdesk` on `dashboardTop`. Its hidden `AdminSalisbergToday` controller still validates Check in and Check out posts, then redirects back to Dashboard. The smaller stock `dashguestcycle` Operations Today zone is unhooked; its top summary badges remain.
+- Channel Manager is disabled on every module setup. `AdminQloappsChannelManagerConnector`, `AdminZones` and `AdminSlip` are inactive menu tabs. Zones and credit-slip classes/tables were deliberately retained because country/tax/address and refund/document workflows share them.
+- The CSRF token remains in back-office links. Removing it would weaken the inherited admin request protection and make refreshes/forms unreliable; this request was declined rather than replaced with a cosmetic URL rewrite.
+- Removed the custom sticky cart bar, result auto-scroll, search-occupancy copier, old `AdminOrders` per-booking tax field, and `salisbergguide::grantCartEditing()`. They served only the retired visible cart flow. `AdminCarts`, the hidden room-booking controller, and its base assets remain because dashboard/customer cart links and booking reallocation endpoints still reference them.
+- `MODULES_VERSION=24`. Staff Guide sections 2, 3 and 6, Admin Guide sections 1 and 15, What's New, and `CHANGELOG.md` describe the resulting workflow and menu.
+
+**Why**
+
+- Staff had two competing booking entry points and the visible Add new booking route still opened the cart pipeline the Room board was meant to replace. Daily actions also belonged on the Dashboard instead of a separate Today page. Channel Manager, Zones and Credit Slips add navigation that this hotel does not use, but deleting their shared implementation would create avoidable breakage.
+
+**Verification**
+
+- Built and restarted the local image. Module setup v24 completed and disabled `qlochannelmanagerconnector`; the application log contained no new PHP warning or error.
+- Confirmed in the database that Room board is the visible Add new booking tab, Today and the legacy room-booking controller are active but hidden, Channel Manager/Zones/Credit Slips are inactive, `salisbergfrontdesk` owns `dashboardTop`, and `dashguestcycle` is no longer attached to `dashboardZoneTwo`.
+- Authenticated checks confirmed Dashboard renders Today at the desk, both Add new entry points open Room board, direct legacy booking routes redirect to Room board, and the removed menu items do not render.
+- `docker/smoke-test.sh` passed all 30 checks. Repository-wide symbol searches after the cleanup found no code references to `sb-booking-bar`, `sb-room-results`, `useSearchOccupancy`, `updateBookingBar`, `sb_charge_tax`, or `grantCartEditing` outside historical records.
+
+### 2026-10-15 — Front-desk booking navigation simplified
+
+**What**
+
+- The Room board orders available ready rooms first, then other available rooms, and puts unavailable rooms last. It adds Available, Ready now, Needs cleaning and All rooms filters; room-number/type search; compact cards; a lowest-priced ready-room recommendation; availability counts; and a fixed Continue action on tablets and phones.
+- Active guided-booking drafts belonging to the signed-in employee appear on the Room board with Resume and Discard. Discard removes the unused hotel-cart rows and cart in a database transaction, then marks the draft discarded so held room availability is released cleanly.
+- The visible guide is three steps: Guest, Payment and Confirm. Stay remains an edit screen reached from the summary, while the existing internal step numbers remain unchanged to avoid a data migration.
+- Guest details survive validation errors and errors appear beside their fields. Search ranks exact phone and email matches first, Enter selects the first result, and a duplicate found while entering a new guest can be used directly. Changing away from an existing guest clears its details instead of silently carrying them into a new record.
+- Payment asks for Paid in full, Part payment or Pay later first. Pay later does not require or store a payment method; received money still requires Cash, Mobile Money or Bank transfer and confirmation. Cash tender follows the full or partial amount until the employee edits it.
+- Confirm and success remove repeated information while keeping the stay, guest, payment, balance and next actions visible. `salisbergfrontdesk` is version 1.3.1. Staff Guide section 3, What's New and `CHANGELOG.md` describe the changes.
+- Hotel Staff testing found that final confirmation could not execute either transaction lock: `Db::getRow()` and `getValue()` appended `LIMIT 1` after the supplied `FOR UPDATE`, producing invalid MySQL `FOR UPDATE LIMIT 1`. Both the draft and room locks now use an explicit uncached `SELECT ... LIMIT 1 FOR UPDATE`, preserving the concurrency protection instead of removing it.
+
+**Why**
+
+- Front-desk staff need to find a suitable room quickly, resume interrupted work without retyping it, and make the fewest decisions needed to complete a correct booking. Releasing abandoned drafts also prevents an unfinished internal cart from making a room appear unavailable.
+
+**How / safety**
+
+- Draft listing and discard are restricted to the current employee, and discard is a token-protected POST action through the existing admin controller. Room availability is checked again by the existing finalisation path before a reservation is created.
+- Finalisation locks the employee-owned draft and selected room inside the existing transaction before checking availability and creating the order. Locking selects bypass the query cache.
+- No schema was added: the existing draft JSON and internal cart remain the single staging model. Government ID type and number were not added because collecting sensitive identity data needs an explicit hotel requirement, retention period and access policy first.
+
+**Verification**
+
+- Rebuilt and restarted the local Docker image, then rebuilt it again after the locking correction so the fix is in the deployable image. The authenticated `docker/smoke-test.sh` suite passed 30 of 30 checks on PHP 8.3.35 and MySQL 8.0.46, including the Dashboard, Room board, guides and application log; no PHP warning or error was logged.
+- An authenticated UI check opened the Room board, found search, filters and the recommended room, created a draft, rendered Guest/Payment/Confirm, listed the draft under Unfinished bookings, resumed it, then discarded it. The database showed `status=discarded`, no cart and zero hotel-cart room rows.
+- A second draft submitted invalid guest details and retained the typed values and note with inline first-name and phone errors. It then selected an existing search result, saved Pay later without a payment method, reached Confirm with no payment recorded, and was discarded. Its cart and room hold were also absent afterward.
+- The first completion attempt as the Hotel Staff test employee exposed the two invalid locking queries. No order or payment was created; the failed draft was discarded, its cart and room hold were absent, its unused guest was removed, and the employee password hash was restored.
+- After correcting both locks, the same Hotel Staff profile completed future reservation `MJATYEKLB` (order 16) for room GR-105, 12–14 February 2027. The success page rendered, View stay opened without a permission error, and the reference appeared in Reservations. Database checks showed employee 3 (`staff.test@example.com`), complete draft 6, Awaiting payment, Pay later, GH₵416 total, GH₵0 paid, and allotted/reserved booking status. The employee password hash was restored after the test.
+- PHP syntax checks passed for the service, both controllers and module class; JavaScript syntax checks passed for Room board and walk-in scripts; `git diff --check` passed.
+- Not tested: visual interaction in a real browser, the Hotel Manager profile, a same-day check-in or confirmed payment, or the live server.
+
+### 2026-10-16 — Room board count and selected-room layout
+
+**What**
+
+- The count for each room type now sits in a small badge immediately beside the type name. `room-board.js` recalculates it after every status filter or room search, so it describes the rooms currently shown rather than the unfiltered total.
+- The selected-room column is 330–360px instead of 290px. Its detail grid now lets both columns shrink and wraps long values, preventing capacity and nightly rates from crossing the centre or right edge.
+- Check-in and check-out dates use `15 Oct 2026` consistently. Guest wording replaces the ambiguous `1 + 0`, Capacity is named on room cards, and a selected card has both a visible check mark and `aria-pressed=true`.
+- The estimated stay total is a separate highlighted row. The nightly-rate breakdown is hidden for a flat-rate stay and shown only when nightly prices differ.
+- Below 1200px the board becomes one column and the existing fixed Continue action appears, instead of squeezing the room grid and summary beside the 304px back-office menu.
+
+**Why**
+
+- At the width shown by the owner, `justify-content: space-between` made a room count look detached from its heading. The 290px summary and its max-content value column also caused long details to collide and overflow.
+
+**Guide**
+
+- Staff Guide section 3 now explains the filtered room-type count, simplified selected-room summary and conditional nightly breakdown. What's New and `CHANGELOG.md` describe the visible change.
+
+**Verification**
+
+- Rebuilt and restarted the local Docker stack after the Room board code change. `docker/smoke-test.sh` passed 30 of 30 checks on PHP 8.3.35 and MySQL 8.0.46, including the authenticated Room board, with no PHP error or warning in the application log.
+- PHP syntax checks passed for `SalisbergWalkIn.php` and `AdminSalisbergRoomBoardController.php`; the Room board JavaScript syntax check and `git diff --check` passed.
+- A temporary headless-Chrome visual checker did not start its debugging endpoint and was removed with its temporary browser profile. The final layout was therefore not claimed as visually checked; a real-browser screenshot at the owner's working width remains to be reviewed.
+- The Staff Guide, What's New and change-record edits were made after that successful build. A second rebuild was attempted, but Docker Desktop was no longer running (`dockerDesktopLinuxEngine` pipe absent), so those documentation-only edits were not rechecked in the container.
+
+### 2026-10-16 — Room board: selected room first; "Bookings" as the one name; New booking out of the side menu
+
+**What**
+
+- **Room board** (`modules/salisbergfrontdesk`): the Selected room panel is now first in the page and first in the grid (`.sb-board-layout` columns swapped, panel moved before `.sb-room-groups` in `room_board.tpl`), so it stays on top when the board collapses to one column. The primary button reads **Continue to guest** in both places (panel and the fixed phone bar) for same-day and future stays, since the next screen is Guest either way; the old "Book walk-in" wording is gone. Room-type headings read `Standard Room 1 — 5 rooms`: heading, dash and count badge on one row, and `room-board.js` still recalculates the count after a filter or search.
+- **Sidebar:** the Room board tab (`AdminSalisbergRoomBoard`, named "New booking") and the legacy `AdminHotelRoomsBooking` tab are active but parented to `-1`, so they are out of the menu and still open by link (`configureTabs()` in `salisbergfrontdesk.php`). The way in is the **New booking** button on Bookings > Bookings (`AdminOrdersController::initPageHeaderToolbar()`), the Today panel and the Staff Guide link. Direct requests to the old cart form (`addorder`, `submitAddOrder`) redirect to the Room board through `override/controllers/admin/AdminOrdersController.php`.
+- **"Bookings" everywhere a person reads it.** `$menuLabels` in `salisbergguide.php` now renames `AdminOrders` from Orders or Reservations to **Bookings** (a list of old names is accepted), and adds Order messages to Booking messages, Preferences > Orders to Bookings, and the refund rule and request pages to Refund rules and Refund requests. Visible text was changed in the inherited booking page heading, the customer view, overbooking panels, refund screens, order statuses and messages, search results, dashboard and statistics modules (`dashgoals`, `dashguestcycle`, `dashproducts`, `dashtrends`, `dashperformance`, `stats*`), the guest account pages of the website, and, found in this pass, the top-bar notification panel (`admin/themes/default/template/header.tpl`: Latest Bookings, Show all bookings, Booking number, View this booking). `MODULES_VERSION=25`.
+- **Left unchanged on purpose:** `AdminOrders`, `id_order`, `qlo_orders`, table, hook, controller and class names, URLs and the `orders` parameter of integrations (rules 12 and 29); renaming them would break the inherited booking engine. The `Order`-named files and hooks are not user-visible.
+- **Follow-up, same day (owner: room list should be the main part, aligned, easy to navigate):** `frontdesk.css` columns are `minmax(290px,1fr) minmax(0,2fr)` (a third and two thirds). Measured at 1440 and 1280 wide: panel and room list start at the same height. The panel had been pushed down 74px because the stock `.panel` rule (`position: relative`) beat our `position: sticky; top: …`, which turned the offset into a shift; its rule (and `.sb-stay-summary`) now carries `#content.bootstrap .sb-frontdesk`, and after scrolling 900px the panel and its Continue button stay on screen. The same stock rule `#content.bootstrap h3:not(.modal-title)` (border-bottom, 2.2em height, negative margins) was drawing a line through the room-type headings and offsetting them, so every front desk `h3` rule (draft panel, room groups, selected room, steps, summary) is scoped above it with `height: auto; line-height: 1.3`; the count is a pill badge. The search icon covered the placeholder (stock input padding won); the rule is scoped the same way. Removed as redundant: the page's own `Front desk / Room board` heading (the page title already says New booking), the `.sb-board-note` banner (dates and guests are already in the form and the panel) and the sentence under Unfinished bookings, with their dead CSS (rule 28). `.sb-desk-panel h3` (Today panels on the Dashboard) has the same stock-rule problem and was left alone because it was not asked for.
+- **Button renamed again at the owner's request:** the Selected room button and the phone bar button read **Book now** (was Continue to guest). It still opens the guided Guest step; the booking is made on Confirm. Staff Guide section 3, What's New and CHANGELOG match.
+- Guides (rule 23): Staff Guide menu table and sections 2, 3, 4, 6; Admin Guide paths (`Bookings > Bookings`, section 14); What's New and `CHANGELOG.md` (16 October).
+
+**Verification (local, image rebuilt, PHP 8.3.35 / MySQL 8.0.46)**
+
+- `docker/smoke-test.sh`: 30 of 30, before and after the notification-panel text change. The changed `header.tpl` was copied into the running container rather than rebuilt; the dashboard then showed Latest Bookings and Show all bookings and no Latest Orders.
+- Tabs after the deploy step (`Modules step v25 done`): AdminOrders "Bookings" (parent 9), AdminParentOrders "Bookings", AdminOrderMessage "Booking messages", AdminOrderRefundRequests "Refund requests"; Room board, Today and the legacy room-booking tab have `id_parent -1`.
+- As the Hotel Staff test account (driven with Node/fetch, every request in the order the page makes it): the sidebar lists no Add new booking, Today or Room board entry; Bookings opens with the heading "Bookings" and the New booking button; the Room board has Selected room before the room list, four headings with count badges and two "Continue to guest" buttons; a **future** booking (room DR-101, 15–17 Dec 2026) went Room board > Guest > Payment (Pay later) > Confirm with "reserve" and a draft marked complete, and a **same-day** booking offered and recorded "checkin" (room status 2); both appear in the Bookings list and the checked-in booking's page opens without a permission error. No PHP error or warning in the pages visited.
+- A scan of the visible text of Dashboard, Bookings, Invoices, Customers, Refund requests, Inbox, Housekeeping and the Staff Guide found "Order" only in the notification panel, since fixed in `header.tpl`.
+- A draft started from the Room board was listed under Unfinished bookings with Resume, then discarded: status `discarded`.
+- **Not tested:** the notification panel text in a rebuilt image; a real browser (visual layout of the Room board at 1200px and below); a part-paid or paid booking in this pass; Hotel Manager; the live server, where the rename acts only while a menu entry still carries one of its old names.
+- Test data left in the local database: bookings DSWMBYAHA and DWCIDNINW (guests "Flow Testerfuture" and "Flow Testertoday"). The Hotel Staff test account's password was set to a temporary value for the test and its old hash restored afterwards.
+
+### 2026-10-16 — Date boxes open the calendar on any click
+
+- **Owner:** on New booking, staff had to find the small calendar icon in Arrival and Departure; a click in the empty part should open the calendar too.
+- **What:** `openCalendarOnClick(field)` added to the two scripts that already drive these fields, beside their existing `change` listeners: `modules/salisbergfrontdesk/views/js/room-board.js` (Arrival and Departure on New booking) and `walkin.js` (the stay screen of the guided booking). A click on the date box calls `showPicker()`; a click on the right-hand 34px (the icon) is left to the browser so the picker is not opened twice; browsers without `showPicker()` are unaffected; typing still works. Nothing in the repository opened the picker before (no `showPicker` anywhere), so this extends those scripts rather than adding a file.
+- **First version, withdrawn the same day:** it was a new shared file `modules/salisbergguide/views/js/date-picker-click.js` loaded on every back office page. The owner asked why a new script and not the existing code; the fair answer was that I had looked only for an existing picker helper, not at the scripts that already handle these two fields, and the request concerned only those. The file and its loader line in `addInterfaceAssets()` were deleted. Side effect to know: other back office date fields are not affected, and the 8-line helper now exists in both files (as `dateAtMidnight` and `formatDate` already did); merge them if a third use appears.
+- Staff Guide section 3 step 2, What's New and CHANGELOG updated.
+- **Verification (local, headless Chrome, real mouse events through the DevTools protocol, files copied into the running container):** a click on the right-hand part of the empty Arrival field called `showPicker()` once; a click on the icon called it zero times. `node --check` on both scripts passed; `docker/smoke-test.sh`: 30 of 30.
+- **Not tested:** that the popup is drawn (headless Chrome does not show it); Firefox and Safari (Safari before 16 has no `showPicker()`, so nothing changes there); the walk-in stay screen click (same helper, not clicked); a rebuilt image.
+
+### 2026-10-16 — Whole booking flow run for Hotel Staff and for the administrator; one inconsistency fixed
+
+- **Owner:** run the booking flow to the end, as admin and as Hotel Staff.
+- **Method:** a script (outside the repository) signs in as each role over HTTP and does exactly what the pages do: Bookings > New booking button, Room board with dates, Book now (the guided booking opens), Guest step, Payment step, Confirm, then reads the database. Four scenarios per role: future stay, new guest, Pay later (reserve); same-day, new guest, full payment in cash with change (check in); future, an existing guest found by search, part payment by Mobile Money with a reference (reserve); same-day, new guest with an email, full bank transfer with a reference (check in).
+- **Result: 30 of 30 checks passed for the administrator and 30 of 30 for Hotel Staff** (sign-in, no New booking in the sidebar, Today panel on the Dashboard, Bookings heading, the button, each step accepted, correct final action offered, booking created, listed under Bookings). Database for all eight bookings: Pay later gives Awaiting payment with GH₵0 paid; full cash, full bank and the cash/bank same-day bookings give Complete payment received for the whole total and room status checked in (2); the part MoMo bookings give Partial payment received with GH₵138 of GH₵416 and the MoMo reference stored as the transaction id; payment rows carry the method name and reference; invoices 21 to 24 exist (Awaiting payment now issues one); no draft is left active.
+- **After booking, as Hotel Staff:** the Dashboard Today panel offers Check out; a check-out posted to the Today controller set the booking to checked out (3) and the room to Needs cleaning; the Housekeeping page lists the rooms with their controls; the booking page opens without a permission error and shows the cash payment and total; Bookings > Invoices lists the booking and its invoice PDF downloads as a valid PDF (486 KB). The PDF was not opened visually this time (no PDF renderer on this machine).
+- **Fault found and fixed:** on the Room board a room counted as occupied only when a checked-in guest's stay covered today, while the Guest-Payment-Confirm steps (`currentRoomSummary()`) and the Today panel counted any guest still checked in. A guest past their departure date therefore left the board saying Ready and the Confirm step offering only "awaiting room" (seen on room GR-104 after an old test booking was never checked out). `SalisbergWalkIn::getRoomBoard()` now uses the same definition: checked in and not checked out, whatever the dates, with the unused `$today` removed. The date window was dropped, not widened: a checked-in booking can only exist within or after its stay.
+- **Bug in my test script, not the app:** the first admin run failed 17 steps because the script posted last names containing digits, which the Guest step correctly refuses. Its drafts (seven in all with earlier tests) were left active and were discarded through the Room board's Discard button; the board lists five at a time, so it took two passes. Room holds were released: no cart rows remain for discarded drafts.
+- **Observed, not changed:** the Today panel's Departures list shows only guests due out today or earlier, so a guest who leaves a day early has no Check out button there; staff use the booking page. Worth a decision if early departures are common.
+- Guides: What's New and CHANGELOG (Fixed). Staff Guide needed no change: the occupied definition is what its section 6 already says.
+- **Not tested:** a real browser end to end this pass (the earlier headless screenshots covered the Room board layout and the date click); Hotel Manager; a booking with several rooms, with discounts or extra services, in tax-free mode, or for a guest with a Ghana-format phone beginning +233; sending of the confirmation email and SMS (no mail server or SMS provider here); the live server. Local test data left: eight new bookings (references starting with E, I, T, B, K, V, F) and guests named Flow Admin/Flow Staff.
+
+### 2026-10-16 — Customer booking from the website, light and dark; dark-mode faults fixed
+
+- **Owner:** test a customer booking from the site, in dark and light mode.
+- **Method:** a small headless-Chrome driver over the DevTools protocol (outside the repository) acts as a visitor with real mouse events: homepage, the theme switch (a real click on the sun/moon), hotel and date picker (opening it, moving to next month, clicking two days), Search Rooms, Select Occupancy and Done, Book Now, the cart pop-up, Proceed to checkout, Proceed, the guest form (new account, signed in on save), Proceed, tick the terms, choose a payment method, "I confirm my booking", and the confirmation page. A scan run on every step lists text with contrast under 3.2:1 and large light backgrounds, so dark mode was judged by measurement as well as by screenshot.
+- **Result, functional (both themes):** the journey completes. Bookings created: cash (light, then dark), Mobile Money (dark), bank transfer (dark twice, light twice). Each shows on the confirmation page with the right method, the booking reference as payment reference, the MoMo or bank details from Salisberg Pay settings, GH₵400 for two nights of Standard Room 1 plus GH₵16 tax (GH₵416; Deluxe GH₵624), state Awaiting payment, GH₵0 paid; each is listed under Bookings for the administrator; no JavaScript error on any page in either theme. The cart count falls back to 0 after the booking.
+- **Dark-mode faults found, and the fix at each source (rule 11):**
+  - `#login_form` and `#tc_cont` (checkout "Already have an account?" and terms) had `background-color: #FFFFFF` in `css/order-opc.css` and light text: now `var(--sb-surface)`.
+  - `.label` (status label) and `.product-detail .product-name a` (room name) were `#333` in `css/order-confirmation.css`: now `var(--sb-ink)` and `var(--sb-heading)`.
+  - `a.iframe` ("Read the Terms of Service") was `#333` in `css/global.css`: now `var(--sb-ink)`.
+  - The room search placeholder was `#333` in `modules/wkroomsearchblock/views/css/wk-global-search.css` (four rules): now `var(--sb-muted)`.
+  - `#order-opc .button-medium > span` forced white text in `css/order-opc.css`, so the gold Subscribe button kept white text: now `inherit`.
+  - New token `--sb-on-gold` in `salisberg.css` (white in light, the deep green in dark) used by every gold-background button rule; previously white on the lighter dark-mode gold.
+  - The dark rule that colours all spans in `#columns` and in the search panel also coloured spans inside buttons, which overrode the button's own text colour; both selectors now skip spans whose parent is a `button` or `.button`.
+  - Amenity icons (`img/rf/*.jpg`, black on white) get `filter: invert(1); mix-blend-mode: screen` in dark mode, the same treatment as the logo.
+  - Stylesheet link bumped to `?v=16` in `header.tpl`.
+- **Re-scan after the fixes:** zero low-contrast text and zero unexpected light areas on search results, checkout, guest form, payment methods and confirmation in dark mode. In light mode the scan reports only light backgrounds (expected) and a few older borderline items (white on the light gold at 3.1:1, the pale "Clear Filter" text at 2.4:1, gold links at 3.1:1); those were not changed.
+- **Seen, not changed:** payment option descriptions ("Pay at reception when you arrive") look tightly letter-spaced in both themes; the checkout still shows the demo hotel address "Demo City, Alabama" (owner's data to enter); the confirmation says "An email has been sent" although no mail server exists on this machine; the red "Please accept the Terms of Service" appears before the box has been touched.
+- **Rate limiter confirmed in passing:** after about ten account creations from one address in an hour the sign-up silently stops (the guest form returns to itself). That is the limit of ten new accounts per address per hour set on 2026-10-06, not a fault; the counters were cleared in the container to continue testing.
+- **Not tested:** phone width; the room page and the My account pages in this pass; a booking with extra services; a real mail or SMS; Safari and Firefox (the blend-mode trick on the icons and logo especially); the live server. Test data left locally: six website bookings (references FCZOQEIBI, LIDRJVENA, YLMNQQKJG, FFDYPAWYA, ROHJFPAGR, CYPVXSZGQ) and six guest accounts "Ama Daybreak" and "Ama Nightowl". The compile cache in the running container was cleared by hand after hot-copying files; an image rebuild starts without it.
+
+### 2026-10-16 — Production error: SQLSTATE[42000] near 'LIMIT 1' when editing a booking's stay
+
+- **Report (owner, from production):** `SQLSTATE[42000]: Syntax error or access violation: 1064 ... near 'LIMIT 1' at line 2`.
+- **Cause:** `SalisbergWalkIn::getCartRoom()` passed a query ending in `ORDER BY id LIMIT 1` to `Db::getRow()`, which appends ` LIMIT 1` itself (`classes/db/Db.php`: `$sql = rtrim($sql, ...).' LIMIT 1'`, and `getValue()` goes through it), so MySQL received `LIMIT 1 LIMIT 1`. It is called only by `saveStay()`, i.e. **Edit stay details** (the screen reached from the Guest, Payment and Confirm steps, and the only way to change dates or room on a started booking). It dated from the first walk-in commit and was never exercised: every earlier test went straight through Guest, Payment and Confirm. This is the same family as the `FOR UPDATE LIMIT 1` fault fixed on 2026-10-15; that time only the two lock queries were looked at, not every `getRow()` or `getValue()` in the module.
+- **Reproduced first, exactly:** against the running stack, start a booking, open Edit stay details, change dates and room, save: the same message, "near 'LIMIT 1' at line 2", and the stay unchanged.
+- **Fix:** the `LIMIT 1` was removed from the query (`modules/salisbergfrontdesk/classes/SalisbergWalkIn.php`, `getCartRoom()`), with a comment saying why.
+- **Searched the rest of the code for the same mistake:** every `LIMIT` in our modules, overrides and the controllers and classes edited here (about 30) was checked by hand against how its query is run. The others are subqueries inside a larger SELECT, `execute()` of an UPDATE, or `executeS()`; none is passed to `getRow()` or `getValue()`. The application log table was also searched for other SQL errors across the day's testing: only "Mailer Error" lines (no mail server here).
+- **Verification after the fix (local, hot-copied, then image rebuilt):** Edit stay details as the administrator and as Hotel Staff, 7 of 7 steps each: start a booking, change dates only on the same room; save the guest, then go back and change to another room; an unknown room and 12 adults each give "That room is not available for the complete stay or cannot hold this many guests." (a plain message, no SQL); then payment and confirm. The first scenario also finished a booking and the database showed the edited room (Executive ER-101), 17 to 20 February 2027, 3 nights, GH₵1,404 (3 × 450 + 4% tax), the original room's hold on the first dates released, and no draft left active.
+- **Guard added (rule 25: the existing smoke test, no new file):** `docker/smoke-test.sh` now scans the code in the image for a `->getRow(` or `->getValue(` call whose query text contains `LIMIT <number>` and fails with file and line. Shown working both ways: with the fix it reports "no getRow()/getValue() query carries its own LIMIT" (31 of 31); with the buggy file put back in the container it fails and names `modules/salisbergfrontdesk/classes/SalisbergWalkIn.php:531` (30 of 31, 1 failed). It checks only the text of the call, so a query built into a variable first, or a hand-written `getRow()` over a helper, is not covered.
+- **Why none of the earlier checks saw it:** the page-load smoke test never opens a booking that is in progress, and the earlier end-to-end runs never used Edit stay details. Lesson recorded: after each flow works once, exercise its side screens (edit, back, resume, discard, error paths) before calling it done; the booking flow's remaining untested side paths are listed below.
+- **Still not tested in the guided booking:** going back from Confirm to Payment and changing the method; changing the guest after the guest step; a price change between steps with "accept the new price" (the `accept_price` path); a booking started and then edited by two staff at once.
+- **Deploy:** this is a code-only fix in `modules/salisbergfrontdesk`; no database step. Production needs a redeploy of the branch that carries it; after it, open New booking, start a booking and use Edit stay details once.
+- Guides (rule 23): Staff Guide section 3, the Confirm step, now says how to change dates, guests or room (Edit, or Edit stay in the Stay summary) and what the system does; What's New and CHANGELOG (Fixed).
+
+### 2026-10-16 — Confirm now, check in later (advance bookings and walk-ins who check in afterwards)
+
+- **Owner (relaying the hotel owner):** people phone the front desk and pay in advance, then arrive later; someone may also walk in, book, and check in later. The Confirm step should offer two options (confirm and complete, or confirm and check in); after confirming, a check-in button should appear on the same page; if it is not clicked the guest simply has not checked in, and staff can later find the booking by name or reference and check them in.
+- **Before:** a ready room arriving today offered only "Confirm & check in" (no way to confirm without checking in), the success page had no check-in action, and on the booking page the only way to check in was an "Edit" button opening a room-status pop-up.
+- **Confirm step** (`walkin.tpl`): a ready room arriving today shows **Confirm & check in** and **Confirm booking — check in later**, grouped on the right, with a line saying when to choose the second. A future stay or a room that is not ready shows the single **Confirm booking** (the walk-in wording "Save booking — awaiting room" was dropped so the button has one name everywhere; the warning above it still explains the room).
+- **Success page:** kicker "Booking confirmed" (was "Booking saved"). When the guest is not checked in: **Check in now** (a form posting `sb_check_in_now`) if the stay has started and the room is ready; otherwise a note saying why and where to check in later (a future stay: arrival date, Today on the Dashboard, or the booking under Bookings; a room not ready: the room and its state). `SalisbergWalkIn::success()` returns `can_check_in` and `check_in_note`; `checkInNow()` re-checks both, refuses a repeat or a future stay with a plain message, and calls the same `Salisbergfrontdesk::changeBookingStatus()` that Today and the confirm-and-check-in path use (rule 26: one check-in rule); `AdminSalisbergWalkInController` handles the button (needs the edit right on the page) and redirects back with the confirmation "The guest is checked in." so a refresh cannot repeat it.
+- **Later check-in from the booking:** the booking page (`orders/helpers/view/view.tpl`, inherited admin template, edited in place per rule 11) shows a green **Check in** button on each room row that is allotted, not cancelled or refunded, and whose stay has started; it posts to the Today controller with `id_order_back`, and `AdminSalisbergTodayController` returns to that booking (`conf=4`) instead of the Dashboard. Staff reach it as the owner described: Bookings, filter by guest name or booking reference, open the booking, Check in. Today on the Dashboard (Arrivals) remains the quickest on the day. The existing Edit pop-up is unchanged.
+- **Deliberately not done:** check-in from the booking page does not require the room to be Ready (as before, with the Today panel, the stock Edit pop-up and the staff guide telling staff not to give out a Dirty room); only the success page enforces readiness. If the hotel wants the booking page to refuse a dirty or occupied room too, add the same check to `changeBookingStatus()` so Today, the booking page and this page agree.
+- Guides (rule 23): Staff Guide section 3 (the two confirm options, Check in now), section 6 (a new subsection for a guest who booked or paid in advance and arrives later; the From the booking itself step now says to click Check in); What's New and CHANGELOG (Changed).
+- **Verification (local, hot-copied then image rebuilt; driven over HTTP in the order the pages make the requests, as administrator and as Hotel Staff, 16 of 16 checks each):** S1 a ready room today: both buttons on Confirm; Confirm booking leaves the room status Allotted (1) and the success page shows Check in now; clicking it makes it checked in (2) and the page reads Guest checked in with no button; a second click says "The guest is already checked in." S2 Confirm & check in checks in at once, no button. S3 a future stay: one Confirm button; the success page shows "Arriving <date>" and no button; a forced Check in now is refused and the status stays 1. S4 a today booking confirmed without check-in: its booking page shows Check in; posting it checks the guest in and returns to the booking page, where the button is gone. S5 a future booking's page has no Check in button. S6 a room not ready (occupied): Confirm shows only Confirm booking; the success page says the room is not ready; a forced Check in now is refused. Screenshots of the Confirm step and the success page reviewed (dark theme). The Bookings list filter was also tried: filtering by booking reference returned that booking, filtering by guest name returned the guests; the Staff Guide and What's New pages render with the new text. Re-run on the rebuilt image after the final build: 16 of 16 (administrator), smoke test 31 of 31.
+- **Not tested:** the booking page button in a real browser click (the request it sends was posted directly); a booking with two rooms (each room has its own button; the success page's Check in now checks in every allotted room of the order); light theme screenshots of the two screens; the live server. Test data left locally: about 14 bookings for guests named Checkin Admin or Checkin Staff and Screen ShotKofi.
+
+### 2026-10-16 — Booking tested end to end as administrator, Hotel Manager and Hotel Staff
+
+- **Owner:** test booking as admin, manager and hotel staff. The administrator and Hotel Staff had been tested many times; the **Hotel Manager had never been run through a booking**, which was the real gap.
+- **What was run, for each of the three roles, on the final image (scripts outside the repository; every request made in the order the pages make it):**
+  1. Payment matrix, 30 checks: future stay / new guest / pay later; same day / new guest / full cash with change (check-in offered and taken); future / existing guest found by search / part payment by Mobile Money with a reference; same day / new guest with email / full bank transfer. The database is read afterwards for state, amount paid, payment rows and room status.
+  2. Confirm now, check in later, 16 checks: the two Confirm options; Check in now; Confirm & check in; a future stay; checking in later from the booking page; a room that is not ready.
+  3. Edit stay details, 7 checks.
+- **Result: administrator 53 of 53, Hotel Staff 53 of 53, Hotel Manager 53 of 53.** For the manager the account's rights were first read from the database (view and edit on Room board, Guided booking, Today, Housekeeping, Bookings, Customers, Invoices, Booking Carts; Hotel Permissions ticked for the hotel): nothing needed granting.
+- **After booking, as Hotel Manager:** the Dashboard Today panel offered Check out and a check-out set the booking to checked out and the room to Needs cleaning; the Housekeeping page loaded; the booking page opened with no permission error and showed the cash payment and GH₵208 paid; the booking was listed under Bookings and Invoices; its invoice PDF downloaded as a valid PDF (486 KB).
+- **Test-script faults found along the way (not app faults):** the check-in script's setup for a not-ready room could not find a free room because earlier test bookings held today's rooms, and one regular expression lost its backslashes (`(d+)` instead of `(d+)`), which made the room list look empty; two post-booking checks hard-coded the GH₵2,600 total of a Luxury room and a PDF link pattern that does not match. Each was proved a script problem before being changed (the page showed GH₵208 and the PDF downloaded). Test rooms were freed by checking out or cancelling local test bookings in the database between runs.
+- **Left unchanged:** the Today panel's Departures list shows only guests due out today or earlier, so an early leaver is checked out from the booking page (noted on 2026-10-16 earlier).
+- **Not tested:** the Hotel Manager through a real browser; two people booking the same room at the same moment; the manager and staff on the website's own booking (they use the same public pages as any guest); the live server. The three test accounts' original passwords were restored (hashes compared). Local test data: many bookings for guests named Checkin, Flow, Stayedit or Screen.
+
+### 2026-10-16 — Confirm & check in submits the selected action
+
+- **Report:** clicking **Confirm & check in** left the employee on the Confirm step.
+- **Reproduced in the local app before the fix, using a real Edge form click:** the submit handler disabled every submit button before the browser serialized the form, including the clicked button that carried `sb_finalize=checkin`. The POST body had no fields, the success view did not appear, and the page remained on Confirm.
+- **Fix** (`modules/salisbergfrontdesk/views/js/walkin.js`): track the clicked submitter, preserve its `name` and `value` in a hidden input during submit, then disable the buttons as before to prevent duplicate submissions. The browser's `SubmitEvent.submitter` is used when available; the click-tracked button is the fallback.
+- What's New (everyone) and `CHANGELOG.md` updated.
+- **Verification (local, rebuilt image, real Edge browser):**
+  - `node --check modules/salisbergfrontdesk/views/js/walkin.js` and `git diff --check` passed; the rebuilt app container is healthy.
+  - **Confirm & check in:** completed a same-day booking through Room board, Guest, Payment and Confirm. The browser POST included `sb_finalize=checkin`; the success view said **Guest checked in** for booking `HRWFMUGBD` in room ER-102. **Bookings** listed both the guest and reference, and the booking detail showed checked-in status.
+  - **Confirm booking — check in later:** completed another same-day booking using `sb_finalize=reserve`, then clicked **Check in now** on the success view. It changed to **Guest checked in** for `GBJEJVLTI` in ER-103, and the guest and reference both appeared in **Bookings**.
+  - The two completed test bookings and their test guest records remain in the local database. No production data was changed.
+- **Not tested:** Hotel Staff and Hotel Manager roles in the browser for this specific button fix; the live server.
+
+### 2026-10-16 — Side menu: Bookings after Dashboard; the "Catalog" rename rule retired
+
+- **Owner:** after Dashboard the menu should list Bookings before Rooms & Services; and since the hotel does not use the name Catalog any more, the Catalog rule can go.
+- **Order, existing databases:** `orderMenus()` in `modules/salisbergguide/salisbergguide.php`, called from `ensureSetup()` after `renameMenuEntries()`. If Bookings (`AdminParentOrders`) sits after Rooms & Services (`AdminCatalog`) it moves Bookings into that position and shifts the sections in between down one, logs it, and records `SBGUIDE_MENU_ORDER = 1`. It runs **once**, so an order set later in Administration > Menus is kept (rule 22). `MODULES_VERSION=26` so it runs on the next deploy. The step reads the current positions and acts on them; it does not assume the stock numbers.
+- **Order and name, fresh installs (rule 11, fix at the source):** `install/data/xml/tab.xml` lists Orders before Catalog (positions come from file order), and `install/langs/en/data/tab.xml` now names the Catalog section "Rooms &amp; Services". With that, the rename rule has nothing left to do on a fresh install.
+- **Rule retired:** the entry `'AdminCatalog' => array('Catalog', 'Rooms & Services')` is gone from `$menuLabels`. Proof it is not needed any more: a search of the tree finds no other reference to that rename; the live and local databases already carry "Rooms & Services"; and a fresh install built from this tree (below) shows "Rooms & Services" in the right place with the rule absent. **Caveat:** a database that was never deployed since 2026-10-12 (for example an old staging copy) still has the section named Catalog and will not be renamed any more; rename it once in Administration > Menus, or restore the entry for one deploy. The other rename entries (Bookings, Hotel Details, Inbox and so on) are unchanged, and the changelog entries from 2026-10-12 that describe the old rule stay as history.
+- **Verification:**
+  - Local database, image rebuilt: log `Modules step v26 done`; top-level order Dashboard, Bookings, Rooms & Services, Customers; the log line "Bookings moved ahead of Rooms & Services" and the marker present. The rendered sidebar was read as each role: administrator and Hotel Manager and Hotel Staff all list Dashboard, Bookings, Rooms & Services, Customers, and so on in that order (the manager and staff see only the sections their profile allows).
+  - **Fresh install** from this tree in a separate throwaway stack (project `sbfresh`, own volumes, removed afterwards; the main stack's volumes were not touched): installer log "Installation complete", then `Modules step v26 done`; the database had Dashboard 1, Bookings 2, Rooms & Services 3, Customers 4; **no** "moved" log line, so the installer data alone produced the order and the name.
+  - The two installer files parse as XML and list Orders before Catalog; `php -l` and `bash -n` pass; `docker/smoke-test.sh` 31 of 31 on the final image.
+- **Not tested:** other installer languages (only `install/langs/en` is used here and was changed; the other language folders still say Catalog, which does not matter for an English install); the Administration > Menus screen after the change; the live server, where the step acts on the next deploy.
+- Guides: no change (they give menu paths, not the order). What's New (everyone) and CHANGELOG (Changed).
+
+### 2026-10-16 — Booking details: direct room-status actions and customer printout
+
+- **What:** Rooms Status on a booking now shows a clear status badge and the available per-room **Check in** or **Check out** action. Both forms use the existing protected Today controller actions, keeping the normal booking-status validation and the check-out housekeeping update. Browser printing now presents a branded booking reference, guest contact, room and stay, payment history, total and balance, while hiding back-office navigation, controls and private notes.
+- **Why:** Staff should not need to find the status editor just to check a guest in or out, and the browser print command should produce a document suitable to give to a guest rather than a scaled back-office screen.
+- **How:** The booking detail template contains the print-only guest/header/payment summary and per-room action forms. Print rules are in the existing back-office stylesheet. Edge print emulation exposed an empty KPI strip and a clipped stay date; the print stylesheet now hides the KPI containers and allocates explicit widths to the visible room-table columns.
+- **Guide:** Staff Guide section 6 explains the badge and direct actions; What's New lists the room-status and print changes.
+- **Verification (local, rebuilt PHP 8.3.35 / MySQL 8.0.46 stack):** Edge print preview shows the reference, guest name and phone, room status, full stay dates, payment and totals; the KPI strip, back-office navigation and private notes are hidden, the room table remains tabular without clipped dates, and no browser errors occurred. As administrator, used the direct Check in action on local booking 6 and confirmed its reference appears in the filtered Bookings results; used Check out on local booking 116 and confirmed its status changed and the room's housekeeping state became dirty. `docker/smoke-test.sh` passed 31 of 31; `git diff --check` passed.
+- **Not tested:** printing from other browsers, multi-room bookings, live deployment, or printing a booking with no guest phone/email. Only local test bookings were changed.
+
+### 2026-10-16 — Booking details: room status dropdown replaces pop-up
+
+- **What:** the room-row **Edit** pop-up was replaced by an inline **Change room status** dropdown beside the room. Staff choose a status to apply it immediately; there is no separate save button or scrollable panel. Check-in and check-out use the booking dates and configured hotel times.
+- **How:** the dropdown is native `<details>` markup in the booking detail template and is positioned beside its trigger by `overrides.css`. `orders.js` submits the selected status and its matching date. The existing status handler and its validation, including check-out housekeeping updates, remain the submission path. The obsolete modal endpoint, launch code and template were removed; direct Check in and Check out actions remain.
+- **Guide:** Staff Guide section 6 describes changing a room status from the dropdown; What's New and `CHANGELOG.md` list the change.
+- **Verification (local, rebuilt PHP 8.3.35 / MySQL 8.0.46 stack):** `docker/smoke-test.sh` passed 31 of 31. Loaded the authenticated booking detail page for local booking `FFBWLQQUU` (order 116): the response contained the inline dropdown and both button labels, with no old modal trigger or modal markup. `php -l` on the changed controller and `node --check` on `orders.js` passed; repository search found no modal endpoint, trigger or template references; `git diff --check` passed.
+- **Not tested:** expanding the dropdown and changing a status in a real browser; the date field's visibility/prefill and submitting check-in or check-out through this dropdown; the live server. The existing direct status-action path was tested in the prior entry.
+
+#### Follow-up: compact status options applied immediately, optional actual check-in time
+
+- **What:** removed the form labels, visible date field and **Save room status** button from the dropdown. The menu displays status options and one optional **Set actual check-in time** checkbox, with enough height to keep the panel in one view without an internal scrollbar. Selecting a status submits it immediately. By default, check-in uses the planned hotel time; when the checkbox is ticked, an editable time input appears, prefilled with the current local time. Check-out continues to use its configured time.
+- **Guide:** Staff Guide section 6 now says status changes apply immediately. What's New and `CHANGELOG.md` describe the simplified control.
+- **Verification (local, rebuilt PHP 8.3.35 / MySQL 8.0.46 stack):** rendered the menu on an authenticated booking page: three status options, no Save button or visible time field, and a prefilled time input revealed only by the checkbox. The panel has a 200px minimum height, no maximum-height, and visible overflow (no internal scrolling). Through the existing protected booking form, checked in local booking `RVDZMYLMG` once using its planned 12:00 time and once using a custom 15:37 time; both exact timestamps were saved. Restored that test booking to Allotted. Also restored order 117 to its original Allotted status after an earlier local dropdown test. `docker/smoke-test.sh` passed 31 of 31; PHP lint, `node --check` and `git diff --check` passed.
+- **Not tested:** visual appearance and checkbox interaction in an interactive browser; live deployment. The page was rendered and both planned/custom values were exercised via authenticated HTTP requests; the tests did not alter production data.
+
+#### Follow-up: room status options expand in one view
+
+- **What:** the status form expands in the room table's normal flow instead of floating over it. Opening it also switches that table to a fixed-width, wrapping layout and lets the wrapper overflow visibly. The Rooms Status section grows vertically to fit the options without creating a scroll bar.
+- **Why:** the in-flow panel's minimum width made the room table exceed its wrapper, which introduced a horizontal scrollbar instead of simply extending the section.
+- **Verification:** rebuilt and restarted the local image; `docker/smoke-test.sh` passed 31 of 31 on PHP 8.3.35 / MySQL 8.0.46 with no PHP warnings or errors. Confirmed CSS only changes the table layout while a room-status menu is open, and the form has no fixed height, minimum width or scroll overflow. `git diff --check` passed. Interactive browser visual verification and live deployment were not performed.
+
+#### Follow-up: confirm room check-in and check-out
+
+- **What:** the booking detail page asks for confirmation before applying Check in or Check out, whether staff use the direct room-row action or choose the status from the Change room status options. Cancelling leaves the form unsubmitted.
+- **How:** the status buttons carry their translated confirmation prompt, and the existing `orders.js` click handler prevents the default form submission when the confirmation is declined. Other room-status choices continue to apply immediately.
+- **Guide:** Staff Guide section 6 explains the Yes/No confirmation; What's New and `CHANGELOG.md` record the change.
+- **Verification:** `node --check` on `js/admin/orders.js` and `git diff --check` passed. Browser interaction, server-side status results after Yes, and cancellation behavior after No were not exercised; no production data was changed.
+
+### 2026-10-16 — Booking recycle bin, employee visibility and booking-detail refinements
+
+- **Booking archive:** deleting a booking now requires a reason and archives it instead of removing its record. `SalisbergBookingArchive` records the employee and timestamp, reason, guest contact details, booking value and currency, associated hotels, and prior room-cancellation flags. Archiving removes the booking from active lists, availability and reports. The Recycle bin shows deletion records and currency-grouped count/value totals; Hotel Managers can view and restore records when permitted, while Hotel Staff can archive but cannot view or restore them. Restore is a token-protected POST, checks access to every hotel on the booking and refuses a room-date conflict. Customer order history also excludes archived bookings. Module setup is version 27.
+- **Employee visibility and safety:** only SuperAdmins can see or modify SuperAdmin employee accounts. Direct edits, deletes and status changes are guarded, as are bulk operations; self-disable and disabling/deleting the last active SuperAdmin are refused. `Employee::getEmployeesByProfile()` remains unchanged because internal workflows use it.
+- **Booking detail UX:** the top summary has only four figures—booking total, paid, due and room count—rather than secondary booking date/source/message/payment-status tiles. This avoids a long overflowing KPI row; the detailed information remains in the booking sections below. Top-bar account, theme and website controls align to the far right. Check-in/out controls sit beside room status and use a nearby Yes/No confirmation rather than a browser-wide prompt. Guides, What's New and `CHANGELOG.md` describe the staff-visible changes.
+- **Verification (local):** rebuilt the PHP 8.3.35 / MySQL 8.0.46 image; module setup completed at v27. `docker/smoke-test.sh` passed 31 of 31 using Git Bash. A reversible archive/restore test verified rejection of an empty reason, Hotel Manager access, currency-grouped totals, removal from customer history, room-availability release and restoration of the original booking validity and room cancellation state. Final PHP/JavaScript syntax checks, `docker compose config` and `git diff --check` passed. In an authenticated browser, the booking page rendered exactly the four intended summary figures, with no document-level horizontal overflow at a 1425px viewport; the top-bar controls appeared on the far right. The check-out confirmation was opened and cancelled without changing the booking.
+- **Not tested:** employee visibility and all direct/bulk-action protections through the back office as each role; clicking the room confirmation with a real pointer and submitting the destructive Yes action; a multi-hotel archive/restore against real multi-hotel data; live deployment. No production data was changed.
+
+### 2026-10-16 — Change room status dropdown applied nothing for check-in and check-out
+
+- **What was reported:** on a booking, choosing **Checked in** or **Checked out** from the **Change room status** dropdown did nothing. The advance-payment test booking stayed on its status no matter which option was clicked.
+- **Cause:** the dropdown's Checked in and Checked out option buttons were given the `sb-confirm-room-status` class used by the direct **Check in** / **Check out** buttons. That class's click handler calls `preventDefault()` and then looks up a confirmation panel by the trigger's `aria-controls` attribute. The dropdown options had no `aria-controls` (and no panel), so the click was swallowed and the form never submitted. The only other dropdown option, the current status, is disabled, so the entire dropdown was effectively dead.
+- **Fix:** in `admin/themes/default/template/controllers/orders/helpers/view/view.tpl`, the dropdown options no longer carry `sb-confirm-room-status` or the unused `data-confirm-message` attribute; they keep `sb-room-status-option` (which sets the hidden `status_date` before submit) and now submit immediately, as the dropdown was originally designed. The direct Check in / Check out buttons keep their working inline Yes/No confirmation. In `js/admin/orders.js`, the confirmation click handler now returns without touching the default action when a `.sb-confirm-room-status` trigger has no matching `aria-controls` panel, so this class can never silently swallow a click again.
+- **Verification (local, rebuilt PHP 8.3.35 / MySQL 8.0.46 image):** the rendered booking page for the advance booking showed the Checked in option with class `sb-room-status-option` only and no `data-confirm-message`. Posting the dropdown check-in exactly as the option submits it (with `status_date` set from the option's `data-status-date`) changed the booking from Allotted to Checked in with the planned check-in time, and the page returned no error. The booking was restored to its original Allotted state afterwards so the reporter can click it themselves. `node --check` on `orders.js` and `git diff --check` passed; `docker/smoke-test.sh` passed 31 of 31. `CHANGELOG.md` and What's New updated.
+- **Not tested:** the same change through a real browser click; check-out through the dropdown; the live server.
+
+### 2026-10-16 — README refreshed to match the current product
+
+- **What:** `README.md` brought up to date: the stack now reads PHP 8.3 with MySQL 8.0 (8.4 behind `MYSQL_VERSION`); the "What is in this repository" table now lists `modules/salisbergfrontdesk` (Room board, Today, housekeeping, guided booking, recycle bin) and `modules/salisbergreports`; payments are cash, Mobile Money and bank transfer; the roles table notes SuperAdmin concealment and the manager's recycle-bin access; the "Working on the code" bullet matches the current rule 11 wording; a stray duplicated "License and Credit" line was removed; and the licence section states the project is MIT licensed by Salisberg while preserving third-party attribution.
+- **Why:** the README still described the 2026-10-07 state and an older stack and editing rule.
+- **Verification:** `git diff --check` passed. Documentation only, so no build or smoke test was run; `README.md` is not served by the website (removed from the web root by the `Dockerfile`).
+
+### 2026-10-19 — A room's own price; Extra Information shown on the room card
+
+- **Owner:** a room type is one price, but several rooms sit under it (a Standard room with a fridge and a steam iron should cost 400, another Standard room 300). Add, in Manage Room Types, an option to set the price of a room: empty means the room type price, set means its own; the same for every room type. Also let a little description show on the card. Asked afterwards: could Extra Information carry the description? Yes, and it does.
+- **How the engine prices a room (read before designing):** `HotelRoomTypeFeaturePricing::getRoomTypeTotalPrice()` adds up the room type's price per night (with date-based price rules) and then calls the hook `actionRoomTypeTotalPriceModifier` with the totals by reference and the room's id. The cart and the order creation pass that id, so a hook is the supported place to adjust a room's price without rewriting the booking engine.
+- **Where it lives (rule 25):** `modules/salisbergfrontdesk` (it already owns the Room board, per-room housekeeping and the front-desk rules). New class `classes/SalisbergRoomRate.php`, new table `sb_room_rate` (one row per room that has an own price: `id_room`, `price`, `date_upd`), created by `ensureSetup()`; `MODULES_VERSION=28`.
+- **The Own price column** is added to the Rooms tab of the room type editor through the hooks that tab already offers (`displayHotelRoomListTableHeaderColumn`, `displayHotelRoomListTableRowColumn`), so the vendor save code is untouched: the price is validated in `actionValidateRoomInformation` (empty, or a positive number of up to two decimals; anything else gives "The own price of room X is not valid…" and nothing is saved) and stored from the platform's own `actionObjectHotelRoomInformationAddAfter/UpdateAfter` hooks, matching a posted row to the saved room by id, or by room number for a room added in the same save. Emptying the box removes the row; deleting a room removes its row (`…DeleteAfter`). A save that does not come from that form (import, duplicate) leaves prices alone. Two vendor edits in `admin/themes/default/template/controllers/products/configuration.tpl`: the JavaScript that builds a row for "Add More Rooms" numbers the new box (`.replace(/__ROW__/g, lengthRooms)`), and, a fault found on the way, the Extra Information box of such a new row was named `[floor]` and so overwrote the floor and lost the extra information; it is now `[comment]`.
+- **What the price means:** per night before tax, like the room type price. The hook adds, for every night, the difference between the room's price and the room type's regular price (read the way the engine reads it) with the same tax rate. So the room's price replaces the regular price, and special prices set for the room type on certain dates still apply on top, as the same difference. Bookings already made keep their stored price.
+- **Where it applies, and where it deliberately does not:** only when a staff member is in context (`Context::getContext()->employee`), i.e. New booking at the front desk, where staff choose the room. The website sells a room type and allots the room itself, so a guest must pay the price they were shown whichever room they get; the website therefore stays at the room type price. This is a business choice, stated to the owner; the alternative (own prices on the website too) would need the allotment order and the displayed price to agree.
+- **Extra Information on the card:** the existing per-room box (`htl_room_information.comment`, a plain text field used nowhere else) is shown in small italics on the Room board card (two lines, the full text on hover) and in the Selected room panel; the board's queries select it as `note`. A first version added a second "Short description" column and a `note` column in `sb_room_rate`; the owner pointed out Extra Information already exists, so both were removed (the table was never deployed outside the local database, where the column was dropped and the text moved into each room's Extra Information).
+- **Board quotes:** a room with an own price is quoted on its own (`estimateQuote()` with the room id); the other rooms still share their room type's quote.
+- Styles: `.sb-room-note` and `.sb-selected-note` in `frontdesk.css`; one min-width for the new box in `overrides.css`.
+- Guides (rule 23): Admin Guide section 3 (the Rooms tab fields, a new subsection "Different prices for rooms of the same type" with the website rule); Staff Guide section 3 (what a card shows; "Continue bar" corrected to "Book now bar"); What's New and CHANGELOG (19 October).
+- **Verification (local, image rebuilt, driven in a real Chrome and over HTTP):**
+  - Rooms tab (administrator): the Own price column appears; typing a price and an Extra Information and saving gives "Successful update" and the values are stored and reload; an invalid price (abc, -5) is refused with the new message and nothing is saved; emptying both removes the row; a room added with "Add More Rooms" saves its price and extra information (the floor/comment fix); deleting a room (through the room object, not the screen) deletes its row. As Hotel Manager the same save works. As Hotel Staff a forged direct POST is refused ("do not have permission to edit this") and the price and extra information stay unchanged.
+  - Room board, 2 nights, Standard Room 1 (room type 200 before tax, 4% tax): GR-101 GH₵208 per night; GR-102 own price 300 shows GH₵312; GR-104 own price 275 shows GH₵286; GR-106 own price 350 shows GH₵364; GR-103 with only an Extra Information stays GH₵208; the Extra Information shows on each card.
+  - Bookings through New booking: GR-102 booked GH₵624 (rooms 600 excl, 624 incl; invoice 624), GR-101 GH₵416, GR-106 GH₵728, GR-103 GH₵416, GR-104 GH₵572; the total on the Confirm step matched the saved order and invoice every time.
+  - **Website unaffected:** search results list Standard Room 1 at GH₵200; a website cart for 2 nights was allotted GR-106 (own price 350) and the checkout still read GH₵400 + GH₵16 tax = GH₵416.
+  - Guides: Admin Guide, Staff Guide and What's New render with the new text for administrator, manager and staff (staff correctly have no Admin Guide).
+- **Not tested:** a room type with a special date price rule combined with an own price (the difference rule is as described but was not exercised); two currencies; editing a room's own price while it has future bookings beyond confirming they keep their stored price (not re-checked after the change); the website's own date pricing for a room with an own price; the Rooms tab in a real browser at phone width; the live server, where the table and hooks are created by the next deploy (`MODULES_VERSION=28`). Local test data: Own prices on GR-102 (300), GR-104 (275) and GR-106 (350, a test room), five test bookings made at those prices, and the hand-set Extra Information texts.
+
+### 2026-11-09 — Dashboard opens on today's work; charts stay and Day means today
+
+**What**
+
+- The coloured arrival and departure tiles at the top of the Dashboard are no longer drawn. They counted only stays dated today, so they disagreed with Today at the desk (10 of 11 live departures were overdue, still checked in). `dashguestcycle::hookDashboardTop()` returns nothing. The Operations Today panel, which is the same module's chart, is unchanged.
+- Today at the desk lists fold. Arrivals is open when someone is still to check in. Departures is open for rooms still to check out, including Overdue; rooms already checked out today are a separate closed list. Unpaid is open when money is owed. Rooms in house starts closed. Clicking a count opens that list. The Check in and Check out buttons, and the controller that handles them, are unchanged.
+- The Day, Month and Year charts stay on the Dashboard, under the desk. `override/controllers/admin/AdminDashboardController.php` sets the chart period back to Day when the saved range no longer includes today. Day-1, Month-1 and Year-1 are left alone, and a Month or Year range that still includes today is left alone. A line above the buttons says they change the charts only.
+
+**Why**
+
+- On the live Dashboard (9 November 2026) the tiles said 1 departure and 4 occupied rooms while the desk said 11 departures and 14 in house, and the charts were stuck on 5 September–5 October. Staff need the desk. The charts are still the place for occupancy and income, and Day is how they show today. The Staff Guide and Admin Guide already describe the Dashboard this way (staff sections 2 and 6, admin section 14).
+
+**How**
+
+- Display only. No booking, payment, status or permission change. The split between "still to check out" and "checked out today" is done in `assignTodayTemplate()` from the same rows `getToday()` already returns.
+
+**Guides**
+
+- Staff Guide sections 2 and 6. Admin Guide section 14. What's New, 9 November 2026.
+
+**Verification**
+
+- `php -l` on the three changed PHP files: no syntax errors. The five changed templates compile with the bundled Smarty once unknown tags such as `{l}` are stubbed.
+- Not run in a browser. The local stack was not running, and this is not deployed: the live site is unchanged until the next deploy. Check-in and check-out were not exercised against a booking.
+
+### 2026-11-09 — Phone layout, and add to the home screen
+
+**What**
+
+- The back office viewport no longer locks the page at 75% zoom (`initial-scale=0.75`, `maximum-scale=0.75`, `user-scalable=0` in both admin headers). It is `width=device-width, initial-scale=1`, so a phone under 480px wide gets the named menu the theme already has for that width, and pinch-zoom works. The website header uses the same viewport. On Android, `themes/hotel-reservation-theme/js/global.js` was rewriting that tag to forbid zoom; it now keeps scale 1 and still hides the address bar.
+- Sign-in, contact and account panels use 18px of padding under 768px (`salisberg.css?v=17`). Today at the desk puts its counts two across and its links on one full-width row (`frontdesk.css?v=10`).
+- A home-screen install. `sw.js` at the site root has an empty `fetch` listener and stores nothing. `pwa/manifest.webmanifest` opens the website. `pwa/desk-manifest.php` opens the back office only when `?dir=` is a real admin folder inside the web root (it must contain `init.php` and `themes/default`); otherwise the icon opens the website. Icons are `pwa/icon-180.png`, `icon-192.png` and `icon-512.png`, shipped in the image because `img/` is a volume. `modules/salisbergguide` loads `install-app.js`: Chrome and Edge get an Add to home screen button from `beforeinstallprompt`; iPhone gets the Share steps. Closing the note is remembered separately for the website and the desk.
+
+**Why**
+
+- Staff use the desk on a phone, and the locked zoom laid the page out as a narrow desktop: an icon rail instead of the named menu. Guests and staff both asked for a home-screen icon. A service worker that cached pages would show stale bookings, so this one does not cache.
+
+**How**
+
+- No booking, payment or permission change. The admin folder name is taken from `_PS_ADMIN_DIR_` in the two admin headers and checked again in PHP, so a guessed name does not publish a directory listing.
+
+**Guides**
+
+- Staff Guide section 1. Admin Guide section 1. What's New, 9 November 2026.
+
+**Verification**
+
+- `php -l` on `pwa/desk-manifest.php`. `node --check` on `sw.js` and `install-app.js`. The new guide lines compile with the bundled Smarty. The desk manifest query was rendered with `_PS_ADMIN_DIR_` set to `/var/www/html/back-engine` and produced `back-engine`. Icons are PNGs (green field, gold house).
+- Not run in a browser, and not deployed. The local stack was not running. Chrome's install prompt and the iPhone Share sheet were not exercised. The live site is unchanged until the next deploy.
+
+### 2026-11-09 — Shop menu pages and dashboard panels taken off the screen
+
+**What**
+
+- `$hiddenMenus` in `modules/salisbergguide/salisbergguide.php` now also sets `active = 0` on Groups, Titles, Shopping Carts, Catalog Price Rules, Stats, Themes, Search, Geolocation and States. `hideUnusedMenus()` logs each entry it actually hides. The controllers, tables and permissions stay. Cart Rules stays in the menu: the Admin Guide tells managers to create voucher codes there.
+- `salisbergfrontdesk::replaceLegacyTodayWidget()` also unregisters `dashactivity` from `dashboardZoneOne` and `dashboardData`, and `dashproducts` from `dashboardZoneTwo` and `dashboardData`. Their order, customer and search hooks stay. `MODULES_VERSION=29` so the next deploy runs `ensureSetup()` for both modules.
+
+**Why**
+
+- These are shop screens and shop figures. Hiding the tab and unhooking the panel does not change check-in, prices or the website. Deleting the PHP would: the installer still creates the tabs, and a booking is still an order and a cart.
+
+**Guides**
+
+- Admin Guide sections 14 and 15. What's New, 9 November 2026.
+
+**Verification**
+
+- `php -l` on the two changed PHP files. The changed guide templates compile with the bundled Smarty.
+- Not run against a database. The local stack was not running, so the menu flags and the hook rows were not updated here. That happens on the next deploy. Not deployed.
+
+### 2026-11-09 — Search engine fields are made automatically
+
+**What**
+
+- **CMS pages (Preferences › CMS):** the form's "Meta title" is now labelled **Page title**, which is what it really is: the visible title and the footer link text. Meta description, Meta keywords and Friendly URL are shown to a SuperAdmin only (`AdminCmsController::renderForm()` removes them from `fields_form` for everyone else). `fillLinkRewrite()`, called at the top of `postProcess()` when the form is posted, fills an empty Friendly URL with the one the page already has, or else `Tools::str2url()` of the page title. `link_rewrite` is no longer marked required on the form (the model still requires it, so the validator is satisfied by the filled value).
+- **Website description for a page** (`Meta::getCmsMetas()`, inherited, fixed at the source per rule 11): with no meta description entered, the first 155 characters of the page content (tags stripped, entities decoded, whitespace collapsed).
+- **Hotels (`modules/hotelreservationsystem`):** `AdminAddHotelController::processSave()` no longer refuses an empty Friendly URL; it makes one from the hotel name (`$_POST` is filled before the per-language arrays are built). `renderForm()` passes `sb_show_seo` (`Employee::isSuperAdmin()`); `form.tpl` renders the SEO tab (now labelled "Search engines") for everyone but hides its tab link for a non-SuperAdmin, so the saved values are still posted back unchanged.
+- Room types: the website already falls back to the room type name and short description (`Meta::getProductMetas()`); the room type SEO tab is part of the room type form pass (other agent), not changed here.
+
+**Why**
+
+- Owner: SEO URLs and marketing text should be picked automatically from the content people enter, not asked for by default.
+
+**Design choices**
+
+- **A link is made once.** It is derived only when empty, never rebuilt from a changed title, so addresses already shared or indexed keep working. An edit by a non-SuperAdmin posts the existing link (hotel, hidden tab) or has it restored from the saved page (CMS).
+- **Render-time fallback, not stored text.** Descriptions are not copied into the database; the website computes them from the current content, so they cannot go stale. Keywords are not derived (search engines ignore them).
+- **Not removed, hidden by role.** A SuperAdmin can still override every field; nothing in the model or the website changed for pages that already have values.
+
+**Guides (rule 23):** Admin Guide section 3 (the Search engines tab bullet, SuperAdmin only) and section 9 (CMS row rewritten; new SuperAdmin row for the override fields; the SEO & URLs row now says fixed pages). What's New and CHANGELOG, 9 November.
+
+**Verification (local, files copied into the running container, Apache reloaded)**
+
+- As SuperAdmin: the CMS form shows description, keywords and Friendly URL; the hotel form shows the Search engines tab. As a throwaway Hotel Manager: the CMS form has none of those three inputs and reads "Page title"; the hotel tab link is hidden.
+- As the manager: a hotel saved with the Friendly URL emptied (rest of the form posted as the page rendered it) succeeded and the slug is `salisberg-hotels`; a new CMS page "Pool Rules" saved with no SEO fields and got the link `pool-rules`; renaming it to "Pool and Spa Rules" kept `pool-rules`; once active, its website page showed the title "Pool and Spa Rules - Salisberg Hotels" and a description taken from the page content.
+- Admin Guide and What's New load with the new text and no errors. `php -l` passes on the three PHP files.
+- Test page 7 and the test employee were deleted. `docker/smoke-test.sh`: 30 of 31; the failure is a flood of `Undefined array key "id_order"` warnings from the Bookings list template, from work in progress in `AdminOrdersController`, not from these changes.
+
+**Not tested**
+
+- CMS categories, which still ask for meta fields and a Friendly URL (not used by this hotel); a second language; a hotel renamed by a manager (the slug-stays rule is by construction, not exercised); that Google shows the generated description; the live server.
+
+### 2026-11-09 — Native PHP session upload-progress disabled
+
+- **What:** `docker/php.ini` now sets `session.upload_progress.enabled = Off`. The Dockerfile already copies this file to `/usr/local/etc/php/conf.d/zz-salisberg.ini`, so it is baked into the image Coolify builds, not only the running container.
+- **Why:** defence in depth. PHP's native session upload-progress writes upload state into `$_SESSION` keyed by a field name the client controls, a building block in session-poisoning chains. An outside security review recommended disabling it.
+- **Safe here, checked first:** a tree-wide search found no use of `session.upload_progress` or `PHP_SESSION_UPLOAD_PROGRESS` anywhere; QloApps tracks uploads its own way (APC / its own AJAX). This setting does not touch `file_uploads`, so hotel/room images, booking documents and the Excel import keep working.
+- **Verification (local):** copied the ini into the running container; `php -i` shows `session.upload_progress.enabled => Off => Off`; `file_uploads` is still `1`. Not re-tested: a full image rebuild and a real upload through the back office after it (the setting is documented by PHP to affect only the progress array, and `file_uploads` is unchanged).
+- **Deploy:** takes effect on the next Coolify build; no data step, no `MODULES_VERSION` bump. No guide or What's New entry (nothing a back office user sees changes). CHANGELOG under Security.
+
+### 2026-11-09 — Phone: the page-header "Menu" button no longer clips; light and dark checked
+
+- **What:** on a narrow screen the back office page header collapses its action buttons into the stock responsive "Menu" dropdown button (`page_header_toolbar.tpl`). The stock button stacks a caret over its label and floats to the edge, so the label "Menu" was clipped. `admin/themes/default/css/overrides.css`, in the existing `@media (max-width: 767px)` block, now lays that button out as a compact inline caret-and-label pill (`.toolbar_btn.dropdown-toolbar`: `display:inline-flex; width:auto; white-space:nowrap`) and makes `.page-head .page-bar` a flex row so it sits inside the header's padding. CSS only, in the file meant for back office look (rule 25); no template or script change.
+- **Why:** the owner asked to confirm the mobile view renders cleanly; the one nit found was this clipped button.
+- **Verification (local, headless Chrome at 390px, signed in, measured and screenshotted in both themes):**
+  - The button now measures right edge 380 of a 390 viewport (10px inside), width 98px, full text "Menu"; `document.documentElement.scrollWidth === innerWidth` (no sideways scroll) in light and dark.
+  - Full mobile pass reviewed by screenshot and found clean, both themes: website home; back office sign-in, dashboard (Today at the desk, KPI tiles, collapsible lists, booking cards), the open named menu (the 9 Nov full-menu fix), the Bookings list (stacked cards), the Room board (date form, filter chips, selected-room panel, room-card grid). No JavaScript errors on any page.
+- **Not a separate feature:** it is polish on the 9 Nov mobile work, so no guide change and no What's New line (nothing a user does moved or was renamed); CHANGELOG under Fixed. Takes effect as soon as `overrides.css` is served (it is not on a volume); returning staff may see the old rule until their browser refetches the stylesheet.
+- **Not tested:** a real phone browser (Safari/Chrome on a device); widths between 768 and 991; the live server.
+
+### 2026-11-09 — Booking alerts for staff (SMS + email), with a login phone prompt
+
+**What the owner asked**
+
+- When a back-office user who should receive booking notifications signs in without a phone number, show a prompt to add it. Clarified: this is for admins/staff who need alerts about bookings, not guests. Recipients are a chosen list, alerted on a new booking and on a payment. A later message: also send the alert by email when the mail server (SMTP) is set up, so email works alongside text.
+
+**What was built (all in `modules/salisbergnotify`, which already owns mNotify texts — rule 25)**
+
+- **Chosen recipients and their phones.** `SBNOTIFY_ALERT_EMPLOYEES` holds the chosen employee ids; each one's SMS number is `SBNOTIFY_EMP_PHONE_<id>` in Configuration (not on the vendor employee row, so no schema change). Helpers: `alertRecipients()`, `isRecipient()`, `setRecipients()`, `empPhone()`, `setEmpPhone()`.
+- **Two channels, `notifyRecipients($subject, $message, $reference)`.** For each recipient: a text through `deliver()` when a key is saved and they have a phone, and an email through `emailRecipient()` (the module's new `mails/en/staff_alert.{html,txt}`) at the employee's own email when mail is enabled. `mailEnabled()` is `PS_MAIL_METHOD !== 3`; `canNotify()` is `hasKey() || mailEnabled()`. A failure on one channel or one person never stops the rest.
+- **Events** (hooks registered in `ensureSetup()`): `actionValidateOrder` → "new booking REF for GUEST, N rooms, dates, total" (rooms/dates from `htl_booking_detail`); `actionOrderStatusPostUpdate` → "payment on REF, paid X of Y" when the new state is paid (full, `paid` flag) or `PS_OS_PARTIAL_PAYMENT_ACCEPTED` (part). salisbergfrontdesk still texts the guest on full payment separately; both are correct.
+- **Login prompt.** `actionAdminControllerSetMedia` loads `views/js/phone-prompt.js` + `views/css/phone-prompt.css` only when the signed-in employee is a recipient, has no phone, and a key is saved (the prompt collects the SMS number, so it is pointless without a key; email needs no number). The modal asks for the number, posts it, and remembers a dismissal in `sessionStorage` so it does not nag every page; it reappears next session until answered. Colours come from the back office tokens, so it follows light and dark mode.
+- **Save endpoint any employee can reach.** New hidden controller `AdminSalisbergPhone` (tab `id_parent = -1`, not in the menu) with `ajaxProcessSave()`: it saves only the current employee's number (never a posted id), validates with `Validate::isPhoneNumber`, and its `viewAccess()` returns true for any signed-in employee — so a Hotel Staff recipient, who cannot open Integrations, can still answer the prompt. The admin token the dispatcher requires is the CSRF guard (rule 21).
+- **Integrations page** (SuperAdmin only) gains "Booking alerts for staff": a table of active employees with a tick box and a phone box (admin can set a number too), saved by `saveRecipients()`; and a line stating whether mail is set up (method and SMTP server) with a link to Advanced Parameters › E-mail.
+- `MODULES_VERSION=30` so the next deploy registers the new hooks and the phone tab via `setup-modules.php`. No profile grant is needed for the phone tab (its controller grants itself).
+
+**Guides (rule 23):** Admin Guide section 10 (new "Booking alerts for staff" subsection; SuperAdmin-relevant, shown in the admin guide); Staff Guide section 1 (what the sign-in prompt is); What's New (everyone: staff can be alerted; a SuperAdmin line on picking recipients). CHANGELOG under Added.
+
+**Verification (local, running stack; files copied in, class-index cache cleared, Apache reloaded)**
+
+- Hooks registered: `actionValidateOrder`, `actionOrderStatusPostUpdate`, `actionAdminControllerSetMedia`, `actionSalisbergSendSms`. Phone tab created hidden.
+- With a key saved and the admin set as a recipient without a phone: the dashboard loaded the prompt (JsDef + script); the modal rendered correctly in a browser (dark mode screenshot reviewed). Posting a valid number returned `{"ok":true}` and stored it; an invalid number returned the error and stored nothing; after a number was saved the prompt no longer loaded.
+- As a **Hotel Staff** recipient (profile 2): the prompt loaded and the save returned `{"ok":true}` and stored the number — the hidden endpoint works for a non-SuperAdmin.
+- Integrations page: recipients table and the mail-status line render, HTTP 200, no errors; the earlier "Undefined array key email" warning (from `Employee::getEmployees()` not returning email) was fixed by a direct employee query and is gone.
+- Sending: invoking both hooks on a real order ran clean; with a fake key and no real SMTP the SMS was refused by mNotify ("invalid api key") and the email failed at sendmail — both logged at severity 3, neither threw, as designed. On production a real key and SMTP will deliver.
+- `php -l` on the three PHP files, `node --check` on the JS: clean. `docker/smoke-test.sh`: 31 of 31, no PHP errors.
+- Local test config (fake key, recipients, phones) was cleared afterwards. The Hotel Staff test account password was set to a temporary value for the test and not restored (its original hash was unknown); it exists only in the local database.
+
+**Owner must, for this to do anything on the live site**
+
+1. Enter the mNotify API key (for texts) under Administration › Integrations, and/or set up the mail server (for emails) under Advanced Parameters › E-mail.
+2. On the Integrations page, tick the staff who should receive alerts; optionally type their phone, or let them add it at the sign-in prompt.
+
+**Not tested:** real SMS delivery through mNotify and real email through a live SMTP server; the modal in a real phone browser; a booking made end-to-end through the website while a recipient is configured (hooks were invoked directly on an existing order instead); the live server.
+
+### 2026-11-19 — Dashboard redesign: shorter desk, brand-coloured charts, Demo mode for SuperAdmins
+
+- **What:** the three recommendations of the Dashboard design critique. Inspiration came from the dataviz skill and from Dribbble front-desk dashboards such as Filllo "Hotel Management", Prostay and Stayntouch: neutral cards, one accent colour, status chips.
+  - **Desk** (`modules/salisbergfrontdesk`: `salisbergfrontdesk.php`, `today.tpl`, `frontdesk.css?v=13`):
+    - each tile has a sub-line (still to check in, N overdue in red, money owed) and a chevron;
+    - departures are split into Leaving today and a folded Overdue list that shows days over;
+    - empty lists are not shown;
+    - Unpaid is sorted staying now first, then ended, then coming. It shows `UNPAID_SHOWN = 6` rows and a link to the full list in Invoices.
+    - `stayRange()` makes the short dates and `paymentShort()` the short method names.
+    - The stock `h3` panel rule is cancelled by a more specific selector, as on the Room board.
+  - **Charts**, changed in the module files themselves (rule 11):
+    - `dashtrends`: CSS, template and `$gfx_color`;
+    - `dashperformance`: template and CSS;
+    - `dashavailability`: colours;
+    - `dashoccupancy`: classes `sb-occ-*`, and `sbOccupancyColours()` reads the tokens. Labels are Booked, Free and Blocked.
+    - New `--sb-occ-*` tokens in `overrides.css`, with separate dark-mode values. The old pastel tile rule and the white-label rule were deleted (rule 27).
+    - The palettes passed `validate_palette.js` in light and dark mode.
+  - **Demo mode:** `AdminDashboardController` shows the switch, and accepts `setSimulationMode`, only for a SuperAdmin. `view.tpl` shows "Demo mode is on" while sample figures are displayed.
+- **Guides (rule 23):** Staff Guide section 6 and Admin Guide section 14; What's New and CHANGELOG.
+- **Verification (local, files copied into the running container):**
+  - Dashboard height went from 7,852 px to 2,216 px.
+  - Screenshots in light and dark, as administrator and as Hotel Staff. Staff see no Demo button, see the notice, and get Unpaid with 6 rows plus the link.
+  - `docker/smoke-test.sh`: 31 of 31, no PHP errors.
+- **Not tested:** that the Demo AJAX call is refused for staff (only the code was read); phone width of the new tiles; the live server.
+
+### 2026-11-19 — Sentry error tracking
+
+- **What:** Sentry project `salisberg` (platform PHP, team `365-42`, EU ingest) created at the owner's request. The Sentry PHP SDK 4.x is installed by the `Dockerfile` with Composer into `/usr/local/share/salisberg/sentry/` (outside the web root; Composer is removed afterwards, so the root still has no Composer step). `docker/sentry.php` initialises it; `docker/prepend.php` is now the `auto_prepend_file` and loads `sentry.php` then `ratelimit.php` (php.ini allows only one prepend file, so the existing file was not duplicated — rule 25).
+- **Off by default:** nothing is sent unless `SENTRY_DSN` is set (compose, `.env.example`, `COOLIFY.md`). The DSN is not committed (rule 4); it is shown in Sentry under Project Settings › Client Keys. `send_default_pii` is false; notices and deprecations are excluded because the inherited code raises many; tracing is 0 unless `SENTRY_TRACES_SAMPLE_RATE` is set. If the SDK is missing or init fails, the request continues and one line is logged.
+- **Limit:** PrestaShop catches its own `PrestaShopException`s and renders an error page, so those are not reported unless they reach PHP's uncaught handler or are PHP errors/fatals. Capturing them would need a `Sentry\captureException()` call in `PrestaShopException::displayMessage()`; not done yet.
+- **Verification (local, image rebuilt):** SDK present in the image, prepend active, `SENTRY_DSN` passed to the container; a fatal error from a CLI script reached Sentry as issue SALISBERG-1. `php -r` does not run prepend files, so test with a script file. Not tested: a request through Apache, the live server, the backup service (it uses the same image but has no DSN set, so sends nothing).
+- No guide or What's New entry: nothing a back office user sees changes.
+
+### 2026-11-19 — Booking messages: short texts, longer emails
+
+- **What:** one set of messages, written from one set of facts.
+  - `Salisbergnotify::bookingFacts()` reads a booking once: guest, phone, real email, rooms, dates, nights, total, paid, balance and method. `detailsHtml()` and `detailsText()` turn label/value rows into the email table (the HTML version is escaped).
+  - **Staff alerts** (`salisbergnotify`): `notifyRecipients()` takes the email rows as a fourth argument, so the text stays one line and the email gets the table. They now go out on a new booking, part payment, payment in full and **cancellation** (`PS_OS_CANCELED`). `staff_alert.html` and `.txt` gained `{heading}`, `{details_html}` and `{details_txt}`.
+  - **Guest texts** (`salisbergfrontdesk`): booking made (a new `actionValidateOrder` hook, registered in `ensureSetup()`), part payment, payment in full, cancellation, check-in (reworded) and check-out.
+  - **Guest emails:**
+    - New: a thank-you email when the last room of the booking checks out (`notifyCheckOut()`, templates `mails/en/checkout.html` and `.txt`), sent through `emailGuest()`.
+    - Unchanged: the platform's own booking confirmation, payment and cancellation emails, which already carry the invoice. They were not duplicated.
+  - `deliver()` writes `GH₵` as `GHS`. `₵` is outside the GSM alphabet and would turn each text into 70-character parts, so every text would cost two or more SMS. All texts measured 85–122 characters on a real booking.
+  - `MODULES_VERSION=31`, so the new hook is registered on deploy.
+- **Guides (rule 23):** Admin Guide section 10, the table of what a guest is sent plus a paragraph on text versus email; What's New and CHANGELOG.
+- **Verification (local):**
+  - `php -l` passes on both modules, and `setup-modules.php` ran.
+  - The frontdesk module is registered on `actionValidateOrder`.
+  - `bookingFacts()` on booking NKDGFJVVP gave the correct rooms, dates, nights and amounts. Every text was built from it and measured.
+  - A `<b>` in a value comes out as plain text in the email table.
+- **Not tested:** real delivery of any text or email (no mNotify key and no mail server here); the check-out email rendered in a mail client; a cancellation run end to end; the live server.
+
+### 2026-11-19 — Booking codes SB-YYMMDD-NN (cleanup plan, step 0)
+
+- **What:** `Order::generateReference()` (`classes/order/Order.php`, inherited, changed at the source per rule 11) now returns `SB-` + the booking date as `ymd` + a two-digit day counter, for example `SB-261119-07`. It is the only place codes are made; `PaymentModule::validateOrder()` already loops until a code is unused.
+  - **Counter:** table `qlo_sb_reference_counter` (`day`, `n`), raised with `INSERT … ON DUPLICATE KEY UPDATE n = LAST_INSERT_ID(n + 1)`, which is atomic, so two simultaneous bookings get different numbers. The 100th booking in a day becomes `-100`. If the table is missing (a fresh image before its schema step), the stock random code is used.
+  - **Columns:** `qlo_orders.reference` and `qlo_order_payment.order_reference` were `varchar(9)`. The schema step in `docker/entrypoint.sh` (`SCHEMA_VERSION=2`) reads each width and widens it to 16 only when shorter, logging what it changed (rule 22). It also creates the counter table. `OrderPayment::$definition` size became 16, and `install/data/db_structure.sql` was updated for fresh installs.
+  - **Existing bookings untouched** (owner decision): nothing rewrites old references; widening a varchar keeps its values.
+  - **Checked for 9-letter assumptions:** `Validate::isReference` and the Contact form override's `id_order` pattern both accept hyphens; no code measures a reference's length.
+- **Owner decisions:** format date + counter, prefix SB, two-digit year (chosen over `SB-1119-07`, which would repeat every year). Recorded in `CLEANUP-PLAN.md`.
+- **Guides:** Staff Guide section 4 (what a code looks like); What's New and CHANGELOG.
+- **Verification (local):**
+  - The columns were widened and the counter table created.
+  - Three generated codes were `SB-261119-01…03`; the counter was then cleared.
+  - Two real bookings made through the guided-booking service (`SalisbergWalkIn`, as administrator) got `SB-261119-01` and `-02`; `Order::getByReference()` finds them.
+  - A cash payment on `-02` stored `SB-261119-02` in `order_payment`.
+  - All 145 earlier bookings still have their 9-letter codes.
+  - `docker/smoke-test.sh`: 31 of 31.
+- **Not tested:** a booking from the website checkout; the new code on the invoice PDF, in emails and texts; Excel-imported bookings; two bookings at exactly the same moment (atomicity is by construction, not exercised); the schema step through a rebuilt image (it was applied by hand in the running container); the live server.
+- Local test data: two bookings for guest "Code Tester" about 200 days ahead.
+
+### 2026-11-19 — Booking milestones
+
+- **What:** congratulations at 50, 100, then every 100 up to 1,000, then every 500 (`SalisbergMilestones::steps()` and `next()`). Owner choices: these steps, everyone in the back office sees it, all three channels, and bookings count unless cancelled, refunded or in the recycle bin.
+  - **Code:**
+    - `modules/salisbergfrontdesk/classes/SalisbergMilestones.php`, in the module that owns the Dashboard desk (rule 25).
+    - The count excludes `PS_OS_CANCELED`, `PS_OS_REFUND` and rows in `sb_deleted_booking`.
+    - Reached milestones are stored in `SBFD_MILESTONES`, as JSON holding the number, the date and the booking that reached it.
+    - Each person's closed banner is stored in `SBFD_MILESTONE_SEEN_<id_employee>`.
+  - **First run:** every milestone already passed is recorded, with the booking that reached it, but announced nowhere. A site with hundreds of bookings is therefore not flooded with alerts; the newest one shows once as a banner.
+  - **Announced from `hookActionValidateOrder`** through `salisbergnotify::notifyRecipients()`: a one-line text, plus an email with the milestone, the date, the booking and the next milestone.
+  - **Dashboard:** a banner above Today at the desk (closed with a token-checked link), and a folded Milestones panel at the end of the desk showing the count, the next goal and the last five reached. Styled with the existing tokens; `frontdesk.css?v=14`.
+  - Both entry points catch `Throwable` and only log, so a milestone fault can never stop a booking or the Dashboard.
+- **Fault caught in testing:** the first version called `Tools::displayNumber()` with one argument. The fatal error was not caught by `catch (Exception)` and would have broken the booking that reached the next milestone. It now uses `number_format()` and catches `Throwable`.
+- **Guides:** Staff Guide section 6 (banner and list); Admin Guide section 10 (milestones go to the alert recipients); What's New and CHANGELOG.
+- **Verification (local):**
+  - The steps up to 3,000 come out as intended.
+  - The first run recorded 50 and 100 (146 counting bookings) and announced nothing.
+  - With only 50 recorded, the announcement recorded 100 and the banner became unseen for the administrator.
+  - Screenshots in light and dark show the banner and the panel; no PHP or JavaScript errors.
+- **Not tested:** a real text or email (no key or SMTP here); the banner as Hotel Staff; closing the banner by click (the link is built and the token checked, but it was not clicked); the live server, where the first run records what has already been passed.
+
+### 2026-11-19 — Rule 11 reworded; rule 31 and the simplify review added
+
+- **Rule 11 (owner approval, 2026-11-19):** `override/` is no longer used. Changes to inherited classes and controllers are made in those files. The seven existing overrides will be folded in one at a time (`CLEANUP-PLAN.md`, O1–O7).
+- **Rule 31 and `SIMPLIFY-REVIEW.md`:** every agent looks for ways to make the app simpler, writes them as proposals with evidence, benefits, risks and how to undo, and builds nothing until the owner approves.
+- **First review (rota area 1, making a booking):** proposals P-1 to P-6 added, all Proposed, awaiting the owner. Evidence came from the guided-booking template and the website booking test of 2026-10-16.
+- Documentation only; no code changed.
+
+### 2026-11-19 — Simplify review P-1, P-2, P-5 built
+
+Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
+
+- **P-5 (Book on room cards):** `room_board.tpl` adds a "Book" control under the price on every available card. `room-board.js` selects the card and then clicks the existing Book now button, so the same form and the same checks run.
+- **P-2 (no tick for cash):** `SalisbergWalkIn::savePayment()` treats Cash with full or part payment as confirmed. `walkin.js` hides and disables the tick for Cash. Mobile Money and bank transfer still require the tick and a reference.
+- **P-1 (Payment & confirm):**
+  - The Confirm page is gone. The payment form carries the `sb_finalize` buttons, the price-changed warning and accept tick, and the future-stay and room-not-ready notices.
+  - `AdminSalisbergWalkInController` saves the payment, re-reads the draft and finalizes in one request. A price change returns to step 3 with the warning.
+  - Step 4 without a finished booking is shown as step 3.
+  - The progress bar has two steps. The `sb_save_payment` handler, the review-section markup and its CSS were removed (rule 28; no other reference).
+- **Mistake found and reverted:** adding `?v=` to `addCSS()` and `addJS()` made `Media::getMediaPath()` drop both files, because it checks `file_exists()` on the path including the query. The page lost its styles and scripts. Admin asset links stay unversioned.
+- **Guides:** Staff Guide section 3 (Book on cards, the two steps, cash without a tick); What's New and CHANGELOG.
+- **Verification (local, real headless browser, as administrator):**
+  - The card Book button opened the guest step; the progress bar shows 2 steps.
+  - On the payment step the tick was hidden for cash, and both Confirm buttons were present.
+  - Confirm & check in created booking `SB-261119-03` (cash, GH₵312 paid, checked in), with no page or JavaScript errors.
+  - Screenshots of the board and the payment step reviewed after the fix.
+- **Not tested:** Mobile Money or bank transfer without the tick (should be refused); the price-changed path; part payment and pay later through the merged step; Hotel Staff and Hotel Manager; phone width.
+
+### 2026-11-19 — Simplify review P-4 built
+
+- **What:** the Payment & confirm step opens with two large figures, **Total** and **Still to pay**. The seven-line breakdown sits behind "Show breakdown" (`<details>`). This was the owner's choice from a preview of three options. Markup is in `walkin.tpl`; styles are the `.sb-pay-figures` and `.sb-pay-breakdown` rules in `frontdesk.css`, using the existing tokens. The two numbers stack below 480px.
+- **Guides:** Staff Guide section 3; What's New and CHANGELOG.
+- **Verification:** browser run through the booking flow; screenshot of the payment step reviewed in dark mode; no page or JavaScript errors.
+- **Not tested:** light mode and phone width.
+
+### 2026-11-19 — Side menu P-8; employee phone and alerts
+
+- **P-8 side menu:**
+  - In `admin/themes/default/css/admin-theme.css` (inherited, rule 11), three rules from the old dark sidebar were corrected: the current sub-page `color:#fff`, sub-pages `#BEBEBE` on `#363A41`, and the open section's sub-pages `#BEBEBE`. They now use `--sb-heading`, `--sb-ink` and `--sb-link`.
+  - In `overrides.css` section 5, the current sub-page gets dark text, a pale chip and a 3px green bar; the other sub-pages use `--sb-ink`.
+  - `side-menu.js` orders the sections into groups and adds a heading above each group the person can see: Front desk, Hotel, System, Help. Unknown sections stay at the end.
+  - Headings are hidden below 768px (icon rail).
+- **Employee phone and alerts (owner decisions 2026-11-19):**
+  - `salisbergnotify` adds two fields to the employee form through `actionAdminEmployeesFormModifier`:
+    - **Phone (for texts)**, for anyone who can open the form, including their own account;
+    - **Receive booking alerts**, only when `canManageAlerts()` is true (SuperAdmin or Hotel Manager).
+  - The values are saved from `actionObjectEmployeeAddAfter` and `actionObjectEmployeeUpdateAfter`, only when posted by `AdminEmployees`. An invalid phone is not saved and is logged.
+  - They use the same stored values as the Integrations page and the sign-in prompt: `SBNOTIFY_EMP_PHONE_<id>` and `SBNOTIFY_ALERT_EMPLOYEES`.
+  - The sign-in prompt now asks everyone with no phone saved, not only recipients with a key saved, and its wording depends on whether the person is a recipient.
+  - `MODULES_VERSION=32` registers the hooks.
+- **Guides:** Admin Guide section 1 (new step when adding an employee) and section 10 (the form as a second place to set alerts); Staff Guide section 1 (why the box appears); What's New; CHANGELOG.
+- **Verification (local, browser as administrator):**
+  - The Hotel Staff employee's form showed both fields. Saving "0244 555 123" with alerts Yes gave "Successful update", stored the phone and added employee 3 to the recipients.
+  - The prompt appeared for the administrator, who has no phone.
+  - The current sub-page measured in the theme's text colour.
+  - `docker/smoke-test.sh`: 31 of 31.
+- **Not tested:** the form as Hotel Manager and as Hotel Staff on their own account (the switch should be hidden for staff); switching alerts off from the form; the menu headings as staff and manager; production.
+
+### 2026-11-19 — What's New pop-up
+
+- **Owner decisions:** once per person per update; the latest date's items for their role; View more and their guide.
+- **How:**
+  - `salisbergguide::addNewsPopup()` runs from `hookActionAdminControllerSetMedia`, but not on AJAX requests or the What's New page.
+  - It reads the newest date from the first `<section>` of `whats_new.tpl` (`latestNewsKey()`) and compares it with `SBGUIDE_NEWS_SEEN_<id_employee>`.
+  - When they differ, it renders What's New through the existing `renderGuide()`, so role filtering is the page's own, and passes the first section's `<li>` items to `views/js/news-popup.js` with links: View more only if the person may open What's New; the Admin or Staff Guide by role.
+  - It is marked seen as soon as it is shown, so no request is needed and it works for any profile. Opening What's New also marks it seen.
+  - The script shows at most five items with "And N more", waits while the phone prompt is open, closes on ×, Escape or the backdrop, and returns focus to where it was.
+  - Styles are in `views/css/news-popup.css`, using the back office tokens.
+- **Fixed on the way:** today's What's New lines had been added under the 9 November heading. They now have their own 19 November section, which the pop-up depends on: one `<section>` per date.
+- **Guides:** Staff Guide section 1; What's New (19 November); CHANGELOG.
+- **Verification (local browser, administrator):** shown after sign-in with "19 November 2026", five items, "And 5 more", and the buttons "Open the Admin Guide" and "View more"; not shown again on reload; no JavaScript errors; screenshot reviewed in light mode.
+- **Not tested:** as Hotel Staff and Hotel Manager (no View more for a profile without What's New); dark mode; phone width.
+
+### 2026-11-19 — Occupancy panel rebuilt
+
+- **Owner decisions:** tonight plus the occupancy rate; one bar in three parts; plain numbers, short dates and a shorter tooltip.
+- **`modules/dashoccupancy` (inherited, changed in place, rule 11):**
+  - **Data:** `hookDashboardData()` now computes, for the hotels the profile may see (`getProfileAccessedHotels`, or the hotel picked in the filter):
+    - rooms with a guest checked in (`id_status` 2, not refunded or cancelled), as on Today at the desk;
+    - rooms out of service (`id_status` ≠ active);
+    - the rest as free;
+    - the rate = booked room-nights inside the period ÷ (rooms in service × nights).
+  - Dates are validated; the SQL uses `pSQL`, `(int)` and `getValue(..., false)` with no `LIMIT`.
+  - Demo mode still gives random figures.
+  - **Display:** the template is rewritten. The script draws the bar with the legend (swatch, name, number, %) and the donut code is removed.
+- **Styles:** `overrides.css` replaces the old `.avail-pie-*` tile rules (used only here) and the donut size rule with `.sb-occ-*` rules, using the validated `--sb-occ-*` tokens.
+- **Why:** the old figure counted any room with a booking anywhere in the period, so "26/28 (93%)" over a month sat next to "6 in house" on the desk. The numbers were zero-padded and the donut labels were clipped.
+- **Verification (local):**
+  - The hook returned 17 of 22 tonight, a 3% rate for 30 days and 18 booked nights. A separate per-night loop also counted 18. The low rate comes from local test guests never checked out.
+  - Screenshots in light and dark reviewed; no PHP or JavaScript errors.
+- **Not tested:** a specific hotel picked in the filter; production figures; phone width.
+
+### 2026-11-19 — Integrations: cards and a test per recipient
+
+- **Owner decisions:** a Test button on each row; SuperAdmin only; one card per integration.
+- **`AdminSalisbergIntegrationsController`:**
+  - Builds `sb_cards` for Text messages (mNotify key and sender), Booking alerts (people chosen, how many without a phone), Email (`PS_MAIL_METHOD`, linking to E-mail) and Error tracking (whether `SENTRY_DSN` is set). A new integration adds one entry there and its own panel.
+  - `sendTestToEmployee()` handles `sb_test_one` before any save. It needs a saved key and a saved phone, sends through `deliver()`, and reports acceptance or refusal by name and number. The whole page is SuperAdmin-only, as before.
+- **Template:** a card grid at the top, anchors on the panels, and a Test button on rows that are chosen, have a phone and have a key. Styles are in `overrides.css` (an Integrations block, using tokens).
+- **Guides:** Admin Guide section 10; What's New (developer team); CHANGELOG.
+- **Verification (local, browser):**
+  - Four cards with correct statuses; 2 Test buttons.
+  - With a fake key, Test showed "The test text to Admin Salisberg (0244000001) was not accepted…" and the log recorded mNotify's "invalid api key". The fake key was removed afterwards.
+- **Not tested:** a real accepted text (needs the production key); dark mode; phone width.
+
+### 2026-11-19 — First Sentry issues fixed: Recycle bin code, newsletter endpoint
+
+- **SALISBERG-2** (`Undefined array key "reference"`, 10 events): `recycle_bin.tpl` prints `reference`, but `sb_deleted_booking` has no such column and `SalisbergBookingArchive::getEntries()` selected only the archive table. It now LEFT JOINs `orders` (the order row is kept when a booking is archived) for `o.reference`.
+- **SALISBERG-3 to 6** (one request, same second): the `blocknewsletter` `subscription` front controller has `content_only` and no template, so a non-AJAX request or a wrong token fell through to a full page render (missing HOOK_HEADER, layout, template). `checkAccess()` (inherited, fixed in place per rule 11) now redirects such requests to the homepage; the footer form's AJAX call with the module token is unchanged.
+- **Verification (local, files copied in, Apache reloaded):** `php -l` on both files; a direct GET and a POST with a wrong token both return 302 to the homepage; a real AJAX call with the token still returns its JSON reply; `getEntries()` runs without error; `docker/smoke-test.sh` 31 of 31.
+- **Not tested:** the Recycle bin page with archived bookings in it (the local bin is empty); the live server. SALISBERG-1 is the Sentry setup test event.
+- No guide or What's New change.
+
+### 2026-11-19 — Dashboard "Rooms free" chart refined; newsletter action field
+
+- **`modules/dashavailability`** (inherited, changed in place, rule 11):
+  - `hookDashboardData()` validates the period (7, 14 or 30 nights; a valid date, else today) and asks `getAvailabilityLineChartData()` for `days - 1`, because that function returns one point more than asked. It also returns two `data_value` figures, `sb_avail_low` (tightest night and its date) and `sb_avail_avg` (average rooms free per night), escaped with `Tools::safeOutput()` because `data_value()` in `js/admin/dashboard.js` inserts them with `.html()`. Demo mode still gives random figures.
+  - The template is a toolbar (date button, a 7/14/30 segmented control with `aria-pressed`) and a two-item summary. Before, the 115 px header used stock blue buttons; the 15 and 30 buttons had `data-days="15)"`; the date showed as `2026-11-19`. The date label is built in PHP (`date('j M Y')`), not with Smarty `date_format`, which relies on the deprecated `strftime`.
+  - The script colours the series from `--sb-occ-free`, the "free" colour of the Occupancy panel, and draws it as a light area. Dates read "Thu 19 Nov", and there is about one date label per 90 px of chart, at most 7. The bold min/max labels nvd3 repeats on the y axis are hidden. The date picker no longer resets the start to the dashboard's own period start.
+  - Styles are in the module's stylesheet and use the tokens. The two `.avail-bar-*` rules in `overrides.css` section 8 were deleted (rule 27).
+- **`modules/blocknewsletter/blocknewsletter.php`:** `newsletterRegistration()` reads `newsletter_action` through `Tools::getValue()`, so a request without it is treated as a sign-up instead of raising "Undefined array key" (Sentry SALISBERG-7, 8, caused by the local test of the previous entry).
+- **Sentry:** SALISBERG-1 to 8 marked resolved, each with a comment naming its fix.
+- **Guides:** What's New 19 November (manager and developer team). No guide section describes this chart.
+- **Verification (local, headless Chrome, signed in as administrator):** screenshots reviewed at 1440 wide in light and dark and at 390 wide. 7 nights gives 7 points; the summary reads "16 rooms free on Thu 19 Nov" and "19.9 rooms a night"; clicking 30 nights redraws with five date labels; no JavaScript errors; `php -l` and `node --check` pass.
+- **Not tested:** a specific hotel picked in the dashboard filter; Hotel Manager; the date picker by click; the live server.
+
+### 2026-11-20 — Rule 14 and the licence section reworded
+
+- **Owner decision:** the owner removed the PrestaShop AFL header from `modules/blocknewsletter/blocknewsletter.php` (commit `4477e6af`). Old headers in inherited platform files may be removed and must not be added back.
+- **Changed:** rule 14, and two lines in the licence section. Bundled third-party libraries keep their licence files, notices and copyright attribution.
+- Change-log entries from before this date that mention rule 14 are history and were left as written. Documentation only.
+
+### 2026-11-20 — Staff desk menu P-17; System group P-9; What's New tag fixed
+
+- **Owner:** approved P-17 and P-9 (`SIMPLIFY-REVIEW.md`) after reviewing drawings of both.
+- **P-17 (Hotel Staff menu):**
+  - `salisbergguide::deskOnlyStaffMenu()`, run once from `ensureSetup()` (marker `SBGUIDE_STAFF_DESK_MENU`, rule 22):
+    - moves `AdminOrderRefundRequests` from Manage Hotel to the end of Bookings, only while its parent is still Manage Hotel;
+    - sets view, add, edit and delete to 0 for Hotel Staff on `AdminHotelReservationSystemManagement`, `AdminAddresses` and `AdminOrderMessage`, logging what it changed.
+  - The same three were removed from `$staffAccess` for new installs.
+  - `isDeskOnly()` assigns `sb_desk_only` in `hookActionAdminControllerSetMedia`. `admin/themes/default/template/header.tpl` (inherited, rule 11) leaves out the new-customer icon and Quick Access when it is set.
+  - The bookings bell stays. The proposal called it a cart icon, but it lists new bookings, which the desk uses.
+  - `today.tpl`: "Open room board" is now "New booking".
+- **P-9 (System group):**
+  - `side-menu.js` `foldSystem()` turns the System heading into a button. It folds the five technical sections and opens itself while one of their pages is current.
+  - It is built in the menu script, not by moving tabs: the sidebar has two levels, so nesting sections would hide their pages, and moving them would change permissions.
+  - Managers see only their own sections inside System. Staff, who have none, get no heading.
+  - Below 768px the heading is hidden by the existing rule, so folding is applied above that width only (`overrides.css` section 5).
+- **Fault fixed (found while editing):** the 19 November Occupancy line in `whats_new.tpl` had `{if}` without `{/if}`. The page and the sign-in pop-up could not compile, which is why production showed no pop-up on 20 November.
+- `MODULES_VERSION=33`.
+- **Guides:** Staff Guide menu table and section on refunds (Bookings › Refund requests); Admin Guide section 15 and its refund path; What's New 20 November; CHANGELOG.
+- **Verification (local, files copied in, `setup-modules.php` run):**
+  - Log: "Refund requests moved under Bookings" and "Hotel Staff menu trimmed: AdminHotelReservationSystemManagement, AdminAddresses". Booking messages was already off locally.
+  - As administrator: System folded with no sections showing, and the five appeared after a click; New booking on the desk (screenshot reviewed).
+  - As the Hotel Staff test account: the menu is Dashboard, Bookings, Customers, Rooms & Services and Guides; no System heading, no Quick Access, no customer icon; the bookings bell is still there.
+  - What's New, Staff Guide and Admin Guide pages render for both roles, and the pop-up shows 20 November.
+  - `docker/smoke-test.sh` 31 of 31.
+- **Not tested:** Hotel Manager; phone width; the live server.
+- The local Hotel Staff test account now has a temporary local password.
+
+### 2026-11-20 — Income kept from Hotel Staff P-16
+
+- **Owner:** approved P-16 (2026-11-19): staff keep Reports, but only the daily Arrivals and departures sheet.
+- **One rule:** `Salisbergguide::seesIncome()` returns false only for the Hotel Staff profile, and true for SuperAdmins, Hotel Managers and any other profile. Other modules call it behind `class_exists('Salisbergguide')`, so they still work if the module is missing.
+- **Where it applies** (all inherited files, changed in place per rule 11, except our own modules):
+  - `dashtrends` and `dashperformance`: `hookDashboardZoneTwo()` returns nothing and `hookDashboardData()` returns no data, so the figures are not sent to the browser either.
+  - `AdminOrdersController::renderKpis()`: no Total Sales tile on the list. Total Due Amount stays, because it is desk work.
+  - `salisbergreports::getReports()` offers staff only `arrivals`. `buildReport()` and the controller's `getChoice()` now fall back to the first report offered, so `sb_report=income` in the address shows the arrivals sheet.
+  - `salisbergreports::grantStaffSheet()` gives Hotel Staff view on Reports once (`SBREPORTS_STAFF_SHEET`). Taking it away later in Permissions is kept.
+- `MODULES_VERSION=34`.
+- **Guides:** Staff Guide menu table (Bookings › Reports); Admin Guide section 14 (what staff do and do not see); What's New 20 November for both roles; CHANGELOG.
+- **Verification (local, files copied in, setup run):**
+  - As Hotel Staff: no sales or performance panels on the Dashboard, while Occupancy and the desk are present; no Total Sales on Bookings, while Total Due is present; Reports offers only Arrivals and departures; `sb_report=income&sb_period=month` did not show Income by day.
+  - As administrator: everything is present, as before.
+  - `php -l` on the six PHP files.
+- **Found while testing:** after many test sign-ins the local back-office limit (10 in 10 minutes) refused the staff account. The test cleared `/tmp/sb-ratelimit` in the container. This is not an app fault.
+- **Not tested:** Hotel Manager; the PDF download as staff; the live server.
+
+### 2026-11-20 — Lists in pages P-13
+
+- **Invoices** (`AdminInvoicesController::renderInvoiceList()`, our own list in an inherited controller):
+  - the 200-row cap (`LIST_LIMIT`) is replaced by pages of 20, or 50 (`$perPageChoices`), chosen with `sb_per` and `sb_page`. Both are validated: a page past the end shows the last page, and an unknown size falls back to 20.
+  - The four totals come from a separate aggregate query over the same filtered set, so they cover every matching invoice and not only the page shown.
+  - Pager links keep the filters. The pager is in `invoices/list.tpl`, styled by `.sb-pager` at the end of `overrides.css`.
+- **Every stock list:** `AdminController::$_default_pagination` changed from 50 to 20 (inherited, rule 11). The list's own page-size menu still offers 20, 50, 100, 300 and 1000. A size someone already picked is kept in their cookie.
+- **Guides:** Staff Guide list tip; What's New 20 November; CHANGELOG.
+- **Owner choices recorded the same day:** P-11 keeps one quiet desk line on Bookings; P-15 changes new and edited names only.
+- **Verification (local, files copied in):**
+  - Invoices: page 1 shows rows 1–20 of 148 and page 2 shows 21–40. `sb_page=999` shows 141–148. `sb_per=50` gives 50 rows and `sb_per=7` gives 20. Filtering Paid and going to page 2 shows 21–38 of 38.
+  - The totals (148, GH₵206,334.00 billed, GH₵98,930.00 paid) match a direct database sum.
+  - Bookings, Customers and Logs show 20 rows each with the stock pager, with no errors. Logs went from about 7,400px to 2,100px tall.
+- **Not tested:** phone width; the Hotel Staff and Hotel Manager roles on Invoices; the live server.
+
+### 2026-11-20 — Side menu icons
+
+- **Owner:** "modernise the sidebar icons too".
+- **What changed:**
+  - In `overrides.css` (beside the section icon rules), each top-level section listed there gets a `--sb-ico` SVG data URI: a line icon, stroke 1.8. The shapes follow Lucide (ISC licence, credited in the comment).
+  - One rule draws it as a mask filled with `currentColor` on the section's existing `<i>`, so the muted, hover, active-pill and dark-mode colours apply unchanged.
+  - A section not in the list (a future module) keeps its font icon.
+  - The old Guides glyph rule was replaced, not overridden (rule 27).
+- CSS only: no template, script or permission change.
+- **Guides:** none needed, since nothing moved or was renamed. What's New (everyone) and CHANGELOG updated.
+- **Verification (local, screenshots at 1440 in light and dark, System opened):** all 12 sections show their new icon, aligned with the labels; the active pill shows its icon in the pill's text colour.
+- **Not tested:** the phone icon rail below 768px; Safari, where `-webkit-mask` is supplied too; the live server.
+
+### 2026-11-20 — Lists, names, phone cards and Dashboard: P-7, P-10, P-11, P-12, P-14, P-15
+
+- **Owner:** approved all of these after reviewing the drawings. Choices: P-11 keeps one quiet desk line; P-15 changes new and edited names only.
+- **P-11, figure strips:**
+  - `salisbergfrontdesk::splitToday()` is now the one place that splits today's lists. `assignTodayTemplate()` uses it, and so does the new `deskFigures()`.
+  - `AdminOrdersController::renderKpis()`: the list branch shows four HelperKpi tiles (in house, still to arrive, leaving today with overdue, owed), filled from `deskFigures()`. No AJAX source. They link to the Dashboard and use the neutral `sb-desk` style. The shop tiles (sales, abandoned carts, conversion, averages) are deleted.
+  - The `renderKpis()` methods of `AdminCustomersController`, `AdminProductsController`, `AdminCartsController` and `AdminTranslationsController` are deleted (rule 28). With no tiles, the base class draws no strip. The single-booking tiles on a booking page are unchanged.
+- **P-12, Bookings list cells:** new callbacks `printListDay` (12 Nov 2026), `printListStatus` (a `.sb-state` chip with a dot: green, amber while money is owed, red for cancelled, refunded or payment error) and `printListDue` (red when owed, a dash when nothing is). The colour bar and `badge_success` pills were removed. Filters and sorting are unchanged.
+- **P-10, Customers columns:**
+  - New columns: `guest` (`CONCAT` of the names, filterable), `last_stay` (latest `htl_booking_detail.date_to`) and `owed` (unpaid balance, leaving out cancelled, refunded, failed and recycle-bin bookings). Each is a subquery, so the existing join is not multiplied.
+  - The six columns lead the list. Every other column is marked `optional` and hidden by default, and can be switched on under Available Fields.
+  - Email uses `printListEmail`: "No email" for `Customer::hasNoEmail()` addresses.
+- **P-15, names:**
+  - `Customer::tidyName()` capitalises names typed all lower or all upper case; a mixed-case name is kept as typed. `Customer::isTitleOnly()` matches a name that is only a title (Mr, Mrs, Ms, Miss, Mx, Dr, Prof, Sir, Madam, Rev).
+  - `Customer::add()` tidies the names. `Customer::update()` tidies a name only when it differs from the saved one.
+  - A title-only name is refused in the guided booking (`SalisbergWalkIn`), the order form's find-or-create guest (`override/.../AdminCustomersController.php`) and the admin customer form (`processSave`).
+- **P-14, phone cards:**
+  - `list_header.tpl` uses the wrapper `sb-cards` in place of `table-responsive-row` when `sb_phone_cards` is set; `AdminOrders` and `AdminCustomers` set it in `renderList()`.
+  - `list_content.tpl` gives every cell the class `sb-col-<column>`, and the actions cell `sb-row-actions`. The Invoices template has the same classes and the wrapper.
+  - CSS at the end of `overrides.css`, below 768px, turns each row into a flex card:
+    - first line: who, and what is owed;
+    - then the reference, room and dates;
+    - then the status.
+    The selection box and the actions cell (with Delete) are left off, and Invoices keep their PDF button. From 768px it is the normal table, scrolling sideways when needed.
+  - Lists that do not opt in keep the stock stacked rows.
+- **P-7, Dashboard:**
+  - The Demo mode header button is replaced by `#sb-demo-toggle` beside the hotel filter, shown only when `sb_can_demo` is set (SuperAdmin). The server check in `ajaxProcessSetSimulationMode()` is unchanged. `dashboard.js` toggles the setting, then reloads so the notice and the charts agree.
+  - The chart hint is one line.
+  - `today.tpl` gives Overdue `sb-desk-act-bad` and Unpaid, when it has rows, `sb-desk-act-warn`: a 4px left edge, scoped above the stock panel border.
+- **Guides:** Staff Guide menu table (Customers), the guest step (names) and the list tip (phone cards); Admin Guide section 14 (Dashboard); What's New 20 November; CHANGELOG.
+- **Verification (local, files copied in):**
+  - Bookings desk line: 18 in house, 1 to arrive, 0 leaving with 14 overdue, GH₵57,978 owed, the same as Today at the desk. Customers and Room types have no strip.
+  - Bookings list: chips, plain totals and red Due checked by screenshot.
+  - Customers: six columns, "No email", Owed in red; filtering Name=Flow works; no errors.
+  - Names: a container script checked tidyName and isTitleOnly on 11 samples. A guest added as "ama" / "serwaa test" was saved as "Ama Serwaa Test". An update that did not touch the name left a lower-case name alone; editing the first name tidied it. The test guest was deleted.
+  - Phone, 390px wide: page height went from 10,086 to 2,986px on Bookings, from 7,864 to 2,277px on Customers and from 14,476 to 6,907px on Invoices; screenshots reviewed.
+  - Dashboard: the header button is gone. The toolbar button switched Demo on (the notice appeared) and off again. Both edges measure 4px.
+- **Not tested:** Hotel Staff and Hotel Manager on these lists; filters in the phone layout (thead hidden; the stock Filters panel remains); dark mode on the phone cards; the website registration page (it uses `Customer::add`, so names are tidied, but a title-only name is not refused there); the live server.
+- **Seen, not changed:** in dark mode the "Filters:" bar on a filtered list is still white.
+
+### 2026-11-20 — Links and code typed by guests: production checked, one shared rule
+
+- **Owner question:** some people tried to book with links and commands. What happens to that?
+- **Production check (read only):**
+  - Signed in as the agent account and loaded Customers (122), Addresses (9), Inbox (all) and Bookings (145) in full.
+  - Scanned each row for web addresses, HTML or script tags, template syntax, SQL fragments (`UNION SELECT`, `DROP TABLE`, `OR 1=1`) and shell commands.
+  - Result: none stored. The only matches were ordinary email addresses (gmail.com, cua.org.gh).
+  - Refused attempts leave no record, because they are turned away before anything is saved.
+- **Why nothing typed can run:**
+  - SQL values go through `pSQL()` or casts; the Contact form was tested with injection payloads on 2026-10-13.
+  - Output is escaped.
+  - Inbox shows links as plain text.
+  - The request limiter caps form posts.
+- **Gap closed:** web addresses could still be saved in a guest name (`www.x.com`, `bit.ly`), an address, a city, or the message added at checkout.
+  - `Validate::containsLink()` is new: the Contact form's detector, moved out of `override/controllers/front/ContactController.php`. The override now calls it, and its private copy is deleted (rule 26).
+  - `Validate::isName()`, `isAddress()` and `isCityName()` refuse a value containing a link.
+  - `ParentOrderController::_updateMessage()` refuses a checkout message containing one, with a plain message.
+  - Email addresses are allowed (the detector ignores `name@host`).
+- **Not a vendor security backport**, so it is not in `PATCHES.md`.
+- **Guides:** Admin Guide section 9 table (new row); What's New 20 November (manager); CHANGELOG under Security.
+- **Verification (local):**
+  - Sample values: real names, "P.O. Box 4501, Accra", "Plot 7, Spintex Rd.", Accra and an email in a message all pass. `www.evil.com`, `bit.ly`, `freecash.xyz`, `http://`, `javascript:`, "visit www.scam.com", "scam.ru", "site.com" as a city and "cheap-hotels.com" in a message are all refused.
+  - All 290 saved customer, address and employee name values pass the new rule. The production scan above found no links either, so no existing record is blocked from being edited.
+- **Not tested:** a full website checkout carrying a message with a link (the check is in the shared save function); the live server.
+
+### 2026-11-20 — Modules and Positions pages redesigned; category filter fixed
+
+- **Owner:** approved both redesigns from the previews; for Modules, unused modules in a folded "Not used" group (the default offered).
+- **Manage Modules:**
+  - `controllers/admin/AdminModulesController.php` (inherited, rule 11): in `initContent()` modules are grouped (`sb_group`: `own` for `salisberg*`, `unused` for not installed or bank wire, cheque, PayPal and the channel manager, else `main`) and listed in that order; each gets `sb_initials` for its tile; `sb_nb_unused` is assigned. `renderKpis()` and the `kpis` template variable were deleted (rule 28: only `page.tpl` used them; the `AdminStats` KPI endpoints are left).
+  - `page.tpl` rewritten: one summary line (on, off, not installed, updates), alerts only when there are some, category chips and a search box above the list. Removed: the Alert and Updates tabs, the figure strip and the vendor addons banner (and its now-unused hide selector in `overrides.css`). The element ids the stock script uses (`moduleQuicksearch`, `filter_all`, `categoryModuleFilterLink`) are kept.
+  - `list.tpl`: group heading rows; letter tile instead of the logo; On, Off or Not installed chip (`.sb-state`); version and category on the name line; "Not used" rows start hidden and open with a button. They stay in the first `tbody`, so the search still finds them.
+  - `admin-theme.css`: the green and grey bar of `td.module_active` / `module_inactive` made transparent.
+  - **Fault found and fixed:** `isModuleFiltered()` read `PS_SHOW_CAT_MODULES_<employee>` into `$filter_categories` but tested an empty `$category_filtered`, so a category chip never filtered. It now fills `$category_filtered` from the saved value.
+- **Positions:**
+  - `AdminModulesPositionsController::initContent()` adds `sb_label` per hook: a plain name for 42 hooks this hotel uses, else the stored hook title when it differs from the name, else nothing.
+  - `list_modules.tpl`: each hook header is a button (plain name, technical name, count); module lists start folded; a drag handle beside the position number (the arrows stay, for keyboard users); a letter tile instead of the logo; the description shows as the button's tooltip.
+  - `js/admin/modules-position.js` (inherited): the hook search also matches the plain name; hooks found by a search or the module filter are opened, and folded again when the filter is cleared; a link to `#hookName` (used after moving a module) opens that hook.
+  - `admin-theme.css`: the hook panel, header, name, list item, highlight, select and position rules use the tokens instead of the bright blue and grey bevels.
+- **Guides:** Admin Guide section 15 (SuperAdmin part); What's New 20 November (SuperAdmin); CHANGELOG.
+- **Verification (local, headless Chrome, administrator, dark mode):**
+  - Modules: summary "58 modules · 53 on · 5 off · 0 not installed · all up to date"; Salisberg group first; 55 rows shown, 3 folded; opening Not used shows 58; searching "bank" finds 2; the Payments and Gateways chip shows 3 (it showed all 58 before the filter fix); no script errors. Screenshot reviewed.
+  - Positions: 39 hooks shown folded, page 2,112px; a real click opens one; searching "footer" shows and opens the 7 footer hooks; with non-positionable hooks ticked, "booking status" finds "When a booking status changes"; clearing folds them again; no script errors. Screenshot reviewed.
+- **Not tested:** dragging a module to a new position after the change (the sortable code is unchanged); installing or uninstalling from the new rows; light mode screenshots; phone width; the live server.
+
+### 2026-11-20 — Test accounts hidden; title-only names on the website; dark Filters bar; PayPal module removed
+
+- **Test accounts (owner request):**
+  - `classes/Employee.php`: `getTestAccountIds()`, `isTestAccount()`, `setTestAccount()` (ids stored as JSON in `SB_TEST_EMPLOYEES`; no schema change) and `isHiddenFrom($viewer)`: SuperAdmin and test accounts are hidden from any viewer who is not a SuperAdmin, never from themselves.
+  - `controllers/admin/AdminEmployeesController.php`: the six SuperAdmin-only checks (list filter, form, `_childValidation`, `processSave`, single and bulk delete/status) now use `isHiddenFrom()` (rule 26: one rule). The list also leaves out test accounts. A SuperAdmin's form has a **Test account** switch, saved in `afterAdd`/`afterUpdate`.
+  - **Limit:** hidden from the Employees page only. A test account's name can still appear where the platform names employees on records (for example Inbox "Handled by", booking history).
+  - Verified locally: admin set staff.test as a test account ("Successful update", stored `[3]`); signed in as the Hotel Manager, the Employees list left it out but showed the manager's own row; opening it by address gave no form; the switch is not on the manager's form.
+- **Title-only names on the website:** `AuthController::processSubmitAccount()` and `IdentityController` refuse a first or last name that is only a title, using `Customer::isTitleOnly()` like the back office.
+- **Dark "Filters:" bar:** `#selected_filter_container` and its filter chips in `admin-theme.css` use the tokens instead of `#fff` and pale blue (rule 11).
+- **Occupancy period one day behind:** reproduced with a stale range (19 Oct–19 Nov); on the next Dashboard load the saved range was reset to today and the panel read "20 Nov". Working as designed; no change.
+- **Cleanup batch 1:** `modules/qlopaypalcommerce` deleted (rule 28). Evidence: no reference outside its folder except the "Not used" list on the Modules page (entry removed); not installed locally; no PayPal tables. It had never been installed on the live site.
+- **Data clean-up tool:** owner answers recorded in `CLEANUP-PLAN.md` (6 years, recycle bin 90 days, automatic drafts/carts/logs). Not built yet.
+- **Not tested:** website sign-up with a title-only name in a browser (code path only); the Filters bar by screenshot; production.
+- **Admin Guide error 500 (found on the live site during the phone review):** `admin_guide.tpl` line 268 had `person's` unescaped inside `{l s='…'}`, added on 19 November with the employee alerts text. The page failed for every role that may open it. Reworded ("the phone of each person"). `docker/smoke-test.sh` now scans Salisberg module templates for a `{l s='…'}` string ended early by an apostrophe; shown failing on the old file (line 268) and passing on the fixed one. Smoke 32 of 32.
+- **SMS alerts:** the owner confirmed on 2026-11-20 that booking alert texts arrive on their phone (mNotify live).
+- **Production phone review (2026-11-20, read only, 390px, Hotel Staff, Hotel Manager, SuperAdmin, and the public website):** no page scrolls sideways, no script errors. Findings and proposals P-18 to P-23 are in `SIMPLIFY-REVIEW.md`.
+
+### 2026-11-20 — Phone review follow-up: P-18, P-22, P-23
+
+- **P-23 (Dashboard):** `modules/dashavailability/views/js/dashavailability.js`: the y scale is `forceY([0, yMax])` with ticks every 5 (10 above 50), `yMax` the next round number above the highest value; before, nvd3 ended the scale at the value itself, so a flat line sat on the top edge. `modules/dashperformance/.../dashboard_zone_two.tpl`: a small script folds Performance below 768px; the heading toggles it. `overrides.css`: below 768px the period button group is one row that scrolls sideways (kept as buttons, not a select, so the stock date script is untouched).
+- **P-18 (Housekeeping):** `housekeeping.tpl` cells get `sb-hk-*` classes; `frontdesk.css` (`?v=16`) lays each row out below 768px as a grid card (room and status, type, guest, buttons in one row; floor and last change hidden). Selectors carry `#content.bootstrap` to beat the stock table padding and borders.
+- **P-22:** `salisbergnotify/views/js/phone-prompt.js`: "Not now" is stored in `localStorage` with today's date, so the box returns the next day instead of every new browser session. `salisbergguide/views/js/install-app.js`: in the back office the bar shows only on the Dashboard; Close is stored as a timestamp and lasts 30 days (an old stored `1` is converted to now, so nobody who closed it before sees it again at once).
+- **Verification (local, headless Chrome at 390px, administrator):** Performance has `sb-folded`; the period row is 29px high; the chart has ticks 0–25 and its line is drawn; Housekeeping went from 5,640px to 3,592px for 22 rooms (screenshot reviewed). No script errors. The phone prompt did not appear for this account locally (it has a phone saved), so "Not now" was not exercised in the browser; the bar's Dashboard-only rule was not exercised either (headless Chrome offers no install prompt).
+- **Not tested:** the live server; a real phone; light mode.
+
+### 2026-11-20 — Phone review follow-up: P-19, P-20, P-21
+
+- **P-19 (New booking):** `frontdesk.css` (`?v=17`), below 768px: the date and guest form is a six-column grid (dates span 3, the three numbers span 2), inputs narrower; inside `.sb-board-layout` the room groups come first and the Selected room panel after them (the fixed Book now bar already carries the choice). The 479px rule no longer forces the form to one column. Dates keep the phone's own display format (it comes from the browser, not the page).
+- **P-20 (lists):** `sb_phone_cards` is assigned in `AdminProductsController::renderList()`, `AdminAddHotelController::renderList()` and `AdminEmployeesController::renderList()`. `overrides.css` adds their columns to the existing card map: name, hotel name or first and last name on the first line, price on the right, rooms, guests, city or profile below, then Active. Three optional room-type columns (shown on screen at all times, hotel name, advance payment) are given `display: none !important` on the card, because the list script shows optional columns with an inline style.
+- **P-21 (Reports):** `reports.tpl` gives each cell `data-label` with its column name; `reports.css` (`?v=2`) turns each row into a card below 768px, label on the left and value on the right.
+- **Verification (local, headless Chrome, 390px, administrator):** no page scrolls sideways; New booking: first room at 662px (about 1,400px on the live site), screenshot reviewed; Room types 8 cards, Hotel Details 1, Employees 3, with only the mapped cells visible (checked cell by cell); Reports, Bookings for the month: 7 labelled cards, screenshot reviewed. No script errors.
+- **Not tested:** a real phone, light mode, the live server, and the Book now bar after choosing a room further down the list.
+
+### 2026-11-20 — Data clean-up tool (`salisbergcleanup`); vendor Data Cleaner removed
+
+- **Owner:** build the tool from `CLEANUP-PLAN.md` with the answers of the same day (keep paid bookings 6 years, recycle bin 90 days, automatic drafts/carts/logs), then "delete the old one". So it is a new module of ours and `modules/qlocleaner` is deleted rather than renamed in place. Evidence it was safe: never installed, no reference outside its folder (searched `*.php`, `*.tpl`, `*.js`, `*.sh`), not in `ConfigurationTest.php`.
+- **Files:** `salisbergcleanup.php` (tab `AdminSalisbergCleanup` under Advanced Parameters, `AdminTools`; no profile is granted it; hook `actionAdminControllerSetMedia` for the daily run; `SBCLEAN_AUTO` on by default; the vendor `checkAndFix()` with its queries kept), `classes/SalisbergDataCleanup.php` (one `select()` per kind used by count, sample and remove so they cannot disagree; `BATCH` 500 per run; a minimum age per kind; every run logged with who), `controllers/admin/AdminSalisbergCleanupController.php` (SuperAdmin only in `viewAccess()`; token-checked posts; removal only when the typed number equals the current count), `views/templates/admin/cleanup.tpl`, `views/css/cleanup.css`. Installed by `docker/setup-modules.php`; `MODULES_VERSION=35`.
+- **Kinds:** unfinished drafts (active, no booking; releases the room hold and marks the draft discarded), abandoned carts (no booking, not an active draft; their `htl_cart_booking_data` rows with no order are deleted first), logs, closed Inbox conversations, guests with no booking, no booking line and nothing in a cart. "Recycle bin, removed for good" is shown but locked: it needs 90 days in the bin and a booking older than 6 years, which nothing meets before 2032, so permanent removal of a booking was not written yet.
+- **Removed on purpose:** the vendor's two "delete everything" buttons and "Clean & Optimize" (it deleted old carts without releasing their rooms, deleted cart rules, and renumbered every menu tab, which would undo the menu order set on 2026-10-16). From the kept integrity check, the rule deleting `htl_booking_detail` rows whose room type no longer exists was taken out: deleting a room type must never erase booking history.
+- **Name clash found:** PHP class names ignore case, so the module class `Salisbergcleanup` and a helper `SalisbergCleanup` could not both exist (fatal on install). The helper is `SalisbergDataCleanup`.
+- **Verification (local):** local rows aged by SQL for the test. Signing in ran the automatic clean-up once: 25 abandoned carts (including cart 54 with its room hold) and 3 logs older than 90 days removed, `SBCLEAN_LAST_AUTO` set to today, both logged. On the page: the summary table; closed messages older than 365 days showed 1; typing 99 was refused with the right number; typing 1 removed it ("1 removed.", logged with the administrator's name); the guest age was raised to the 90-day minimum; the recycle bin showed the lock and no Remove button. All 152 bookings untouched. As Hotel Manager: no menu entry, "Access denied." by address. No script errors.
+- **Not tested:** the drafts kind (no active draft locally), guests actually removed (previewed only), the database check button after the change, more than 500 items in one run, the live server. On the live site the first automatic run will remove every abandoned cart older than 30 days, as decided.
+- Guides: Admin Guide section 16 (table row and a "Data clean-up" subsection, SuperAdmin only); What's New (SuperAdmin); CHANGELOG; rule 25 table.
+
+### 2026-11-20 — Overrides folded (O1–O7); Recycle bin, Statuses and Positions moved to Administration
+
+- **Overrides (CLEANUP-PLAN.md, rule 11):** each override's code now sits in the class it changed; `override/` holds only `index.php`, `.htaccess` and the readme.
+  - O1 `AdminOrdersController::init()` (new in the core controller): `addorder`/`submitAddOrder` redirect to New booking.
+  - O2 `MailCore::Send()`: returns at once for a `Customer::NO_EMAIL_DOMAIN` placeholder address.
+  - O3 `AdminDashboardControllerCore::keepChartsOnAUsefulPeriod()`, called first in `renderView()`.
+  - O4 `TranslateCore`: the three original methods are renamed `translateAdmin()`, `translateModule()`, `translatePdf()` (protected); the public `getAdminTranslation()`, `getModuleTranslation()`, `getPdfTranslation()` call them and pass the text through `rebrand()`. Same rule, one place.
+  - O5 `AdminImportControllerCore`: `.xlsx`-only check at the start of `ajaxProcessuploadCsv()`, `convertXlsxUpload()`, `xlsxRowToCsvLine()`, and the SimpleXLSX `require_once`.
+  - O6 deleted, not folded (rule 28): `ajaxProcessFindOrCreateGuest()` was only called by the guest box on the old order form, which O1 always redirects.
+  - O7 `ContactControllerCore::checkContactForm()`, called first in `postProcess()`; the override's `return;` became `return false;`.
+  - `docker/smoke-test.sh` fails on any PHP file under `override/`.
+- **Menu (owner):** `Salisbergguide::moveToAdministration()`, once (`SBGUIDE_ADMIN_MOVES`), moves `AdminSalisbergRecycleBin` and `AdminStatuses` from Bookings and `AdminModulesPositions` from Modules and Services to the end of Administration, each only while still in its original section; logged. New installs create the Recycle bin under Administration (`Salisbergfrontdesk::TAB_RECYCLE_PARENT`). `MODULES_VERSION=36`. Admin Guide paths and What's New updated.
+- **Verification (local):** the class index rebuilt with the core classes (`get_parent_class('Mail')` is `MailCore`). O1: `AdminOrders&addorder` lands on the Room board. O2: a send to a placeholder returns true without sending. O3: a saved September range was reset to today on sign-in. O4: "QloApps version:" reads "Salisberg version:" in admin, module and PDF text; "qloapps.com/addons" is kept. O5: the sample `hotels_import.xlsx` became a semicolon CSV named `.csv`; a `.csv` name is refused. O7 (the attack tests of 2026-10-13): an `http://` and a `www.` link refused, a list value and a quote in the token refused, a plain message stored (thread 6) with its generated title. Menu: the three entries are under Administration at positions 7–9 and the move was logged. Smoke test 33 of 33, including the new override check.
+- **Not tested:** the Excel upload through the browser (the conversion was run directly); the live server.
+
+### 2026-11-20 — List SQL buttons removed; phone menu icon
+
+- **Owner report (phone and desktop):** the list toolbar's ">_" button showed the full SQL query behind the list, and the database button exported it to SQL Manager.
+  - The buttons showed for any profile with view on SQL Manager, and the query was always in a hidden form field in the page source.
+  - Removed for everyone (rule 28): the two buttons and the hidden `sql_form_*` in `admin/themes/default/template/helpers/list/list_header.tpl`, the `sql` value in `HelperList::displayListHeader()` (`classes/helper/HelperList.php`), and `createSqlQueryName()` in `js/admin.js` (its only caller was that button). Searched all templates and scripts: no other copy.
+  - The developer team keeps Advanced Parameters › SQL Manager.
+- **Phone menu button:**
+  - `admin/themes/default/template/nav.tpl` used `icon-align-justify icon-rotate-90`, which drew vertical bars.
+  - The template and the two places in `admin/themes/default/js/admin-theme.js` that redraw it after closing the menu now use `icon-reorder` (≡).
+- **Verification (local, 390px, administrator):** the button shows ≡, opens the menu (icon becomes ×) and closes it (≡ again). The Bookings toolbar has 3 buttons and no SQL button or hidden query. No script errors. Smoke test passes.
+- **Not tested:** other list pages one by one (they share the one template); the live server.
+
+### 2026-11-20 — Light/dark switch on a phone
+
+- **Owner report:** the switch looked broken on a phone. On the live site at 390px `#sb-theme-toggle` was `display: block`, so the two icons stacked (measured: both at x 249, y 11 and 25). It had no display rule of its own and relied on a top-bar link rule that the phone layout replaces.
+- **Fix (`overrides.css`, the switch's own rule):** `display: inline-flex; flex-wrap: nowrap; align-items: center; box-sizing: border-box`, and `:focus:not(:focus-visible) { outline: none }` so a tap leaves no black ring while keyboard focus still shows.
+- **Verification (local, 390px, 3x zoom screenshots):** icons side by side (x 249 and 273) in light and dark, the knob slides, no ring after a tap.
+
+### 2026-11-20 — Clean-up batches 2, 3, 4 and 6
+
+- **Owner:** complete the batches (the other agent was not active).
+- **Removed (27 module folders, rule 28):**
+  - Batch 2: `bankwire`, `cheque`, `qlochannelmanagerconnector`. `qlohotelreview` is kept, because it is switched off but may be switched on (rule 28).
+  - Batch 3: the 20 `stats*` modules, `sekeywords`, `pagesnotfound`, `qlostatsserviceproducts`. `graphnvd3` and `gridhtml` are kept: the Stats screens load them by name (`PS_STATS_RENDER`, `PS_STATS_GRID_RENDER`).
+  - Batch 4: `dashactivity`, `dashproducts`, `dashgoals`, `dashinsights`.
+  - Theme copies of the bank wire and cheque templates and their two icons.
+- **Evidence:**
+  - Whole-tree search for each name, excluding cache, .git, audit, history, translations and compiled vendor CSS.
+  - The remaining callers all check existence first: `AdminReferrersController` (statsdata), `AdminStatsTabController` (statsforecast) and `AdminProductsController` (statsproduct). The room type "Statistics" button code was removed.
+  - None is used by the website or a booking. No local booking was paid through bank wire or cheque.
+- **References removed:**
+  - The installer module list (`install/models/install.php`), the themes native list (`AdminThemesController`) and the theme module/hook list (`config/xml/themes/default.xml`).
+  - The page entries in `install/data/xml/meta.xml`, the mail list in `Language.php`, and the payment styles in the theme's `global.css`/`global.scss` (`.cheque-box` is kept: Salisberg Pay uses it).
+  - The Dashboard list in `salisbergfrontdesk::replaceLegacyTodayWidget()`, the reload branch in `js/admin/dashboard.js`, the `#dashproducts` rule in `overrides.css`, the channel manager entry in `$hiddenMenus`, and the "replaced by ours" list on the Modules page (the folded group is now "Not installed").
+- **Database (live site), `docker/setup-modules.php`, `MODULES_VERSION=37`:**
+  - A removed module cannot uninstall itself. For each one whose folder is gone and whose row still exists, the step deletes its module, shop, group, country, currency, hook and preference rows, its menu tabs with their rights, its settings, and its `module-<name>-*` page entries.
+  - It drops its own tables only when empty (the 404 log `pagenotfound` was kept locally because it holds rows). Each removal is logged.
+- **Fault fixed on the way (`classes/order/OrderHistory.php`):**
+  - Marking a booking paid read the payment name from `$payment_method->displayName`, but the first invoice loop overwrote `$payment_method` with the name, so a second invoice read a property of a string. It also failed outright when the payment module no longer exists.
+  - The name is now taken once (`$payment_name`), falling back to `$order->payment`.
+- **Batch 6:** 15 unreferenced theme images removed (each also searched by part of its name). The 46 non-English module translation files are kept: they are needed if a second language is added.
+- **Batch 5:** proposed in `CLEANUP-PLAN.md`, waiting for the owner. It includes the unreachable old order form.
+- **Verification (local, image rebuilt):**
+  - The setup log showed all 27 removed. Smoke test 33 of 33.
+  - Marking a Pay-later booking paid recorded "Back office order". A booking switched to the removed `bankwire` module recorded its saved name "Bank wire (old)", with no error.
+  - Dashboard as SuperAdmin, Hotel Manager and Hotel Staff: every box finished loading, no PHP or script errors.
+  - Manage Modules: 32 modules (was 58).
+- **Not tested:** a website checkout to the payment step (the smoke test loads the pages only); the live server, where the step runs on the next deploy.
+- Also in this change: the light/dark switch fix recorded above.
+
+### 2026-11-20 — Clean-up batch 5: old order form, supplier/manufacturer/supply-order screens, comparison code
+
+- **Owner:** "do batch 5".
+- **Old "Add new order" form:**
+  - Removed `admin/themes/default/template/controllers/orders/form.tpl` (2,531 lines), the `submitAddOrder` branch of `AdminOrdersController::postProcess()` (142 lines), and `renderForm()` (100 lines). `renderForm()` now only redirects to New booking.
+  - Also removed `_new_service_product.tpl`, which nothing included.
+  - **Evidence:** `init()` already redirected `addorder`/`submitAddOrder`; `renderForm()` is reached only through the add screen; the form's guest endpoint went with O6. The other order partials are used by the booking page or by `AdminCartsController`.
+  - **Kept:** the `AdminCartsController` cart helpers, because the hidden legacy room-booking page (kept for reallocation) still reaches them.
+- **Suppliers, manufacturers, supply orders:**
+  - Removed their three admin controllers and five template folders, plus the commented-out installer tab lines.
+  - **Evidence:** no menu entry (commented out in `install/data/xml/tab.xml` since installation; none in the database); no reference outside their own files.
+  - **Kept:** the `Supplier`, `Manufacturer` and stock classes, because product and room code read them.
+- **Comparison:**
+  - Removed `classes/CompareProduct.php`, the lookup and the two values in `FrontController`, the comparison script values and commented-out button in the theme's `product-list.tpl`, and the 28-line commented-out block in `CategoryController`.
+  - **Evidence:** no script reads `comparator_max_item`, `comparedProductsIds`, `min_item` or `max_item`. The front pages were removed on 2026-10-13. The `compare` tables and the `PS_COMPARATOR_MAX_ITEM` setting stay; they are harmless data.
+- **Hidden admin tabs** (Groups, Titles, Shopping Carts and others): kept hidden. Several are used by other screens (carts by bookings, groups by prices).
+- **Verification (local, image rebuilt):**
+  - Smoke test 33 of 33.
+  - `AdminOrders&addorder` lands on the Room board, and a booking page opens with no errors.
+  - Website: search results, a room page, and the hotel room list (category 8, with dates) render with rooms and no errors. Category 2 is the root and returns 404, as it should.
+  - No script errors.
+- **Not tested:** a full website booking; the live server.
+
+### 2026-11-20 — Mail server (SMTP) on the Integrations page
+
+- **Owner:** add SMTP to the integrations page so it can be entered in the app.
+- **Why it was missing:** `AdminEmailsController::initContent()` has `renderOptions()` commented out, so Advanced Parameters › E-mail shows no settings form. Mail could not be configured without the database.
+- **What:**
+  - In `AdminSalisbergIntegrationsController`: `saveMail()` writes `PS_MAIL_METHOD` (2 = SMTP, 3 = off), `PS_MAIL_SERVER`, `PS_MAIL_SMTP_PORT`, `PS_MAIL_SMTP_ENCRYPTION`, `PS_MAIL_USER` and `PS_SHOP_EMAIL`, plus `PS_MAIL_PASSWD` only when a password is typed. These are the platform's own settings, so every email uses them (rule 26).
+  - `sendTestMail()` sends through `Mail::sendMailTest()` and logs the server's reply on failure.
+  - The panel `#sb-int-mail` is in `integrations.tpl`. The Email card points to it and is green only for a saved SMTP server.
+  - SuperAdmin only, as the rest of the page.
+- **Guides:** Admin Guide section 10 (where and what to enter; any SMTP provider), the section 9 row and the alerts paragraph now point to Administration › Integrations; CHANGELOG.
+- **Verification (local, browser, administrator):**
+  - Invalid values were refused with plain messages.
+  - Valid values saved and the panel showed email on.
+  - A test to a non-existent server failed with the plain message and a log entry.
+  - Switching off saved method 3.
+  - `php -l`; no script errors.
+- **Not tested:** a real mail server (needs the mailbox password); the live server.
+
+### 2026-11-20 — Live test, new-customer sign-up on desktop and phone; phone search fix; names tidied
+
+- **Live back office (developer account, phone width, read only):**
+  - Manage Modules lists 32. The Bookings list has no SQL buttons. The old add-order address lands on New booking.
+  - Recycle bin is under Administration. Data clean-up is present and its daily run has emptied old carts.
+  - The Email panel is not there yet (not pushed).
+- **Live sign-up as a new customer** ("Test Signup", test.signup.*@example.com), stopped after the payment methods, no booking made:
+  - **Desktop (1440):** search, Book Now, checkout, guest form (new account), payment methods. About 63 seconds, no errors.
+  - **Phone (390): failed at search.** After the dates are picked, the guest picker opens inside the search pop-up. It is absolutely positioned inside a scrolling box, so it covered Search Rooms and was cut off, and a tap on Search Rooms did nothing.
+  - Fixed in `modules/wkroomsearchblock/views/css/wk-global-search.css` (rule 11): inside `.fancybox-wrap` the picker is static, so it pushes the button down.
+  - Locally the phone flow then ran to the payment methods in about 63 seconds with no errors (screenshot reviewed).
+- **"Add to home screen" bar:** it covered the bottom of the checkout form on phones. `install-app.js` now offers it on the website homepage only (`body#index`). Checked: shown on the homepage, not at checkout.
+- **Guest names (owner approved):**
+  - `docker/setup-modules.php`, once (`SB_NAMES_TIDIED`, `MODULES_VERSION=38`), applies `Customer::tidyName()` to live customers and their addresses and logs the count.
+  - Title-only names are counted, not guessed.
+  - Checked: "ama mensah" became "Ama Mensah" and "KOFI" became "Kofi"; one title-only name was counted.
+- **Email wording:** Zoho examples removed from the Email panel, its messages and the guide; any SMTP provider works.
+- **Live data left by the test:** one or two customer accounts named "Test Signup" with @example.com addresses (no booking). Their carts are removed by the daily clean-up after 30 days.
+- Smoke test 33 of 33.
+
+### 2026-11-20 — Back office on a phone: menu, empty "Menu" button, Add to home screen
+
+- **Owner report:** on a phone there is no button to add the app, "only 2 items", and a Menu on the Dashboard that does nothing.
+- **Phone menu:**
+  - Below 768px the theme script renames `#nav-sidebar` to `#nav-mobile`, so none of the menu rules applied there. The group labels showed as plain text, the fold arrows as grey dashes, "System" as a grey pill, and the list did not scroll (the developer account's menu was 930px of content in a 796px box on the live site).
+  - `overrides.css` gains `#nav-mobile` rules: labels styled, System a plain label with every section shown, fold arrows hidden (a tap opens the section's pages), and the list scrolls.
+  - Hotel Staff see four sections by design (P-17); the developer account sees twelve.
+- **Empty "Menu":**
+  - Its only item was the vendor "Recommendations" button, which `overrides.css` hid everywhere.
+  - Removed at the source (rule 28): `AdminController::addPageHeaderToolBarModulesListButton()` and its call; the template block, its loader script and a commented-out Help block in `page_header_toolbar.tpl`; and the two CSS hide selectors.
+  - The template shows the phone "Menu" only when it has a button other than Back.
+- **Add to home screen:**
+  - New item in the account menu (`header.tpl`, `#sb-install-item`), unhidden by `install-app.js` on every back office page unless the app is already installed. It opens the browser's install prompt when there is one, and otherwise shows the steps (`data-mode="help"`: Safari Share on an iPhone, the browser menu elsewhere).
+  - Staff Guide section 1 and Admin Guide section 1 updated.
+- **Verification (local, 390px):**
+  - The menu screenshot was reviewed: labels, no dashes, all sections.
+  - The menu scrolls (max-height 784px, overflow auto).
+  - The Dashboard has no "Menu"; Bookings keeps its Menu.
+  - The account item is visible. With a prompt available, it opens the prompt. With the prompt blocked and an iPhone user agent, it shows "In Safari, tap Share, then Add to Home Screen" (screenshot reviewed).
+  - No script errors.
+- **Not tested:** a real Android phone and a real iPhone; the live server.
+
+### 2026-11-20 — P-24: shorter website checkout (guest booking, no title, email optional)
+
+- **Owner approved** (SIMPLIFY-REVIEW P-24), then refined: "email should be there and not required".
+- **How it works:** it uses the platform's own guest checkout rather than a new path (rule 26).
+  - `docker/setup-modules.php` switches `PS_GUEST_CHECKOUT_ENABLED` on once (`SB_GUEST_CHECKOUT_SET`, `MODULES_VERSION=39`), so it can be switched off in Preferences and stays off.
+  - `themes/hotel-reservation-theme/order-opc-new-account.tpl`: the two "Guest checkout / Create an account" buttons became one line, "Booking as a guest: no password needed. Create an account instead". The social title select is removed and first and last name take half the row each. Email is no longer marked required; the label says it is optional for a guest and needed for the emailed invoice.
+  - `js/order-opc.js`: with guest checkout on, the form opens in guest mode (password hidden, `is_new_customer=0`, submit as `submitGuestAccount`). "Create an account instead" shows the password and submits as an account.
+  - `controllers/front/AuthController.php::processSubmitAccount()`: for a guest who gives a phone and no email, the email becomes the walk-in placeholder `guest-<time>-<4 digits>@guest.invalid` (`Customer::NO_EMAIL_DOMAIN`). `Mail::Send` never sends to it; the booking text goes to the phone. An account still needs a real email (the customer model requires it).
+  - Styles: `salisberg.css` (`?v=18`).
+- **Guides:** Staff Guide (Customers row: website guests may have no email); What's New; CHANGELOG.
+- **Verification (local, headless Chrome):**
+  - Phone (390), phone-only guest: no password, no title. It went through to payment and then to a confirmed cash booking, `SB-261120-01`. The customer has `is_guest=1`, the placeholder email and the phone. The confirmation page shows the reference, amount and payment steps with no email wording.
+  - A guest with an email is saved as a guest with that email.
+  - "Create an account instead" shows the password and saves an account (`is_guest=0`).
+  - Desktop (1440), phone-only guest: to the payment methods, no errors.
+- **Known limit:** "Track my booking" asks for an email, so a guest who gave none cannot use it. They have the reference by text and can call the hotel.
+- **Not tested:** the live server; a guest coming back later with the same phone number (each guest booking is its own guest record, as the platform does for guests).
+
+### 2026-11-20 — End-to-end browser tests (`tests/e2e`); general skill in the shared library
+
+- **Owner:** go ahead with the library suggestions in order (e2e tests, then characterization tests, then a general skill).
+- **Evaluation (workflow `e2e-testing`):**
+  - Playwright fits: a web app, Node 22 on the machine, and the installed Chrome via `channel: 'chrome'`, so no browser download. Maestro is for native mobile apps.
+  - The existing tests were `docker/smoke-test.sh` only (page loads, no browser).
+  - There is no CI (Coolify only deploys), so the suite is local, and that gap is documented.
+- **Why a new folder (rule 25):** nothing existing runs a browser. It is dev-only: excluded from the image (`.dockerignore`: `tests`), with dependencies and output git-ignored. `@playwright/test` is pinned at 1.64.1.
+- **What:**
+  - `playwright.config.js`: desktop 1440 and phone (Pixel 7). It refuses any base address that is not `http://localhost`.
+  - `support/global-setup.js` and `support/seed.php`, run in the app container each time: test employees `e2e.manager@example.com` and `e2e.staff@example.com`, marked as test accounts, plus the hotel category; the sign-in limiter is cleared.
+  - `support/helpers.js`: sign-in, and opening an admin page through the token link while skipping "My preferences".
+  - Three spec files, described in `tests/e2e/README.md`.
+- **Verification:**
+  - Full run: 8 passed, 6 skipped (desktop-only tests in the phone project), about 5.6 minutes. Bookings were created for dates 200–330 days ahead.
+  - Negative control: with the pre-fix search stylesheet (`git show 811ae396~1`) in the container, the phone search test failed ("Expected true, received false"). Restored, it passes.
+- **Found while writing the tests:**
+  - Names refuse digits, so the test people are "Test …".
+  - The sign-in page has two `submitLogin` buttons.
+  - Hotel Staff and Hotel Manager opening Employees land on their own profile (allowed by the platform).
+  - The first `AdminEmployees` link on a page is "My preferences".
+- **Shared library** (outside this repository, `Workflow and skills`):
+  - New general skill and workflow `inherited-web-app-maintenance`: fix at the source, prove dead code, versioned versus every-start deploy steps, verify in a running stack, and a list of traps stated by mechanism.
+  - README rule 12 (owner): name skills by the job, not the project. `AGENT-INSTRUCTIONS.md` was aligned with it.
+- **Not tested:** the suite on another machine; Mobile Money, bank transfer and part payments; check-in and check-out from a booking.
+
+### 2026-11-20 — Rule tests for the money and safety rules (`tests/php`)
+
+- **Owner:** suggestion 2 from the library review (`characterization-testing` workflow).
+- **Why a runner of our own (rule 25):** the project has no Composer and no PHPUnit, and adding them would add a build step. `tests/php/run.php` is about 70 lines: `check()`, `same()`, and `rolledBack()`, which wraps writes in a transaction that is always rolled back. It sets the context a web request has (currency, cart, customer, country); without it the price code stops with "Fatal error". `run.sh` copies the folder into the container and runs it. It is excluded from the image (`tests` in `.dockerignore`).
+- **Pinned (10 tests, 49 checks):**
+  - booking codes;
+  - name tidying and title-only names;
+  - `Validate::containsLink` and `isName`;
+  - the placeholder email and `Mail::Send`;
+  - the payment cap after a part payment;
+  - the payment-name fallback for a removed module;
+  - a room's own price, desk against website;
+  - Data clean-up minimum ages, keep periods and the locked bin;
+  - a characterization of the known gap that Track my booking needs an email (to be inverted by the change that fixes it).
+- **Verification:**
+  - All 10 pass.
+  - Negative control: with the cap removed from `OrderHistory.php` in the container, the payment test failed ("expected 208.0, got 308.0"). With it restored, all pass.
+  - No trace: order payments, own prices and the code counter were 53/3/9 before and after.
+- **Not covered:** the Add payment over-the-balance refusal (it is controller code; the e2e suite is the place for it); the tax switch on a booking.
+
+### 2026-11-20 — Phone account menu as a bottom sheet
+
+- **Owner:** take inspiration from Dribbble and improve the profile pop-up on mobile. The standard Dribbble/iOS/Material pattern is a bottom sheet: a grab handle, a header showing who is signed in, 48–56px rows, the destructive action last and in red, and the page dimmed behind.
+- **Before (below 768px):** the stock `admin-theme.css` drew `#employee_links` as a full-screen panel (`position: fixed; top: 36px; height: 100%; background: #383F50`, all `!important`) with uppercase, blue-icon rows: three items floating in an empty dark screen.
+- **Change:**
+  - The three stock rules were removed from `admin-theme.css` (rule 11), not out-ranked.
+  - `overrides.css`, inside the existing `max-width: 767px` block: the menu is a fixed bottom sheet (18px top corners, a handle, `max-height: 80vh`, safe-area padding), with 52px rows, Sign out in `--sb-danger` above a divider, and a backdrop drawn by `#employee_infos.open::after`. Tapping outside closes the menu through Bootstrap's own document click. The trigger's grey "open" background was cleared.
+  - `header.tpl`: a `li.sb-me-head` with the initials avatar, name and email, hidden from 768px up.
+- **Verification (local, Playwright, Pixel 7 width, Hotel Manager test account):** in light and dark mode the sheet is 272px tall and its bottom edge sits at the bottom of the screen; tapping outside hides it. Both screenshots were reviewed. Smoke test 33 of 33.
+- **Not tested:** a real iPhone (the safe-area inset); RTL (`admin-theme_rtl.css` still has the old rules); the live server.
+
+### 2026-11-20 — Browser "save password" on sign-in
+
+- **Owner:** check that saving or remembering the password in the browser works.
+- **What was wrong:** the website sign-in page (`authentication.tpl`) is an ordinary form post, which browsers recognise. The back office sign-in (`js/admin/login.js`, `action="#"`, posted to `ajax-tab.php`) and the checkout sign-in (`order-opc.js`, `#SubmitLogin`) send the password by script and then reload or redirect the page. Chrome only sometimes offers to save after such a sign-in, and Firefox and Safari usually do not. No sign-in field set `autocomplete`.
+- **Fix (inherited files, changed in place):**
+  - After a successful sign-in, both scripts call `navigator.credentials.store(new PasswordCredential({id, password}))` where the browser supports it (Chrome, Edge, Android). The back office redirect waits for the call and goes ahead whether it succeeds or fails.
+  - `autocomplete="username"` / `current-password` on the back office and website sign-in fields, and `new-password` on the account-creation password fields (`content.tpl`, `authentication.tpl`, `order-opc-new-account.tpl`).
+  - Nothing is stored by us: the browser asks the user, as it does for any form.
+- **Verification (local, Playwright with Chrome, desktop):** the back office fields carry the new attributes; a Hotel Manager sign-in passed that email and password to `navigator.credentials.store` and reached the back office; the role and security tests pass (5 of 5).
+- **Not tested:** the save prompt itself, because the automated browser does not show it (try it by hand in Chrome once it is deployed); Safari and Firefox, which do not support `PasswordCredential` and rely on the `autocomplete` hints and their own heuristics; the checkout sign-in in a browser; the live server.
+
+### 2026-11-22 — Sentry SALISBERG-3, -4, -C: unused cart page removed
+
+- **Report (Sentry, production, Googlebot):** a GET of `/module/blockcart/checkroomavailabilityajaxprocess` logged `Undefined array key "HOOK_HEADER"`, `"show_breadcrump"` and `Attempt to read property "value" on null`. SALISBERG-3 and -4 had been resolved on 2026-11-19 for the newsletter page and were reopened by this different page, which fails in the same way: a front controller meant for background calls only, with no template, so a direct visit falls through to a full page render.
+- **Removed (rule 28):** `modules/blockcart/controllers/front/checkroomavailabilityajaxprocess.php`, and the `rm_avail_process_lnk` JsDef in `modules/blockcart/blockcart.tpl` and the theme copy. **Evidence:** a whole-tree search for `rm_avail_process_lnk` and `checkroomavailability` found only those two template lines and the controller; no script reads the variable, so nothing called the page. The cart's room removal uses other code.
+- **Checked for the same pattern:** front controllers with `content_only = true` are only `blocknewsletter/subscription` (fixed 2026-11-19) and `qlohotelreview/default` (module switched off).
+- **Verification (local, image rebuilt):** the friendly and `index.php?fc=module…` addresses both return 404 with no warning logged; the homepage no longer carries the variable; `docker/smoke-test.sh` 33 of 33.
+- **Not tested:** the live server until the next deploy. Until then Googlebot may reopen the three issues.
+- No guide or What's New entry: nothing a back office user sees changes. CHANGELOG under Removed.

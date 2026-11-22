@@ -245,12 +245,12 @@ class AdminStatusesControllerCore extends AdminController
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_order_state'] = array(
                 'href' => self::$currentIndex.'&addorder_state&token='.$this->token,
-                'desc' => $this->l('Add new order status', null, null, false),
+                'desc' => $this->l('Add new booking status', null, null, false),
                 'icon' => 'process-icon-new'
             );
             $this->page_header_toolbar_btn['new_order_return_state'] = array(
                 'href' => self::$currentIndex.'&addorder_return_state&token='.$this->token,
-                'desc' => $this->l('Add new order refund status', null, null, false),
+                'desc' => $this->l('Add new booking refund status', null, null, false),
                 'icon' => 'process-icon-new'
             );
         }
@@ -325,7 +325,7 @@ class AdminStatusesControllerCore extends AdminController
             $this->fields_form = array(
                 'tinymce' => true,
                 'legend' => array(
-                    'title' => $this->l('Order status'),
+                    'title' => $this->l('Booking status'),
                     'icon' => 'icon-time'
                 ),
                 'input' => array(
@@ -336,7 +336,7 @@ class AdminStatusesControllerCore extends AdminController
                         'lang' => true,
                         'required' => true,
                         'hint' => array(
-                            $this->l('Order status (e.g. \'Pending\').'),
+                            $this->l('Booking status (e.g. \'Pending\').'),
                             $this->l('Invalid characters: numbers and').' !<>,;?=+()@#"{}_$%:'
                         )
                     ),
@@ -357,7 +357,7 @@ class AdminStatusesControllerCore extends AdminController
                         'name' => 'logable',
                         'values' => array(
                             'query' => array(
-                                array('id' => 'on', 'name' => $this->l('Consider the associated order as validated.'), 'val' => '1'),
+                                array('id' => 'on', 'name' => $this->l('Consider the associated booking as validated.'), 'val' => '1'),
                                 ),
                             'id' => 'id',
                             'name' => 'name'
@@ -379,7 +379,7 @@ class AdminStatusesControllerCore extends AdminController
                         'name' => 'hidden',
                         'values' => array(
                             'query' => array(
-                                array('id' => 'on', 'name' => $this->l('Hide this status in all customer orders.'), 'val' => '1'),
+                                array('id' => 'on', 'name' => $this->l('Hide this status from guest bookings.'), 'val' => '1'),
                                 ),
                             'id' => 'id',
                             'name' => 'name'
@@ -391,7 +391,7 @@ class AdminStatusesControllerCore extends AdminController
                         'name' => 'send_email',
                         'values' => array(
                             'query' => array(
-                                array('id' => 'on', 'name' => $this->l('Send an email to the customer when his/her order status has changed.'), 'val' => '1'),
+                                array('id' => 'on', 'name' => $this->l('Send an email to the guest when the booking status changes.'), 'val' => '1'),
                                 ),
                             'id' => 'id',
                             'name' => 'name'
@@ -435,7 +435,7 @@ class AdminStatusesControllerCore extends AdminController
                         'name' => 'paid',
                         'values' => array(
                             'query' => array(
-                                array('id' => 'on', 'name' => $this->l('Set the order as paid.'), 'val' => '1'),
+                                array('id' => 'on', 'name' => $this->l('Set the booking as paid.'), 'val' => '1'),
                                 ),
                             'id' => 'id',
                             'name' => 'name'
@@ -548,7 +548,7 @@ class AdminStatusesControllerCore extends AdminController
                     'lang' => true,
                     'required' => true,
                     'hint' => array(
-                        $this->l('Order\'s refund status name.'),
+                        $this->l('Booking refund status name.'),
                         $this->l('Invalid characters: numbers and').' !<>,;?=+()@#"�{}_$%:'
                     )
                 ),
@@ -563,7 +563,7 @@ class AdminStatusesControllerCore extends AdminController
                     'name' => 'refunded',
                     'values' => array(
                         'query' => array(
-                            array('id' => 'on', 'name' => $this->l('Consider the associated order refund as refunded.'), 'val' => '1'),
+                            array('id' => 'on', 'name' => $this->l('Consider the associated booking refund as refunded.'), 'val' => '1'),
                             ),
                         'id' => 'id',
                         'name' => 'name'
@@ -574,7 +574,7 @@ class AdminStatusesControllerCore extends AdminController
                     'name' => 'denied',
                     'values' => array(
                         'query' => array(
-                            array('id' => 'on', 'name' => $this->l('Consider the associated order refund as denied.'), 'val' => '1'),
+                            array('id' => 'on', 'name' => $this->l('Consider the associated booking refund as denied.'), 'val' => '1'),
                             ),
                         'id' => 'id',
                         'name' => 'name'
@@ -588,7 +588,7 @@ class AdminStatusesControllerCore extends AdminController
                         'query' => array(
                             array(
                                 'id' => 'on',
-                                'name' => $this->l('Send an email to the customer when his/her order refund status has changed.'),
+                                'name' => $this->l('Send an email to the guest when the booking refund status changes.'),
                                 'val' => '1'
                             ),
                         ),
@@ -604,7 +604,7 @@ class AdminStatusesControllerCore extends AdminController
                         'query' => array(
                             array(
                                 'id' => 'on',
-                                'name' => $this->l('Send an email to the super admin order refund status has changed.'),
+                                'name' => $this->l('Send an email to the SuperAdmin when the booking refund status changes.'),
                                 'val' => '1'
                             ),
                         ),
@@ -620,7 +620,7 @@ class AdminStatusesControllerCore extends AdminController
                         'query' => array(
                             array(
                                 'id' => 'on',
-                                'name' => $this->l('Send an email to the employee when order refund status has changed.'),
+                                'name' => $this->l('Send an email to the employee when the booking refund status changes.'),
                                 'val' => '1'
                             ),
                         ),
@@ -636,7 +636,7 @@ class AdminStatusesControllerCore extends AdminController
                         'query' => array(
                             array(
                                 'id' => 'on',
-                                'name' => $this->l('Send an email to the hotelier when order refund status has changed.'),
+                                'name' => $this->l('Send an email to the hotel manager when the booking refund status changes.'),
                                 'val' => '1'
                             ),
                         ),
@@ -864,7 +864,7 @@ class AdminStatusesControllerCore extends AdminController
         } elseif (Tools::isSubmit('delete'.$this->table)) {
             $order_state = new OrderState(Tools::getValue('id_order_state'), $this->context->language->id);
             if (!$order_state->isRemovable()) {
-                $this->errors[] = $this->l('For security reasons, you cannot delete default order statuses.');
+                $this->errors[] = $this->l('For security reasons, you cannot delete default booking statuses.');
             } else {
                 return parent::postProcess();
             }
@@ -872,7 +872,7 @@ class AdminStatusesControllerCore extends AdminController
             foreach (Tools::getValue($this->table.'Box') as $selection) {
                 $order_state = new OrderState((int)$selection, $this->context->language->id);
                 if (!$order_state->isRemovable()) {
-                    $this->errors[] = $this->l('For security reasons, you cannot delete default order statuses.');
+                    $this->errors[] = $this->l('For security reasons, you cannot delete default booking statuses.');
                     break;
                 }
             }

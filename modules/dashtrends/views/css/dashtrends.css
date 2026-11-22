@@ -35,10 +35,11 @@
 .bootstrap #dashboard #dashtrends #dashtrends_toolbar dl {
   text-align: center;
   border-radius: 10px;
-  border: 1px solid transparent;
+  border: 1px solid var(--sb-line, #d8dcd8);
+  background-color: var(--sb-card, #f7f7f5);
   width: 100%;
   -webkit-box-shadow: none;
-  box-shadow: 0px 4px 8px 0px rgba(0,0,0,0.2);
+  box-shadow: none;
   transition: 0.25s;}
 .bootstrap #dashboard #dashtrends #dashtrends_toolbar dl:hover {
   cursor: pointer;
@@ -46,12 +47,12 @@
 }
 
 .bootstrap #dashboard #dashtrends dl.active {
-  background-color: #00aff0;
-  -webkit-box-shadow: white 0 0 0 2px inset;
-  box-shadow: white 0 0 0 2px inset;
+  border-color: var(--sb-occ-booked, #0f8a60);
+  -webkit-box-shadow: inset 0 0 0 1px var(--sb-occ-booked, #0f8a60);
+  box-shadow: inset 0 0 0 1px var(--sb-occ-booked, #0f8a60);
 }
 .bootstrap #dashboard #dashtrends #dashtrends_toolbar dl dt, .bootstrap #dashboard #dashtrends #dashtrends_toolbar dl dd.data_value{
-    color: #ffffff;
+    color: var(--sb-heading, #13201d);
 }
 .bootstrap #dashboard #dashtrends #dashtrends_toolbar dl dt{
 	padding: 8px;
@@ -65,7 +66,7 @@
   font-size: 12px;
 }
 .bootstrap #dashboard #dashtrends #dashtrends_toolbar dl:hover dt, .bootstrap #dashboard #dashtrends #dashtrends_toolbar dl:hover dd.data_value {
-  color: #ffffff;
+  color: var(--sb-heading, #13201d);
   text-decoration: none;
 }
 .bootstrap #dashboard #dashtrends svg {

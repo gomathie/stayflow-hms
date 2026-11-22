@@ -103,10 +103,8 @@ class AdminProductsControllerCore extends AdminController
         $this->available_tabs_lang = array(
             'Informations' => $this->l('Information'),
             'Prices' => $this->l('Prices'),
-            'Seo' => $this->l('SEO'),
             'Images' => $this->l('Images'),
             'ServiceProduct' => $this->l('Service Products'),
-            // 'Associations' => $this->l('Associations'),
             'Features' => $this->l('Features'),
             'Configuration' => $this->l('Rooms'),
             'Occupancy' => $this->l('Occupancy'),
@@ -118,8 +116,6 @@ class AdminProductsControllerCore extends AdminController
             $this->available_tabs = array_merge($this->available_tabs, array(
                 'Informations' => 0,
                 'Prices' => 1,
-                'Seo' => 2,
-                // 'Associations' => 3,
                 'Images' => 4,
                 'Features' => 5,
                 'Configuration' => 6,
@@ -326,6 +322,7 @@ class AdminProductsControllerCore extends AdminController
             'align' => 'center',
             'type' => 'range',
             'havingFilter' => true,
+            'callback' => 'printRoomCount',
         );
         $this->fields_list['price'] = array(
             'title' => $this->l('Base Price'),
@@ -2231,8 +2228,46 @@ class AdminProductsControllerCore extends AdminController
     /**
      * Check that a saved product is valid
      */
+    /**
+     * The SEO tab is not on the room type form. Friendly URL is still required
+     * by the product record, so a missing value is filled from the current
+     * address, or from the room type name when the room type is new.
+     */
+    protected function preserveRoomTypeLinkRewrite()
+    {
+        if ($this->isTabSubmitted('Seo')) {
+            return;
+        }
+        $existing = null;
+        $idProduct = (int) Tools::getValue('id_product');
+        if ($idProduct) {
+            $loaded = new Product($idProduct);
+            if (Validate::isLoadedObject($loaded)) {
+                $existing = $loaded;
+            }
+        }
+        foreach (Language::getLanguages(false) as $language) {
+            $idLang = (int) $language['id_lang'];
+            $key = 'link_rewrite_'.$idLang;
+            if (Tools::getValue($key)) {
+                continue;
+            }
+            $rewrite = '';
+            if ($existing && !empty($existing->link_rewrite[$idLang])) {
+                $rewrite = $existing->link_rewrite[$idLang];
+            }
+            if ($rewrite === '') {
+                $rewrite = Tools::link_rewrite((string) Tools::getValue('name_'.$idLang));
+            }
+            if ($rewrite !== '') {
+                $_POST[$key] = $rewrite;
+            }
+        }
+    }
+
     public function checkProduct()
     {
+        $this->preserveRoomTypeLinkRewrite();
         $className = 'Product';
         // @todo : the call_user_func seems to contains only statics values (className = 'Product')
         $rules = call_user_func(array($this->className, 'getValidationRules'), $this->className);
@@ -2573,107 +2608,15 @@ class AdminProductsControllerCore extends AdminController
         parent::initContent();
     }
 
-    public function renderKpis()
+
+    /** A room type with no rooms cannot be booked: say so in the list */
+    public function printRoomCount($count, $row)
     {
-        $time = time();
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-total-rooms';
-        $helper->icon = 'icon-bed';
-        $helper->color = 'color3';
-        $helper->title = $this->l('Total Rooms', null, null, false);
-        $helper->subtitle = $this->l('Today', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_rooms';
-        $helper->tooltip = $this->l('The total number of rooms in all hotels.', null, null, false);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-occupied-rooms';
-        $helper->icon = 'icon-user';
-        $helper->color = 'color1';
-        $helper->title = $this->l('Occupied Rooms', null, null, false);
-        $helper->subtitle = $this->l('Today', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=occupied_rooms';
-        $helper->tooltip = $this->l('The count of rooms that are currently occupied by guests.', null, null, false);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-vacant-rooms';
-        $helper->icon = 'icon-check-empty';
-        $helper->color = 'color3';
-        $helper->title = $this->l('Vacant Rooms', null, null, false);
-        $helper->subtitle = $this->l('Today', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=vacant_rooms';
-        $helper->tooltip = $this->l('The count of rooms that are either booked but currently unoccupied or available for booking', null, null, false);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-reserved-rooms';
-        $helper->icon = 'icon-calendar';
-        $helper->color = 'color4';
-        $helper->title = $this->l('Booked Rooms', null, null, false);
-        $helper->subtitle = $this->l('Today', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=booked_rooms';
-        $helper->tooltip = $this->l('The total number of rooms that are currently booked and awaiting guest check-in', null, null, false);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-disabled-rooms';
-        $helper->icon = 'icon-ban';
-        $helper->color = 'color2';
-        $helper->title = $this->l('Disabled Rooms', null, null, false);
-        $helper->subtitle = $this->l('Today', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=disabled_rooms';
-        $helper->tooltip = $this->l('The total number of rooms that are currently disabled.', null, null, false);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-online-bookable-rooms';
-        $helper->icon = 'icon-globe';
-        $helper->color = 'color4';
-        $helper->title = $this->l('Online Bookable Rooms', null, null, false);
-        $helper->subtitle = $this->l('Today', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=online_bookable_rooms';
-        $helper->tooltip = $this->l('The total number of rooms that can be booked directly from the front office.', null, null, false);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-offline-bookable-rooms';
-        $helper->icon = 'icon-building';
-        $helper->color = 'color1';
-        $helper->title = $this->l('Offline Bookable Rooms', null, null, false);
-        $helper->subtitle = $this->l('Today', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=offline_bookable_rooms';
-        $helper->tooltip = $this->l('The total number of rooms available for booking through the back office.', null, null, false);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-best-selling-room-type';
-        $helper->icon = 'icon-star';
-        $helper->color = 'color1';
-        $helper->title = $this->l('Best Selling', null, null, false);
-        $nbDaysBestSelling = Validate::isUnsignedInt(Configuration::get('PS_KPI_BEST_SELLING_ROOM_TYPE_NB_DAYS')) ? Configuration::get('PS_KPI_BEST_SELLING_ROOM_TYPE_NB_DAYS') : 30;
-        if ($nbDaysBestSelling == 1) {
-            $helper->subtitle = sprintf($this->l('%d Day', null, null, false), (int) $nbDaysBestSelling);
-        } else {
-            $helper->subtitle = sprintf($this->l('%d Days', null, null, false), (int) $nbDaysBestSelling);
+        if ((int) $count > 0) {
+            return (int) $count;
         }
 
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=best_selling_room_type';
-        $helper->tooltip = sprintf($this->l('Displays the best selling room type based on the sales in the last %s day(s).', null, null, false), $nbDaysBestSelling);
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-disbled-room-types';
-        $helper->icon = 'icon-ban';
-        $helper->color = 'color2';
-        $helper->title = $this->l('Disabled Room Types', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=disabled_room_types';
-        $helper->href = Context::getContext()->link->getAdminLink('AdminProducts').'&submitResetproduct&submitFilterproduct=1&productFilter_sa!active=0&submitFilterproduct=1';
-        $helper->tooltip = $this->l('The total number of room types that are currently disabled.', null, null, false);
-        $this->kpis[] = $helper;
-
-        return parent::renderKpis();
+        return '<span class="badge badge-danger">'.$this->l('No rooms').'</span>';
     }
 
     public function renderList()
@@ -2684,6 +2627,36 @@ class AdminProductsControllerCore extends AdminController
         $this->addRowAction('delete');
 
         $this->tpl_list_vars['title'] = $this->l('Room Types');
+        // P-20: compact cards on phones; tap a card to open the room type
+        $this->context->smarty->assign('sb_phone_cards', true);
+
+        // A room type guests can see but that has no room to give them is
+        // shown as sold out on the website for every date
+        if (isset($this->fields_list['num_rooms'])) {
+            $unbookable = Db::getInstance()->executeS(
+                'SELECT pl.`name`
+                FROM `'._DB_PREFIX_.'product` p
+                INNER JOIN `'._DB_PREFIX_.'product_lang` pl
+                    ON pl.`id_product` = p.`id_product` AND pl.`id_lang` = '.(int) $this->context->language->id.'
+                    AND pl.`id_shop` = '.(int) $this->context->shop->id.'
+                WHERE p.`booking_product` = 1 AND p.`active` = 1
+                    AND NOT EXISTS (
+                        SELECT 1 FROM `'._DB_PREFIX_.'htl_room_information` hri
+                        WHERE hri.`id_product` = p.`id_product` AND hri.`id_status` != '.(int) HotelRoomInformation::STATUS_INACTIVE.'
+                    )
+                ORDER BY pl.`name`'
+            );
+            if ($unbookable) {
+                $names = array();
+                foreach ($unbookable as $row) {
+                    $names[] = Tools::safeOutput($row['name']);
+                }
+                $this->warnings[] = sprintf(
+                    $this->l('These room types are switched on but have no room in service, so guests see them as sold out and cannot book them: %s. Open the room type, add its rooms in the Rooms tab, or switch the room type off.'),
+                    implode(', ', $names)
+                );
+            }
+        }
 
         $this->_new_list_header_design = true;
 
@@ -2800,15 +2773,6 @@ class AdminProductsControllerCore extends AdminController
                         'confirm' => 1,
                         'js' => $js
                     );
-                }
-
-                // adding button for preview this product statistics
-                if (file_exists(_PS_MODULE_DIR_.'statsproduct/statsproduct.php')) {
-                    $this->page_header_toolbar_btn['stats'] = array(
-                    'short' => $this->l('Statistics', null, null, false),
-                    'href' => $this->context->link->getAdminLink('AdminStats').'&module=statsproduct&id_product='.(int)$product->id,
-                    'desc' => $this->l('Room Type Sales', null, null, false),
-                );
                 }
 
                 // adding button for delete this product

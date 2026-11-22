@@ -55,7 +55,7 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
         }
 
         // header informations
-        $this->date = Tools::displayDate($order_invoice->date_add);
+        $this->date = self::dateInWords($order_invoice->date_add);
 
         $id_lang = Context::getContext()->language->id;
         $this->title = $order_invoice->getInvoiceNumberFormatted($id_lang, (int)$this->order->id_shop);
@@ -71,7 +71,9 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
     public function getHeader()
     {
         $this->assignCommonHeaderData();
-        $this->smarty->assign(array('header' => HTMLTemplateInvoice::l('Invoice')));
+        // Once nothing is owed, the same document is the guest's receipt
+        $settled = ((float) $this->order->total_paid_tax_incl - (float) $this->order->total_paid_real) <= 0.009;
+        $this->smarty->assign(array('header' => $settled ? HTMLTemplateInvoice::l('Receipt') : HTMLTemplateInvoice::l('Invoice')));
 
         return $this->smarty->fetch($this->getTemplate('header'));
     }
@@ -378,6 +380,9 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
 
                             if (isset($cart_htl_data[$type_key]['date_diff'][$date_join])) {
                                 $cart_htl_data[$type_key]['date_diff'][$date_join]['num_rm'] += 1;
+                                if (!empty($data_v['room_num'])) {
+                                    $cart_htl_data[$type_key]['date_diff'][$date_join]['room_nums'][] = $data_v['room_num'];
+                                }
                                 $cart_htl_data[$type_key]['date_diff'][$date_join]['adults'] += $data_v['adults'];
                                 $cart_htl_data[$type_key]['date_diff'][$date_join]['children'] += $data_v['children'];
 
@@ -477,6 +482,10 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
                                 $cart_htl_data[$type_key]['date_diff'][$date_join]['data_form'] = Tools::displayDate($data_v['date_from'], null, $fullDate);
                                 $cart_htl_data[$type_key]['date_diff'][$date_join]['data_to'] = Tools::displayDate($data_v['date_to'], null, $fullDate);
                                 $cart_htl_data[$type_key]['date_diff'][$date_join]['num_days'] = $num_days;
+                                // dates written so they cannot be misread (13 Oct 2026, not 10/13/2026)
+                                $cart_htl_data[$type_key]['date_diff'][$date_join]['stay_from'] = self::dateInWords($data_v['date_from']);
+                                $cart_htl_data[$type_key]['date_diff'][$date_join]['stay_to'] = self::dateInWords($data_v['date_to']);
+                                $cart_htl_data[$type_key]['date_diff'][$date_join]['room_nums'] = empty($data_v['room_num']) ? array() : array($data_v['room_num']);
                                 $cart_htl_data[$type_key]['date_diff'][$date_join]['adults'] = $data_v['adults'];
                                 $cart_htl_data[$type_key]['date_diff'][$date_join]['children'] = $data_v['children'];
 
@@ -689,7 +698,8 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
             'footer' => $footer,
             'ps_price_compute_precision' => _PS_PRICE_COMPUTE_PRECISION_,
             'round_type' => $round_type,
-            'legal_free_text' => $legal_free_text
+            'legal_free_text' => $legal_free_text,
+            'sb' => $this->getBookingSummary($customer),
         );
 
         if (Tools::getValue('debug')) {
@@ -721,6 +731,98 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
      *
      * @return String Tax tab html content
      */
+    /** A date as "13 Oct 2026": the same in every country */
+    public static function dateInWords($date)
+    {
+        $time = strtotime((string) $date);
+
+        return ($time && $time > 0) ? date('j M Y', $time) : '';
+    }
+
+    /**
+     * What a hotel bill has to say beyond the lines and totals: who it is
+     * for, what has been paid, what is still owed, and how to pay it.
+     *
+     * @return array
+     */
+    protected function getBookingSummary(Customer $customer)
+    {
+        $order = $this->order;
+        $total = (float) $order->total_paid_tax_incl;
+        $paid = (float) $order->total_paid_real;
+        $balance = max(0, Tools::ps_round($total - $paid, 2));
+
+        $payments = array();
+        foreach ($order->getOrderPaymentCollection() as $payment) {
+            $payments[] = array(
+                'date' => self::dateInWords($payment->date_add),
+                'method' => $payment->payment_method,
+                'reference' => $payment->transaction_id,
+                'amount' => (float) $payment->amount,
+                'id_currency' => (int) $payment->id_currency,
+            );
+        }
+
+        if ($balance <= 0.009) {
+            $status = 'paid';
+            $statusLabel = HTMLTemplateInvoice::l('PAID');
+        } elseif ($paid > 0.009) {
+            $status = 'part';
+            $statusLabel = HTMLTemplateInvoice::l('PARTLY PAID');
+        } else {
+            $status = 'unpaid';
+            $statusLabel = HTMLTemplateInvoice::l('NOT YET PAID');
+        }
+
+        // How to pay what is owed: the details entered in Salisberg Pay
+        $howToPay = array();
+        if ($balance > 0.009 && Module::isEnabled('salisbergpay') && ($pay = Module::getInstanceByName('salisbergpay'))) {
+            $methods = $pay->getAvailableMethods();
+            if (isset($methods[Salisbergpay::METHOD_CASH])) {
+                $howToPay[] = array(
+                    'title' => HTMLTemplateInvoice::l('Cash'),
+                    'lines' => array(HTMLTemplateInvoice::l('Pay at reception.')),
+                );
+            }
+            if (isset($methods[Salisbergpay::METHOD_MOMO])) {
+                $momo = $pay->getMomoDetails();
+                $howToPay[] = array(
+                    'title' => $momo['network'] ? $momo['network'] : HTMLTemplateInvoice::l('Mobile Money'),
+                    'lines' => array_filter(array($momo['number'], $momo['name'], $momo['note'])),
+                );
+            }
+            if (isset($methods[Salisbergpay::METHOD_BANK])) {
+                $bank = $pay->getBankDetails();
+                $howToPay[] = array(
+                    'title' => HTMLTemplateInvoice::l('Bank transfer'),
+                    'lines' => array_filter(array(
+                        trim($bank['bank'].($bank['branch'] ? ', '.$bank['branch'] : '')),
+                        $bank['account'],
+                        $bank['name'],
+                        $bank['note'],
+                    )),
+                );
+            }
+        }
+
+        return array(
+            'number' => $this->title,
+            'date' => self::dateInWords($this->order_invoice->date_add),
+            'booking_reference' => $order->getUniqReference(),
+            'booking_date' => self::dateInWords($order->date_add),
+            'guest_name' => trim($customer->firstname.' '.$customer->lastname),
+            'guest_email' => Customer::hasNoEmail($customer->email) ? '' : $customer->email,
+            'guest_phone' => $customer->phone,
+            'total' => $total,
+            'paid' => $paid,
+            'balance' => $balance,
+            'status' => $status,
+            'status_label' => $statusLabel,
+            'payments' => $payments,
+            'how_to_pay' => $howToPay,
+        );
+    }
+
     public function getTaxTabContent()
     {
         $debug = Tools::getValue('debug');

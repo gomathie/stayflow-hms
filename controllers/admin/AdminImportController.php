@@ -37,6 +37,8 @@ define('MAX_COLUMNS', 6);
 /** correct Mac error on eof */
 @ini_set('auto_detect_line_endings', '1');
 
+require_once _PS_ROOT_DIR_.'/tools/simplexlsx/SimpleXLSX.php';
+
 class AdminImportControllerCore extends AdminController
 {
     public static $column_mask;
@@ -291,12 +293,12 @@ class AdminImportControllerCore extends AdminController
                 $this->available_fields = array(
                     'no' => array('label' => $this->l('Ignore this column')),
                     'id_order' => array(
-                        'label' => $this->l('Order Reference ID'),
-                        'help' => $this->l('This is only used to group together orders from multiple rows as a single order.')
+                        'label' => $this->l('Booking reference ID'),
+                        'help' => $this->l('This groups multiple imported rows into one booking.')
                     ),
                     'id_customer' => array(
                         'label' => $this->l('Customer ID *'),
-                        'help' => $this->l('Orders with same Order Reference ID will use Customer ID from the first row only.')
+                        'help' => $this->l('Rows with the same booking reference ID use the guest ID from the first row.')
                     ),
                     'id_product' => array('label'=> 'Room Type ID'),
                     'duration_dates' => array(
@@ -304,10 +306,10 @@ class AdminImportControllerCore extends AdminController
                         'help' => $this->l('Check_in, Check_out')
                     ),
                     'num_rooms' => array('label' => $this->l('Number Of Rooms')),
-                    'amount' => array('label' => $this->l('Order Price')),
+                    'amount' => array('label' => $this->l('Booking price')),
                     'due_amount' => array('label' => $this->l('Due Amount')),
                     'id_currency' => array('label' => $this->l('Currency ID')),
-                    'id_order_status' => array('label' => $this->l('Order Status ID')),
+                    'id_order_status' => array('label' => $this->l('Booking status ID')),
                     'id_service_products' => array(
                         'label' => $this->l('Service Product IDs (x:n, y:n, z:n,..)'),
                         'help' => $this->l('id_service_product:quantity')
@@ -472,8 +474,67 @@ class AdminImportControllerCore extends AdminController
         return parent::renderForm();
     }
 
+    /**
+     * Rewrites the uploaded .xlsx in place as CSV (same temp path, so the
+     * move_uploaded_file() call below still recognises it) and renames it to
+     * .csv so the extension check below passes.
+     */
+    protected function convertXlsxUpload()
+    {
+        if (!empty($_FILES['file']['error']) || empty($_FILES['file']['tmp_name'])) {
+            return;
+        }
+
+        $xlsx = \Shuchkin\SimpleXLSX::parse($_FILES['file']['tmp_name']);
+        if (!$xlsx) {
+            $_FILES['file']['error'] = Tools::displayError('Could not read this Excel file: ').\Shuchkin\SimpleXLSX::parseError();
+
+            return;
+        }
+
+        $csv = '';
+        foreach ($xlsx->rows() as $row) {
+            $csv .= $this->xlsxRowToCsvLine($row).\PHP_EOL;
+        }
+
+        if (file_put_contents($_FILES['file']['tmp_name'], $csv) === false) {
+            $_FILES['file']['error'] = $this->l('An error occurred while converting the Excel file.');
+
+            return;
+        }
+
+        $_FILES['file']['name'] = preg_replace('/\.xlsx$/i', '.csv', $_FILES['file']['name']);
+        $_FILES['file']['size'] = strlen($csv);
+    }
+
+    protected function xlsxRowToCsvLine(array $row)
+    {
+        $stream = fopen('php://temp', 'r+');
+        fputcsv($stream, $row, ';');
+        rewind($stream);
+        $line = stream_get_contents($stream);
+        fclose($stream);
+
+        return rtrim($line, "\r\n");
+    }
+
+    /**
+     * Import takes Excel (.xlsx) files only. An uploaded .xlsx is converted to
+     * a semicolon-separated CSV right after upload, in the same temporary file,
+     * and the import engine below reads it unchanged (it works on CSV
+     * internally). Anything that is not .xlsx is refused; old binary .xls is
+     * not read, save those as .xlsx first.
+     */
     public function ajaxProcessuploadCsv()
     {
+        if (isset($_FILES['file']['name']) && empty($_FILES['file']['error'])) {
+            if (!preg_match('/\.xlsx$/i', $_FILES['file']['name'])) {
+                $_FILES['file']['error'] = Tools::displayError('Please upload an Excel (.xlsx) file.');
+                die(json_encode($_FILES));
+            }
+            $this->convertXlsxUpload();
+        }
+
         $filename_prefix = date('YmdHis').'-';
 
         if (isset($_FILES['file']) && !empty($_FILES['file']['error'])) {

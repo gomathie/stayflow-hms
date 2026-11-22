@@ -1,0 +1,1196 @@
+<?php
+/**
+ * Salisberg Front Desk
+ *
+ * Front-desk pages for the people at the desk and in housekeeping:
+ *
+ *  - The New booking action: stay-wide availability and a guided flow for
+ *    same-day and future bookings.
+ *  - Dashboard: today's arrivals, departures, guests in house and unpaid
+ *    balances, with Check in and Check out buttons.
+ *  - Bookings > Housekeeping: every room with its state (clean, dirty, out of
+ *    service) and buttons to change it.
+ *
+ * A room is marked dirty when its guest is checked out, from either page or
+ * from the booking itself (hook actionRoomBookingStatusUpdateAfter).
+ *
+ * "Out of service" is not stored here: it is the platform's own room status
+ * (Inactive), the one the Rooms tab of a room type sets, so a room taken out
+ * of service on either screen stops being offered to guests. This module only
+ * stores clean/dirty, in sb_room_status.
+ *
+ * It also tells the guest what has happened:
+ *  - at check-in: an email with the invoice or receipt attached, and a text;
+ *  - when the booking is paid in full: a text (the platform already emails
+ *    the receipt for that).
+ * Texts go out through the hook actionSalisbergSendSms. salisbergnotify
+ * sends them through mNotify when an API key is saved; with no key, no text
+ * is sent and check-in still completes.
+ *
+ * Who may open the pages is an ordinary menu permission (Administration >
+ * Permissions, rows "Today" and "Housekeeping"): View to see, Edit to change.
+ */
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
+require_once dirname(__FILE__).'/classes/SalisbergWalkIn.php';
+require_once dirname(__FILE__).'/classes/SalisbergBookingArchive.php';
+require_once dirname(__FILE__).'/classes/SalisbergRoomRate.php';
+require_once dirname(__FILE__).'/classes/SalisbergMilestones.php';
+
+class Salisbergfrontdesk extends Module
+{
+    const TAB_ROOM_BOARD = 'AdminSalisbergRoomBoard';
+    const TAB_WALK_IN = 'AdminSalisbergWalkIn';
+    const TAB_TODAY = 'AdminSalisbergToday';
+    const TAB_HOUSEKEEPING = 'AdminSalisbergHousekeeping';
+    const TAB_RECYCLE_BIN = 'AdminSalisbergRecycleBin';
+    const TAB_PARENT = 'AdminParentOrders';
+    /** The recycle bin sits under Administration (owner, 2026-11-20) */
+    const TAB_RECYCLE_PARENT = 'AdminAdmin';
+
+    const ROOM_CLEAN = 1;
+    const ROOM_DIRTY = 2;
+
+    /** How far back an unpaid stay is still listed, in days */
+    const UNPAID_DAYS = 30;
+    // rows of the unpaid list shown on the Dashboard; the rest are under Bookings > Invoices
+    const UNPAID_SHOWN = 6;
+
+    /** Profiles given the front-desk pages once, when they are first created */
+    protected static $profiles = array('Hotel Staff', 'Hotel Manager');
+
+    public function __construct()
+    {
+        $this->name = 'salisbergfrontdesk';
+        $this->tab = 'administration';
+        $this->version = '1.4.0';
+        $this->author = 'Salisberg Hotels';
+        $this->bootstrap = true;
+
+        parent::__construct();
+
+        $this->displayName = $this->l('Salisberg Front Desk');
+        $this->description = $this->l('Room availability, guided walk-in booking, today at the desk and housekeeping status.');
+    }
+
+    public function install()
+    {
+        return parent::install() && $this->ensureSetup();
+    }
+
+    /**
+     * Creates the table, hooks and menu entries if any is missing.
+     * Safe to call on every deploy.
+     */
+    public function ensureSetup()
+    {
+        $ok = Db::getInstance()->execute(
+            'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'sb_room_status` (
+                `id_room` INT UNSIGNED NOT NULL,
+                `status` TINYINT UNSIGNED NOT NULL DEFAULT '.(int) self::ROOM_CLEAN.',
+                `id_employee` INT UNSIGNED NOT NULL DEFAULT 0,
+                `date_upd` DATETIME NOT NULL,
+                PRIMARY KEY (`id_room`)
+            ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8'
+        );
+        $ok = SalisbergWalkIn::ensureTable() && $ok;
+        $ok = SalisbergBookingArchive::ensureTable() && $ok;
+        $ok = SalisbergRoomRate::ensureTable() && $ok;
+        foreach (array(
+            'actionRoomBookingStatusUpdateAfter', 'actionOrderStatusPostUpdate', 'actionValidateOrder', 'dashboardTop',
+            // a room's own price and description: columns in the room type's Rooms tab, saved with the room
+            'displayHotelRoomListTableHeaderColumn', 'displayHotelRoomListTableRowColumn', 'actionValidateRoomInformation',
+            'actionObjectHotelRoomInformationAddAfter', 'actionObjectHotelRoomInformationUpdateAfter', 'actionObjectHotelRoomInformationDeleteAfter',
+            'actionRoomTypeTotalPriceModifier',
+        ) as $hook) {
+            if (!$this->isRegisteredInHook($hook)) {
+                $ok = $this->registerHook($hook) && $ok;
+            }
+        }
+
+        $ok = $ok
+            && $this->installTab(self::TAB_ROOM_BOARD, 'New booking', false, true)
+            && $this->installTab(self::TAB_TODAY, 'Today', false, true)
+            && $this->installTab(self::TAB_HOUSEKEEPING, 'Housekeeping', false)
+            && $this->installTab(self::TAB_WALK_IN, 'Walk-in booking', false, true);
+
+        return $this->installRecycleBinTab()
+            && $this->grantStaffBookingDeletion()
+            && $this->configureTabs()
+            && $this->replaceLegacyTodayWidget()
+            && $ok;
+    }
+
+    /**
+     * The Manager gets access when this page is first created. Its permission
+     * can then be removed in Administration > Permissions and will stay removed.
+     */
+    protected function installRecycleBinTab()
+    {
+        $idTab = (int) Tab::getIdFromClassName(self::TAB_RECYCLE_BIN);
+        if (!$idTab) {
+            $tab = new Tab();
+            $tab->class_name = self::TAB_RECYCLE_BIN;
+            $tab->module = $this->name;
+            $tab->id_parent = (int) Tab::getIdFromClassName(self::TAB_RECYCLE_PARENT);
+            $tab->active = 1;
+            foreach (Language::getLanguages(false) as $language) {
+                $tab->name[(int) $language['id_lang']] = $this->l('Recycle bin');
+            }
+            $tab->add();
+            $idTab = (int) Tab::getIdFromClassName(self::TAB_RECYCLE_BIN);
+            if (!$idTab) {
+                return false;
+            }
+
+            $idManager = (int) Db::getInstance()->getValue(
+                'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+                WHERE `name` = \''.pSQL('Hotel Manager').'\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+            );
+            if ($idManager) {
+                Db::getInstance()->execute(
+                    'INSERT IGNORE INTO `'._DB_PREFIX_.'access`
+                        (`id_profile`, `id_tab`, `view`, `add`, `edit`, `delete`)
+                    VALUES ('.$idManager.', '.$idTab.', 1, 0, 1, 0)'
+                );
+            }
+        }
+
+        $idStaff = (int) Db::getInstance()->getValue(
+            'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+            WHERE `name` = \''.pSQL('Hotel Staff').'\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+        );
+        if ($idStaff) {
+            Db::getInstance()->execute(
+                'INSERT IGNORE INTO `'._DB_PREFIX_.'access`
+                    (`id_profile`, `id_tab`, `view`, `add`, `edit`, `delete`)
+                VALUES ('.$idStaff.', '.$idTab.', 0, 0, 0, 0)'
+            );
+        }
+
+        return true;
+    }
+
+    /** Grant Hotel Staff booking deletion once; later permission edits are respected. */
+    protected function grantStaffBookingDeletion()
+    {
+        if (Configuration::get('SBFD_STAFF_DELETE_GRANTED')) {
+            return true;
+        }
+
+        $idStaff = (int) Db::getInstance()->getValue(
+            'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+            WHERE `name` = \''.pSQL('Hotel Staff').'\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+        );
+        $idOrders = (int) Tab::getIdFromClassName('AdminOrders');
+        if ($idStaff && $idOrders) {
+            $ok = Db::getInstance()->execute(
+                'INSERT INTO `'._DB_PREFIX_.'access`
+                    (`id_profile`, `id_tab`, `view`, `add`, `edit`, `delete`)
+                VALUES ('.$idStaff.', '.$idOrders.', 1, 1, 1, 1)
+                ON DUPLICATE KEY UPDATE `delete` = 1'
+            );
+            if (!$ok) {
+                return false;
+            }
+            PrestaShopLogger::addLog('salisbergfrontdesk: granted Hotel Staff booking deletion access', 1);
+        }
+
+        return Configuration::updateValue('SBFD_STAFF_DELETE_GRANTED', 1);
+    }
+
+    /** Keep workflow controllers active but out of the side menu. */
+    protected function configureTabs()
+    {
+        $idParent = (int) Tab::getIdFromClassName(self::TAB_PARENT);
+        $idBoard = (int) Tab::getIdFromClassName(self::TAB_ROOM_BOARD);
+        $idToday = (int) Tab::getIdFromClassName(self::TAB_TODAY);
+        $idLegacy = (int) Tab::getIdFromClassName('AdminHotelRoomsBooking');
+        if (!$idParent || !$idBoard || !$idToday) {
+            return false;
+        }
+        $ok = Db::getInstance()->update('tab', array(
+            'id_parent' => -1,
+            'active' => 1,
+        ), 'id_tab = '.$idBoard);
+        $ok = Db::getInstance()->update('tab', array(
+            'id_parent' => -1,
+            'active' => 1,
+        ), 'id_tab = '.$idToday) && $ok;
+        if ($idLegacy) {
+            // Keep the endpoint for room reallocation AJAX, but remove the old
+            // cart-based booking page from navigation.
+            $ok = Db::getInstance()->update('tab', array(
+                'id_parent' => -1,
+                'active' => 1,
+            ), 'id_tab = '.$idLegacy) && $ok;
+        }
+        foreach (Language::getLanguages(false) as $lang) {
+            $ok = Db::getInstance()->update('tab_lang', array(
+                'name' => pSQL($this->l('New booking')),
+            ), 'id_tab = '.$idBoard.' AND id_lang = '.(int) $lang['id_lang']) && $ok;
+        }
+
+        return $ok;
+    }
+
+    /**
+     * The guest cycle box a hotel does not need here: the module stays installed.
+     * Only the hooks that draw them, and the data call those boxes make, are
+     * dropped. Order and customer hooks on the same modules are left alone.
+     */
+    protected function replaceLegacyTodayWidget()
+    {
+        $retire = array(
+            // Arrivals, departures and in-house already live on Today at the desk.
+            'dashguestcycle' => array('dashboardZoneTwo', 'dashboardData'),
+        );
+        $ok = true;
+        foreach ($retire as $name => $hooks) {
+            if (!Module::isInstalled($name)) {
+                continue;
+            }
+            $module = Module::getInstanceByName($name);
+            if (!$module) {
+                continue;
+            }
+            foreach ($hooks as $hook) {
+                if ($module->isRegisteredInHook($hook)) {
+                    $ok = $module->unregisterHook($hook) && $ok;
+                }
+            }
+        }
+
+        return $ok;
+    }
+
+    /**
+     * The listed profiles are given the page once, when it is first created,
+     * so that a right taken away later in Permissions is not given back.
+     */
+    protected function installTab($className, $name, $first, $hidden = false)
+    {
+        if (Tab::getIdFromClassName($className)) {
+            return true;
+        }
+        $idParent = (int) Tab::getIdFromClassName(self::TAB_PARENT);
+        $tab = new Tab();
+        $tab->class_name = $className;
+        $tab->module = $this->name;
+        $tab->id_parent = $hidden ? -1 : $idParent;
+        // Hidden workflow pages stay active so their controllers can be
+        // opened directly; id_parent = -1 alone keeps them out of the menu.
+        $tab->active = 1;
+        foreach (Language::getLanguages(false) as $lang) {
+            $tab->name[(int) $lang['id_lang']] = $name;
+        }
+        // add() also reports failure when only its permission bookkeeping fails
+        // (no employee in context), so judge by whether the tab now exists
+        $tab->add();
+        $idTab = (int) Tab::getIdFromClassName($className);
+        if (!$idTab) {
+            return false;
+        }
+        if ($first && !$hidden) {
+            // the desk opens this page first, so it leads its menu section
+            Db::getInstance()->execute(
+                'UPDATE `'._DB_PREFIX_.'tab` SET `position` = `position` + 1
+                WHERE `id_parent` = '.$idParent.' AND `id_tab` != '.$idTab
+            );
+            Db::getInstance()->update('tab', array('position' => 0), 'id_tab = '.$idTab);
+        }
+
+        foreach (self::$profiles as $profileName) {
+            $idProfile = (int) Db::getInstance()->getValue(
+                'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+                WHERE `name` = \''.pSQL($profileName).'\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+            );
+            if ($idProfile) {
+                Db::getInstance()->execute(
+                    'INSERT INTO `'._DB_PREFIX_.'access` (`id_profile`, `id_tab`, `view`, `add`, `edit`, `delete`)
+                    VALUES ('.$idProfile.', '.$idTab.', 1, 0, 1, 0)
+                    ON DUPLICATE KEY UPDATE `view` = 1, `edit` = 1'
+                );
+            }
+        }
+
+        return true;
+    }
+
+    public function uninstall()
+    {
+        foreach (array(self::TAB_ROOM_BOARD, self::TAB_WALK_IN, self::TAB_TODAY, self::TAB_HOUSEKEEPING, self::TAB_RECYCLE_BIN) as $className) {
+            $idTab = (int) Tab::getIdFromClassName($className);
+            if ($idTab) {
+                $tab = new Tab($idTab);
+                $tab->delete();
+            }
+        }
+
+        return parent::uninstall();
+    }
+
+    public function getWalkInService()
+    {
+        return new SalisbergWalkIn($this);
+    }
+
+    /** Today's operational workspace, placed at full width on the Dashboard. */
+    /** Manage Room Types > Rooms tab: the extra column title */
+    public function hookDisplayHotelRoomListTableHeaderColumn()
+    {
+        return $this->display(__FILE__, 'room_columns_header.tpl');
+    }
+
+    /**
+     * The same tab, one room's Own price box. The platform calls this with the row
+     * number (and the room's id once it exists); the call that builds the row
+     * for "Add more rooms" in the browser has neither, so its box name carries
+     * __ROW__, which the template's script replaces with the new row number.
+     * The output of that call goes into a JavaScript string: one line, no quote marks.
+     */
+    public function hookDisplayHotelRoomListTableRowColumn($params)
+    {
+        $index = isset($params['index']) ? (int) $params['index'] : null;
+        $price = '';
+        $posted = Tools::getValue('rooms_info');
+        if ($index !== null && is_array($posted) && isset($posted[$index]['sb_price'])) {
+            // the form came back with an error: show what was typed
+            $price = (string) $posted[$index]['sb_price'];
+        } elseif (!empty($params['id_room']) && ($own = SalisbergRoomRate::get((int) $params['id_room'])) !== null) {
+            $price = rtrim(rtrim(number_format($own, 2, '.', ''), '0'), '.');
+        }
+        $this->smarty->assign(array(
+            'sb_index' => $index === null ? '__ROW__' : $index,
+            'sb_price' => $price,
+        ));
+        $html = trim(preg_replace('/\s+/', ' ', $this->display(__FILE__, 'room_columns_row.tpl')));
+
+        return str_replace("'", '&#39;', $html);
+    }
+
+    /** Before the rooms are saved: the own price must be a valid price */
+    public function hookActionValidateRoomInformation($params)
+    {
+        $room = $params['room_information'];
+        $label = isset($room['room_num']) && trim($room['room_num']) !== '' ? trim($room['room_num']) : $this->l('(new)');
+        $controller = $this->context->controller;
+        if ($controller) {
+            foreach (SalisbergRoomRate::validate($room, $label) as $error) {
+                $controller->errors[] = $error;
+            }
+        }
+    }
+
+    /**
+     * After a room is saved from the Rooms tab: keep its own price. A room added in
+     * the same save has no id in the form, so it is found by its room number. A save
+     * that did not come from that form leaves the price as it is.
+     */
+    public function hookActionObjectHotelRoomInformationAddAfter($params)
+    {
+        $this->storeRoomRate($params['object']);
+    }
+
+    public function hookActionObjectHotelRoomInformationUpdateAfter($params)
+    {
+        $this->storeRoomRate($params['object']);
+    }
+
+    public function hookActionObjectHotelRoomInformationDeleteAfter($params)
+    {
+        SalisbergRoomRate::delete((int) $params['object']->id);
+    }
+
+    protected function storeRoomRate($room)
+    {
+        $posted = Tools::getValue('rooms_info');
+        if (!Tools::getValue('checkConfSubmit') || !is_array($posted) || !(int) $room->id) {
+            return;
+        }
+        foreach ($posted as $row) {
+            $sameRoom = (!empty($row['id']) && (int) $row['id'] === (int) $room->id)
+                || (empty($row['id']) && isset($row['room_num']) && trim($row['room_num']) === (string) $room->room_num);
+            if ($sameRoom && isset($row['sb_price'])) {
+                $price = SalisbergRoomRate::parsePrice($row['sb_price']);
+                if ($price !== false) {
+                    SalisbergRoomRate::save((int) $room->id, $price);
+                }
+
+                return;
+            }
+        }
+    }
+
+    /** A room's own price, for bookings made at the front desk */
+    public function hookActionRoomTypeTotalPriceModifier($params)
+    {
+        SalisbergRoomRate::adjustTotals($params);
+    }
+
+    public function hookDashboardTop()
+    {
+        if (Tools::getValue('controller') != 'AdminDashboard') {
+            return '';
+        }
+        $employee = $this->context->employee;
+        $idTab = (int) Tab::getIdFromClassName(self::TAB_TODAY);
+        $access = ($employee && $idTab) ? Profile::getProfileAccess((int) $employee->id_profile, $idTab) : array();
+        if (empty($access['view'])) {
+            return '';
+        }
+
+        $this->assignTodayTemplate((int) !empty($access['edit']), true);
+
+        // milestones: record any passed (also the first time this runs), then the banner and history
+        try {
+            SalisbergMilestones::update();
+            $close = (int) Tools::getValue('sb_milestone_seen');
+            if ($close && Tools::getValue('token') == Tools::getAdminTokenLite('AdminDashboard')) {
+                SalisbergMilestones::markSeen((int) $employee->id, $close);
+            }
+            $reached = SalisbergMilestones::reached();
+            $count = SalisbergMilestones::count();
+            $next = $count < 50 ? 50 : SalisbergMilestones::next((int) ($reached ? end($reached)['n'] : 50));
+            $this->context->smarty->assign(array(
+                'sb_milestone' => SalisbergMilestones::unseen((int) $employee->id),
+                'sb_milestones' => array_reverse(array_slice($reached, -5)),
+                'sb_booking_count' => $count,
+                'sb_next_milestone' => $next,
+                'sb_milestone_close' => $this->context->link->getAdminLink('AdminDashboard').'&sb_milestone_seen=',
+            ));
+        } catch (Throwable $e) {
+            PrestaShopLogger::addLog('salisbergfrontdesk: milestones not shown: '.$e->getMessage(), 2);
+        }
+
+        return $this->context->smarty->fetch($this->local_path.'views/templates/admin/today.tpl');
+    }
+
+    /**
+     * Today's lists split the way the desk reads them. The one place these
+     * counts are made: Today at the desk and the line on the Bookings list
+     * (SIMPLIFY-REVIEW P-11) both use it, so they always agree.
+     */
+    public function splitToday($today = null)
+    {
+        $today = $today ?: $this->getToday();
+        // due out today is the day's work; earlier stays never checked out are a separate, folded list
+        $split = array('today' => $today, 'due_out' => array(), 'overdue' => array(), 'checked_out' => array(), 'waiting' => 0, 'owed' => 0, 'owed_now' => 0);
+        foreach ($today['departures'] as $row) {
+            if ((int) $row['id_status'] !== (int) HotelBookingDetail::STATUS_CHECKED_IN) {
+                $split['checked_out'][] = $row;
+            } elseif ($row['overdue']) {
+                $split['overdue'][] = $row;
+            } else {
+                $split['due_out'][] = $row;
+            }
+        }
+        foreach ($today['arrivals'] as $row) {
+            if ((int) $row['id_status'] === (int) HotelBookingDetail::STATUS_ALLOTED) {
+                $split['waiting']++;
+            }
+        }
+        foreach ($today['unpaid'] as $row) {
+            $split['owed'] += $row['balance'];
+            if ($row['current']) {
+                $split['owed_now']++;
+            }
+        }
+
+        return $split;
+    }
+
+    /** The four desk figures as display text: in house, arriving, leaving, owed */
+    public function deskFigures()
+    {
+        $s = $this->splitToday();
+
+        return array(
+            'in_house' => count($s['today']['in_house']),
+            'arriving' => (int) $s['waiting'],
+            'leaving' => count($s['due_out']),
+            'overdue' => count($s['overdue']),
+            'owed' => $this->money($s['owed']),
+            'owed_raw' => (float) $s['owed'],
+        );
+    }
+
+    public function assignTodayTemplate($canEdit, $onDashboard = false)
+    {
+        $s = $this->splitToday();
+        $today = $s['today'];
+        $dueOut = $s['due_out'];
+        $overdue = $s['overdue'];
+        $checkedOut = $s['checked_out'];
+        $waiting = $s['waiting'];
+        // the unpaid list is long by nature: show the most urgent, link to the full list
+        $owed = $s['owed'];
+        $owedNow = $s['owed_now'];
+        $done = (string) Tools::getValue('sb_done');
+
+        $this->context->smarty->assign(array(
+            'sb_today' => $today,
+            'sb_due_out' => $dueOut,
+            'sb_overdue' => $overdue,
+            'sb_checked_out' => $checkedOut,
+            'sb_waiting' => $waiting,
+            'sb_unpaid_shown' => array_slice($today['unpaid'], 0, self::UNPAID_SHOWN),
+            'sb_unpaid_owed' => $this->money($owed),
+            'sb_invoices_link' => $this->context->link->getAdminLink('AdminInvoices'),
+            'sb_open_arrivals' => ($waiting > 0 || $done === 'sb_check_in'),
+            'sb_open_departures' => (count($dueOut) > 0 || $done === 'sb_check_out'),
+            'sb_open_unpaid' => $owedNow > 0,
+            'sb_date' => date('D j M Y'),
+            'sb_can_edit' => (int) $canEdit,
+            'sb_action' => $this->context->link->getAdminLink(self::TAB_TODAY),
+            'sb_booking_link' => $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order=',
+            'sb_housekeeping_link' => $this->context->link->getAdminLink(self::TAB_HOUSEKEEPING),
+            'sb_book_link' => $this->context->link->getAdminLink(self::TAB_ROOM_BOARD),
+            'sb_expected' => HotelBookingDetail::STATUS_ALLOTED,
+            'sb_in' => HotelBookingDetail::STATUS_CHECKED_IN,
+            'sb_css' => $this->getPathUri().'views/css/frontdesk.css?v=17',
+            'sb_on_dashboard' => (bool) $onDashboard,
+            'sb_done' => $done,
+        ));
+    }
+
+    /** A room whose guest has just been checked out needs cleaning */
+    public function hookActionRoomBookingStatusUpdateAfter($params)
+    {
+        if (empty($params['id_hotel_booking_detail'])) {
+            return;
+        }
+        $booking = new HotelBookingDetail((int) $params['id_hotel_booking_detail']);
+        if (!Validate::isLoadedObject($booking)) {
+            return;
+        }
+        if ((int) $booking->id_status == HotelBookingDetail::STATUS_CHECKED_OUT) {
+            $this->saveRoomStatus((int) $booking->id_room, self::ROOM_DIRTY);
+            $this->notifyCheckOut($booking);
+        } elseif ((int) $booking->id_status == HotelBookingDetail::STATUS_CHECKED_IN) {
+            $this->notifyCheckIn($booking);
+        }
+    }
+
+    /*
+     * Guest messages. A text is short (one SMS, 160 characters at most); an
+     * email carries the full details. The platform already emails the booking
+     * confirmation, payment and cancellation with the invoice attached, so for
+     * those only a text is sent here; check-in and check-out also get an email
+     * of our own.
+     */
+
+    /** A booking was just made: text the guest */
+    public function hookActionValidateOrder($params)
+    {
+        if (empty($params['order']) || !Validate::isLoadedObject($params['order'])) {
+            return;
+        }
+        $this->announceMilestones();
+        $f = $this->facts($params['order']);
+        if (!$f) {
+            return;
+        }
+        $this->sendSms($f['phone'], sprintf(
+            $this->l('%1$s: booking %2$s confirmed, %3$s-%4$s. Total %5$s. See you soon!'),
+            $f['shop'], $f['reference'], $f['from_short'], $f['to_short'], $f['total']
+        ), $params['order']);
+    }
+
+    /** Paid in full, part paid, or cancelled: text the guest */
+    public function hookActionOrderStatusPostUpdate($params)
+    {
+        if (empty($params['newOrderStatus']) || empty($params['id_order'])) {
+            return;
+        }
+        $state = $params['newOrderStatus'];
+        $full = !empty($state->paid);
+        $partial = (int) $state->id === (int) Configuration::get('PS_OS_PARTIAL_PAYMENT_ACCEPTED');
+        $cancelled = (int) $state->id === (int) Configuration::get('PS_OS_CANCELED');
+        if (!$full && !$partial && !$cancelled) {
+            return;
+        }
+        $order = new Order((int) $params['id_order']);
+        if (!Validate::isLoadedObject($order) || !($f = $this->facts($order))) {
+            return;
+        }
+        if ($cancelled) {
+            $text = sprintf($this->l('%1$s: booking %2$s (%3$s-%4$s) is cancelled. Questions? Call us.'), $f['shop'], $f['reference'], $f['from_short'], $f['to_short']);
+        } elseif ($full) {
+            $text = sprintf($this->l('%1$s: payment of %2$s received for booking %3$s. Paid in full. Thank you!'), $f['shop'], $f['paid'], $f['reference']);
+        } else {
+            $text = sprintf($this->l('%1$s: we received %2$s for booking %3$s. Still to pay: %4$s.'), $f['shop'], $f['paid'], $f['reference'], $f['balance']);
+        }
+        $this->sendSms($f['phone'], $text, $order);
+    }
+
+    /**
+     * Records milestones the booking count has passed and tells the booking-alert
+     * recipients by text and email. The Dashboard banner reads the same record.
+     * A problem here must never stop a booking being made.
+     */
+    protected function announceMilestones()
+    {
+        try {
+            $new = SalisbergMilestones::update();
+            if (!$new || !(class_exists('Salisbergnotify') || Module::getInstanceByName('salisbergnotify'))) {
+                return;
+            }
+            $notify = Module::getInstanceByName('salisbergnotify');
+            $shop = Configuration::get('PS_SHOP_NAME');
+            foreach ($new as $m) {
+                $n = number_format((int) $m["n"]);
+                $notify->notifyRecipients(
+                    sprintf($this->l('%1$s has reached %2$s bookings'), $shop, $n),
+                    sprintf($this->l('Congratulations! %1$s has reached %2$s bookings. Booking %3$s was number %2$s.'), $shop, $n, $m['reference']),
+                    $m['reference'],
+                    array(
+                        $this->l('Milestone') => sprintf($this->l('%s bookings'), $n),
+                        $this->l('Reached on') => date('j M Y', strtotime($m['date'])),
+                        $this->l('The booking') => $m['reference'],
+                        $this->l('Next milestone') => sprintf($this->l('%s bookings'), number_format(SalisbergMilestones::next((int) $m["n"]))),
+                    )
+                );
+            }
+        } catch (Throwable $e) {
+            PrestaShopLogger::addLog('salisbergfrontdesk: milestone check failed: '.$e->getMessage(), 2);
+        }
+    }
+
+    /** Booking facts from salisbergnotify, or null when that module is not there */
+    protected function facts(Order $order)
+    {
+        if (!class_exists('Salisbergnotify') && !Module::getInstanceByName('salisbergnotify')) {
+            return null;
+        }
+
+        return Salisbergnotify::bookingFacts($order);
+    }
+
+    /** The last room of a booking has checked out: thank the guest by text and email */
+    protected function notifyCheckOut(HotelBookingDetail $booking)
+    {
+        $still = (int) Db::getInstance()->getValue(
+            'SELECT COUNT(*) FROM `'._DB_PREFIX_.'htl_booking_detail`
+            WHERE `id_order` = '.(int) $booking->id_order.' AND `id` != '.(int) $booking->id.'
+            AND `id_status` != '.(int) HotelBookingDetail::STATUS_CHECKED_OUT.' AND `is_refunded` = 0'
+        );
+        $order = new Order((int) $booking->id_order);
+        if ($still || !Validate::isLoadedObject($order) || !($f = $this->facts($order))) {
+            return;
+        }
+        $this->sendSms($f['phone'], sprintf(
+            $this->l('Thank you for staying at %1$s, %2$s. Safe travels, we hope to see you again!'),
+            $f['shop'], $f['firstname']
+        ), $order);
+        $this->emailGuest($order, $f, 'checkout', Mail::l('Thank you for staying with us', (int) $order->id_lang), array(
+            '{balance_line}' => $f['owes']
+                ? sprintf($this->l('A balance of %s is still open on this booking. Please contact us to settle it.'), $f['balance'])
+                : $this->l('Your booking is paid in full. Thank you.'),
+        ));
+    }
+
+    /** Sends one of this module's guest emails, with the stay details filled in */
+    protected function emailGuest(Order $order, array $f, $template, $subject, array $vars, $attachment = null)
+    {
+        if ($f['email'] === '') {
+            return;
+        }
+        try {
+            Mail::Send(
+                (int) $order->id_lang,
+                $template,
+                $subject,
+                array_merge(array(
+                    '{firstname}' => $f['firstname'],
+                    '{order_name}' => $f['reference'],
+                    '{rooms}' => implode(', ', $f['rooms']),
+                    '{check_in}' => $f['from'],
+                    '{check_out}' => $f['to'],
+                    '{nights}' => (string) $f['nights'],
+                    '{total}' => $f['total'],
+                    '{paid}' => $f['paid'],
+                ), $vars),
+                $f['email'],
+                $f['guest'],
+                null,
+                null,
+                $attachment,
+                null,
+                $this->local_path.'mails/',
+                false,
+                (int) $order->id_shop
+            );
+        } catch (Exception $e) {
+            // a mail problem must never stop the desk
+            PrestaShopLogger::addLog('salisbergfrontdesk: '.$template.' email for '.$order->reference.' not sent: '.$e->getMessage(), 3);
+        }
+    }
+
+    /**
+     * The first room of a booking to be checked in: email the guest with the
+     * invoice (a receipt once it is paid) attached, and text them. Later rooms
+     * of the same booking say nothing more.
+     */
+    protected function notifyCheckIn(HotelBookingDetail $booking)
+    {
+        $arrived = (int) Db::getInstance()->getValue(
+            'SELECT COUNT(*) FROM `'._DB_PREFIX_.'htl_booking_detail`
+            WHERE `id_order` = '.(int) $booking->id_order.' AND `id` != '.(int) $booking->id.'
+            AND `id_status` IN ('.(int) HotelBookingDetail::STATUS_CHECKED_IN.', '.(int) HotelBookingDetail::STATUS_CHECKED_OUT.')'
+        );
+        $order = new Order((int) $booking->id_order);
+        if ($arrived || !Validate::isLoadedObject($order)) {
+            return;
+        }
+        $customer = new Customer((int) $order->id_customer);
+        $shopName = Configuration::get('PS_SHOP_NAME');
+        $checkOut = date('j M Y', strtotime($booking->date_to));
+        $balance = max(0, (float) $order->total_paid_tax_incl - (float) $order->total_paid_real);
+
+        $this->sendSms($customer->phone, sprintf(
+            $this->l('Welcome to %1$s, %2$s! Room %3$s, check-out %4$s. Booking %5$s. Ask reception for anything.'),
+            $shopName,
+            $customer->firstname,
+            $booking->room_num,
+            $checkOut,
+            $order->reference
+        ), $order);
+
+        if (!Validate::isEmail($customer->email) || Customer::hasNoEmail($customer->email)) {
+            return;
+        }
+        try {
+            $attachment = null;
+            if ((int) Configuration::get('PS_INVOICE') && $order->invoice_number) {
+                $invoices = $order->getInvoicesCollection();
+                Hook::exec('actionPDFInvoiceRender', array('order_invoice_list' => $invoices));
+                $pdf = new PDF($invoices, PDF::TEMPLATE_INVOICE, $this->context->smarty);
+                $attachment = array(
+                    'content' => $pdf->render(false),
+                    'name' => Configuration::get('PS_INVOICE_PREFIX', (int) $order->id_lang, null, $order->id_shop).sprintf('%06d', $order->invoice_number).'.pdf',
+                    'mime' => 'application/pdf',
+                );
+            }
+            Mail::Send(
+                (int) $order->id_lang,
+                'checkin',
+                Mail::l('You are checked in', (int) $order->id_lang),
+                array(
+                    '{firstname}' => $customer->firstname,
+                    '{lastname}' => $customer->lastname,
+                    '{order_name}' => $order->reference,
+                    '{room}' => $booking->room_num.' ('.$booking->room_type_name.')',
+                    '{check_out}' => $checkOut,
+                    '{balance_line}' => ($balance > 0.009)
+                        ? sprintf($this->l('Still to pay: %s. You can settle it at reception.'), Tools::displayPrice($balance, (int) $order->id_currency))
+                        : $this->l('Your booking is paid in full. Your receipt is attached.'),
+                ),
+                $customer->email,
+                $customer->firstname.' '.$customer->lastname,
+                null,
+                null,
+                $attachment,
+                null,
+                $this->local_path.'mails/',
+                false,
+                (int) $order->id_shop
+            );
+        } catch (Exception $e) {
+            // a mail problem must never stop a guest being checked in
+            PrestaShopLogger::addLog('salisbergfrontdesk: check-in email for '.$order->reference.' not sent: '.$e->getMessage(), 3);
+        }
+    }
+
+    /**
+     * Hands a text message to salisbergnotify. With no API key saved the
+     * listener returns at once and nothing is sent.
+     */
+    protected function sendSms($phone, $message, Order $order)
+    {
+        $phone = trim((string) $phone);
+        if ($phone === '') {
+            return;
+        }
+        try {
+            Hook::exec('actionSalisbergSendSms', array(
+                'phone' => $phone,
+                'message' => $message,
+                'id_order' => (int) $order->id,
+                'reference' => $order->reference,
+            ));
+        } catch (Exception $e) {
+            PrestaShopLogger::addLog('salisbergfrontdesk: text for '.$order->reference.' not sent: '.$e->getMessage(), 3);
+        }
+    }
+
+    /** @return int[] hotels the signed-in employee's profile may see */
+    public function getHotels()
+    {
+        $employee = $this->context->employee;
+        if (!Validate::isLoadedObject($employee)) {
+            return array();
+        }
+
+        return array_map('intval', (array) HotelBranchInformation::getProfileAccessedHotels($employee->id_profile, 1, 1));
+    }
+
+    /** Order states that mean the booking did not go ahead */
+    protected function deadStates()
+    {
+        return array_filter(array_map('intval', array(
+            Configuration::get('PS_OS_CANCELED'),
+            Configuration::get('PS_OS_REFUND'),
+            Configuration::get('PS_OS_ERROR'),
+        )));
+    }
+
+    protected function money($amount)
+    {
+        return Tools::displayPrice((float) $amount, (int) Configuration::get('PS_CURRENCY_DEFAULT'));
+    }
+
+    /** Rooms of live bookings matching $where, with guest, balance and housekeeping state */
+    protected function getBookings($where, $orderBy)
+    {
+        $hotels = $this->getHotels();
+        if (!$hotels) {
+            return array();
+        }
+        $dead = $this->deadStates();
+        $rows = Db::getInstance()->executeS(
+            'SELECT b.`id`, b.`id_order`, b.`id_room`, b.`room_num`, b.`room_type_name`, b.`date_from`, b.`date_to`,
+                b.`adults`, b.`children`, b.`id_status`, b.`check_in`, b.`check_out`,
+                o.`reference`, o.`total_paid_tax_incl`, o.`total_paid_real`,
+                CONCAT(c.`firstname`, \' \', c.`lastname`) AS `guest`, c.`phone`,
+                r.`id_status` AS `room_state`, IFNULL(rs.`status`, '.(int) self::ROOM_CLEAN.') AS `housekeeping`
+            FROM `'._DB_PREFIX_.'htl_booking_detail` b
+            INNER JOIN `'._DB_PREFIX_.'orders` o ON o.`id_order` = b.`id_order`
+            LEFT JOIN `'._DB_PREFIX_.'customer` c ON c.`id_customer` = o.`id_customer`
+            LEFT JOIN `'._DB_PREFIX_.'htl_room_information` r ON r.`id` = b.`id_room`
+            LEFT JOIN `'._DB_PREFIX_.'sb_room_status` rs ON rs.`id_room` = b.`id_room`
+            WHERE b.`is_cancelled` = 0 AND b.`is_refunded` = 0
+                AND b.`id_hotel` IN ('.implode(',', $hotels).')'
+                .($dead ? ' AND o.`current_state` NOT IN ('.implode(',', $dead).')' : '').'
+                AND ('.$where.')
+            ORDER BY '.$orderBy
+        );
+        $today = date('Y-m-d');
+        $rows = (array) $rows;
+        foreach ($rows as &$row) {
+            $row['balance'] = max(0, (float) $row['total_paid_tax_incl'] - (float) $row['total_paid_real']);
+            $row['balance_text'] = $row['balance'] > 0.009 ? $this->money($row['balance']) : '';
+            $row['stay'] = $this->stayRange($row['date_from'], $row['date_to']);
+            $row['guests'] = (int) $row['adults'].' + '.(int) $row['children'];
+            $row['late'] = substr($row['date_from'], 0, 10) < $today && (int) $row['id_status'] == HotelBookingDetail::STATUS_ALLOTED;
+            $row['overdue'] = substr($row['date_to'], 0, 10) < $today && (int) $row['id_status'] == HotelBookingDetail::STATUS_CHECKED_IN;
+            $row['days_over'] = $row['overdue'] ? (int) round((strtotime($today) - strtotime(substr($row['date_to'], 0, 10))) / 86400) : 0;
+            $row['leaves_today'] = substr($row['date_to'], 0, 10) == $today;
+            $row['room_label'] = $this->roomLabel($row['room_state'], $row['housekeeping']);
+        }
+        unset($row);
+
+        return $rows;
+    }
+
+    /**
+     * A stay as people say it: "13–15 Oct", "30 Oct – 2 Nov", and the year only when
+     * it is not this year ("28 Dec 2026 – 2 Jan 2027"). One line instead of two dates.
+     */
+    public function stayRange($from, $to)
+    {
+        $a = strtotime(substr((string) $from, 0, 10));
+        $b = strtotime(substr((string) $to, 0, 10));
+        if (!$a || !$b) {
+            return '';
+        }
+        $year = date('Y');
+        $showYear = date('Y', $a) !== $year || date('Y', $b) !== $year;
+        if (date('Y-m', $a) === date('Y-m', $b)) {
+            return date('j', $a).'–'.date('j M', $b).($showYear ? ' '.date('Y', $b) : '');
+        }
+        if ($showYear) {
+            return date('j M Y', $a).' – '.date('j M Y', $b);
+        }
+
+        return date('j M', $a).' – '.date('j M', $b);
+    }
+
+    /** The payment method in one or two words, for narrow columns. */
+    protected function paymentShort($payment)
+    {
+        $p = Tools::strtolower((string) $payment);
+        if (strpos($p, 'momo') !== false || strpos($p, 'mobile') !== false) {
+            return $this->l('MoMo');
+        }
+        if (strpos($p, 'cash') !== false) {
+            return $this->l('Cash');
+        }
+        if (strpos($p, 'bank') !== false || strpos($p, 'transfer') !== false) {
+            return $this->l('Bank');
+        }
+        if (strpos($p, 'later') !== false) {
+            return $this->l('Later');
+        }
+
+        return (string) $payment;
+    }
+
+    /**
+     * Everything the Today page shows.
+     *
+     * @return array arrivals, departures, in_house (rooms) and unpaid (bookings)
+     */
+    public function getToday()
+    {
+        $today = pSQL(date('Y-m-d'));
+        $expected = (int) HotelBookingDetail::STATUS_ALLOTED;
+        $in = (int) HotelBookingDetail::STATUS_CHECKED_IN;
+        $out = (int) HotelBookingDetail::STATUS_CHECKED_OUT;
+
+        return array(
+            // due today or earlier and not yet arrived, plus those who arrived today
+            'arrivals' => $this->getBookings(
+                '(b.`id_status` = '.$expected.' AND DATE(b.`date_from`) <= \''.$today.'\' AND DATE(b.`date_to`) >= \''.$today.'\')
+                OR (b.`id_status` = '.$in.' AND DATE(b.`check_in`) = \''.$today.'\')',
+                'b.`id_status` ASC, b.`date_from` ASC, b.`room_num` ASC'
+            ),
+            // in the room and due out today or earlier, plus those who left today
+            'departures' => $this->getBookings(
+                '(b.`id_status` = '.$in.' AND DATE(b.`date_to`) <= \''.$today.'\')
+                OR (b.`id_status` = '.$out.' AND DATE(b.`check_out`) = \''.$today.'\')',
+                'b.`id_status` ASC, b.`date_to` ASC, b.`room_num` ASC'
+            ),
+            'in_house' => $this->getBookings('b.`id_status` = '.$in, 'b.`room_num` ASC'),
+            'unpaid' => $this->getUnpaid(),
+        );
+    }
+
+    /** Bookings with money still to pay whose stay is current, coming, or ended recently */
+    protected function getUnpaid()
+    {
+        $hotels = $this->getHotels();
+        if (!$hotels) {
+            return array();
+        }
+        $dead = $this->deadStates();
+        $today = pSQL(date('Y-m-d'));
+        $since = pSQL(date('Y-m-d', strtotime('-'.(int) self::UNPAID_DAYS.' days')));
+        $rows = Db::getInstance()->executeS(
+            'SELECT o.`id_order`, o.`reference`, o.`payment`, o.`total_paid_tax_incl`, o.`total_paid_real`,
+                CONCAT(c.`firstname`, \' \', c.`lastname`) AS `guest`, c.`phone`,
+                COUNT(b.`id`) AS `rooms`, MIN(b.`date_from`) AS `stay_from`, MAX(b.`date_to`) AS `stay_to`,
+                GROUP_CONCAT(b.`room_num` ORDER BY b.`room_num` SEPARATOR \', \') AS `room_nums`
+            FROM `'._DB_PREFIX_.'orders` o
+            INNER JOIN `'._DB_PREFIX_.'htl_booking_detail` b ON b.`id_order` = o.`id_order`
+            LEFT JOIN `'._DB_PREFIX_.'customer` c ON c.`id_customer` = o.`id_customer`
+            WHERE b.`is_cancelled` = 0 AND b.`is_refunded` = 0
+                AND b.`id_hotel` IN ('.implode(',', $hotels).')
+                AND (o.`total_paid_tax_incl` - o.`total_paid_real`) > 0.009'
+                .($dead ? ' AND o.`current_state` NOT IN ('.implode(',', $dead).')' : '').'
+            GROUP BY o.`id_order`
+            HAVING `stay_to` >= \''.$since.'\'
+            ORDER BY (DATE(`stay_from`) <= \''.$today.'\' AND DATE(`stay_to`) >= \''.$today.'\') DESC,
+                (DATE(`stay_to`) < \''.$today.'\') DESC, `stay_from` ASC
+            LIMIT 200'
+        );
+        $rows = (array) $rows;
+        foreach ($rows as &$row) {
+            $row['balance'] = (float) $row['total_paid_tax_incl'] - (float) $row['total_paid_real'];
+            $row['total_text'] = $this->money($row['total_paid_tax_incl']);
+            $row['paid_text'] = $this->money($row['total_paid_real']);
+            $row['balance_text'] = $this->money($row['balance']);
+            $row['stay'] = $this->stayRange($row['stay_from'], $row['stay_to']);
+            $row['payment_short'] = $this->paymentShort($row['payment']);
+            $row['current'] = substr($row['stay_from'], 0, 10) <= $today && substr($row['stay_to'], 0, 10) >= $today;
+        }
+        unset($row);
+
+        return $rows;
+    }
+
+    /**
+     * Checks a room in or out, with the rules the booking page applies:
+     * the time recorded lies within the stay, and a room is checked in before
+     * it is checked out.
+     *
+     * @return string an error to show, or '' when the change was saved
+     */
+    public function changeBookingStatus($idBooking, $newStatus)
+    {
+        $booking = new HotelBookingDetail((int) $idBooking);
+        if (!Validate::isLoadedObject($booking) || !in_array((int) $booking->id_hotel, $this->getHotels())) {
+            return $this->l('This booking could not be found.');
+        }
+        if ($booking->is_cancelled || $booking->is_refunded) {
+            return $this->l('This room was cancelled or refunded.');
+        }
+        $stayFrom = strtotime(date('Y-m-d', strtotime($booking->date_from)));
+        $stayTo = strtotime(date('Y-m-d', strtotime($booking->date_to)).' 23:59:59');
+        $now = time();
+        if ($now < $stayFrom) {
+            return $this->l('This stay has not started yet.');
+        }
+        // a guest leaving late is recorded at the end of the stay they booked
+        $when = date('Y-m-d H:i:s', min($now, $stayTo));
+
+        if ($newStatus == HotelBookingDetail::STATUS_CHECKED_IN) {
+            if ((int) $booking->id_status != HotelBookingDetail::STATUS_ALLOTED) {
+                return $this->l('This room is already checked in.');
+            }
+            $booking->check_in = $when;
+        } elseif ($newStatus == HotelBookingDetail::STATUS_CHECKED_OUT) {
+            if ((int) $booking->id_status != HotelBookingDetail::STATUS_CHECKED_IN) {
+                return $this->l('Check the room in before checking it out.');
+            }
+            if (!Validate::isDate($booking->check_in) || strtotime($booking->check_in) <= 0) {
+                // an arrival time was never recorded: the stay began on its first day
+                $booking->check_in = $booking->date_from;
+            }
+            if (strtotime($booking->check_in) > strtotime($when)) {
+                $when = $booking->check_in;
+            }
+            $booking->check_out = $when;
+        } else {
+            return $this->l('This booking could not be found.');
+        }
+        $booking->id_status = (int) $newStatus;
+        try {
+            $saved = $booking->save();
+        } catch (Exception $e) {
+            // a stored value the platform no longer accepts: say so, never an error page
+            PrestaShopLogger::addLog('salisbergfrontdesk: booking room '.(int) $booking->id.' not saved: '.$e->getMessage(), 3);
+            $saved = false;
+        }
+        if (!$saved) {
+            return $this->l('The change could not be saved. Open the booking and change the room status there.');
+        }
+        // the same hook the booking page fires, so everything that follows a
+        // status change (a dirty room after check-out) happens here too
+        Hook::exec('actionRoomBookingStatusUpdateAfter', array(
+            'id_hotel_booking_detail' => $booking->id,
+            'id_order' => $booking->id_order,
+            'id_room' => $booking->id_room,
+            'date_from' => $booking->date_from,
+            'date_to' => $booking->date_to,
+        ));
+
+        return '';
+    }
+
+    /** The one word shown for a room: out of service wins over clean/dirty */
+    protected function roomLabel($roomState, $housekeeping)
+    {
+        if ((int) $roomState == HotelRoomInformation::STATUS_INACTIVE
+            || (int) $roomState == HotelRoomInformation::STATUS_TEMPORARY_INACTIVE
+        ) {
+            return 'out';
+        }
+
+        return ((int) $housekeeping == self::ROOM_DIRTY) ? 'dirty' : 'clean';
+    }
+
+    /**
+     * Every room of the hotels the employee may see.
+     *
+     * @return array rooms, each with: state (clean, dirty or out), who is in it
+     *               now, who arrives today, when and by whom it was last changed
+     */
+    public function getRooms()
+    {
+        $hotels = $this->getHotels();
+        if (!$hotels) {
+            return array();
+        }
+        $today = pSQL(date('Y-m-d'));
+        $live = 'b.`is_cancelled` = 0 AND b.`is_refunded` = 0';
+        $rows = Db::getInstance()->executeS(
+            'SELECT r.`id` AS `id_room`, r.`room_num`, r.`floor`, r.`id_status` AS `room_state`,
+                pl.`name` AS `room_type`, IFNULL(rs.`status`, '.(int) self::ROOM_CLEAN.') AS `housekeeping`, rs.`date_upd`,
+                CONCAT(e.`firstname`, \' \', e.`lastname`) AS `changed_by`,
+                (SELECT CONCAT(c.`firstname`, \' \', c.`lastname`) FROM `'._DB_PREFIX_.'htl_booking_detail` b
+                    LEFT JOIN `'._DB_PREFIX_.'customer` c ON c.`id_customer` = b.`id_customer`
+                    WHERE b.`id_room` = r.`id` AND '.$live.' AND b.`id_status` = '.(int) HotelBookingDetail::STATUS_CHECKED_IN.'
+                    ORDER BY b.`id` DESC LIMIT 1) AS `guest_in`,
+                (SELECT COUNT(*) FROM `'._DB_PREFIX_.'htl_booking_detail` b
+                    WHERE b.`id_room` = r.`id` AND '.$live.' AND b.`id_status` = '.(int) HotelBookingDetail::STATUS_ALLOTED.'
+                    AND DATE(b.`date_from`) = \''.$today.'\') AS `arriving`,
+                (SELECT COUNT(*) FROM `'._DB_PREFIX_.'htl_booking_detail` b
+                    WHERE b.`id_room` = r.`id` AND '.$live.' AND b.`id_status` = '.(int) HotelBookingDetail::STATUS_ALLOTED.'
+                    AND DATE(b.`date_to`) >= \''.$today.'\') AS `coming`
+            FROM `'._DB_PREFIX_.'htl_room_information` r
+            LEFT JOIN `'._DB_PREFIX_.'product_lang` pl
+                ON pl.`id_product` = r.`id_product` AND pl.`id_lang` = '.(int) $this->context->language->id.'
+                AND pl.`id_shop` = '.(int) $this->context->shop->id.'
+            LEFT JOIN `'._DB_PREFIX_.'sb_room_status` rs ON rs.`id_room` = r.`id`
+            LEFT JOIN `'._DB_PREFIX_.'employee` e ON e.`id_employee` = rs.`id_employee`
+            WHERE r.`id_hotel` IN ('.implode(',', $hotels).')
+            ORDER BY pl.`name` ASC, r.`room_num` ASC'
+        );
+        $rows = (array) $rows;
+        foreach ($rows as &$row) {
+            $row['state'] = $this->roomLabel($row['room_state'], $row['housekeeping']);
+            // dates for a room closed for a period are set in its room type
+            $row['fixed'] = (int) $row['room_state'] == HotelRoomInformation::STATUS_TEMPORARY_INACTIVE;
+            $row['changed'] = $row['date_upd'] ? Tools::displayDate($row['date_upd'], null, true) : '';
+        }
+        unset($row);
+
+        return $rows;
+    }
+
+    protected function saveRoomStatus($idRoom, $status, $idEmployee = null)
+    {
+        if ($idEmployee === null) {
+            $idEmployee = Validate::isLoadedObject($this->context->employee) ? (int) $this->context->employee->id : 0;
+        }
+
+        return Db::getInstance()->execute(
+            'INSERT INTO `'._DB_PREFIX_.'sb_room_status` (`id_room`, `status`, `id_employee`, `date_upd`)
+            VALUES ('.(int) $idRoom.', '.(int) $status.', '.(int) $idEmployee.', \''.pSQL(date('Y-m-d H:i:s')).'\')
+            ON DUPLICATE KEY UPDATE `status` = VALUES(`status`), `id_employee` = VALUES(`id_employee`), `date_upd` = VALUES(`date_upd`)'
+        );
+    }
+
+    /**
+     * Sets a room clean, dirty, out of service or back in service.
+     *
+     * @param string $state clean, dirty, out or back
+     *
+     * @return string an error to show, or '' when the change was saved
+     */
+    public function setRoomState($idRoom, $state)
+    {
+        $room = new HotelRoomInformation((int) $idRoom);
+        if (!Validate::isLoadedObject($room) || !in_array((int) $room->id_hotel, $this->getHotels())) {
+            return $this->l('This room could not be found.');
+        }
+        if ($state == 'clean' || $state == 'dirty') {
+            return $this->saveRoomStatus($room->id, $state == 'dirty' ? self::ROOM_DIRTY : self::ROOM_CLEAN)
+                ? '' : $this->l('The change could not be saved. Please try again.');
+        }
+        if ((int) $room->id_status == HotelRoomInformation::STATUS_TEMPORARY_INACTIVE) {
+            return $this->l('This room is closed for set dates. Change that in its room type, under the Rooms tab.');
+        }
+        if ($state == 'out') {
+            $inHouse = (int) Db::getInstance()->getValue(
+                'SELECT COUNT(*) FROM `'._DB_PREFIX_.'htl_booking_detail`
+                WHERE `id_room` = '.(int) $room->id.' AND `is_cancelled` = 0 AND `is_refunded` = 0
+                AND `id_status` = '.(int) HotelBookingDetail::STATUS_CHECKED_IN
+            );
+            if ($inHouse) {
+                return $this->l('A guest is checked in to this room. Check them out or move them first.');
+            }
+            $room->id_status = HotelRoomInformation::STATUS_INACTIVE;
+        } elseif ($state == 'back') {
+            $room->id_status = HotelRoomInformation::STATUS_ACTIVE;
+        } else {
+            return $this->l('This room could not be found.');
+        }
+
+        return $room->save() ? '' : $this->l('The change could not be saved. Please try again.');
+    }
+}

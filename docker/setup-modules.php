@@ -42,7 +42,7 @@ if ($idGhana) {
     }
 }
 
-foreach (array('salisbergpay', 'salisbergguide', 'salisbergreports') as $name) {
+foreach (array('salisbergpay', 'salisbergguide', 'salisbergreports', 'salisbergfrontdesk', 'salisbergnotify', 'salisbergcleanup') as $name) {
     $module = Module::getInstanceByName($name);
     if (!$module) {
         sb_log("ERROR: module $name not found");
@@ -98,6 +98,49 @@ if ($reports && Module::isInstalled('salisbergreports')) {
     }
 }
 
+// Bookings > Room board, guided walk-in, Today and Housekeeping: after the profiles exist
+$desk = Module::getInstanceByName('salisbergfrontdesk');
+if ($desk && Module::isInstalled('salisbergfrontdesk')) {
+    if ($desk->ensureSetup()) {
+        sb_log('front desk pages in place');
+    } else {
+        sb_log('ERROR: front desk pages could not be created');
+        $failed = true;
+    }
+}
+
+// Advanced Parameters > Data clean-up. SuperAdmin only, so no other profile is granted it.
+$cleanup = Module::getInstanceByName('salisbergcleanup');
+if ($cleanup && Module::isInstalled('salisbergcleanup')) {
+    if ($cleanup->ensureSetup()) {
+        sb_log('data clean-up page in place');
+    } else {
+        sb_log('ERROR: data clean-up page could not be created');
+        $failed = true;
+    }
+}
+
+// Administration > Integrations: the mNotify key. SuperAdmin only, so no other profile is granted it.
+$notify = Module::getInstanceByName('salisbergnotify');
+if ($notify && Module::isInstalled('salisbergnotify')) {
+    if ($notify->ensureSetup()) {
+        sb_log('integrations page in place');
+    } else {
+        sb_log('ERROR: integrations page could not be created');
+        $failed = true;
+    }
+}
+
+// Rooms & Services > Charges & Tax: after the profiles exist, so the Hotel Manager can be given it
+if ($pay && Module::isInstalled('salisbergpay')) {
+    if ($pay->ensureChargesPage()) {
+        sb_log('Charges & Tax page in place');
+    } else {
+        sb_log('ERROR: Charges & Tax page could not be created');
+        $failed = true;
+    }
+}
+
 // A payment module only shows to guests from countries it is granted to
 $idPay = (int) Module::getModuleIdByName('salisbergpay');
 if ($idPay && $idGhana) {
@@ -109,11 +152,118 @@ if ($idPay && $idGhana) {
     }
 }
 
+// Modules deleted from the code (CLEANUP-PLAN.md batch 2): their database rows are
+// removed here, because a module whose folder is gone cannot uninstall itself.
+// Acts only when the folder is gone and the row still exists, and logs what it did
+// (rule 22). Bookings keep their payment name: OrderHistory falls back to it.
+$forget = array(
+    'bankwire' => array('config' => array('BANK_WIRE_DETAILS', 'BANK_WIRE_OWNER', 'BANK_WIRE_ADDRESS', 'BANK_WIRE_CURRENCIES'), 'tables' => array()),
+    'cheque' => array('config' => array('CHEQUE_NAME', 'CHEQUE_ADDRESS', 'CHEQUE_CURRENCIES'), 'tables' => array()),
+    'qlochannelmanagerconnector' => array('config' => array(), 'tables' => array('qcmc_channel_manager_booking')),
+    // Batch 4: Dashboard boxes for a web shop, not drawn on the Dashboard since 2026-11-09
+    'dashactivity' => array('config' => array('DASHACTIVITY_CART_ABANDONED_MAX', 'DASHACTIVITY_CART_ABANDONED_MIN', 'DASHACTIVITY_CART_ACTIVE', 'DASHACTIVITY_VISITOR_ONLINE'), 'tables' => array()),
+    'dashproducts' => array('config' => array('DASHPRODUCT_NBR_SHOW_BEST_SELLER', 'DASHPRODUCT_NBR_SHOW_LAST_ORDER', 'DASHPRODUCT_NBR_SHOW_MOST_VIEWED', 'DASHPRODUCT_NBR_SHOW_TOP_SEARCH'), 'tables' => array()),
+    'dashgoals' => array('config' => array('PS_DASHGOALS_CURRENT_YEAR'), 'tables' => array()),
+    'dashinsights' => array('config' => array(), 'tables' => array()),
+    // Batch 3: shop statistics (the Stats menu has been hidden since 2026-11-09).
+    // The graph and grid engines (graphnvd3, gridhtml) stay: the Stats screens load them by name.
+    'statsbestcategories' => array('config' => array(), 'tables' => array()),
+    'statsbestcustomers' => array('config' => array(), 'tables' => array()),
+    'statsbestproducts' => array('config' => array(), 'tables' => array()),
+    'statsbestvouchers' => array('config' => array(), 'tables' => array()),
+    'statscatalog' => array('config' => array(), 'tables' => array()),
+    'statscheckup' => array('config' => array(), 'tables' => array()),
+    'statsdata' => array('config' => array('PS_STATSDATA_CUSTOMER_PAGESVIEWS', 'PS_STATSDATA_PAGESVIEWS', 'PS_STATSDATA_PLUGINS'), 'tables' => array()),
+    'statsequipment' => array('config' => array(), 'tables' => array()),
+    'statsforecast' => array('config' => array(), 'tables' => array()),
+    'statslive' => array('config' => array(), 'tables' => array()),
+    'statsnewsletter' => array('config' => array(), 'tables' => array()),
+    'statsorigin' => array('config' => array(), 'tables' => array()),
+    'statspersonalinfos' => array('config' => array(), 'tables' => array()),
+    'statsproduct' => array('config' => array(), 'tables' => array()),
+    'statsregistrations' => array('config' => array(), 'tables' => array()),
+    'statssales' => array('config' => array(), 'tables' => array()),
+    'statsvisits' => array('config' => array(), 'tables' => array()),
+    'sekeywords' => array('config' => array('SEK_FILTER_KW', 'SEK_MIN_OCCURENCES'), 'tables' => array('sekeyword')),
+    'pagesnotfound' => array('config' => array(), 'tables' => array('pagenotfound')),
+    'qlostatsserviceproducts' => array('config' => array(), 'tables' => array()),
+);
+$db = Db::getInstance();
+foreach ($forget as $name => $parts) {
+    $idModule = (int) $db->getValue('SELECT `id_module` FROM `'._DB_PREFIX_.'module` WHERE `name` = \''.pSQL($name).'\'', false);
+    if (!$idModule || is_dir(_PS_MODULE_DIR_.$name)) {
+        continue;
+    }
+    foreach (array('module_access', 'module_shop', 'module_group', 'module_country', 'module_currency', 'hook_module', 'hook_module_exceptions') as $table) {
+        $db->delete($table, '`id_module` = '.$idModule);
+    }
+    $db->delete('module_preference', '`module` = \''.pSQL($name).'\'');
+    foreach ((array) $db->executeS('SELECT `id_tab` FROM `'._DB_PREFIX_.'tab` WHERE `module` = \''.pSQL($name).'\'', true, false) as $tab) {
+        foreach (array('tab_lang', 'access', 'tab_module_preference') as $table) {
+            $db->delete($table, '`id_tab` = '.(int) $tab['id_tab']);
+        }
+        $db->delete('tab', '`id_tab` = '.(int) $tab['id_tab']);
+    }
+    foreach ($parts['config'] as $key) {
+        Configuration::deleteByName($key);
+    }
+    foreach ($parts['tables'] as $table) {
+        $exists = $db->executeS('SHOW TABLES LIKE \''.pSQL(_DB_PREFIX_.$table).'\'', true, false);
+        if ($exists && !(int) $db->getValue('SELECT COUNT(*) FROM `'._DB_PREFIX_.bqSQL($table).'`', false)) {
+            $db->execute('DROP TABLE `'._DB_PREFIX_.bqSQL($table).'`');
+        } elseif ($exists) {
+            sb_log("$name: table $table kept, it holds rows");
+        }
+    }
+    foreach ((array) $db->executeS('SELECT `id_meta` FROM `'._DB_PREFIX_.'meta` WHERE `page` LIKE \''.pSQL('module-'.$name.'-').'%\'', true, false) as $meta) {
+        foreach (array('meta_lang', 'theme_meta', 'meta') as $table) {
+            $db->delete($table, '`id_meta` = '.(int) $meta['id_meta']);
+        }
+    }
+    $db->delete('module', '`id_module` = '.$idModule);
+    sb_log("$name removed (module deleted from the code)");
+}
+
+// Saved guest names, once (owner, 2026-11-20): the rule new names already get
+// (Customer::tidyName: all small or all capital letters become "Ama Mensah";
+// mixed case is kept as typed), applied to guests and their addresses.
+// A name that is only a title ("mr mr") cannot be guessed and is only counted.
+if (!Configuration::get('SB_NAMES_TIDIED')) {
+    $changed = 0;
+    foreach (array('customer' => 'id_customer', 'address' => 'id_address') as $table => $key) {
+        $where = $table === 'customer' ? '`deleted` = 0' : '`deleted` = 0 AND `id_customer` > 0';
+        foreach ((array) $db->executeS('SELECT `'.$key.'`, `firstname`, `lastname` FROM `'._DB_PREFIX_.$table.'` WHERE '.$where, true, false) as $row) {
+            $first = Customer::tidyName($row['firstname']);
+            $last = Customer::tidyName($row['lastname']);
+            if ($first !== $row['firstname'] || $last !== $row['lastname']) {
+                $db->update($table, array('firstname' => pSQL($first), 'lastname' => pSQL($last)), '`'.$key.'` = '.(int) $row[$key]);
+                $changed++;
+            }
+        }
+    }
+    $titleOnly = 0;
+    foreach ((array) $db->executeS('SELECT `firstname`, `lastname` FROM `'._DB_PREFIX_.'customer` WHERE `deleted` = 0', true, false) as $row) {
+        if (Customer::isTitleOnly($row['firstname']) || Customer::isTitleOnly($row['lastname'])) {
+            $titleOnly++;
+        }
+    }
+    Configuration::updateValue('SB_NAMES_TIDIED', 1);
+    sb_log("guest names tidied: $changed record(s); $titleOnly guest(s) still have only a title as a name");
+}
+
+// P-24, once: guests book without an account (the platform's guest checkout).
+// Done once so it can be switched off again in Preferences and stay off.
+if (!Configuration::get('SB_GUEST_CHECKOUT_SET')) {
+    $was = (int) Configuration::get('PS_GUEST_CHECKOUT_ENABLED');
+    Configuration::updateValue('PS_GUEST_CHECKOUT_ENABLED', 1);
+    Configuration::updateValue('SB_GUEST_CHECKOUT_SET', 1);
+    sb_log('guest checkout '.($was ? 'was already on' : 'switched on'));
+}
+
 // Switched off on every deploy:
-//  - bankwire, cheque: bank transfer is offered through Salisberg Pay, in the same way as Mobile Money
 //  - qlohotelreview: guest reviews are not in use; keeping it off also keeps its
 //    upload endpoint closed (CVE-2025-67325). Remove it from this list to use reviews.
-foreach (array('bankwire', 'cheque', 'qlohotelreview') as $name) {
+foreach (array('qlohotelreview') as $name) {
     if (Module::isInstalled($name) && Module::isEnabled($name)) {
         Module::getInstanceByName($name)->disable();
         sb_log("$name disabled");
@@ -143,8 +293,8 @@ if (!file_exists($testimonialsFlag)) {
 
 // Friendly URLs: website links read example.com/room-name instead of
 // example.com/index.php?controller=product&id_product=12, with no .php in
-// sight. Back office links are unaffected (they always use index.php by
-// design). Only the database setting is set here, once; the .htaccess file
+// sight. The back office keeps its index.php links; docker/apache.conf
+// takes index.php out of its address bar. Only the database setting is set here, once; the .htaccess file
 // itself is regenerated on every start by docker/generate-htaccess.php,
 // because it lives in the code filesystem, not a persisted volume, and does
 // not survive a redeploy.
@@ -153,6 +303,20 @@ if (!Configuration::get('PS_REWRITING_SETTINGS')) {
     sb_log('Friendly URLs switched on');
 } else {
     sb_log('Friendly URLs already on');
+}
+
+// The installer stored the "Our Properties" menu link as an absolute
+// index.php address of the domain it was installed on. Make it the plain
+// relative path, so it has no .php and follows a change of domain (rule 22:
+// only rows that still hold the old form are touched).
+$propertiesPath = parse_url(Context::getContext()->link->getPageLink('our-properties'), PHP_URL_PATH);
+if ($propertiesPath && strpos($propertiesPath, 'index.php') === false) {
+    Db::getInstance()->execute(
+        'UPDATE `'._DB_PREFIX_.'htl_custom_navigation_link`
+        SET `link` = \''.pSQL($propertiesPath).'\'
+        WHERE `link` LIKE \'%index.php?controller=our-properties%\''
+    );
+    sb_log('Our Properties menu link set to '.$propertiesPath.' ('.(int) Db::getInstance()->Affected_Rows().' row(s))');
 }
 
 exit($failed ? 1 : 0);

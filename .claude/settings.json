@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -L \"http://localhost:8080/index.php?controller=contact\")",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec stayflow-hms-app-1 grep -c 'name=\"subject\"' /var/www/html/themes/hotel-reservation-theme/contact-form.tpl)",
+      "Bash(php -r '$f=\"AGENTS.md\";$s=file_get_contents\\($f\\);$i=strrpos\\($s,\"- **Not tested:** nothing was run.\"\\);$s=substr\\($s,0,$i\\).\"- **Verification \\(local, hot-patched into the running container\\):** with the switch at 0, the Contact page has no Title and no Send To field; posting a message created customer thread 2 \\(contact 2, the message start as its title\\) and showed the success notice, with no PHP errors logged. The `PS_CUSTOMER_SERVICE_CONTACT` setting was unset locally, so the first-contact fallback is what was exercised.\\\\n- **Not tested:** the content step through a rebuilt image \\(the switch was set by hand locally\\); the email to the contact address \\(no SMTP\\); the live server.\\\\n\";file_put_contents\\($f,$s\\);')",
+      "Bash(php -r ' *)",
+      "Bash(php -l override/controllers/admin/AdminImportController.php)",
+      "Bash(sed -i '2,8c\\\\/**\\\\n * CSV Import takes Excel \\(.xlsx\\) files only. An uploaded .xlsx is converted to\\\\n * a semicolon-separated CSV right after upload, in the same temporary file the\\\\n * stock code already expects, which the stock import engine then reads\\\\n * unchanged \\(it works on CSV internally\\). Anything that is not .xlsx is\\\\n * refused. Old binary .xls is not read; save those as .xlsx first.\\\\n */' override/controllers/admin/AdminImportController.php)",
+      "Bash(php \"C:/Users/gomat/AppData/Local/Temp/claude/c--Users-gomat-Downloads-DEV-PROJECTS-stayflow-hms/74c555ba-637a-4b5f-acf4-7edb6517292e/scratchpad/docs-edit.php\")",
+      "Bash(php -r '$f=\"AGENTS.md\";$s=file_get_contents\\($f\\);$i=strrpos\\($s,\"- **Not tested:** nothing was run in a browser\"\\);$s=substr\\($s,0,$i\\).\"- **Verification \\(local, hot-patched\\):** the import page loads with 0 `.csv` links and 8 `.xlsx` links and the `xlsx` filter; uploading a `.csv` returns \\\\\"Please upload an Excel \\(.xlsx\\) file.\\\\\"; uploading `hotels_import.xlsx` is converted and accepted; a `.csv` sample URL returns 404.\\\\n- **Not tested:** the upload box in a real browser \\(the filter text was read from the page, not exercised\\); completing an import of a converted file; the live server.\\\\n\";file_put_contents\\($f,$s\\);')",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec stayflow-hms-app-1 sh -c 'mysql -h\"$DB_HOST\" -u\"$DB_USER\" -p\"$DB_PASSWORD\" \"$DB_NAME\" -e \"SELECT c.id_contact,cl.name,cl.description,c.email,c.customer_service FROM qlo_contact c JOIN qlo_contact_lang cl ON cl.id_contact=c.id_contact AND cl.id_lang=1;\"')",
+      "Bash(sed -i 's/footer: ${footer_note}, links added: ${footer_links:-0}\\)\"/footer: ${footer_note}, links added: ${footer_links:-0}; webmaster contact: ${webmaster_note}\\)\"/' docker/entrypoint.sh)",
+      "Bash(bash -n docker/entrypoint.sh)",
+      "Bash(cat)",
+      "Bash(MSYS_NO_PATHCONV=1 docker exec -i stayflow-hms-app-1 sh -c 'mysql -h\"$DB_HOST\" -u\"$DB_USER\" -p\"$DB_PASSWORD\" \"$DB_NAME\"')",
+      "Bash(rm -f /tmp/wm.sql)",
+      "Bash(grep -i \"{\\\\$\\\\|escape\\\\|nl2br\\\\|clickable\\\\|safe\")"
+    ]
+  }
+}

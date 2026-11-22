@@ -109,6 +109,12 @@ class MailCore extends ObjectModel
         $reply_to = null,
         $reply_to_name = ''
     ) {
+        // A guest recorded at the desk without an email gets a placeholder
+        // address (Customer::NO_EMAIL_DOMAIN). It does not exist, so nothing is sent.
+        if (is_string($to) && Customer::hasNoEmail($to)) {
+            return true;
+        }
+
         if (!$id_shop) {
             $id_shop = Context::getContext()->shop->id;
         }

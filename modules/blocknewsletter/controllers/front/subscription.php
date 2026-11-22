@@ -31,7 +31,12 @@ class BlockNewsletterSubscriptionModuleFrontController extends ModuleFrontContro
 
     public function checkAccess()
     {
-        return strcmp(Tools::getValue('token', ''), $this->module->secure_key) === 0;
+        // Only the footer form's AJAX call is valid here. Anything else (a bot,
+        // a direct visit, a wrong token) has no page to render: send it home.
+        if (!$this->ajax || strcmp((string) Tools::getValue('token', ''), $this->module->secure_key) !== 0) {
+            Tools::redirect('index.php');
+        }
+        return true;
     }
 
     public function displayAjaxSubscribeNewsletter()

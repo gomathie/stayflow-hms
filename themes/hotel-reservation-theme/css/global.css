@@ -6533,7 +6533,7 @@ table.table_block td {
   .input-date span i, .form-control .input-date span i {
     transform: scale(0.8, 0.6);}
 
-.input-location, .form-control .input-location {
+.input-location, .form-control.input-location {
   background: url("../img/icon/icon-location.svg") no-repeat 6px 50%;
   padding-left: 35px;
   background-color: #FFF;
@@ -7987,7 +7987,7 @@ p.checkbox.gift {
   margin-bottom: 10px; }
 
 a.iframe {
-  color: #333;
+  color: var(--sb-ink);
   text-decoration: underline; }
   a.iframe:hover {
     text-decoration: none; }
@@ -8024,17 +8024,10 @@ p.p.payment_module {
   p.payment_module a span {
     font-weight: bold;
     color: #777; }
-  p.payment_module a.bankwire {
-    background: url(../img/bankwire.png) 15px 8px no-repeat #fbfbfb; }
-  p.payment_module a.cheque {
-    background: url(../img/cheque.png) 15px 8px no-repeat #fbfbfb; }
   p.payment_module a.cash {
     background: url(../img/cash.png) 15px 8px no-repeat #fbfbfb; }
   .payment_module.box {
   margin-top: 20px; }
-
-  p.cheque-indent {
-  margin-bottom: 9px; }
 
 @media (max-width: 480px) {
   p.payment_module a {

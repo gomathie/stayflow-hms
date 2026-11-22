@@ -46,7 +46,7 @@
 				<table class="table table-bordered">
 					<thead>
 						<tr>
-							<th>{l s='Order'}</th>
+							<th>{l s='Booking'}</th>
 							{if isset($hasRoomRefunds) && $hasRoomRefunds}
                                 <th>{l s='Total rooms'}</th>
                             {/if}

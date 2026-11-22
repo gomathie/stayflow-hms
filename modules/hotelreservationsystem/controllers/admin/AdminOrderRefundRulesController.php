@@ -51,10 +51,10 @@ class AdminOrderRefundRulesController extends ModuleAdminController
 
         $this->fields_options = array(
             'modulesetting' => array(
-                'title' =>    $this->l('Order Refund Setting'),
+                'title' =>    $this->l('Booking refund settings'),
                 'fields' =>    array(
                     'WK_ORDER_REFUND_ALLOWED' => array(
-                        'title' => $this->l('Enable Order Refund'),
+                        'title' => $this->l('Enable booking refunds'),
                         'hint' => $this->l('Enable, if you want to enable order refund feature.'),
                         'validation' => 'isBool',
                         'cast' => 'intval',

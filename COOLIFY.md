@@ -90,6 +90,7 @@ Open **Environment Variables**. The quickest way is **Developer view**, which ta
 | `ADMIN_PASSWORD` | A strong password | Used once, to create the first back office account. Change it after the first sign-in. |
 | `ADMIN_DIR` | For example `desk-7k2p` | The back office lives at `https://salisberg.com/<this>`. Must **not** be `admin`. Pick something that cannot be guessed and do not change it afterwards. |
 | `BACKUP_PASSPHRASE` | A long random passphrase | Encrypts the nightly backups. **Keep a copy away from the server.** Without it the backups cannot be read. See `BACKUP.md`. |
+| `SENTRY_DSN` | The DSN of the Sentry project `salisberg` (Sentry › Project Settings › Client Keys) | Sends PHP errors to Sentry. Leave empty to send nothing. `SENTRY_ENVIRONMENT` (default `production`) and `SENTRY_TRACES_SAMPLE_RATE` (default `0`, errors only) are optional. |
 
 ### Should be set
 

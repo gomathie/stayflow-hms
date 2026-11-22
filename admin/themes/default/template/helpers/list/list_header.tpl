@@ -105,12 +105,6 @@
 {/if}
 
 <div class="alert alert-warning" id="{$list_id}-empty-filters-alert" style="display:none;">{l s='Please fill at least one field to perform a search in this list.'}</div>
-{if isset($sql) && $sql}
-	<form id="sql_form_{$list_id|escape:'html':'UTF-8'}" action="{$link->getAdminLink('AdminRequestSql')|escape}&amp;addrequest_sql" method="post" class="hide">
-		<input type="hidden" id="sql_query_{$list_id|escape:'html':'UTF-8'}" name="sql" value="{$sql|escape}"/>
-		<input type="hidden" id="sql_name_{$list_id|escape:'html':'UTF-8'}" name="name" value=""/>
-	</form>
-{/if}
 
 {block name="startForm"}
 	<form method="post" action="{$action|escape:'html':'UTF-8'}" class="form-horizontal clearfix" id="form-{$list_id}">
@@ -469,22 +463,6 @@
 									<i class="process-icon-refresh"></i>
 								</span>
 							</a>
-						{if isset($sql) && $sql}
-							{assign var=sql_manager value=Profile::getProfileAccess(Context::getContext()->employee->id_profile, Tab::getIdFromClassName('AdminRequestSql'))}
-
-							{if $sql_manager.view == 1}
-								<a class="list-toolbar-btn" href="javascript:void(0);" onclick="$('.leadin').first().append('<div class=\'alert alert-info\'>' + $('#sql_query_{$list_id|escape:'html':'UTF-8'}').val() + '</div>'); $(this).attr('onclick', '');">
-									<span class="label-tooltip" data-toggle="tooltip" data-original-title="{l s='Show SQL query'}" data-html="true" data-placement="top" >
-										<i class="process-icon-terminal"></i>
-									</span>
-								</a>
-								<a class="list-toolbar-btn" href="javascript:void(0);" onclick="$('#sql_name_{$list_id|escape:'html':'UTF-8'}').val(createSqlQueryName()); $('#sql_query_{$list_id|escape:'html':'UTF-8'}').val($('#sql_query_{$list_id|escape:'html':'UTF-8'}').val().replace(/\s+limit\s+[0-9,\s]+$/ig, '').trim()); $('#sql_form_{$list_id|escape:'html':'UTF-8'}').submit();">
-									<span class="label-tooltip" data-toggle="tooltip" data-original-title="{l s='Export to SQL Manager'}" data-html="true" data-placement="top" >
-										<i class="process-icon-database"></i>
-									</span>
-								</a>
-							{/if}
-						{/if}
 						</span>
 					{/block}
 				{/if}
@@ -575,7 +553,8 @@
 	</style>
 
 	{block name="preTable"}{/block}
-	<div class="table-responsive-row clearfix{if isset($use_overflow) && $use_overflow} overflow-y{/if}">
+	{* P-14: a list can ask for compact cards on phones (sb_phone_cards); others keep the stock stacked rows *}
+	<div class="{if !empty($sb_phone_cards)}sb-cards{else}table-responsive-row{/if} clearfix{if isset($use_overflow) && $use_overflow} overflow-y{/if}">
 		<table{if $table_id} id="table-{$table_id}"{/if} class="table{if $table_dnd} tableDnD{/if} {$table}" >
 			<thead>
 			{block name="tableHeadings"}

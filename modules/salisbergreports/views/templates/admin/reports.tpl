@@ -57,7 +57,7 @@
 				</thead>
 				<tbody>
 					{foreach from=$sb_table.rows item=sb_row}
-					<tr>{foreach from=$sb_row key=sb_i item=sb_cell}<td class="text-{$sb_table.columns[$sb_i][1]|escape:'html':'UTF-8'}">{$sb_cell|escape:'html':'UTF-8'}</td>{/foreach}</tr>
+					<tr>{foreach from=$sb_row key=sb_i item=sb_cell}<td class="text-{$sb_table.columns[$sb_i][1]|escape:'html':'UTF-8'}" data-label="{$sb_table.columns[$sb_i][0]|escape:'html':'UTF-8'}">{$sb_cell|escape:'html':'UTF-8'}</td>{/foreach}</tr>
 					{foreachelse}
 					<tr><td colspan="{$sb_table.columns|@count}" class="sb-report-empty">{l s='Nothing in this period.' mod='salisbergreports'}</td></tr>
 					{/foreach}

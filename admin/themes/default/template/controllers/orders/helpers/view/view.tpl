@@ -1,26 +1,9 @@
 {*
-* 2007-2017 PrestaShop
+* 2026
 *
 * NOTICE OF LICENSE
 *
-* This source file is subject to the Academic Free License (AFL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2017 PrestaShop SA
-*  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
+* MIT
 *}
 
 {extends file="helpers/view/view.tpl"}
@@ -83,20 +66,44 @@
 	{/if}
 
     <div id="order_detail_view">
+        <header class="sb-print-header">
+            <img src="{$img_dir|escape:'html':'UTF-8'}logo.jpg" alt="Salisberg Hotels">
+            <div>
+                <strong>{l s='Booking details'}</strong>
+                <span>{l s='Booking reference'}</span>
+                <b>{$order->reference|escape:'html':'UTF-8'}</b>
+            </div>
+        </header>
+        <section class="sb-print-guest">
+            <div>
+                <span>{l s='Guest'}</span>
+                <strong>{if $customerGuestDetail}{$customerGuestDetail->firstname|escape:'html':'UTF-8'} {$customerGuestDetail->lastname|escape:'html':'UTF-8'}{else}{$customer->firstname|escape:'html':'UTF-8'} {$customer->lastname|escape:'html':'UTF-8'}{/if}</strong>
+            </div>
+            {if $customerGuestDetail && $customerGuestDetail->email}
+                <div><span>{l s='Email'}</span><strong>{$customerGuestDetail->email|escape:'html':'UTF-8'}</strong></div>
+            {elseif $customer->email && !Customer::hasNoEmail($customer->email)}
+                <div><span>{l s='Email'}</span><strong>{$customer->email|escape:'html':'UTF-8'}</strong></div>
+            {/if}
+            {if $customerGuestDetail && $customerGuestDetail->phone}
+                <div><span>{l s='Phone'}</span><strong>{$customerGuestDetail->phone|escape:'html':'UTF-8'}</strong></div>
+            {elseif $customer->phone}
+                <div><span>{l s='Phone'}</span><strong>{$customer->phone|escape:'html':'UTF-8'}</strong></div>
+            {/if}
+        </section>
         {* Overbookings information of the order *}
         {include file='controllers/orders/_overbookings.tpl'}
 
         <div class="row">
             <div class="col-lg-7">
                 {if isset($htl_booking_order_data) && $htl_booking_order_data}
-                    <div class="panel">
+                    <div class="panel sb-print-room-status">
                         <div class="panel-heading order_status_heading">
                             <i class="icon-bed"></i> &nbsp;{l s='Rooms Status'}
                         </div>
                         <div class="panel-content">
                             <div class="row">
                                 <div class="col-lg-12 table-responsive" id="room_status_info_wrapper">
-                                    <table class="table">
+                                    <table class="table sb-room-status-table">
                                         <thead>
                                             <tr>
                                                 <th>{l s='Room'}</th>
@@ -114,6 +121,43 @@
                                                         <td>
                                                             {$data['room_num']}<br>
                                                             <a href="{$link->getAdminLink('AdminProducts')|escape:'html':'UTF-8'}&amp;id_product={$data['id_product']}&amp;updateproduct" target="_blank">{$data['room_type_name']|escape:'html':'UTF-8'}</a>
+                                                            {if $can_edit && !$data.is_cancelled && !$data.is_refunded && $data['id_status'] == $hotel_order_status['STATUS_ALLOTED']['id_status'] && $data['date_from']|date_format:'%Y-%m-%d' <= $smarty.now|date_format:'%Y-%m-%d'}
+                                                                <form method="post" action="{$link->getAdminLink('AdminSalisbergToday')|escape:'html':'UTF-8'}" class="sb-room-status-action">
+                                                                    <input type="hidden" name="id_booking" value="{$data['id']|intval}">
+                                                                    <input type="hidden" name="id_order_back" value="{$data['id_order']|intval}">
+                                                                    <button type="button" class="btn btn-success sb-confirm-room-status" aria-expanded="false" aria-controls="sb-room-check-in-confirm-{$data['id']|intval}">
+                                                                        <i class="icon-signin"></i> {l s='Check in'}
+                                                                    </button>
+                                                                    <div id="sb-room-check-in-confirm-{$data['id']|intval}" class="sb-room-status-confirm" role="alertdialog" aria-label="{l s='Confirm check in'|escape:'html':'UTF-8'}" hidden>
+                                                                        <span>{l s='Check this guest in?'}</span>
+                                                                        <button type="submit" name="sb_check_in" value="1" class="btn btn-success btn-xs">{l s='Yes, check in'}</button>
+                                                                        <button type="button" class="btn btn-default btn-xs sb-cancel-room-status">{l s='No'}</button>
+                                                                    </div>
+                                                                </form>
+                                                            {/if}
+                                                            {if $can_edit && !$data.is_cancelled && !$data.is_refunded && $data['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}
+                                                                <form method="post" action="{$link->getAdminLink('AdminSalisbergToday')|escape:'html':'UTF-8'}" class="sb-room-status-action">
+                                                                    <input type="hidden" name="id_booking" value="{$data['id']|intval}">
+                                                                    <input type="hidden" name="id_order_back" value="{$data['id_order']|intval}">
+                                                                    <button type="button" class="btn btn-primary sb-confirm-room-status" aria-expanded="false" aria-controls="sb-room-check-out-confirm-{$data['id']|intval}">
+                                                                        <i class="icon-signout"></i> {l s='Check out'}
+                                                                    </button>
+                                                                    <div id="sb-room-check-out-confirm-{$data['id']|intval}" class="sb-room-status-confirm" role="alertdialog" aria-label="{l s='Confirm check out'|escape:'html':'UTF-8'}" hidden>
+                                                                        <span>{l s='Check this guest out?'}</span>
+                                                                        <button type="submit" name="sb_check_out" value="1" class="btn btn-primary btn-xs">{l s='Yes, check out'}</button>
+                                                                        <button type="button" class="btn btn-default btn-xs sb-cancel-room-status">{l s='No'}</button>
+                                                                    </div>
+                                                                </form>
+                                                            {/if}
+                                                            <div class="sb-room-state">
+                                                                {if $data['id_status'] == $hotel_order_status['STATUS_CHECKED_OUT']['id_status']}
+                                                                    <span class="label label-default">{l s='Checked out'}</span>
+                                                                {elseif $data['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}
+                                                                    <span class="label label-success">{l s='Checked in'}</span>
+                                                                {else}
+                                                                    <span class="label label-warning">{l s='Not checked in'}</span>
+                                                                {/if}
+                                                            </div>
                                                         </td>
                                                         <td>
                                                             {assign var="is_full_date" value=($show_full_date && ($data['date_from']|date_format:'%D' == $data['date_to']|date_format:'%D'))}
@@ -148,9 +192,32 @@
                                                             {if isset($refundReqBookings) && $refundReqBookings && $data.id|in_array:$refundReqBookings && $data.is_refunded}
                                                                 <span class="badge badge-danger">{if $data.is_cancelled}{l s='Cancelled'}{else}{l s='Refunded'}{/if}</span>
                                                             {elseif $can_edit}
-                                                                <a class="open_room_status_form btn btn-default" href="#" data-id_hotel_booking_detail="{$data['id']}" data-id_order="{$data['id_order']}" data-id_status="{$data['id_status']}" data-id_room="{$data['id_room']}" data-date_from="{$data['date_from']|date_format:"%Y-%m-%d"}" data-date_to="{$data['date_to']|date_format:"%Y-%m-%d"}" data-check_in_time="{$data['check_in_time']}" data-check_out_time="{$data['check_out_time']}">
-                                                                    <i class="icon-pencil"></i> {l s='Edit'}
-                                                                </a>
+                                                                <details class="sb-room-status-dropdown">
+                                                                    <summary class="btn btn-default">{l s='Change room status'} <i class="icon-angle-down"></i></summary>
+                                                                    <form action="{$current_index|escape:'html':'UTF-8'}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}" method="post" class="sb-room-status-form">
+                                                                        <input type="hidden" name="submitbookingOrderStatus" value="1">
+                                                                        <input type="hidden" name="id_hotel_booking_detail" value="{$data['id']|intval}">
+                                                                        <input type="hidden" name="id_order" value="{$data['id_order']|intval}">
+                                                                        <input type="hidden" name="id_room" value="{$data['id_room']|intval}">
+                                                                        <input type="hidden" name="date_from" value="{$data['date_from']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'}">
+                                                                        <input type="hidden" name="date_to" value="{$data['date_to']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'}">
+                                                                        <input type="hidden" name="check_in_time" value="{$data['check_in_time']|escape:'html':'UTF-8'}">
+                                                                        <input type="hidden" name="check_out_time" value="{$data['check_out_time']|escape:'html':'UTF-8'}">
+                                                                        <input type="hidden" name="status_date" value="">
+                                                                        <div class="sb-check-in-time-override">
+                                                                            <label>
+                                                                                <input type="checkbox" class="sb-use-check-in-time">
+                                                                                {l s='Set actual check-in time'|escape:'html':'UTF-8'}
+                                                                            </label>
+                                                                            <input type="time" class="form-control sb-check-in-time" value="{$smarty.now|date_format:'%H:%M'|escape:'html':'UTF-8'}" style="display:none;">
+                                                                        </div>
+                                                                        <div class="sb-room-status-options">
+                                                                            {foreach from=$hotel_order_status item=state}
+                                                                                <button type="submit" name="booking_order_status" value="{$state['id_status']|intval}" class="sb-room-status-option"{if $state['id_status'] == $data['id_status']} disabled="disabled" aria-current="true"{/if} data-is-check-in="{if $state['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}1{else}0{/if}" data-status-date="{if $state['id_status'] == $hotel_order_status['STATUS_CHECKED_IN']['id_status']}{$data['date_from']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'} {$data['check_in_time']|escape:'html':'UTF-8'}{elseif $state['id_status'] == $hotel_order_status['STATUS_CHECKED_OUT']['id_status']}{$data['date_to']|date_format:'%Y-%m-%d'|escape:'html':'UTF-8'} {$data['check_out_time']|escape:'html':'UTF-8'}{/if}">{$state.name|escape:'html':'UTF-8'}</button>
+                                                                            {/foreach}
+                                                                        </div>
+                                                                    </form>
+                                                                </details>
                                                             {/if}
                                                         </td>
                                                     </tr>
@@ -172,9 +239,9 @@
                         </div>
                     </div>
                 {/if}
-                <div class="panel">
+                <div class="panel sb-print-history">
                     <div class="panel-heading">
-                        <i class="icon-file"></i> &nbsp;{l s='Order'}
+                        <i class="icon-file"></i> &nbsp;{l s='Booking'}
                         <span class="badge">{$order->reference}</span>
                         <span class="badge">{l s="#"}{$order->id}</span>
                         <div class="panel-heading-action">
@@ -421,17 +488,19 @@
                         <i class="icon-credit-card"></i> &nbsp;{l s="Payment"} <span class="badge">{$order->getOrderPayments()|@count}</span>
                     </div>
                     {if count($order->getOrderPayments()) > 0}
-                        <p class="alert alert-danger"{if round($order->total_paid_tax_incl, 2) == round($total_paid, 2) || (isset($currentState) && $currentState->id == 6)} style="display: none;"{/if}>
-                            {l s='Warning'}
+                        {* Part payment is normal for a hotel: say what is paid and what is left, in plain words. Red only when more than the total has been taken. *}
+                        <p class="alert {if round($total_paid, 2) > round($order->total_paid_tax_incl, 2)}alert-danger{else}alert-warning{/if}"{if round($order->total_paid_tax_incl, 2) == round($total_paid, 2) || (isset($currentState) && $currentState->id == 6)} style="display: none;"{/if}>
+                            {if round($total_paid, 2) > round($order->total_paid_tax_incl, 2)}{l s='More has been recorded than this booking costs:'}{else}{l s='Paid so far:'}{/if}
                             <strong>{displayPrice price=$total_paid currency=$currency->id}</strong>
-                            {l s='paid instead of'}
-                            <strong class="total_paid">{displayPrice price=$order->total_paid_tax_incl currency=$currency->id}</strong>
+                            {l s='of'}
+                            <strong class="total_paid">{displayPrice price=$order->total_paid_tax_incl currency=$currency->id}</strong>.
+                            {if round($total_paid, 2) < round($order->total_paid_tax_incl, 2)}{l s='Still to pay:'} <strong>{displayPrice price=($order->total_paid_tax_incl - $total_paid) currency=$currency->id}</strong>{/if}
                             {* {foreach $order->getBrother() as $brother_order}
                                 {if $brother_order@first}
                                     {if count($order->getBrother()) == 1}
-                                        <br />{l s='This warning also concerns order '}
+                                        <br />{l s='This warning also concerns booking '}
                                     {else}
-                                        <br />{l s='This warning also concerns the next orders:'}
+                                        <br />{l s='This warning also concerns these bookings:'}
                                     {/if}
                                 {/if}
                                 <a href="{$current_index}&amp;vieworder&amp;id_order={$brother_order->id}&amp;token={$smarty.get.token|escape:'html':'UTF-8'}">
@@ -514,7 +583,7 @@
             <div class="col-lg-5">
                 {* Traveller information *}
                 {if $customerGuestDetail}
-                    <div class="panel">
+                    <div class="panel sb-print-traveller">
                         <div class="panel-heading">
                             <i class="icon icon-user"></i> &nbsp;{l s='Traveller detail'}
                              {if $can_edit}
@@ -594,7 +663,7 @@
                                         <label class="label-title">{l s='Customer Info'}</label>
 
                                         <dd><b><i class="icon-calendar"></i> &nbsp; {$customer->date_add|date_format:"%d %b, %Y"}</b> ({l s='Member since'})</dd>
-                                        <dd><b><i class="icon-list"></i> &nbsp; {$customerStats['nb_orders']|intval}</b> ({l s='Total valid order placed'})</dd>
+                                        <dd><b><i class="icon-list"></i> &nbsp; {$customerStats['nb_orders']|intval}</b> ({l s='Valid bookings'})</dd>
                                         <dd><b><i class="icon-credit-card"></i> &nbsp; {displayPrice price=Tools::ps_round(Tools::convertPrice($customerStats['total_spent']|floatval, $currency), _PS_PRICE_DISPLAY_PRECISION_) currency=$currency->id}</b> ({l s='Total spent since registration'})</dd>
                                         {if Configuration::get('PS_B2B_ENABLE')}
                                             <dd><b>{$customer->siret}</b> ({l s='Siret'})</dd>
@@ -664,7 +733,7 @@
                                         </a>
                                         <ul class="dropdown-menu">
                                             {if $ordersWithDiffInvAddr}
-                                                <li><a href="{$current_index}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}&amp;action=set_old_orders_address">{l s='Set for all orders'}</a></li>
+                                                <li><a href="{$current_index}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}&amp;action=set_old_orders_address">{l s='Set for all bookings'}</a></li>
                                             {/if}
                                             {if !$idCurrentAddress || ($idCurrentAddress != $idOrderAddressInvoice)}
                                                 <li><a href="{$current_index}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}&amp;action=set_address_current_address">{l s='Set as current address'}</a></li>
@@ -682,7 +751,7 @@
                                             <i class="icon-ellipsis-vertical"></i>
                                         </a>
                                         <ul class="dropdown-menu">
-                                            <li><a href="{$current_index}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}&amp;action=set_order_active_address">{l s='Set current address for this order'}</a></li>
+                                            <li><a href="{$current_index}&amp;vieworder&amp;token={$smarty.get.token|escape:'html':'UTF-8'}&amp;id_order={$order->id|intval}&amp;action=set_order_active_address">{l s='Set current address for this booking'}</a></li>
                                         </ul>
                                     </div>
                                 {/if}
@@ -707,7 +776,7 @@
                 {if isset($messages) && $messages}
                     <div class="panel order-notes">
                         <div class="panel-heading">
-                            <i class="icon-undo"></i> &nbsp;{l s='Order Private Notes'}
+                            <i class="icon-undo"></i> &nbsp;{l s='Booking private notes'}
                         </div>
                         <div class="panel-content">
                             {foreach from=$messages item=message name=customerMessage}
@@ -834,7 +903,7 @@
                         <input type="hidden" value="{$order->getWarehouseList()|implode}" id="warehouse_list" />
                     </div>
                     {if $hotel_booking}
-                        <div class="panel">
+                        <div class="panel sb-print-room-details">
                             <div class="panel-heading">
                                 <i class="icon-bed"></i> &nbsp;{l s='Rooms Booking Detail'} <span class="badge">{$order_detail_data|@count}</span>
                                 {if $can_edit && (!$order->hasBeenDelivered() && $currentState->id != Configuration::get('PS_OS_REFUND') && $currentState->id != Configuration::get('PS_OS_CANCELED'))}
@@ -900,6 +969,11 @@
         <div class="row">
             <div class="col-lg-4 col-sm-6 col-xs-12 pull-right">
                 <div class="panel panel-total">
+                    <div class="sb-print-payment-summary">
+                        <div><span>{l s='Booking total'}</span><strong>{displayPrice price=$order->total_paid_tax_incl currency=$currency->id}</strong></div>
+                        <div><span>{l s='Paid'}</span><strong>{displayPrice price=$order->total_paid_real currency=$currency->id}</strong></div>
+                        <div><span>{l s='Balance due'}</span><strong>{displayPrice price=($order->total_paid_tax_incl - $order->total_paid_real) currency=$currency->id}</strong></div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table" id="order-details-price">
                             {* Assign order price *}
@@ -1172,7 +1246,7 @@
                 <div class="col-lg-4 col-sm-6 col-xs-12 pull-right">
                     <div class="panel">
                         <div class="panel-heading">
-                            <i class="icon-link"></i> &nbsp;{l s='Linked orders'}
+                            <i class="icon-link"></i> &nbsp;{l s='Linked bookings'}
                         </div>
                         <div class="panel-content">
                             <div class="table-responsive">
@@ -1180,7 +1254,7 @@
                                     <thead>
                                         <tr>
                                             <th>
-                                                {l s='Order no. '}
+                                                {l s='Booking no. '}
                                             </th>
                                             <th>
                                                 {l s='Status'}
@@ -1206,7 +1280,7 @@
                                             <td>
                                                 <a  href="{$current_index}&amp;vieworder&amp;id_order={$brother_order->id}&amp;token={$smarty.get.token|escape:'html':'UTF-8'}">
                                                     <i class="icon-eye-open"></i>
-                                                    {l s='See the order'}
+                                                    {l s='See the booking'}
                                                 </a>
                                             </td>
                                         </tr>
@@ -1275,7 +1349,7 @@
                                 </div>
                             </form>
                         {else}
-                            <div class="alert alert-warning">{l s='You do not have permission to edit this order.'}</div>
+                            <div class="alert alert-warning">{l s='You do not have permission to edit this booking.'}</div>
                         {/if}
                     </div>
                 </div>

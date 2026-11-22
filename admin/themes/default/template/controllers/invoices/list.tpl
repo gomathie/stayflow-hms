@@ -1,0 +1,98 @@
+{*
+ Bookings > Invoices: the invoices themselves, newest first, with what is
+ paid and what is still owed. Data comes from
+ AdminInvoicesController::renderInvoiceList().
+*}
+<div class="panel">
+	<div class="panel-heading"><i class="icon-file-text"></i> {l s='Invoices'}</div>
+	<form method="get" action="index.php" class="form-inline" style="margin-bottom:15px;">
+		<input type="hidden" name="controller" value="AdminInvoices" />
+		<input type="hidden" name="token" value="{$sb_token|escape:'html':'UTF-8'}" />
+		<div class="form-group">
+			<label for="sb_q">{l s='Find'}</label>
+			<input type="text" class="form-control" id="sb_q" name="sb_q" value="{$sb_filters.q|escape:'html':'UTF-8'}" placeholder="{l s='Invoice number, booking reference or guest'}" style="width:280px;" />
+		</div>
+		<div class="form-group">
+			<label for="sb_status">{l s='Status'}</label>
+			<select class="form-control" id="sb_status" name="sb_status">
+				{foreach from=$sb_statuses key=sb_key item=sb_name}
+				<option value="{$sb_key|escape:'html':'UTF-8'}"{if $sb_key == $sb_filters.status} selected="selected"{/if}>{$sb_name|escape:'html':'UTF-8'}</option>
+				{/foreach}
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="sb_from">{l s='From'}</label>
+			<input type="date" class="form-control" id="sb_from" name="sb_from" value="{$sb_filters.from|escape:'html':'UTF-8'}" />
+		</div>
+		<div class="form-group">
+			<label for="sb_to">{l s='To'}</label>
+			<input type="date" class="form-control" id="sb_to" name="sb_to" value="{$sb_filters.to|escape:'html':'UTF-8'}" />
+		</div>
+		<button type="submit" class="btn btn-primary"><i class="icon-search"></i> {l s='Show'}</button>
+		<a class="btn btn-default" href="{$sb_self|escape:'html':'UTF-8'}">{l s='Reset'}</a>
+	</form>
+
+	<div class="row">
+		<div class="col-sm-3"><div class="well well-sm"><small class="text-muted">{l s='Invoices'}</small><br /><strong style="font-size:18px;">{$sb_totals.count|intval}</strong></div></div>
+		<div class="col-sm-3"><div class="well well-sm"><small class="text-muted">{l s='Total billed'}</small><br /><strong style="font-size:18px;">{$sb_totals.total|escape:'html':'UTF-8'}</strong></div></div>
+		<div class="col-sm-3"><div class="well well-sm"><small class="text-muted">{l s='Paid'}</small><br /><strong style="font-size:18px;">{$sb_totals.paid|escape:'html':'UTF-8'}</strong></div></div>
+		<div class="col-sm-3"><div class="well well-sm"><small class="text-muted">{l s='Still to pay'}</small><br /><strong style="font-size:18px;">{$sb_totals.balance|escape:'html':'UTF-8'}</strong></div></div>
+	</div>
+
+	<div class="sb-cards sb-cards-invoices clearfix">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>{l s='Invoice'}</th>
+					<th>{l s='Date'}</th>
+					<th>{l s='Booking'}</th>
+					<th>{l s='Guest'}</th>
+					<th>{l s='Stay'}</th>
+					<th class="text-right">{l s='Total'}</th>
+					<th class="text-right">{l s='Paid'}</th>
+					<th class="text-right">{l s='Still to pay'}</th>
+					<th>{l s='Status'}</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+			{foreach from=$sb_invoices item=sb_row}
+				<tr>
+					<td class="sb-col-number"><strong>{$sb_row.number|escape:'html':'UTF-8'}</strong></td>
+					<td class="sb-col-date">{$sb_row.date|escape:'html':'UTF-8'}</td>
+					<td class="sb-col-booking"><a href="{$sb_booking_link|escape:'html':'UTF-8'}{$sb_row.id_order|intval}">{$sb_row.reference|escape:'html':'UTF-8'}</a></td>
+					<td class="sb-col-guest">{$sb_row.guest|escape:'html':'UTF-8'}{if $sb_row.phone}<br /><small class="text-muted">{$sb_row.phone|escape:'html':'UTF-8'}</small>{/if}</td>
+					<td class="sb-col-stay">{$sb_row.stay|escape:'html':'UTF-8'}</td>
+					<td class="text-right sb-col-total">{$sb_row.total|escape:'html':'UTF-8'}</td>
+					<td class="text-right sb-col-paid">{$sb_row.paid|escape:'html':'UTF-8'}</td>
+					<td class="text-right sb-col-balance"><strong>{$sb_row.balance|escape:'html':'UTF-8'}</strong></td>
+					<td class="sb-col-status">
+						{if $sb_row.status == 'paid'}<span class="label label-success">{l s='Paid'}</span>
+						{elseif $sb_row.status == 'part'}<span class="label label-warning">{l s='Partly paid'}</span>
+						{else}<span class="label label-danger">{l s='Not yet paid'}</span>{/if}
+					</td>
+					<td class="text-right sb-col-pdf">
+						<a class="btn btn-default" target="_blank" href="{$sb_pdf_link|escape:'html':'UTF-8'}{$sb_row.id_order_invoice|intval}"><i class="icon-file-text"></i> {if $sb_row.status == 'paid'}{l s='Receipt'}{else}{l s='Invoice'}{/if} (PDF)</a>
+					</td>
+				</tr>
+			{foreachelse}
+				<tr><td colspan="10" class="text-center text-muted" style="padding:24px;">{l s='No invoices match.'}</td></tr>
+			{/foreach}
+			</tbody>
+		</table>
+	</div>
+	{* P-13: one page at a time; the totals above cover every invoice the filter matches *}
+	{if $sb_totals.count}
+	<div class="sb-pager">
+		<span class="text-muted">{l s='%1$d–%2$d of %3$d' sprintf=[$sb_pager.first, $sb_pager.last, $sb_totals.count]}</span>
+		<span class="sb-pager-actions">
+			{foreach from=$sb_pager.choices item=sb_n}
+				{if $sb_n == $sb_pager.per}<span class="btn btn-default disabled">{l s='%d a page' sprintf=[$sb_n]}</span>
+				{else}<a class="btn btn-default" href="{$sb_pager.base|escape:'html':'UTF-8'}&amp;sb_per={$sb_n|intval}">{l s='%d a page' sprintf=[$sb_n]}</a>{/if}
+			{/foreach}
+			{if $sb_pager.page > 1}<a class="btn btn-default" href="{$sb_pager.base|escape:'html':'UTF-8'}&amp;sb_per={$sb_pager.per|intval}&amp;sb_page={($sb_pager.page - 1)|intval}">&lsaquo; {l s='Previous'}</a>{/if}
+			{if $sb_pager.page < $sb_pager.pages}<a class="btn btn-primary" href="{$sb_pager.base|escape:'html':'UTF-8'}&amp;sb_per={$sb_pager.per|intval}&amp;sb_page={($sb_pager.page + 1)|intval}">{l s='Next'} &rsaquo;</a>{/if}
+		</span>
+	</div>
+	{/if}
+</div>

@@ -31,10 +31,14 @@
 	<head>
 		<meta charset="utf-8">
 
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-title" content="Salisberg Desk">
+		<meta name="theme-color" content="#12352c">
+		<link rel="manifest" href="/pwa/desk-manifest.php?dir={$smarty.const._PS_ADMIN_DIR_|regex_replace:'/.*\\//':''|escape:'url'}" />
 		<link rel="icon" type="image/x-icon" href="{$img_dir}favicon.ico" />
-		<link rel="apple-touch-icon" href="{$img_dir}app_icon.png" />
+		<link rel="apple-touch-icon" href="/pwa/icon-180.png" />
 
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta name="robots" content="NOFOLLOW, NOINDEX">

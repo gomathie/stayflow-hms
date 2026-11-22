@@ -58,8 +58,8 @@
 							<i class="icon-desktop"></i> {l s='Customers'} {l s='by ip address'}</a>
 					</li>
 					<li class="search-orders search-option">
-						<a href="#" data-value="{$QLO_SEARCH_TYPE_ORDER}" data-placeholder="{l s='Order ID'}" data-icon="icon-credit-card">
-							<i class="icon-credit-card"></i> {l s='Orders'}
+						<a href="#" data-value="{$QLO_SEARCH_TYPE_ORDER}" data-placeholder="{l s='Booking ID'}" data-icon="icon-credit-card">
+							<i class="icon-credit-card"></i> {l s='Bookings'}
 						</a>
 					</li>
 					<li class="search-invoices search-option">

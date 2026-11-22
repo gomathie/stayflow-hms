@@ -26,7 +26,7 @@
 	<table class="bordered-table" width="100%" cellpadding="4" cellspacing="0">
 		<thead>
 			<tr>
-				<th colspan="{$colspan}" class="header">{l s='Service Products Detail' pdf='true'}</th>
+				<th colspan="{$colspan}" class="header-left section">{l s='Other items' pdf='true'}</th>
 			</tr>
 			<tr>
 				{if $display_product_images}

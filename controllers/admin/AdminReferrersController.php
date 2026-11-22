@@ -97,7 +97,7 @@ class AdminReferrersControllerCore extends AdminController
                 'align' => 'center'
             ),
             'cache_orders' => array(
-                'title' => $this->l('Orders'),
+                'title' => $this->l('Bookings'),
                 'width' => 30,
                 'align' => 'center'
             ),
@@ -122,7 +122,7 @@ class AdminReferrersControllerCore extends AdminController
                 'align' => 'center'
             ),
             'cache_order_rate' => array(
-                'title' => $this->l('Order rate'),
+                'title' => $this->l('Booking rate'),
                 'width' => 30,
                 'align' => 'center'
             ),
@@ -249,7 +249,7 @@ class AdminReferrersControllerCore extends AdminController
                     'type' => 'text',
                     'label' => $this->l('Base fee'),
                     'name' => 'base_fee',
-                    'desc' => $this->l('Fee given for each order placed.')
+                    'desc' => $this->l('Fee given for each booking made.')
                 ),
                 array(
                     'type' => 'text',
@@ -471,10 +471,10 @@ class AdminReferrersControllerCore extends AdminController
             'visits' => $this->l('Visits'),
             'pages' => $this->l('Pages viewed'),
             'registrations' => $this->l('Registrations'),
-            'orders' => $this->l('Orders'),
+            'orders' => $this->l('Bookings'),
             'sales' => $this->l('Sales'),
             'reg_rate' => $this->l('Registration rate'),
-            'order_rate' => $this->l('Order rate'),
+            'order_rate' => $this->l('Booking rate'),
             'click_fee' => $this->l('Click fee'),
             'base_fee' => $this->l('Base fee'),
             'percent_fee' => $this->l('Percent fee'));

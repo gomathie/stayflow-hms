@@ -20,56 +20,38 @@
 * @license https://opensource.org/license/osl-3-0-php Open Software License version 3.0
  */
 
-function pie_chart_occupancy(widget_name, chart_details) {
-    $('#availablePieChart svg').html('');
-    occupacygraph = nv.addGraph(function() {
-        var chart = nv.models.pieChart()
-            .x(function(d) { return d.label })
-            .y(function(d) { return d.value })
-            .showLabels(true)
-            .showLegend(false)
-            .labelThreshold(.01)
-            .labelType('percent')
-            .donut(true)
-            .donutRatio(0.35)
-            .color(['#A569DF', '#56CE56', '#FF655C']);
+/*
+ * Salisberg: tonight's rooms as one bar in three parts (in house, free, out of
+ * service), replacing the donut (owner, 2026-11-19). Colours come from the
+ * back office theme, --sb-occ-booked, --sb-occ-free and --sb-occ-blocked in
+ * overrides.css, validated for light and dark. Numbers and percentages sit in
+ * the legend, so nothing is clipped at any width.
+ */
+function sb_occupancy_bar(widget_name, chart_details) {
+    var bar = document.getElementById('sbOccBar');
+    var legend = document.getElementById('sbOccLegend');
+    if (!bar || !legend) {
+        return;
+    }
+    bar.innerHTML = '';
+    legend.innerHTML = '';
+    (chart_details.data || []).forEach(function (part) {
+        var seg = document.createElement('span');
+        seg.className = 'sb-occ-seg sb-occ-seg-' + part.key;
+        seg.style.width = (part.percent || 0) + '%';
+        seg.title = part.label + ': ' + part.value + ' (' + part.percent + '%)';
+        bar.appendChild(seg);
 
-        // create content for the tooltip of chart
-        chart.tooltip.contentGenerator((obj, element) => {
-            var tooltipContent = '<p><b>' + obj.data.value + '</b> (' + obj.data.percent + '%)<p>';
-            return getTooltipContent(obj.data.label, tooltipContent, obj.color);
-        });
-
-        d3.select('#availablePieChart svg')
-            .datum(chart_details.data)
-            .transition().duration(350)
-            .call(chart);
-        nv.utils.windowResize(chart.update);
-
-        return chart;
+        var item = document.createElement('li');
+        var dot = document.createElement('i');
+        dot.className = 'sb-occ-dot sb-occ-seg-' + part.key;
+        var label = document.createElement('span');
+        label.textContent = part.label;
+        var value = document.createElement('strong');
+        value.textContent = part.value + ' · ' + part.percent + '%';
+        item.appendChild(dot);
+        item.appendChild(label);
+        item.appendChild(value);
+        legend.appendChild(item);
     });
 }
-
-$(document).ready(function() {
-    $('#date-start').change(function() {
-        start = Date.parseDate($('#date-start').val(), 'Y-m-d');
-        end = Date.parseDate($('#date-end').val(), 'Y-m-d');
-
-        if (end.getDate() == start.getDate()) {
-            end.setDate(end.getDate() + 1);
-        }
-
-        $('#dashoccupancy_date_range').html(sprintf(date_subtitle, start.format(date_format), end.format(date_format)));
-    });
-
-    $('#date-end').change(function() {
-        start = Date.parseDate($('#date-start').val(), 'Y-m-d');
-        end = Date.parseDate($('#date-end').val(), 'Y-m-d');
-
-        if (end.getDate() == start.getDate()) {
-            end.setDate(end.getDate() + 1);
-        }
-
-        $('#dashoccupancy_date_range').html(sprintf(date_subtitle, start.format(date_format), end.format(date_format)));
-    });
-});

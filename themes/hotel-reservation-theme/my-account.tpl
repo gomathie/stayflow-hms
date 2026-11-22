@@ -33,7 +33,7 @@
                 {l s='Your account has been created.'}
             </p>
         {/if}
-        <p class="info-account">{l s='Welcome to your account. Here you can manage all of your personal information and orders.'}</p>
+        <p class="info-account">{l s='Welcome to your account. Here you can manage your personal information and bookings.'}</p>
     {/block}
     <div class="row addresses-lists">
         <div class="col-xs-12 col-sm-6 col-lg-4">

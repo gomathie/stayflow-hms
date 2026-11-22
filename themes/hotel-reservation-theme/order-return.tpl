@@ -159,7 +159,7 @@
 			</div>
 			<div class="form-group row">
 				<div class="col-md-2 col-sm-3">
-					<strong>{l s='Total order amount'} </strong>
+					<strong>{l s='Total booking amount'} </strong>
 				</div>
 				<div class="col-sm-9 col-md-10">
 					{displayPrice price=$orderInfo['total_paid_tax_incl'] currency=$orderInfo['id_currency']}

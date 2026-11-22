@@ -18,6 +18,8 @@
 .sb-guide .sb-warn { border-left-color: #a53f29; background: #fbefec; }
 .sb-guide .sb-go { display: inline-block; margin-top: 4px; font-weight: 600; color: #8a6a22; }
 .sb-guide table { width: 100%; margin-top: 8px; border-collapse: collapse; }
+/* on a phone a wide table scrolls inside itself instead of pushing the page sideways */
+@media (max-width: 767px) { .sb-guide table { display: block; overflow-x: auto; } }
 .sb-guide th, .sb-guide td { padding: 8px 10px; border-bottom: 1px solid #ececec; text-align: left; vertical-align: top; }
 .sb-guide th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #6b7672; }
 .sb-guide .sb-cards { display: flex; flex-wrap: wrap; gap: 14px; }

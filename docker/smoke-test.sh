@@ -17,7 +17,10 @@
 set -u
 cd "$(dirname "$0")/.." || exit 2
 
-env_value() { grep -E "^$1=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '\r'; }
+env_value() {
+    value="$(printenv "$1" 2>/dev/null || true)"
+    if [ -n "$value" ]; then printf '%s' "$value"; else grep -E "^$1=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '\r'; fi
+}
 BASE="${1:-http://localhost:$(env_value HTTP_PORT)}"; BASE="${BASE%/}"
 [ "$BASE" = "http://localhost:" ] && BASE="http://localhost:8080"
 ADMIN_DIR="$(env_value ADMIN_DIR)"; ADMIN_DIR="${ADMIN_DIR:-admin-salisberg}"
@@ -73,9 +76,9 @@ if [ -n "$ADMIN_EMAIL" ] && [ -n "$ADMIN_PASSWORD" ]; then
         bad "administrator sign-in (no redirect returned; wrong ADMIN_EMAIL/ADMIN_PASSWORD in .env, or the sign-in limit was reached)"
     else
         ok "administrator sign-in"
-        page "dashboard" "$ADMIN_DIR/$target" "Dashboard"
+        page "dashboard and Today workspace" "$ADMIN_DIR/$target" "Today at the desk"
         # every other page is reached through the menu links on the dashboard, which carry their tokens
-        for controller in AdminOrders AdminProducts AdminCustomers AdminHotelRoomsBooking AdminSalisbergReports AdminEmployees AdminModules AdminSalisbergStaffGuide AdminInformation; do
+        for controller in AdminOrders AdminProducts AdminCustomers AdminSalisbergReports AdminSalisbergRoomBoard AdminSalisbergHousekeeping AdminEmployees AdminModules AdminSalisbergStaffGuide AdminInformation; do
             link=$(grep -o "index.php?controller=$controller&amp;token=[a-f0-9]*" "$BODY.dash" 2>/dev/null | head -1)
             [ -z "$link" ] && { cp "$BODY" "$BODY.dash" 2>/dev/null; link=$(grep -o "index.php?controller=$controller&amp;token=[a-f0-9]*" "$BODY.dash" | head -1); }
             if [ -z "$link" ]; then bad "$controller (no menu link found)"; continue; fi
@@ -94,6 +97,48 @@ if [ "$BASE" != "${BASE#http://localhost}" ] && command -v docker >/dev/null 2>&
     if [ "$count" = "0" ]; then ok "no PHP errors or warnings logged"; else
         bad "$count PHP error/warning lines logged; the most frequent:"
         printf '%s\n' "$log" | sed -E 's/^[^|]*\| //; s/^\[[^]]*\] *//; s/\[pid [0-9]+\] *//; s/\[client [^]]*\] *//' | sed -E 's/, referer:.*//' | sort | uniq -c | sort -rn | head -8 | cut -c1-220
+    fi
+    # Db::getRow() and Db::getValue() add " LIMIT 1" themselves, so a query that already has
+    # a LIMIT reaches MySQL as "LIMIT 1 LIMIT 1" and fails ("SQLSTATE[42000] ... near
+    # 'LIMIT 1'"). That fault sat on a screen no page-load check opens, so look for it in the
+    # code that is in the image. Use executeS() for a query that needs its own LIMIT.
+    echo "Queries that would get a second LIMIT"
+    limit_hits=$(docker compose exec -T app php -r '
+        $p = "/->(?:getRow|getValue)\\(\\s*[\\x27\\x22][^;]{0,1500}?\\bLIMIT\\s+\\d+\\s*[\\x27\\x22]\\s*[,)]/s";
+        foreach (["modules", "override", "controllers", "classes"] as $d) {
+            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator("/var/www/html/$d", FilesystemIterator::SKIP_DOTS)) as $f) {
+                if ($f->getExtension() !== "php") { continue; }
+                $src = file_get_contents($f->getPathname());
+                if (preg_match_all($p, $src, $m, PREG_OFFSET_CAPTURE)) {
+                    foreach ($m[0] as $h) { echo str_replace("/var/www/html/", "", $f->getPathname()) . ":" . (substr_count(substr($src, 0, $h[1]), "\n") + 1) . "\n"; }
+                }
+            }
+        }' 2>/dev/null || true)
+    if [ -z "$limit_hits" ]; then ok "no getRow()/getValue() query carries its own LIMIT"; else
+        bad "getRow()/getValue() called with a query that already has LIMIT (it becomes LIMIT 1 LIMIT 1):"
+        printf '%s\n' "$limit_hits" | sed 's/^/          /'
+    fi
+    # Rule 11: override/ is not used. A change to an inherited class is made in
+    # that class, so a PHP file appearing under override/ is a mistake.
+    echo "Overrides"
+    override_hits=$(docker compose exec -T app sh -c 'find /var/www/html/override -name "*.php" ! -name index.php' 2>/dev/null | sed 's#/var/www/html/##' || true)
+    if [ -z "$override_hits" ]; then ok "no PHP file under override/"; else
+        bad "override/ is not used (rule 11); move these into the class they change:"
+        printf '%s\n' "$override_hits" | sed 's/^/          /'
+    fi
+    # An unescaped apostrophe inside {l s='...'} ends the string early; the whole
+    # page then fails with an error 500 (the Admin Guide did, live, 2026-11-20).
+    echo "Translation strings broken by an apostrophe"
+    quote_hits=$(docker compose exec -T app php -r '
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator("/var/www/html/modules", FilesystemIterator::SKIP_DOTS)) as $f) {
+            if ($f->getExtension() !== "tpl" || strpos($f->getPathname(), "/salisberg") === false) { continue; }
+            foreach (file($f->getPathname()) as $n => $line) {
+                if (preg_match("/\\{l s=\\x27(?:[^\\x27\\\\\\\\]|\\\\\\\\.)*\\x27[A-Za-z]/", $line)) { echo str_replace("/var/www/html/", "", $f->getPathname()) . ":" . ($n + 1) . "\n"; }
+            }
+        }' 2>/dev/null || true)
+    if [ -z "$quote_hits" ]; then ok "no {l s='...'} string is cut short by an apostrophe"; else
+        bad "{l s='...'} string ends early at an unescaped apostrophe (write \\' or reword):"
+        printf '%s\n' "$quote_hits" | sed 's/^/          /'
     fi
     printf '  PHP %s, MySQL %s\n' "$(docker compose exec -T app php -r 'echo PHP_VERSION;' 2>/dev/null)" "$(docker compose exec -T db mysqld --version 2>/dev/null | grep -o 'Ver [0-9.]*' | cut -d' ' -f2)"
 fi

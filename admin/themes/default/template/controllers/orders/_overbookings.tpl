@@ -23,7 +23,7 @@
 {if isset($orderOverBookings) && $orderOverBookings}
     <div class="panel panel-danger">
         <div class="panel-heading">
-            <i class="icon-warning"></i> {l s='Overbookings found in this order !!'}
+            <i class="icon-warning"></i> {l s='Overbookings found in this booking.'}
         </div>
         <div class="panel-content">
             <div class="table-responsive form-group">
@@ -33,7 +33,7 @@
                         <th>{l s='Room type.'}</th>
                         <th>{l s='Duration'}</th>
                         <th>{l s='Occupancy'}</th>
-                        <th>{l s='Confirmed booking order'}</th>
+                        <th>{l s='Confirmed booking'}</th>
                         <th>{l s='Reallocate/Swap'}</th>
                         <th>{l s='Resolve'}</th>
                     </tr>

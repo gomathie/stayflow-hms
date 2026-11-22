@@ -1,42 +1,16 @@
 <?php
-/*
-* 2007-2017 PrestaShop
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Open Software License (OSL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/osl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author PrestaShop SA <contact@prestashop.com>
-*  @copyright  2007-2017 PrestaShop SA
-*  @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
-*/
+
 
 /**
  * @property Order $object
  */
+require_once _PS_MODULE_DIR_.'salisbergfrontdesk/classes/SalisbergBookingArchive.php';
+
 class AdminOrdersControllerCore extends AdminController
 {
     public $toolbar_title;
 
     protected $statuses_array = array();
-    protected $all_order_sources = array();
-    protected $hotelsArray = array();
-    protected $roomTypesArray = array();
-    protected $roomsArray = array();
-    protected $orderCurrenciesArray = array();
 
 
     public function __construct()
@@ -46,6 +20,7 @@ class AdminOrdersControllerCore extends AdminController
         $this->className = 'Order';
         $this->lang = false;
         $this->addRowAction('view');
+        $this->addRowAction('delete');
         $this->explicitSelect = true;
         $this->allow_export = true;
         $this->deleted = false;
@@ -56,7 +31,6 @@ class AdminOrdersControllerCore extends AdminController
         IF('.((Configuration::get('PS_ORDER_LIST_PRICE_DISPLAY_CURRENCY') == Order::ORDER_LIST_PRICE_DISPLAY_IN_DEFAULT_CURRENCY)? 1 : 0).', ((a.total_paid - a.total_paid_real) / a.conversion_rate), (a.total_paid - a.total_paid_real)) AS amount_due,
         a.source AS order_source,
         a.id_currency,
-        a.id_order AS id_pdf,
         CONCAT(c.`firstname`, \' \', c.`lastname`) AS `customer`,
         osl.`name` AS `osname`, os.`color`,
         cu.iso_code AS currency,
@@ -71,6 +45,15 @@ class AdminOrdersControllerCore extends AdminController
             IF(SUM(hbd.`children`), CONCAT(SUM(hbd.`children`), \' '.$this->l('Children').'\'), \'\')
         ) FROM `'._DB_PREFIX_.'htl_booking_detail` hbd WHERE hbd.`id_order` = a.`id_order`) as total_guests,
         (SELECT SUM(DATEDIFF(hbd.`date_to`, hbd.`date_from`)) FROM `'._DB_PREFIX_.'htl_booking_detail` hbd WHERE hbd.`id_order` = a.`id_order`) as los,
+        (SELECT GROUP_CONCAT(hbdr.`room_num` ORDER BY hbdr.`room_num` SEPARATOR \', \')
+            FROM `'._DB_PREFIX_.'htl_booking_detail` hbdr
+            WHERE hbdr.`id_order` = a.`id_order`) AS room_numbers,
+        (SELECT MIN(hbdd.`date_from`)
+            FROM `'._DB_PREFIX_.'htl_booking_detail` hbdd
+            WHERE hbdd.`id_order` = a.`id_order`) AS stay_from,
+        (SELECT MAX(hbdd.`date_to`)
+            FROM `'._DB_PREFIX_.'htl_booking_detail` hbdd
+            WHERE hbdd.`id_order` = a.`id_order`) AS stay_to,
         hbd.`id_room` AS id_room_information,
         (SELECT COUNT(spod.`id_service_product_order_detail`) FROM `'._DB_PREFIX_.'service_product_order_detail` spod WHERE spod.`id_order` = a.`id_order` AND spod.`id_htl_booking_detail`=0) as num_products';
 
@@ -103,120 +86,73 @@ class AdminOrdersControllerCore extends AdminController
             }
             $this->_where = ' AND a.`id_order` IN ('.implode(',', $resolvableOrders).')';
         }
+        $this->_where = (string) $this->_where.' AND NOT EXISTS (
+            SELECT 1 FROM `'._DB_PREFIX_.'sb_deleted_booking` sbdb
+            WHERE sbdb.`id_order` = a.`id_order`
+        )';
 
 
         $statuses = OrderState::getOrderStates((int)$this->context->language->id);
         foreach ($statuses as $status) {
             $this->statuses_array[$status['id_order_state']] = $status['name'];
         }
-        $all_order_sources = Db::getInstance()->executeS('SELECT DISTINCT(`source`) FROM  `'._DB_PREFIX_.'orders`');
-        foreach ($all_order_sources as $source) {
-            $this->all_order_sources[$source['source']] = $source['source'];
-        }
-
-        $hotelsArray = HotelBranchInformation::getProfileAccessedHotels($this->context->employee->id_profile, 1);
-        foreach ($hotelsArray as $hotel) {
-            $addressInfo = HotelBranchInformation::getAddress($hotel['id_hotel']);
-            $this->hotelsArray[$hotel['id_hotel']] = $hotel['hotel_name'].', '.$addressInfo['city'];
-        }
-
-        $roomTypesArray = array();
-        $objHotelRoomType = new HotelRoomType();
-        foreach ($hotelsArray as $hotel) {
-            $hotelRoomTypes = $objHotelRoomType->getRoomTypeByHotelId($hotel['id_hotel'], $this->context->language->id);
-            foreach ($hotelRoomTypes as $room_type) {
-                $this->roomTypesArray[$room_type['id_product']] = $room_type['room_type'].', '.$hotel['hotel_name'];
-            }
-        }
-
-        $roomsArray = array();
-        $hotelRooms = HotelRoomInformation::getHotelRoomsInfo();
-        foreach ($hotelRooms as $hotelRoom) {
-            $this->roomsArray[$hotelRoom['id']] = $hotelRoom['room_num'].', '.$hotelRoom['room_type_name'].', '.$hotelRoom['hotel_name'];
-        }
-
-        $orderCurrencies = Db::getInstance()->executeS('SELECT DISTINCT(`id_currency`) FROM `'._DB_PREFIX_.'orders`');
-        foreach ($orderCurrencies as $orderCurrency) {
-            $this->orderCurrenciesArray[$orderCurrency['id_currency']] = Currency::getCurrencyInstance($orderCurrency['id_currency'])->name;
-        }
 
         $this->fields_list = array(
+            // Kept in the query so each row can open its booking. Not shown.
             'id_order' => array(
                 'title' => $this->l('ID'),
-                'align' => 'text-center',
-                'class' => 'fixed-width-xs',
+                'displayed' => false,
+                'search' => false,
             ),
             'reference' => array(
-                'title' => $this->l('Reference')
+                'title' => $this->l('Reference'),
             ),
             'customer' => array(
-                'title' => $this->l('Customer'),
+                'title' => $this->l('Guest'),
                 'havingFilter' => true,
-                'optional' => true,
-                'visible_default' => true
             ),
-            'hotel_name' => array(
-                'title' => $this->l('Hotel'),
-                'type' => 'select',
-                'filter_key' => 'hbd!id_hotel',
-                'list' => $this->hotelsArray,
-                'optional' => true,
-                'class' => 'chosen',
-                'visible_default' => true
+            'room_numbers' => array(
+                'title' => $this->l('Room'),
+                'havingFilter' => true,
             ),
-            'room_type_name' => array(
-                'title' => $this->l('Room type'),
-                'type' => 'select',
-                'filter_key' => 'hbd!id_product',
-                'list' => $this->roomTypesArray,
-                'optional' => false,
-                'class' => 'chosen',
-                'visible_default' => false,
-                'displayed' => false,
-            ),
-            'id_room_information' => array(
-                'title' => $this->l('Rooms'),
-                'type' => 'select',
-                'filter_key' => 'hbd!id_room',
-                'list' => $this->roomsArray,
-                'optional' => false,
-                'class' => 'chosen',
-                'visible_default' => false,
-                'displayed' => false,
-            ),
-            'date_from' => array(
+            'stay_from' => array(
                 'title' => $this->l('Check-in'),
+                'type' => 'date',
+                'callback' => 'printListDay',
                 'filter_key' => 'hbd!date_from',
-                'type'=>'date',
-                'displayed' => false,
             ),
-            'date_to' => array(
+            'stay_to' => array(
                 'title' => $this->l('Check-out'),
+                'type' => 'date',
+                'callback' => 'printListDay',
                 'filter_key' => 'hbd!date_to',
-                'type'=>'date',
-                'displayed' => false,
             ),
-            'total_guests' => array(
-                'title' => $this->l('Guests'),
-                'type' => 'range',
-                'filter_key' => 'total_guests_count',
-                'optional' => true,
-                'havingFilter' => true,
+            'osname' => array(
+                'title' => $this->l('Status'),
+                'type' => 'select',
+                'multiple' => true,
+                'operator' => 'or',
+                'callback' => 'printListStatus',
+                'list' => $this->statuses_array,
+                'filter_key' => 'os!id_order_state',
+                'order_key' => 'osname',
             ),
-            'num_rooms' => array(
-                'title' => $this->l('No. of rooms'),
-                'align' => 'text-center',
+            'total_paid_tax_incl' => array(
+                'title' => $this->l('Total'),
+                'align' => 'text-right',
                 'type' => 'range',
-                'optional' => true,
-                'havingFilter' => true,
-                'visible_default' => true
+                'validation' => 'isFloat',
+                'currency' => true,
+                'callback' => 'setOrderCurrency',
             ),
-            'los' => array(
-                'title' => $this->l('Stay period'),
-                'align' => 'text-center',
+            'amount_due' => array(
+                'title' => $this->l('Due'),
+                'align' => 'text-right',
                 'type' => 'range',
+                'validation' => 'isFloat',
+                'currency' => true,
                 'havingFilter' => true,
-                'optional' => true,
+                'callback' => 'printListDue',
             ),
         );
 
@@ -229,97 +165,6 @@ class AdminOrdersControllerCore extends AdminController
             ));
         }
 
-        $this->fields_list = array_merge($this->fields_list, array(
-            'amount_due' => array(
-                'title' => $this->l('Due Amount'),
-                'align' => 'text-right',
-                'type' => 'range',
-                'validation' => 'isFloat',
-                'currency' => true,
-                'havingFilter' => true,
-                'callback' => 'setOrderCurrency',
-                'badge_success' => true,
-                'optional' => true,
-                'visible_default' => true
-            ),
-            'id_currency' => array(
-                'title' => $this->l('Order Currency'),
-                'align' => 'text-center',
-                'type' => 'select',
-                'multiple' => true,
-                'operator' => 'or',
-                'filter_key' => 'a!id_currency',
-                'list' => $this->orderCurrenciesArray,
-                'displayed' => false,
-            ),
-            'total_paid_tax_incl' => array(
-                'title' => $this->l('Order Total'),
-                'align' => 'text-right',
-                'type' => 'range',
-                'validation' => 'isFloat',
-                'currency' => true,
-                'callback' => 'setOrderCurrency',
-                'badge_success' => true,
-            ),
-            'payment' => array(
-                'title' => $this->l('Payment')
-            ),
-            'order_source' => array(
-                'title' => $this->l('Order Source'),
-                'type' => 'select',
-                'filter_key' => 'a!source',
-                'list' => $this->all_order_sources,
-                'optional' => true,
-                'visible_default' => true
-            ),
-            'osname' => array(
-                'title' => $this->l('Status'),
-                'type' => 'select',
-                'multiple' => true,
-                'operator' => 'or',
-                'color' => 'color',
-                'list' => $this->statuses_array,
-                'filter_key' => 'os!id_order_state',
-                'order_key' => 'osname',
-                'optional' => true,
-                'visible_default' => true
-            ),
-            'date_add' => array(
-                'title' => $this->l('Order date'),
-                'align' => 'text-right',
-                'type' => 'datetime',
-                'filter_key' => 'a!date_add',
-                'optional' => true,
-                'visible_default' => true
-            ),
-            'id_pdf' => array(
-                'title' => $this->l('PDF'),
-                'align' => 'text-center',
-                'callback' => 'printPDFIcons',
-                'orderby' => false,
-                'search' => false,
-                'remove_onclick' => true,
-                'optional' => true,
-            ),
-            'is_refunded' => array(
-                'title' => $this->l('Refunded / Cancelled Rooms'),
-                'filter_key' => 'hbd!is_refunded',
-                'type'=>'bool',
-                'displayed' => false,
-            ),
-            'id_status' => array(
-                'title' => $this->l('Room status'),
-                'filter_key' => 'hbd!id_status',
-                'displayed' => false,
-                'type' => 'select',
-                'list' => array(
-                    HotelBookingDetail::STATUS_ALLOTED => $this->l('Alloted'),
-                    HotelBookingDetail::STATUS_CHECKED_IN => $this->l('Checked in'),
-                    HotelBookingDetail::STATUS_CHECKED_OUT => $this->l('Checked out'),
-                ),
-            )
-        ));
-
         $this->shopLinkType = 'shop';
         $this->shopShareDatas = Shop::SHARE_ORDER;
 
@@ -331,7 +176,7 @@ class AdminOrdersControllerCore extends AdminController
         }
 
         $this->bulk_actions = array(
-            'updateOrderStatus' => array('text' => $this->l('Change Order Status'), 'icon' => 'icon-refresh')
+            'updateOrderStatus' => array('text' => $this->l('Change booking status'), 'icon' => 'icon-refresh')
         );
 
         // START send access query information to the admin controller
@@ -349,6 +194,42 @@ class AdminOrdersControllerCore extends AdminController
         $this->_conf[53] = $this->l('Room in the booking is successfully swapped');
     }
 
+    /**
+     * SIMPLIFY-REVIEW P-12: calmer Bookings list cells. A date reads 12 Nov 2026,
+     * the status is a small chip with a dot (red only for a problem), and Due is
+     * red only when money is owed. Callbacks print raw HTML, so they escape.
+     */
+    public static function printListDay($value, $row)
+    {
+        $time = $value ? strtotime($value) : false;
+
+        return $time ? date('j M Y', $time) : '';
+    }
+
+    public static function printListStatus($value, $row)
+    {
+        $state = isset($row['current_state']) ? (int) $row['current_state'] : 0;
+        $problem = array_map('intval', array(Configuration::get('PS_OS_CANCELED'), Configuration::get('PS_OS_REFUND'), Configuration::get('PS_OS_ERROR')));
+        if (in_array($state, $problem, true)) {
+            $tone = 'bad';
+        } elseif (isset($row['amount_due']) && (float) $row['amount_due'] > 0.009) {
+            $tone = 'warn';
+        } else {
+            $tone = 'good';
+        }
+
+        return '<span class="sb-state sb-state-'.$tone.'"><i></i>'.Tools::safeOutput($value).'</span>';
+    }
+
+    public static function printListDue($value, $row)
+    {
+        if ((float) $value <= 0.009) {
+            return '<span class="sb-due-none">&mdash;</span>';
+        }
+
+        return '<span class="sb-due">'.self::setOrderCurrency($value, $row).'</span>';
+    }
+
     public static function setOrderCurrency($echo, $row)
     {
         if (Configuration::get('PS_ORDER_LIST_PRICE_DISPLAY_CURRENCY') == Order::ORDER_LIST_PRICE_DISPLAY_IN_DEFAULT_CURRENCY) {
@@ -359,12 +240,24 @@ class AdminOrdersControllerCore extends AdminController
         return Tools::displayPrice($echo, (int)$idCurrency);
     }
 
+    /**
+     * The old cart form is no longer a way to make a booking: New booking (the
+     * Room board and its guided steps) is. Existing bookings still open here.
+     */
+    public function init()
+    {
+        parent::init();
+        if (Tools::isSubmit('addorder') || Tools::isSubmit('submitAddOrder')) {
+            Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergRoomBoard'));
+        }
+    }
+
     public function initPageHeaderToolbar()
     {
         if (empty($this->display)) {
             $this->page_header_toolbar_btn['new_order'] = array(
-                'href' => self::$currentIndex.'&addorder&token='.$this->token,
-                'desc' => $this->l('Add new order', null, null, false),
+                'href' => $this->context->link->getAdminLink('AdminSalisbergRoomBoard'),
+                'desc' => $this->l('New booking', null, null, false),
                 'icon' => 'process-icon-new'
             );
         }
@@ -372,106 +265,14 @@ class AdminOrdersControllerCore extends AdminController
         parent::initPageHeaderToolbar();
     }
 
+    /**
+     * The old cart-based "Add new order" form is gone: New booking (the Room
+     * board and its guided steps) makes bookings. init() already redirects;
+     * this covers any other way into the add screen.
+     */
     public function renderForm()
     {
-        if (Context::getContext()->shop->getContext() != Shop::CONTEXT_SHOP && Shop::isFeatureActive()) {
-            $this->errors[] = $this->l('You have to select a shop before creating new orders.');
-        }
-
-        // check page is new order creation page and cart id is set
-        if (Tools::isSubmit('addorder') && ($id_cart = Tools::getValue('cart_id'))) {
-            // set smarty variables if new order creation process has errors
-            $cart = new Cart($id_cart);
-            $cart_order_exists = $cart->orderExists();
-            if (!$cart_order_exists) {
-                $this->context->cart = $cart;
-                $this->context->currency = new Currency((int)$cart->id_currency);
-
-                // validate cart for removing invalid data from cart before new order creation
-                // remove not linked services with room types from cart if not allowed to book them
-                $this->errors = array_merge(
-                    $this->errors,
-                    HotelCartBookingData::validateCartBookings(!Configuration::get('PS_ALLOW_ADD_ALL_SERVICES_IN_BOOKING'))
-                );
-
-                $cart_detail_data = array();
-                $cart_detail_data_obj = new HotelCartBookingData();
-                $objServiceProductCartDetail = new ServiceProductCartDetail();
-                if ($cart_detail_data = $cart_detail_data_obj->getCartFormatedBookinInfoByIdCart((int) $id_cart)) {
-                    $objRoomType = new HotelRoomType();
-                    foreach ($cart_detail_data as $key => $cart_data) {
-                        $cart_detail_data[$key]['room_type_info'] = $objRoomType->getRoomTypeInfoByIdProduct($cart_data['id_product']);
-                    }
-                    $this->context->smarty->assign('cart_detail_data', $cart_detail_data);
-                }
-                if ($cartHotelProduct = $objServiceProductCartDetail->getServiceProductsInCart($this->context->cart->id)) {
-                    $this->context->smarty->assign('cart_hotel_product_data', $cartHotelProduct);
-                }
-
-                if (empty($cart_detail_data) && empty($cartHotelProduct)) {
-                    // if no rooms added in the cart and user visits add order page then redirect to BOOK NOW page
-                    Tools::redirectAdmin($this->context->link->getAdminLink('AdminHotelRoomsBooking'));
-                }
-
-                $payment_modules = array();
-                foreach (PaymentModule::getInstalledPaymentModules() as $p_module) {
-                    $payment_modules[] = Module::getInstanceById((int)$p_module['id_module']);
-                }
-
-                $paymentTypes = array();
-                foreach ($this->getPaymentsTypes() as $paymentType) {
-                    if ($paymentType['value'] != OrderPayment::PAYMENT_TYPE_REMOTE_PAYMENT) {
-                        $paymentTypes[] = $paymentType;
-                    }
-                }
-
-                $occupancyRequiredForBooking = false;
-                if (Configuration::get('PS_BACKOFFICE_ROOM_BOOKING_TYPE') == HotelBookingDetail::PS_ROOM_UNIT_SELECTION_TYPE_OCCUPANCY) {
-                    $occupancyRequiredForBooking = true;
-                }
-
-                $objHotelAdvancedPayment = new HotelAdvancedPayment();
-                $this->context->smarty->assign(array(
-                    'order_total' => $cart->getOrderTotal(true),
-                    'is_advance_payment_active' => $objHotelAdvancedPayment->isAdvancePaymentAvailableForCurrentCart(),
-                    'advance_payment_amount_without_tax' => $cart->getOrderTotal(false, Cart::ADVANCE_PAYMENT),
-                    'advance_payment_amount_with_tax' => $cart->getOrderTotal(true, Cart::ADVANCE_PAYMENT),
-                    'cart' => $cart,
-                    'currencies' => Currency::getCurrenciesByIdShop(Context::getContext()->shop->id),
-                    'langs' => Language::getLanguages(true, Context::getContext()->shop->id),
-                    'payment_modules' => $payment_modules,
-                    'payment_types' => $paymentTypes,
-                    'PAYMENT_TYPE_PAY_AT_HOTEL' => OrderPayment::PAYMENT_TYPE_PAY_AT_HOTEL,
-                    'currency' => new Currency((int)$cart->id_currency),
-                    'max_child_in_room' => Configuration::get('WK_GLOBAL_MAX_CHILD_IN_ROOM'),
-                    'max_child_age' => Configuration::get('WK_GLOBAL_CHILD_MAX_AGE'),
-                    'occupancy_required_for_booking' => $occupancyRequiredForBooking,
-                ));
-
-            } else {
-                Tools::redirectAdmin($this->context->link->getAdminLink('AdminHotelRoomsBooking'));
-            }
-            $this->context->smarty->assign('is_order_created', $cart_order_exists);
-        } else {
-            Tools::redirectAdmin($this->context->link->getAdminLink('AdminHotelRoomsBooking'));
-        }
-
-        //end
-        parent::renderForm();
-        unset($this->toolbar_btn['save']);
-        $this->addJqueryPlugin(array('autocomplete', 'fancybox', 'typewatch'));
-
-        $this->context->smarty->assign(array(
-            'recyclable_pack' => (int)Configuration::get('PS_RECYCLABLE_PACK'),
-            'gift_wrapping' => (int)Configuration::get('PS_GIFT_WRAPPING'),
-            'show_toolbar' => $this->show_toolbar,
-            'toolbar_btn' => $this->toolbar_btn,
-            'toolbar_scroll' => $this->toolbar_scroll,
-            'PS_CATALOG_MODE' => Configuration::get('PS_CATALOG_MODE'),
-            'title' => array($this->l('Orders'), $this->l('Create order')),
-        ));
-
-        $this->content .= $this->createTemplate('form.tpl')->fetch();
+        Tools::redirectAdmin($this->context->link->getAdminLink('AdminSalisbergRoomBoard'));
     }
 
     public function initToolbar()
@@ -502,7 +303,7 @@ class AdminOrdersControllerCore extends AdminController
                 $this->toolbar_btn['print'] = array(
                     'short' => $this->l('Print'),
                     'href' => 'javascript:window.print()',
-                    'desc' => $this->l('Print order'),
+                    'desc' => $this->l('Print booking'),
                     'class' => 'icon-print',
                 );
 
@@ -540,7 +341,7 @@ class AdminOrdersControllerCore extends AdminController
             $this->toolbar_title[] = $this->l('Add new');
         } elseif ($this->display != 'view') {
             array_pop($this->toolbar_title);
-            $this->toolbar_title[] = $this->l('Orders');
+            $this->toolbar_title[] = $this->l('Bookings');
         }
     }
 
@@ -691,7 +492,7 @@ class AdminOrdersControllerCore extends AdminController
             $modal = array(
                 'modal_id' => 'order-payment-modal',
                 'modal_class' => 'order_detail_modal',
-                'modal_title' => '<i class="icon icon-credit-card"></i> &nbsp'.$this->l('Order Payment'),
+                'modal_title' => '<i class="icon icon-credit-card"></i> &nbsp'.$this->l('Booking payment'),
                 'modal_content' => $this->context->smarty->fetch('controllers/orders/modals/_order_payment_form.tpl'),
                 'modal_actions' => array(
                     array(
@@ -769,46 +570,6 @@ class AdminOrdersControllerCore extends AdminController
 
             $this->context->smarty->assign($modal);
             $response['hasError'] = 0;
-            $response['modalHtml'] = $this->context->smarty->fetch('modal.tpl');
-        }
-
-        die(Tools::jsonEncode($response));
-    }
-
-    public function ajaxProcessInitRoomStatusModal()
-    {
-        // set modal details
-        $response['hasError'] = 1;
-        if (Validate::isLoadedObject($objOrder = new Order(Tools::getValue('id_order')))) {
-            $htlOrderStatus = HotelBookingDetail::getAllHotelOrderStatus();
-            $this->context->smarty->assign(
-                array(
-                    'order' => $objOrder,
-                    'current_index' => self::$currentIndex,
-                    'hotel_order_status' => $htlOrderStatus,
-                )
-            );
-            $modal = array(
-                'modal_id' => 'room-status-modal',
-                'modal_class' => 'order_detail_modal',
-                'modal_title' => '<i class="icon-bed"></i> &nbsp'.$this->l('Guest CheckIn - Checkout'),
-                'modal_content' => $this->context->smarty->fetch('controllers/orders/modals/_room_status_form.tpl'),
-                'modal_actions' => array(
-                    array(
-                        'type' => 'button',
-                        'value' => 'submitRoomStatus',
-                        'class' => 'submitRoomStatus btn-primary pull-right',
-                        'label' => '<i class="icon-bed"></i> '.$this->l('Update Status'),
-                    ),
-                ),
-            );
-
-            $this->context->smarty->assign($modal);
-
-            $response['hasError'] = 0;
-            $response['STATUS_ALLOTED'] = HotelBookingDetail::STATUS_ALLOTED;
-            $response['STATUS_CHECKED_IN'] = HotelBookingDetail::STATUS_CHECKED_IN;
-            $response['STATUS_CHECKED_OUT'] = HotelBookingDetail::STATUS_CHECKED_OUT;
             $response['modalHtml'] = $this->context->smarty->fetch('modal.tpl');
         }
 
@@ -1293,32 +1054,12 @@ class AdminOrdersControllerCore extends AdminController
             // $this->addJS(_PS_JS_DIR_.'admin/orders-room-event.js');
             $this->addJS(_PS_JS_DIR_.'tools.js');
             $this->addJqueryPlugin('autocomplete');
+        } else {
+            $module = Module::getInstanceByName('salisbergfrontdesk');
+            if ($module) {
+                $this->addJS($module->getPathUri().'views/js/archive-booking.js');
+            }
         }
-    }
-
-    public function printPDFIcons($id_order, $tr)
-    {
-        static $valid_order_state = array();
-
-        $order = new Order($id_order);
-        if (!Validate::isLoadedObject($order)) {
-            return '';
-        }
-
-        if (!isset($valid_order_state[$order->current_state])) {
-            $valid_order_state[$order->current_state] = Validate::isLoadedObject($order->getCurrentOrderState());
-        }
-
-        if (!$valid_order_state[$order->current_state]) {
-            return '';
-        }
-
-        $this->context->smarty->assign(array(
-            'order' => $order,
-            'tr' => $tr
-        ));
-
-        return $this->createTemplate('_print_pdf_icon.tpl')->fetch();
     }
 
     public function printNewCustomer($id_order, $tr)
@@ -1372,6 +1113,12 @@ class AdminOrdersControllerCore extends AdminController
 
     public function renderList()
     {
+        // P-14: compact cards on phones, no Delete on the card (it stays inside the record)
+        $this->context->smarty->assign('sb_phone_cards', true);
+        if (Tools::getValue('sb_archived')) {
+            $this->confirmations[] = $this->l('The booking was moved to the recycle bin.');
+        }
+
         // Show all resolvable overbookings if available
         $objHotelBookingDetail = new HotelBookingDetail();
         if ($resolvableOverBookings = $objHotelBookingDetail->getOverbookedRooms(0, 0, '', '', 0, 0, 2)) {
@@ -1390,7 +1137,7 @@ class AdminOrdersControllerCore extends AdminController
             $this->tpl_list_vars['POST'] = $_POST;
         }
 
-        $this->tpl_list_vars['title'] = $this->l('Orders');
+        $this->tpl_list_vars['title'] = $this->l('Bookings');
 
         $this->_new_list_header_design = true;
 
@@ -1475,7 +1222,7 @@ class AdminOrdersControllerCore extends AdminController
                     'filter_key' => 'hbd!date_to',
                 ),
                 'date_add' => array(
-                    'title' => $this->l('Reservation Date'),
+                    'title' => $this->l('Booking date'),
                     'filter_key' => 'a!date_add',
                 ),
                 'room_status' => array(
@@ -1519,6 +1266,11 @@ class AdminOrdersControllerCore extends AdminController
 
     public function postProcess()
     {
+        if (Tools::isSubmit('deleteorder')) {
+            $this->processDelete();
+            return;
+        }
+
         // Process reallocation of rooms
         if (Tools::isSubmit('realloc_allocated_rooms')) {
             if ($this->tabAccess['edit'] === 1) {
@@ -1564,7 +1316,7 @@ class AdminOrdersControllerCore extends AdminController
                     }
                 }
             } else {
-                $this->errors[] = $this->l('You do not have permission to edit this order.');
+                $this->errors[] = $this->l('You do not have permission to edit this booking.');
             }
         }
 
@@ -1606,7 +1358,7 @@ class AdminOrdersControllerCore extends AdminController
                     }
                 }
             } else {
-                $this->errors[] = $this->l('You do not have permission to edit this order.');
+                $this->errors[] = $this->l('You do not have permission to edit this booking.');
             }
         }
         // To update order status when admin changes from order detail page
@@ -1614,7 +1366,7 @@ class AdminOrdersControllerCore extends AdminController
             if ($this->tabAccess['edit'] === 1) {
                 $this->changeRoomStatus();
             } else {
-                $this->errors[] = $this->l('You do not have permission to edit this order.');
+                $this->errors[] = $this->l('You do not have permission to edit this booking.');
             }
         }
 
@@ -1978,6 +1730,15 @@ class AdminOrdersControllerCore extends AdminController
                     $this->errors[] = Tools::displayError('The date is invalid');
                 } elseif (!Validate::isUnsignedInt($payment_type)) {
                     $this->errors[] = Tools::displayError('Payment source is invalid');
+                // Money already received is not taken twice: a payment cannot be more than is still owed
+                } elseif ($amount > 0
+                    && Tools::ps_round(Tools::convertPriceFull($amount, $currency, new Currency($order->id_currency)), 2)
+                        > Tools::ps_round($order->total_paid_tax_incl - $order->total_paid_real, 2) + 0.009
+                ) {
+                    $this->errors[] = sprintf(
+                        Tools::displayError('This is more than the %s still owed on this booking. Check whether this payment has already been recorded.'),
+                        Tools::displayPrice(max(0, $order->total_paid_tax_incl - $order->total_paid_real), new Currency($order->id_currency))
+                    );
                 // Amount cannot be less than paid amount by guest in negative price
                 } elseif ($amount < 0) {
                     if ($currency->id == $order->id_currency) {
@@ -2035,148 +1796,6 @@ class AdminOrdersControllerCore extends AdminController
                 }
             } else {
                 $this->errors[] = Tools::displayError('The invoice for edit note was unable to load. ');
-            }
-        } elseif (Tools::isSubmit('submitAddOrder') && ($id_cart = Tools::getValue('id_cart'))) {
-            if ($this->tabAccess['add'] === 1) {
-                $objCart = new Cart($id_cart);
-                if (Validate::isLoadedObject($objCart)) {
-                    $this->context->cart = $objCart;
-                    $this->context->currency = new Currency((int)$objCart->id_currency);
-                    $this->context->customer = new Customer((int) $objCart->id_customer);
-
-                    $this->errors = HotelCartBookingData::validateCartBookings(!Configuration::get('PS_ALLOW_ADD_ALL_SERVICES_IN_BOOKING'));
-
-                    // Remove cart rules and add if any changes
-                    CartRule::autoRemoveFromCart($this->context);
-                    CartRule::autoAddToCart($this->context);
-
-                    $orderTotal = $objCart->getOrderTotal(true, Cart::BOTH);
-                    if ($objCart->is_advance_payment) {
-                        $advancePaymentAmount = $objCart->getOrderTotal(true, Cart::ADVANCE_PAYMENT);
-                    }
-
-                    // Validate data if required
-                    if ($orderTotal > 0) {
-                        $moduleName = trim(Tools::getValue('payment_module_name'));
-                        $paymentType = Tools::getValue('payment_type');
-                        $paymentTransactionId = trim(Tools::getValue('payment_transaction_id'));
-                        $isFullPayment = Tools::getValue('is_full_payment');
-                        $paymentAmount = trim(Tools::getValue('payment_amount'));
-
-                        if (!$isFullPayment) {
-                            if ($paymentAmount == '') {
-                                $this->errors[] = Tools::displayError('Please enter valid Payment amount of the order.');
-                            } elseif ($paymentAmount && !Validate::isPrice($paymentAmount)) {
-                                $this->errors[] = Tools::displayError('Payment amount is invalid. Please enter valid amount.');
-                            } else {
-                                $paymentAmount = (float) $paymentAmount;
-                            }
-                        } else {
-                            $paymentAmount = $orderTotal;
-                        }
-
-                        if ($paymentAmount >= 0) {
-                            if (!$moduleName) {
-                                $this->errors[] = Tools::displayError('Please enter Payment method.');
-                            } elseif ($moduleName && !Validate::isGenericName($moduleName)) {
-                                $this->errors[] = Tools::displayError('Payment method is invalid. Please enter a valid payment method.');
-                            }
-                        }
-
-                        if ($paymentAmount > 0) {
-                            if (!$paymentType) {
-                                $this->errors[] = Tools::displayError('Please select a Payment source.');
-                            } elseif ($paymentType && !Validate::isUnsignedInt($paymentType)) {
-                                $this->errors[] = Tools::displayError('Payment source is invalid. Please select payment source.');
-                            }
-
-                            if ($paymentTransactionId && !Validate::isString($paymentTransactionId)) {
-                                $this->errors[] = Tools::displayError('Payment amount is invalid. Please enter correct amount.');
-                            }
-                        }
-                    }
-
-                    if (!count($this->errors)) {
-
-                        // Set payment module details
-                        $objPaymentModule = new BoOrder();
-                        $objPaymentModule->displayName = $moduleName;
-
-                        if ($orderTotal > 0) {
-                            $objPaymentModule->payment_type = $paymentType;
-
-                            // Set order state
-                            if ($isFullPayment) {
-                                $idOrderState = Configuration::get('PS_OS_PAYMENT_ACCEPTED');
-                            } else {
-                                if ($paymentAmount <= 0) {
-                                    $idOrderState = Configuration::get('PS_OS_AWAITING_PAYMENT');
-                                } elseif (($paymentAmount >= $orderTotal)) {
-                                    $idOrderState = Configuration::get('PS_OS_PAYMENT_ACCEPTED');
-                                } else {
-                                    $idOrderState = Configuration::get('PS_OS_PARTIAL_PAYMENT_ACCEPTED');
-                                }
-                            }
-
-                            // Set amount paid
-                            $amountPaid = $isFullPayment ? $orderTotal : $paymentAmount;
-
-                            // Set transaction ID
-                            $extraVars = $paymentTransactionId ? array('transaction_id' => $paymentTransactionId) : array();
-                        } else {
-                            $objPaymentModule = new FreeOrder();
-                            // Set order state
-                            if ($objCart->is_advance_payment) {
-                                if ($advancePaymentAmount <= $orderTotal) {
-                                    $idOrderState = Configuration::get('PS_OS_PARTIAL_PAYMENT_ACCEPTED');
-                                } else {
-                                    $idOrderState = Configuration::get('PS_OS_PAYMENT_ACCEPTED');
-                                }
-                            } else {
-                                $idOrderState = Configuration::get('PS_OS_PAYMENT_ACCEPTED');
-                            }
-
-                            // Set amount paid
-                            $amountPaid = 0;
-
-                            // Set transaction ID
-                            $extraVars = null;
-                        }
-
-                        $amountPaid = Tools::ps_round($amountPaid, 6);
-                        $objEmployee = new Employee($this->context->cookie->id_employee);
-                        $sendMails = Tools::getValue('send_mails', true);
-
-                        $objPaymentModule->validateOrder(
-                            $objCart->id,
-                            $idOrderState,
-                            $amountPaid,
-                            $objPaymentModule->displayName,
-                            $this->l('Manual order -- Employee:').' '.substr($objEmployee->firstname, 0, 1).'. '.$objEmployee->lastname,
-                            $extraVars,
-                            null,
-                            false,
-                            $objCart->secure_key,
-                            null,
-                            $sendMails
-                        );
-
-                        if (isset($this->context->cookie->id_cart)) {
-                            unset($this->context->cookie->id_cart);
-                        }
-                        if (isset($this->context->cookie->id_guest)) {
-                            unset($this->context->cookie->id_guest);
-                        }
-
-                        if ($objPaymentModule->currentOrder) {
-                            Tools::redirectAdmin(self::$currentIndex.'&id_order='.$objPaymentModule->currentOrder.'&vieworder'.'&token='.$this->token.'&conf=3');
-                        }
-                    }
-                } else {
-                    $this->errors[] = Tools::displayError('Cart can not be loaded.');
-                }
-            } else {
-                $this->errors[] = Tools::displayError('You do not have permission to add this.');
             }
         } elseif ((Tools::isSubmit('submitAddressShipping') || Tools::isSubmit('submitAddressInvoice')) && isset($order)) {
             if ($this->tabAccess['edit'] === 1) {
@@ -2830,6 +2449,36 @@ class AdminOrdersControllerCore extends AdminController
         parent::postProcess();
     }
 
+    public function processDelete()
+    {
+        if (strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST') {
+            $this->errors[] = $this->l('Bookings must be moved to the recycle bin using the confirmation form.');
+            return false;
+        }
+        if (empty($this->tabAccess['delete'])) {
+            $this->errors[] = $this->l('You do not have permission to delete bookings.');
+            return false;
+        }
+
+        $reason = (string) Tools::getValue('sb_delete_reason');
+        if (trim(strip_tags($reason)) === '' || Tools::strlen(trim(strip_tags($reason))) > 1000) {
+            $this->errors[] = $this->l('Enter a reason of no more than 1000 characters.');
+            return false;
+        }
+
+        try {
+            SalisbergBookingArchive::archive(
+                (int) Tools::getValue('id_order'),
+                (int) $this->context->employee->id,
+                $reason
+            );
+            Tools::redirectAdmin(self::$currentIndex.'&token='.$this->token.'&sb_archived=1');
+        } catch (Exception $exception) {
+            $this->errors[] = $exception->getMessage();
+            return false;
+        }
+    }
+
     // KPIs on view page
     public function renderKpis()
     {
@@ -2837,20 +2486,11 @@ class AdminOrdersControllerCore extends AdminController
         $objOrder = new Order(Tools::getValue('id_order'));
         if (Validate::isLoadedObject($objOrder)) {
             $helper = new HelperKpi();
-            $helper->id = 'box-order-date';
-            $helper->icon = 'icon-calendar';
-            $helper->color = 'color1';
-            $helper->title = $this->l('Order Date');
-            $helper->tooltip = $this->l('The date when the order was placed.');
-            $helper->value = Tools::displayDate($objOrder->date_add);
-            $this->kpis[] = $helper;
-
-            $helper = new HelperKpi();
             $helper->id = 'box-order-total';
             $helper->icon = 'icon-money';
             $helper->color = 'color3';
             $helper->title = $this->l('Bookings Total');
-            $helper->tooltip = $this->l('Total booking amount of this order.');
+            $helper->tooltip = $this->l('Total amount of this booking.');
             $helper->value = Tools::displayPrice($objOrder->total_paid_tax_incl, new Currency($objOrder->id_currency));
             $this->kpis[] = $helper;
 
@@ -2859,7 +2499,7 @@ class AdminOrdersControllerCore extends AdminController
             $helper->icon = 'icon-money';
             $helper->color = 'color4';
             $helper->title = $this->l('Total Paid');
-            $helper->tooltip = $this->l('Total paid is the amount which customer has already paid for this order.');
+            $helper->tooltip = $this->l('Total paid is the amount the guest has already paid for this booking.');
             $helper->value = Tools::displayPrice($objOrder->total_paid_real, new Currency($objOrder->id_currency));
             $this->kpis[] = $helper;
 
@@ -2868,31 +2508,8 @@ class AdminOrdersControllerCore extends AdminController
             $helper->icon = 'icon-money';
             $helper->color = 'color2';
             $helper->title = $this->l('Total Due');
-            $helper->tooltip = $this->l('Total due is the amount which customer has to pay for this order.');
+            $helper->tooltip = $this->l('Total due is the amount the guest still has to pay for this booking.');
             $helper->value = Tools::displayPrice(($objOrder->total_paid_tax_incl - $objOrder->total_paid_real), new Currency($objOrder->id_currency));
-            $this->kpis[] = $helper;
-
-            $orderHistory = array_reverse($objOrder->getHistory($this->context->language->id));
-            $helper = new HelperKpi();
-            $helper->id = 'box-order-source';
-            $helper->icon = 'icon-globe';
-            $helper->color = 'color1';
-            $helper->title = $this->l('Order Source');
-            $helper->tooltip = $this->l('Order source shows from which source the order was placed.');
-            $helper->subtitle = $orderHistory[0]['id_employee'] ? $this->l('Back office') : $this->l('Front office');
-            $helper->value = $objOrder->source;
-            $this->kpis[] = $helper;
-
-            $objCustomerThread = new CustomerThread();
-            $idCustomerThread = $objCustomerThread->getIdCustomerThreadByIdOrder($objOrder->id);
-            $helper = new HelperKpi();
-            $helper->id = 'box-messages';
-            $helper->icon = 'icon-comments';
-            $helper->color = 'color2';
-            $helper->title = $this->l('Messages');
-            $helper->tooltip = $this->l('Messages is the number of customer messages for this order.');
-            $helper->href = $this->context->link->getAdminLink('AdminCustomerThreads').((int) $idCustomerThread ? '&viewcustomer_thread&id_customer_thread='.(int) $idCustomerThread : '');
-            $helper->value = count(CustomerThread::getCustomerMessages($objOrder->id_customer, null, $objOrder->id, CustomerMessage::QLO_CUSTOMER_MESSAGE_BY_CUSTOMER));
             $this->kpis[] = $helper;
 
             $objHotelBookingDetail = new HotelBookingDetail();
@@ -2902,213 +2519,40 @@ class AdminOrdersControllerCore extends AdminController
             $helper->icon = 'icon-home';
             $helper->color = 'color1';
             $helper->title = $this->l('Total Rooms');
-            $helper->tooltip = $this->l('Total rooms is the number of rooms booked in this order.');
+            $helper->tooltip = $this->l('Total rooms is the number of rooms in this booking.');
             $helper->href = '#start_products';
             $helper->value = $numRooms;
             $this->kpis[] = $helper;
 
-            // if order has normal products the add kpi for total products
-            $objServiceProductOrderDetail = new ServiceProductOrderDetail();
-            $hotelProducts = $objServiceProductOrderDetail->getServiceProductsInOrder($objOrder->id, 0, 0, Product::SELLING_PREFERENCE_HOTEL_STANDALONE);
-            $standaloneProducts = $objServiceProductOrderDetail->getServiceProductsInOrder($objOrder->id, 0, 0, Product::SELLING_PREFERENCE_STANDALONE);
-
-            if ($hotelProducts || $standaloneProducts) {
-                $helper = new HelperKpi();
-                $helper->id = 'box-total-products';
-                $helper->icon = 'icon-home';
-                $helper->color = 'color1';
-                $helper->title = $this->l('Total Products');
-                $helper->tooltip = $this->l('Total products is the number of product quantities booked in this order.');
-                $helper->href = '#start_products';
-
-                $totalProductQuantity = 0;
-                if ($hotelProducts) {
-                    $totalProductQuantity += array_sum(array_column($hotelProducts, 'quantity'));
-                }
-                if ($standaloneProducts) {
-                    $totalProductQuantity += array_sum(array_column($standaloneProducts, 'quantity'));
-                }
-
-                $helper->value = $totalProductQuantity;
-                $this->kpis[] = $helper;
-            }
-
-            $helper = new HelperKpi();
-            if (isset($orderHistory[0]['id_order_state']) && ($orderHistory[0]['id_order_state'] == Configuration::get('PS_OS_PAYMENT_ACCEPTED'))) {
-                $initialPaymentStatus = $this->l('Full Payment');
-            } elseif (isset($orderHistory[0]['id_order_state']) && ($orderHistory[0]['id_order_state'] == Configuration::get('PS_OS_PARTIAL_PAYMENT_ACCEPTED'))) {
-                $initialPaymentStatus = $this->l('Partial Payment');
-            } else {
-                $initialPaymentStatus = $this->l('No Payment Received');
-            }
-            $helper->id = 'box-payment-status';
-            $helper->icon = 'icon-home';
-            $helper->color = 'color3';
-            $helper->title = $this->l('Initial Payment Status');
-            $helper->tooltip = $this->l('Initial Payment Status defines whether the order was fully paid, partially paid, or had no payment received at the time the order was placed.');
-            $helper->value = $initialPaymentStatus;
-            $this->kpis[] = $helper;
-
-            if ($objOrder->is_advance_payment) {
-                $helper = new HelperKpi();
-                $helper->id = 'box-partial-payment-amount';
-                $helper->icon = 'icon-money';
-                $helper->color = 'color4';
-                $helper->title = $this->l('Partial Payment Amount');
-                $helper->tooltip = $this->l('Partial payment amount refers to the amount that customer has to pay as advance payment, if payment type selected as partial payment while placing this order.');
-                $helper->value = Tools::displayPrice($objOrder->advance_paid_amount, new Currency($objOrder->id_currency));
-                $this->kpis[] = $helper;
-            }
-
-            $objOrderReturn = new OrderReturn();
-            $refundReqProducts = $objOrderReturn->getOrderRefundRequestedProducts($objOrder->id, 0, 1);
-            $refundReqBookings = $objOrderReturn->getOrderRefundRequestedBookings($objOrder->id, 0, 1);
-            if ($refundReqProducts || $refundReqBookings) {
-                $refundedAmount = $objOrderReturn->getRefundedAmount($objOrder->id);
-                $helper = new HelperKpi();
-                $helper->id = 'box-payment-type';
-                $helper->icon = 'icon-money';
-                $helper->color = 'color3';
-                $helper->title = $this->l('Refunded Amount');
-                $helper->tooltip = $this->l('Refunded amount refers to the amount that has been refunded for this order.');
-                $helper->value = Tools::displayPrice($refundedAmount, new Currency($objOrder->id_currency));
-                $this->kpis[] = $helper;
-            }
         } else {
-            $time = time();
             $kpis = array();
-
-            $helper = new HelperKpi();
-            $helper->id = 'box-total-sales';
-            $helper->icon = 'icon-money';
-            $helper->color = 'color4';
-            $helper->title = $this->l('Total Sales', null, null, false);
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_sales';
-            $helper->tooltip = $this->l('Total sales/revenue of all the orders created.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $helper = new HelperKpi();
-            $helper->id = 'box-total-due-amount';
-            $helper->icon = 'icon-money';
-            $helper->color = 'color2';
-            $helper->title = $this->l('Total Due Amount', null, null, false);
-            $minValue = ('0.' . str_repeat('0', (Configuration::get('PS_PRICE_DISPLAY_PRECISION') - 1)) . '1');
-
-            // get all valid order states for due amount calculations
-            $validOrderStatesFilter = '';
-            if ($allOrderStates = OrderState::getOrderStates($this->context->language->id)) {
-                $allOrderStates = array_column($allOrderStates, 'id_order_state');
-                $objHotelBooking = new HotelBookingDetail();
-                $invalidOrderStates = $objHotelBooking->getOrderStatusToFreeBookedRoom();
-
-                if ($validOrderStates = array_diff($allOrderStates, $invalidOrderStates)) {
-                    foreach ($validOrderStates as $idOrderState) {
-                        $validOrderStatesFilter .= '&orderFilter_os!id_order_state[]='.$idOrderState;
-                    }
+            // SIMPLIFY-REVIEW P-11: the shop figures (sales, abandoned carts,
+            // conversion, averages) are gone. One quiet desk line remains,
+            // counted by Salisberg Front Desk exactly as Today at the desk is,
+            // so the two can never disagree. Each figure opens the Dashboard.
+            $desk = Module::getInstanceByName('salisbergfrontdesk');
+            if ($desk && $desk->active && method_exists($desk, 'deskFigures')) {
+                $figures = $desk->deskFigures();
+                $dashboard = $this->context->link->getAdminLink('AdminDashboard');
+                $lines = array(
+                    array('box-desk-in-house', 'icon-home', $this->l('In house'), $figures['in_house'], ''),
+                    array('box-desk-arriving', 'icon-sign-in', $this->l('Still to arrive today'), $figures['arriving'], ''),
+                    array('box-desk-leaving', 'icon-sign-out', $this->l('Leaving today'), $figures['leaving'],
+                        $figures['overdue'] ? sprintf($this->l('%d overdue'), $figures['overdue']) : ''),
+                    array('box-desk-owed', 'icon-money', $this->l('Owed'), $figures['owed'], ''),
+                );
+                foreach ($lines as $line) {
+                    $helper = new HelperKpi();
+                    $helper->id = $line[0];
+                    $helper->icon = $line[1];
+                    $helper->color = 'sb-desk';
+                    $helper->title = $line[2];
+                    $helper->value = $line[3];
+                    $helper->subtitle = $line[4];
+                    $helper->href = $dashboard;
+                    $this->kpis[] = $helper;
                 }
             }
-            $helper->href = $this->context->link->getAdminLink('AdminOrders').'&submitResetorder&submitFilterorder=1&orderFilter_amount_due%5B0%5D='.$minValue.$validOrderStatesFilter;
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=total_due_amount';
-            $helper->tooltip = $this->l('Total due amount of all the orders created.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $arivalDate = date('Y-m-d');
-            $helper = new HelperKpi();
-            $helper->id = 'box-today-arrivals';
-            $helper->icon = 'icon-user';
-            $helper->color = 'color1';
-            $helper->title = $this->l('Arrivals', null, null, false);
-            $helper->subtitle = $this->l('Today', null, null, false);
-            $helper->href = $this->context->link->getAdminLink('AdminOrders').'&submitResetorder&submitFilterorder=1&orderFilter_hbd!is_refunded=0&orderFilter_hbd!id_status='.HotelBookingDetail::STATUS_ALLOTED.'&orderFilter_hbd!date_from[]='.pSQL(date('Y-m-d')).'&orderFilter_hbd!date_from[]='.pSQL(date('Y-m-d'));
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=today_arrivals';
-            $helper->tooltip = $this->l('Total number of arrivals for today.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $departureDate = date('Y-m-d');
-            $helper = new HelperKpi();
-            $helper->id = 'box-today-departures';
-            $helper->icon = 'icon-user';
-            $helper->color = 'color2';
-            $helper->title = $this->l('Departures', null, null, false);
-            $helper->subtitle = $this->l('Today', null, null, false);
-            $helper->href = $this->context->link->getAdminLink('AdminOrders').'&submitResetorder&submitFilterorder=1&orderFilter_hbd!is_refunded=0&orderFilter_hbd!id_status='.HotelBookingDetail::STATUS_CHECKED_IN.'&orderFilter_hbd!date_to[]='.pSQL(date('Y-m-d')).'&orderFilter_hbd!date_to[]='.pSQL(date('Y-m-d'));
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=today_departures';
-            $helper->tooltip = $this->l('Total number of departures for today.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $dateFrom = date('Y-m-d');
-            $dateTo = date('Y-m-d', strtotime('+1 day'));
-            $helper = new HelperKpi();
-            $helper->id = 'box-today-stay-over';
-            $helper->icon = 'icon-user';
-            $helper->color = 'color4';
-            $helper->title = $this->l('Occupied Rooms', null, null, false);
-            $helper->subtitle = $this->l('Today', null, null, false);
-            $helper->href = $this->context->link->getAdminLink('AdminOrders').'&submitResetorder&submitFilterorder=1&orderFilter_hbd!is_refunded=0&orderFilter_hbd!id_status='.HotelBookingDetail::STATUS_CHECKED_IN.'&orderFilter_hbd!date_to[]='.pSQL(date('Y-m-d', strtotime('+ 1 days'))).'&orderFilter_hbd!date_to[]=';
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=occupied_rooms';
-            $helper->tooltip = $this->l('The count of rooms that are currently occupied by guests.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $helper = new HelperKpi();
-            $helper->id = 'box-carts';
-            $helper->icon = 'icon-shopping-cart';
-            $helper->color = 'color2';
-            $helper->title = $this->l('Abandoned Carts', null, null, false);
-            $dateFrom = date(Context::getContext()->language->date_format_lite, strtotime('-2 day'));
-            $dateTo = date(Context::getContext()->language->date_format_lite, strtotime('-1 day'));
-            $helper->subtitle = sprintf($this->l('From %s to %s', null, null, false), $dateFrom, $dateTo);
-            $helper->href = $this->context->link->getAdminLink('AdminCarts').'&action=filterOnlyAbandonedCarts&date_from='.date('Y-m-d', strtotime('-2 day')).'&date_to='.date('Y-m-d', strtotime('-1 day'));
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=abandoned_cart';
-            $helper->tooltip = $this->l('Total number of abandoned carts  in given period of time.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $daysForConversionRate = Configuration::get('PS_KPI_CONVERSION_RATE_NB_DAYS');
-            $helper = new HelperKpi();
-            $helper->id = 'box-conversion-rate';
-            $helper->icon = 'icon-sort-by-attributes-alt';
-            $helper->color = 'color1';
-            $helper->title = $this->l('Conversion Rate', null, null, false);
-            if ($daysForConversionRate == 1) {
-                $helper->subtitle = $daysForConversionRate.' '.$this->l('day', null, null, false);
-            } else {
-                $helper->subtitle = $daysForConversionRate.' '.$this->l('days', null, null, false);
-            }
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=conversion_rate';
-            $helper->tooltip = sprintf($this->l('Percentage of visits that resulted in an order/booking in last %s day(s).', null, null, false), $daysForConversionRate);
-            $this->kpis[] = $helper;
-
-            $daysForAvgOrderVal = Configuration::get('PS_ORDER_KPI_AVG_ORDER_VALUE_NB_DAYS');
-            $helper = new HelperKpi();
-            $helper->id = 'box-average-order';
-            $helper->icon = 'icon-money';
-            $helper->color = 'color3';
-            $helper->title = $this->l('Average Order Value', null, null, false);
-            if ($daysForAvgOrderVal == 1) {
-                $helper->subtitle = $daysForAvgOrderVal.' '.$this->l('day', null, null, false);
-            } else {
-                $helper->subtitle = $daysForAvgOrderVal.' '.$this->l('days', null, null, false);
-            }
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=average_order_value';
-            $helper->tooltip = sprintf($this->l('Total average order value without tax in the last %s day(s).', null, null, false), $daysForAvgOrderVal);
-            $this->kpis[] = $helper;
-
-            $helper = new HelperKpi();
-            $helper->id = 'box-average-lead-time';
-            $helper->icon = 'icon-time';
-            $helper->color = 'color4';
-            $helper->title = $this->l('Average Lead Time', null, null, false);
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=average_lead_time';
-            $helper->tooltip = $this->l('Average number of days between the time guests book their rooms and the time guest schedule to arrive at the hotel.', null, null, false);
-            $this->kpis[] = $helper;
-
-            $helper = new HelperKpi();
-            $helper->id = 'box-average-guest-in-booking';
-            $helper->icon = 'icon-users';
-            $helper->color = 'color3';
-            $helper->title = $this->l('Average Guest Per Booking', null, null, false);
-            $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=average_guest_in_booking';
-            $helper->tooltip = $this->l('Average number of guests per booking.', null, null, false);
-            $this->kpis[] = $helper;
         }
 
         Hook::exec('action'.$this->controller_name.'KPIListingModifier', array(
@@ -3120,6 +2564,11 @@ class AdminOrdersControllerCore extends AdminController
 
     public function renderView()
     {
+        if (SalisbergBookingArchive::isArchived((int) Tools::getValue('id_order'))) {
+            $this->errors[] = $this->l('This booking is in the recycle bin. Restore it before opening or changing it.');
+            return;
+        }
+
         if (!Validate::isLoadedObject($order = new Order(Tools::getValue('id_order')))) {
             return;
         }
@@ -3162,9 +2611,9 @@ class AdminOrdersControllerCore extends AdminController
 
         if ($addressTax->id_hotel) {
             $objHotelBranchInformation = new HotelBranchInformation($addressTax->id_hotel, $this->context->language->id);
-            $this->toolbar_title = sprintf($this->l('Order %1$s - %2$s'), $order->reference, $objHotelBranchInformation->hotel_name);
+            $this->toolbar_title = sprintf($this->l('Booking %1$s - %2$s'), $order->reference, $objHotelBranchInformation->hotel_name);
         } else {
-            $this->toolbar_title = sprintf($this->l('Order %1$s'), $order->reference);
+            $this->toolbar_title = sprintf($this->l('Booking %1$s'), $order->reference);
         }
         if (Shop::isFeatureActive()) {
             $shop = new Shop((int)$order->id_shop);
@@ -5572,7 +5021,7 @@ class AdminOrdersControllerCore extends AdminController
                         Configuration::get('PS_OS_AWAITING_PAYMENT'),
                         0,
                         $objPaymentModule->displayName,
-                        $this->l('Manual order -- Employee:').' '.substr($objEmployee->firstname, 0, 1).'. '.$objEmployee->lastname,
+                        $this->l('Manual booking -- Employee:').' '.substr($objEmployee->firstname, 0, 1).'. '.$objEmployee->lastname,
                         null,
                         null,
                         false,
@@ -8315,7 +7764,7 @@ class AdminOrdersControllerCore extends AdminController
             }
         } else {
             $response['hasError'] = true;
-            $response['errors'] = $this->l('You do not have permission to edit this order.');
+            $response['errors'] = $this->l('You do not have permission to edit this booking.');
         }
 
         $this->ajaxDie(json_encode($response));

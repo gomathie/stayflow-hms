@@ -280,7 +280,59 @@ class AdminModulesPositionsControllerCore extends AdminController
         }
         ksort($module_instances);
         $hooks = Hook::getHooks();
+        // Plain names for the places this hotel uses; any other hook shows its
+        // stored title, or its technical name when that is all it has.
+        $labels = array(
+            'displayHome' => $this->l('Homepage content'),
+            'displayTop' => $this->l('Top of every website page'),
+            'displayNav' => $this->l('Website top bar'),
+            'displayNavigationHook' => $this->l('Website menu'),
+            'displayDefaultNavigationHook' => $this->l('Website menu, standard links'),
+            'displayExternalNavigationHook' => $this->l('Website menu, extra links'),
+            'displayAfterHookTop' => $this->l('Under the website header'),
+            'displayAfterHeaderHotelDesc' => $this->l('Homepage, under the hotel description'),
+            'displayFooter' => $this->l('Website footer'),
+            'displayFooterBefore' => $this->l('Above the website footer'),
+            'displayFooterExploreSectionHook' => $this->l('Footer, Explore links'),
+            'displayFooterMostLeftBlock' => $this->l('Footer, first column'),
+            'displayFooterNotificationHook' => $this->l('Footer notice'),
+            'displayFooterPaymentInfo' => $this->l('Footer, payment badges'),
+            'displayAfterDefautlFooterHook' => $this->l('Footer, copyright line'),
+            'displayLeftColumn' => $this->l('Website left column'),
+            'Header' => $this->l('Website page head (styles and scripts)'),
+            'displayPayment' => $this->l('Checkout, payment choices'),
+            'displayPaymentReturn' => $this->l('Booking confirmation page'),
+            'displayProductTab' => $this->l('Room page, tab titles'),
+            'displayProductTabContent' => $this->l('Room page, tab contents'),
+            'displayRoomTypeDetailRoomTypeNameAfter' => $this->l('Room page, under the room name'),
+            'displayBookingAction' => $this->l('Booking buttons'),
+            'displayBackOfficeHeader' => $this->l('Back office page head'),
+            'displayAdminAfterHeader' => $this->l('Back office, under the top bar'),
+            'displayAdminListBefore' => $this->l('Back office, above lists'),
+            'dashboardTop' => $this->l('Dashboard, top (Today at the desk)'),
+            'dashboardZoneOne' => $this->l('Dashboard, first column'),
+            'dashboardZoneTwo' => $this->l('Dashboard, charts'),
+            'dashboardData' => $this->l('Dashboard figures'),
+            'actionAdminControllerSetMedia' => $this->l('When a back office page loads'),
+            'actionAdminLoginControllerSetMedia' => $this->l('When the back office sign-in page loads'),
+            'actionValidateOrder' => $this->l('When a booking is made'),
+            'actionOrderStatusPostUpdate' => $this->l('When a booking status changes'),
+            'actionRoomBookingStatusUpdateAfter' => $this->l('When a guest checks in or out'),
+            'actionRoomTypeTotalPriceModifier' => $this->l('When a room price is worked out'),
+            'actionSalisbergSendSms' => $this->l('When a text message is sent'),
+            'actionCustomerAccountAdd' => $this->l('When a guest creates an account'),
+            'actionAdminEmployeesFormModifier' => $this->l('Employee form'),
+            'actionObjectEmployeeAddAfter' => $this->l('When an employee is added'),
+            'actionObjectEmployeeUpdateAfter' => $this->l('When an employee is saved'),
+        );
         foreach ($hooks as $key => $hook) {
+            if (isset($labels[$hook['name']])) {
+                $hooks[$key]['sb_label'] = $labels[$hook['name']];
+            } elseif (!empty($hook['title']) && $hook['title'] != $hook['name']) {
+                $hooks[$key]['sb_label'] = $hook['title'];
+            } else {
+                $hooks[$key]['sb_label'] = '';
+            }
             // Get all modules for this hook or only the filtered module
             $hooks[$key]['modules'] = Hook::getModulesFromHook($hook['id_hook'], $this->display_key);
             $hooks[$key]['module_count'] = count($hooks[$key]['modules']);

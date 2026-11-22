@@ -77,6 +77,10 @@ class Dashtrends extends Module
 
     public function hookDashboardZoneTwo($params)
     {
+        // P-16: the sales and revenue chart is not shown to Hotel Staff
+        if (class_exists('Salisbergguide') && !Salisbergguide::seesIncome()) {
+            return '';
+        }
         $this->context->smarty->assign(array(
             'currency' => $this->context->currency,
             '_PS_PRICE_DISPLAY_PRECISION_' => _PS_PRICE_DISPLAY_PRECISION_,
@@ -214,6 +218,9 @@ class Dashtrends extends Module
 
     public function hookDashboardData($params)
     {
+        if (class_exists('Salisbergguide') && !Salisbergguide::seesIncome()) {
+            return array();
+        }
         $this->currency = clone $this->context->currency;
 
         // Retrieve, refine and add up data for the selected period
@@ -318,16 +325,17 @@ class Dashtrends extends Module
 
         $charts = array(
             'sales' => $this->l('Sales'),
-            'orders' => $this->l('Orders'),
-            'average_cart_value' => $this->l('Average Order Value'),
+            'orders' => $this->l('Bookings'),
+            'average_cart_value' => $this->l('Average booking value'),
             'visits' => $this->l('Visits'),
             'conversion_rate' => $this->l('Conversion Rate'),
             'net_profits' => $this->l('Net Profit')
         );
 
-        $gfx_color = array('#72C3F0','#56CE56','#FF4036','#FF7F0E','#A569DF','#AF8A42');
+        // one series shows at a time: brand green for the period, gold for the comparison period
+        $gfx_color = array_fill(0, 6, '#1f9a70');
         $gfx_color_border = $gfx_color;
-        $gfx_color_compare = array('#1777B6','#19900d','#b9140c','#bf6307','#6B399C','#B3591F');
+        $gfx_color_compare = array_fill(0, 6, '#c08718');
 
         $i = 0;
         $data = array('chart_type' => 'line_chart_trends', 'date_format' => $this->context->language->date_format_lite, 'data' => array());

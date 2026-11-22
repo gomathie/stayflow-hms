@@ -203,7 +203,16 @@ class AdminEmployeesControllerCore extends AdminController
         $this->_join = 'LEFT JOIN `'._DB_PREFIX_.'profile` p ON a.`id_profile` = p.`id_profile`
 		LEFT JOIN `'._DB_PREFIX_.'profile_lang` pl ON (pl.`id_profile` = p.`id_profile` AND pl.`id_lang` = '
             .(int)$this->context->language->id.')';
+        if (!$this->context->employee->isSuperAdmin()) {
+            $this->_where = (string) $this->_where.' AND a.`id_profile` != '.(int) _PS_ADMIN_PROFILE_;
+            $hidden = array_diff(Employee::getTestAccountIds(), array((int) $this->context->employee->id));
+            if ($hidden) {
+                $this->_where .= ' AND a.`id_employee` NOT IN ('.implode(',', array_map('intval', $hidden)).')';
+            }
+        }
         $this->_use_found_rows = false;
+        // P-20: compact cards on phones; tap a card to open the employee
+        $this->context->smarty->assign('sb_phone_cards', true);
 
         return parent::renderList();
     }
@@ -217,8 +226,8 @@ class AdminEmployeesControllerCore extends AdminController
 
         $available_profiles = Profile::getProfiles($this->context->language->id);
 
-        if ($obj->id_profile == _PS_ADMIN_PROFILE_ && $this->context->employee->id_profile != _PS_ADMIN_PROFILE_) {
-            $this->errors[] = Tools::displayError('You cannot edit the SuperAdmin profile.');
+        if (Validate::isLoadedObject($obj) && $obj->isHiddenFrom($this->context->employee)) {
+            $this->errors[] = Tools::displayError('You cannot edit this account.');
             return parent::renderForm();
         }
 
@@ -388,6 +397,21 @@ class AdminEmployeesControllerCore extends AdminController
                 )
             );
 
+            if ($this->context->employee->isSuperAdmin()) {
+                $this->fields_form['input'][] = array(
+                    'type' => 'switch',
+                    'label' => $this->l('Test account'),
+                    'name' => 'sb_test_account',
+                    'is_bool' => true,
+                    'values' => array(
+                        array('id' => 'sb_test_account_on', 'value' => 1, 'label' => $this->l('Yes')),
+                        array('id' => 'sb_test_account_off', 'value' => 0, 'label' => $this->l('No')),
+                    ),
+                    'desc' => $this->l('Yes hides this account from everyone who is not a SuperAdmin: it is left out of the Employees list and cannot be opened, edited or deleted by them. It can still sign in.'),
+                );
+                $this->fields_value['sb_test_account'] = (int) $obj->isTestAccount();
+            }
+
             if (Shop::isFeatureActive()) {
                 $this->context->smarty->assign('_PS_ADMIN_PROFILE_', (int)_PS_ADMIN_PROFILE_);
                 $this->fields_form['input'][] = array(
@@ -429,6 +453,11 @@ class AdminEmployeesControllerCore extends AdminController
             return false;
         }
 
+        if (Validate::isLoadedObject($obj) && $obj->isHiddenFrom($this->context->employee)) {
+            $this->errors[] = Tools::displayError('You cannot edit this account.');
+            return false;
+        }
+
         if (Tools::getValue('id_profile') == _PS_ADMIN_PROFILE_ && $this->context->employee->id_profile != _PS_ADMIN_PROFILE_) {
             $this->errors[] = Tools::displayError('The provided profile is invalid');
         }
@@ -460,6 +489,9 @@ class AdminEmployeesControllerCore extends AdminController
 
     protected function processBulkDelete()
     {
+        if (!$this->canModifySelectedEmployees()) {
+            return false;
+        }
         if (is_array($this->boxes) && !empty($this->boxes)) {
             foreach ($this->boxes as $id_employee) {
                 if ((int)$this->context->employee->id == (int)$id_employee) {
@@ -472,6 +504,43 @@ class AdminEmployeesControllerCore extends AdminController
         return parent::processBulkDelete();
     }
 
+    protected function processBulkStatusSelection($status)
+    {
+        if (!$this->canModifySelectedEmployees((int) $status)) {
+            return false;
+        }
+
+        return parent::processBulkStatusSelection($status);
+    }
+
+    protected function canModifySelectedEmployees($status = null)
+    {
+        if (!is_array($this->boxes)) {
+            return true;
+        }
+
+        foreach ($this->boxes as $idEmployee) {
+            $employee = new Employee((int) $idEmployee);
+            if (!Validate::isLoadedObject($employee)) {
+                continue;
+            }
+            if ($employee->isHiddenFrom($this->context->employee)) {
+                $this->errors[] = Tools::displayError('You cannot change this account.');
+                return false;
+            }
+            if ($status === 0 && $employee->isLastAdmin()) {
+                $this->errors[] = Tools::displayError('You cannot disable the last administrator account.');
+                return false;
+            }
+            if ($status === 0 && (int) $employee->id == (int) $this->context->employee->id) {
+                $this->errors[] = Tools::displayError('You cannot disable your own account.');
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     protected function canModifyEmployee()
     {
         if ($this->restrict_edition) {
@@ -480,6 +549,14 @@ class AdminEmployeesControllerCore extends AdminController
         }
 
         $employee = new Employee(Tools::getValue('id_employee'));
+        if (!Validate::isLoadedObject($employee)) {
+            $this->errors[] = Tools::displayError('The employee account could not be loaded.');
+            return false;
+        }
+        if ($employee->isHiddenFrom($this->context->employee)) {
+            $this->errors[] = Tools::displayError('You cannot disable or delete this account.');
+            return false;
+        }
         if ($employee->isLastAdmin()) {
             $this->errors[] = Tools::displayError('You cannot disable or delete the administrator account.');
             return false;
@@ -498,6 +575,10 @@ class AdminEmployeesControllerCore extends AdminController
     public function processSave()
     {
         $employee = new Employee((int)Tools::getValue('id_employee'));
+        if (Validate::isLoadedObject($employee) && $employee->isHiddenFrom($this->context->employee)) {
+            $this->errors[] = Tools::displayError('You cannot edit this account.');
+            return false;
+        }
 
         // If the employee is editing its own account
         if ($this->restrict_edition) {
@@ -633,8 +714,24 @@ class AdminEmployeesControllerCore extends AdminController
      *
      * @return bool
      */
+    protected function afterAdd($object)
+    {
+        $this->saveTestAccount($object);
+
+        return parent::afterAdd($object);
+    }
+
+    /** Only a SuperAdmin's form carries the Test account switch. */
+    protected function saveTestAccount($object)
+    {
+        if ($this->context->employee->isSuperAdmin() && Tools::getIsset('sb_test_account')) {
+            $object->setTestAccount((bool) Tools::getValue('sb_test_account'));
+        }
+    }
+
     protected function afterUpdate($object)
     {
+        $this->saveTestAccount($object);
         $res = parent::afterUpdate($object);
         // Update cookie if needed
         if (Tools::getValue('id_employee') == $this->context->employee->id && ($passwd = Tools::getValue('passwd'))

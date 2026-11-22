@@ -265,3 +265,9 @@ admin/themes/default/css/screen.css
 robots.txt
 # Private audit reports: this repository is public, never commit these
 /audit/
+
+# End-to-end tests: dependencies and run output
+tests/e2e/node_modules/
+tests/e2e/test-results/
+tests/e2e/playwright-report/
+tests/e2e/support/.accounts.json

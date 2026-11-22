@@ -56,7 +56,7 @@ class DashAvailability extends Module
     {
         if (get_class($this->context->controller) == 'AdminDashboardController') {
             Media::addJsDef(array(
-                'avail_rooms_txt' => $this->l('Available Rooms'),
+                'avail_rooms_txt' => $this->l('Rooms free'),
             ));
             $this->context->controller->addJs($this->_path.'views/js/'.$this->name.'.js');
             $this->context->controller->addCSS($this->_path.'views/css/'.$this->name.'.css');
@@ -70,7 +70,8 @@ class DashAvailability extends Module
         ));
 
         $this->context->smarty->assign(array(
-            'dateFromBar' => date('Y-m-d', strtotime('now')),
+            'dateFromBar' => date('Y-m-d'),
+            'dateFromLabel' => date('j M Y'),
         ));
 
         return $this->display(__FILE__, 'dashboard_zone_two.tpl');
@@ -78,48 +79,75 @@ class DashAvailability extends Module
 
     public function hookDashboardData($params)
     {
-        $dateFrom = null;
-        $days = null;
-
-        if ($params['extra'] == 'undefined') {
-            $dateFrom = $params['date_from'];
-            $days = 5;
-        } else {
+        // Period: 7, 14 or 30 nights from a valid date; anything else falls back to 7 from today.
+        $dateFrom = date('Y-m-d');
+        $days = 7;
+        if (isset($params['extra']) && $params['extra'] != 'undefined') {
             $extra = json_decode($params['extra']);
-            $dateFrom = $extra->date_from;
-            $days = $extra->days;
+            if (isset($extra->date_from) && Validate::isDate($extra->date_from)) {
+                $dateFrom = $extra->date_from;
+            }
+            if (isset($extra->days) && in_array((int) $extra->days, array(7, 14, 30))) {
+                $days = (int) $extra->days;
+            }
         }
 
         if (Configuration::get('PS_DASHBOARD_SIMULATION')) {
+            $availability_data = array('values' => array());
             $from = strtotime($dateFrom.' 00:00:00');
-            $to = strtotime($dateFrom.'+'.$days.' days 23:59:59');
-            $data = array();
-            for ($date = $from; $date <= $to; $date = strtotime('+1 days', $date)) {
-                $availability_data['values'][] = array($date, round(rand(0, 20)));
+            for ($i = 0; $i < $days; $i++) {
+                $availability_data['values'][] = array(strtotime('+'.$i.' days', $from), rand(0, 20));
             }
         } else {
-            $availability_data = AdminStatsController::getAvailabilityLineChartData($days, $dateFrom, $params['id_hotel']);
+            $availability_data = AdminStatsController::getAvailabilityLineChartData($days - 1, $dateFrom, $params['id_hotel']);
+        }
+        if (empty($availability_data['values'])) {
+            $availability_data['values'] = array();
+        }
+
+        // Summary: the tightest night and the average, so staff need not read the chart.
+        $low = null;
+        $sum = 0;
+        foreach ($availability_data['values'] as &$point) {
+            $point[1] = (int) $point[1];
+            $sum += $point[1];
+            if ($low === null || $point[1] < $low[1]) {
+                $low = $point;
+            }
+        }
+        unset($point);
+        $count = count($availability_data['values']);
+        if ($low === null) {
+            $lowText = $this->l('No data');
+            $avgText = '-';
+        } else {
+            $lowText = sprintf(
+                $low[1] == 1 ? $this->l('%1$d room free on %2$s') : $this->l('%1$d rooms free on %2$s'),
+                $low[1],
+                date('D j M', $low[0])
+            );
+            $avgText = sprintf($this->l('%s rooms a night'), number_format($sum / $count, 1));
         }
 
         $availability_data = array_merge(
             $availability_data,
             array(
                 'id' => 'availabilities',
-                'key' => $this->l('Availability'),
-                'border_color' => '#11f0fc',
-                'color' => '#72C3F0',
+                'key' => $this->l('Rooms free'),
+                'area' => true,
             )
-        );
-        $data[] = $availability_data;
-
-        $data = array(
-            'chart_type' => 'line_chart_availability',
-            'date_format' => $this->context->language->date_format_lite,
-            'data' => $data
         );
 
         return array(
-            'data_chart' => array('availability_line_chart1' => $data),
+            'data_chart' => array('availability_line_chart1' => array(
+                'chart_type' => 'line_chart_availability',
+                'date_format' => $this->context->language->date_format_lite,
+                'data' => array($availability_data),
+            )),
+            'data_value' => array(
+                'sb_avail_low' => Tools::safeOutput($lowText),
+                'sb_avail_avg' => Tools::safeOutput($avgText),
+            ),
         );
     }
 }

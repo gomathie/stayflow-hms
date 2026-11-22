@@ -1,0 +1,13 @@
+Hi {firstname} {lastname},
+
+Welcome to {shop_name}. You are checked in.
+
+Room: {room}
+Check-out: {check_out}
+Booking reference: {order_name}
+
+{balance_line}
+
+If you need anything during your stay, please ask at reception.
+
+{shop_name}

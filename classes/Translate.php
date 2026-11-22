@@ -33,6 +33,44 @@ class TranslateCore
     public static $adminTranslations = array();
     public static $moduleTranslations = array();
 
+    /** The name shown where the original product name appears in text */
+    const BRAND = 'Salisberg';
+
+    /*
+     * The three public translation functions below pass their text through
+     * rebrand(), so the original product name reads "Salisberg" on every back
+     * office screen, module page and PDF. File and class names, JavaScript
+     * events, the qlo_ table prefix and web addresses never pass through
+     * here and are left as they are (AGENTS.md, rule 12).
+     */
+    public static function getAdminTranslation($string, $class = 'AdminTab', $addslashes = false, $htmlentities = true, $sprintf = null)
+    {
+        return self::rebrand(self::translateAdmin($string, $class, $addslashes, $htmlentities, $sprintf));
+    }
+
+    public static function getModuleTranslation($module, $string, $source, $sprintf = null, $addslashes = false, $language = null)
+    {
+        return self::rebrand(self::translateModule($module, $string, $source, $sprintf, $addslashes, $language));
+    }
+
+    public static function getPdfTranslation($string, $sprintf = null, $language = null)
+    {
+        return self::rebrand(self::translatePdf($string, $sprintf, $language));
+    }
+
+    /**
+     * Replaces the product name as a word. A name followed by a slash, or by
+     * a dot and a letter, is part of a web address and is kept.
+     */
+    protected static function rebrand($text)
+    {
+        if (!is_string($text) || stripos($text, 'qloapps') === false) {
+            return $text;
+        }
+
+        return preg_replace('/\bQlo[Aa]pps\b(?!\.[A-Za-z]|\/)/', self::BRAND, $text);
+    }
+
     /**
      * Get a translation for an admin controller
      *
@@ -42,7 +80,7 @@ class TranslateCore
      * @param bool $htmlentities
      * @return string
      */
-    public static function getAdminTranslation($string, $class = 'AdminTab', $addslashes = false, $htmlentities = true, $sprintf = null)
+    protected static function translateAdmin($string, $class = 'AdminTab', $addslashes = false, $htmlentities = true, $sprintf = null)
     {
         static $modules_tabs = null;
         if ($modules_tabs === null) {
@@ -126,7 +164,7 @@ class TranslateCore
      * @param string $source
      * @return string
      */
-    public static function getModuleTranslation($module, $string, $source, $sprintf = null, $addslashes = false, $language = null)
+    protected static function translateModule($module, $string, $source, $sprintf = null, $addslashes = false, $language = null)
     {
         global $_MODULE;
 
@@ -235,7 +273,7 @@ class TranslateCore
      * @param string $string
      * @return string
      */
-    public static function getPdfTranslation($string, $sprintf = null, $language = null)
+    protected static function translatePdf($string, $sprintf = null, $language = null)
     {
         global $_LANGPDF;
 
@@ -255,12 +293,15 @@ class TranslateCore
             $i18n_file = $override_i18n_file;
         }
 
-        if (!include($i18n_file)) {
-            Tools::displayError(sprintf('Cannot include PDF translation language file : %s', $i18n_file));
+        // No PDF translation file for a language means its PDFs use the text as written
+        if (file_exists($i18n_file)) {
+            include($i18n_file);
         }
 
         if (!isset($_LANGPDF) || !is_array($_LANGPDF)) {
-            return str_replace('"', '&quot;', $string);
+            $string = str_replace('"', '&quot;', $string);
+
+            return ($sprintf !== null) ? Translate::checkAndReplaceArgs($string, $sprintf) : $string;
         }
 
         $string = preg_replace("/\\\*'/", "\'", $string);

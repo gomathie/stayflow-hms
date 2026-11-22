@@ -156,7 +156,26 @@ class ValidateCore
      */
     public static function isName($name)
     {
-        return preg_match(Tools::cleanNonUnicodeSupport('/^[^0-9!<>,;?=+()@#"°{}_$%:]*$/u'), stripslashes($name));
+        return preg_match(Tools::cleanNonUnicodeSupport('/^[^0-9!<>,;?=+()@#"°{}_$%:]*$/u'), stripslashes($name))
+            && !self::containsLink($name);
+    }
+
+    /**
+     * True for anything that looks like a web address: a scheme (http://,
+     * ftp://, javascript:), "www.", or a bare name ending in a common domain
+     * suffix. Plain email addresses (name@host) are not links. One rule for
+     * every form a guest fills in (names, addresses, the contact form, the
+     * booking message), so staff are never one click from an address a
+     * stranger typed.
+     */
+    public static function containsLink($text)
+    {
+        $text = preg_replace('/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i', ' ', (string) $text);
+
+        return (bool) preg_match(
+            '~(?:[a-z][a-z0-9+.\-]{1,15}://|\b(?:javascript|data|vbscript):|\bwww\d?\.|\b[a-z0-9][a-z0-9\-]*(?:\.[a-z0-9\-]+)*\.(?:com|net|org|info|biz|io|ru|cn|xyz|top|club|online|site|shop|app|link|click|live|icu|tk|ml|ga|cf|gh|uk|ly|gl)\b)~i',
+            $text
+        );
     }
 
     /**
@@ -353,7 +372,7 @@ class ValidateCore
      */
     public static function isAddress($address)
     {
-        return empty($address) || preg_match(Tools::cleanNonUnicodeSupport('/^[^!<>?=+@{}_$%]*$/u'), $address);
+        return empty($address) || (preg_match(Tools::cleanNonUnicodeSupport('/^[^!<>?=+@{}_$%]*$/u'), $address) && !self::containsLink($address));
     }
 
     /**
@@ -364,7 +383,7 @@ class ValidateCore
      */
     public static function isCityName($city)
     {
-        return preg_match(Tools::cleanNonUnicodeSupport('/^\p{L}+[^!<>;?=+@#"°{}_$%]*$/u'), $city);
+        return preg_match(Tools::cleanNonUnicodeSupport('/^\p{L}+[^!<>;?=+@#"°{}_$%]*$/u'), $city) && !self::containsLink($city);
     }
 
     /**

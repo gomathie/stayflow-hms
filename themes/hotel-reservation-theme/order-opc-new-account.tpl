@@ -17,13 +17,13 @@
 					<div class="row">
 						<div class="form-group col-sm-6">
 							<label for="login_email">{l s='Email address'}</label>
-							<input type="email" class="form-control validate" id="login_email" name="email" data-validate="isEmail" />
+							<input type="email" class="form-control validate" id="login_email" name="email" autocomplete="username" data-validate="isEmail" />
 						</div>
 					</div>
 					<div class="row">
 						<div class="form-group col-sm-6">
 							<label for="login_passwd">{l s='Password'}</label>
-							<input class="form-control validate" type="password" id="login_passwd" name="login_passwd" data-validate="isPasswd" />
+							<input class="form-control validate" type="password" id="login_passwd" name="login_passwd" autocomplete="current-password" data-validate="isPasswd" />
 						</div>
 					</div>
 					{block name='displayLoginFormFieldsAfter'}
@@ -46,18 +46,11 @@
 	{/block}
 	{block name='order_opc_new_account_new_account_form'}
 		<form action="{$link->getPageLink('authentication', true)|escape:'html':'UTF-8'}" method="post" id="new_account_form" class="std" autocomplete="on" autofill="on">
-			<div id="opc_account_choice" class="row">
-				<div class="col-xs-12">
-					<div class="opc-button">
-						<span>
-							<button type="submit" class="opc-button-small opc-btn-primary" id="opc_guestCheckout"><span>{l s='Guest checkout'}</span></button>
-						</span>
-						<span>
-							<button type="submit" class="opc-button-small opc-btn-default" id="opc_createAccount"><span>{l s='Create an account'}</span></button>
-						</span>
-					</div>
-				</div>
-			</div>
+			{* P-24: guests book without an account; an account is optional *}
+			<p id="opc_account_choice" class="sb-account-choice">
+				{l s='Booking as a guest: no password needed.'}
+				<a href="#" id="opc_createAccount">{l s='Create an account instead'}</a>
+			</p>
 			<div id="opc_account_form" class="unvisible">
 				{block name='displayCustomerAccountFormTop'}
 					{$HOOK_CREATE_ACCOUNT_TOP}
@@ -79,34 +72,26 @@
 				<p class="required"><sup>*</sup>{l s='Required field'}</p>
 
 				<div class="row">
-					<div class="required clearfix gender-line col-sm-2">
-						<label>{l s='Social title'}</label>
-						<select name="id_gender" id="id_gender">
-							{foreach from=$genders key=k item=gender}
-								<option value="{$gender->id_gender}"{if isset($smarty.post.id_gender) && $smarty.post.id_gender == $gender->id_gender || (isset($guestInformations) && $guestInformations.id_gender == $gender->id_gender)} selected="selected"{/if}>{$gender->name}</option>
-							{/foreach}
-						</select>
-					</div>
-					<div class="required form-group col-sm-5">
+					<div class="required form-group col-sm-6">
 						<label for="firstname">{l s='First name'} <sup>*</sup></label>
 						<input type="text" class="text form-control validate" id="customer_firstname" name="customer_firstname" onblur="$('#firstname').val($(this).val());" data-validate="isName" value="{if isset($guestInformations) && isset($guestInformations.customer_firstname) && $guestInformations.customer_firstname}{$guestInformations.customer_firstname}{/if}" />
 					</div>
-					<div class="required form-group col-sm-5">
+					<div class="required form-group col-sm-6">
 						<label for="lastname">{l s='Last name'} <sup>*</sup></label>
 						<input type="text" class="form-control validate" id="customer_lastname" name="customer_lastname" onblur="$('#lastname').val($(this).val());" data-validate="isName" value="{if isset($guestInformations) && isset($guestInformations.customer_lastname) && $guestInformations.customer_lastname}{$guestInformations.customer_lastname}{/if}" />
 					</div>
 				</div>
 
 				<div class="row">
-					<div class="required text form-group col-sm-6">
-						<label for="email">{l s='Email'} <sup>*</sup></label>
+					<div class="text form-group col-sm-6">
+						<label for="email">{l s='Email'} <span class="sb-optional">{l s='(optional when booking as a guest; needed for the emailed invoice)'}</span></label>
 						<input type="email" class="text form-control validate" id="email" name="email" data-validate="isEmail" value="{if isset($guestInformations) && isset($guestInformations.email) && $guestInformations.email}{$guestInformations.email}{/if}" />
 					</div>
 				</div>
 				<div class="row">
 					<div class="required password is_customer_param form-group col-sm-6">
 						<label for="passwd">{l s='Password'} <sup>*</sup></label>
-						<input type="password" class="text form-control validate" name="passwd" id="passwd" data-validate="isPasswd" />
+						<input type="password" class="text form-control validate" name="passwd" id="passwd" autocomplete="new-password" data-validate="isPasswd" />
 						<span class="form_info">{l s='(five characters min.)'}</span>
 					</div>
 				</div>

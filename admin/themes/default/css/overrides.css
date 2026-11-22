@@ -36,6 +36,10 @@
   --sb-success: #2f7d4f;       /* confirm / positive buttons */
   --sb-danger: #c0392b;        /* delete / destructive buttons */
   --sb-warning: #b7791f;       /* caution buttons */
+  /* dashboard occupancy donut: checked with the dataviz palette validator (light surface) */
+  --sb-occ-booked: #0f8a60;
+  --sb-occ-free: #cf931f;
+  --sb-occ-blocked: #4a7fc0;
   --sb-canvas: #e8eaed;        /* page background */
   --sb-card: #f7f7f5;          /* cards, bars, menus, fields: off-white, easier on the eyes than pure white */
   --sb-subtle: #f0f1ef;        /* table headers, card footers */
@@ -66,6 +70,9 @@ html[data-sb-theme="dark"] {
   --sb-success: #3f9d6b;
   --sb-danger: #d9584a;
   --sb-warning: #c98f2e;
+  --sb-occ-booked: #1f9a70;
+  --sb-occ-free: #c08718;
+  --sb-occ-blocked: #5b8fd0;
   --sb-canvas: #0e1412;
   --sb-card: #161e1b;
   --sb-subtle: #1b2521;
@@ -157,6 +164,10 @@ body.ps_back-office,
 /* light/dark switch, added by theme-toggle.js: sun and moon with a sliding knob */
 #header_infos #sb-theme-toggle {
   position: relative;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  box-sizing: border-box;
   justify-content: space-between;
   width: 60px;
   height: 32px;
@@ -182,12 +193,14 @@ body.ps_back-office,
 html[data-sb-theme="light"] #header_infos #sb-theme-toggle svg:first-child,
 html[data-sb-theme="dark"] #header_infos #sb-theme-toggle svg:last-child { color: var(--sb-ink); }
 html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: translateX(26px); }
+#header_infos #sb-theme-toggle:focus:not(:focus-visible) { outline: none; }
 
 @media (min-width: 768px) {
   .bootstrap #header_infos { height: var(--sb-top); min-height: var(--sb-top); }
   .bootstrap #header_infos > .navbar-header {
     display: flex;
     align-items: center;
+    position: relative;
     float: none;
     width: 100%;
     height: var(--sb-top);
@@ -215,7 +228,16 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   #header_infos .navbar-header > ul > li > a:hover { background-color: var(--sb-canvas); }
   #header_infos #header_notifs_icon_wrapper,
   #header_infos #header_quick { margin-left: 8px; }
-  #header_infos #header_employee_box { gap: 6px; margin-left: auto; padding-right: 16px; }
+  #header_infos #header_employee_box {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    transform: translateY(-50%);
+    z-index: 5;
+  }
   #header_infos #header_employee_box #header_foaccess { display: inline-flex; color: var(--sb-muted); }
   #header_infos #header_employee_box #employee_infos > a { height: 44px; padding: 0 10px 0 6px; border-radius: 999px; }
   #header_infos #header_employee_box #employee_infos .caret { margin-left: 8px; }
@@ -268,11 +290,31 @@ html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: t
   border: 0;
   border-radius: 6px;
   background-color: transparent;
-  color: var(--sb-muted);
+  color: var(--sb-ink);
   font-size: 15px;
 }
 .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li a:hover { background-color: var(--sb-canvas); color: var(--sb-link); }
-.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft); color: var(--sb-link); font-weight: 600; }
+.bootstrap #nav-sidebar ul.menu li.maintab ul.submenu li.active a { background-color: var(--sb-accent-soft); color: var(--sb-heading); font-weight: 600; box-shadow: inset 3px 0 0 var(--sb-accent); }
+/* group headings added by side-menu.js (Front desk, Hotel, System, Help) */
+#nav-sidebar ul.menu > li.sb-menu-group { margin: 18px 0 4px; padding: 0 14px; color: var(--sb-muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; line-height: 1.4; text-transform: uppercase; list-style: none; pointer-events: none; }
+#nav-sidebar ul.menu > li.sb-menu-group:first-of-type { margin-top: 6px; }
+@media (max-width: 767px) { #nav-sidebar ul.menu > li.sb-menu-group { display: none; } }
+/* P-9: "System" heading is a button that folds the technical sections */
+#nav-sidebar ul.menu > li.sb-system-group { pointer-events: auto; padding: 0 8px; }
+#nav-sidebar .sb-system-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 6px; border: 0; border-radius: 8px; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; }
+#nav-sidebar .sb-system-toggle::after { content: "\25B8"; font-size: 12px; transition: transform .15s; }
+#nav-sidebar li.sb-open .sb-system-toggle::after { transform: rotate(90deg); }
+#nav-sidebar .sb-system-toggle:hover, #nav-sidebar .sb-system-toggle:focus-visible { background: var(--sb-canvas); color: var(--sb-ink); outline: none; }
+@media (min-width: 768px) { #nav-sidebar ul.menu > li.maintab.sb-system-folded { display: none; } }
+@media (prefers-reduced-motion: reduce) { #nav-sidebar .sb-system-toggle::after { transition: none; } }
+/* Phone menu (the theme script renames #nav-sidebar to #nav-mobile below 768px):
+   group names as small labels, System as a plain label (every section shows),
+   no fold arrows (a tap on a section opens its pages), and the list scrolls. */
+#nav-mobile ul.menu { max-height: calc(100vh - 60px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+#nav-mobile ul.menu > li.sb-menu-group { margin: 14px 0 2px; padding: 0 16px; color: var(--sb-muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; line-height: 1.4; text-transform: uppercase; list-style: none; }
+#nav-mobile .sb-system-toggle { padding: 0; border: 0; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; pointer-events: none; }
+#nav-mobile .sb-menu-arrow { display: none; }
+#nav-mobile ul.menu > li.maintab.sb-system-folded { display: block; }
 /* Sections fold and unfold with the small arrow added by side-menu.js. The
    section you are in starts open. The stock behaviour, a box of pages that
    appeared beside the menu while the pointer rested on a section, is off. */
@@ -346,8 +388,31 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
   box-shadow: none;
   color: var(--sb-ink);
 }
-/* our Guides entry had no icon */
-.icon-AdminSalisbergGuide:before { content: "\f02d"; }
+.icon-AdminSalisbergIntegrations:before { content: "\f1e6"; }
+/* Side menu icons: thin line icons (shapes after Lucide, ISC licence) in place
+   of the old font glyphs. Each is a mask filled with currentColor, so the menu's
+   own colours (muted, hover, active pill, dark mode) apply unchanged. A section
+   not listed here keeps its font icon. */
+#maintab-AdminDashboard { --sb-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='7' height='9' x='3' y='3' rx='1.5'/%3E%3Crect width='7' height='5' x='14' y='3' rx='1.5'/%3E%3Crect width='7' height='9' x='14' y='12' rx='1.5'/%3E%3Crect width='7' height='5' x='3' y='16' rx='1.5'/%3E%3C/svg%3E"); }
+#maintab-AdminParentOrders { --sb-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4M16 2v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18M9 16l2 2 4-4'/%3E%3C/svg%3E"); }
+#maintab-AdminParentCustomer { --sb-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E"); }
+#maintab-AdminCatalog { --sb-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8'/%3E%3Cpath d='M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4M12 4v6M2 18h20'/%3E%3C/svg%3E"); }
+#maintab-AdminHotelReservationSystemManagement { --sb-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z'/%3E%3Cpath d='M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2M10 6h4M10 10h4M10 14h4M10 18h4'/%3E%3C/svg%3E"); }
+#maintab-AdminPriceRule { --sb-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z'/%3E%3Ccircle cx='7.5' cy='7.5' r='1'/%3E%3C/svg%3E"); }
+#maintab-AdminParentModules { --sb-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='7' height='7' x='14' y='3' rx='1.5'/%3E%3Cpath d='M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3'/%3E%3C/svg%3E"); }
+#maintab-AdminParentLocalization { --sb-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20'/%3E%3C/svg%3E"); }
+#maintab-AdminParentPreferences { --sb-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4'/%3E%3C/svg%3E"); }
+#maintab-AdminTools { --sb-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z'/%3E%3C/svg%3E"); }
+#maintab-AdminAdmin { --sb-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E"); }
+#maintab-AdminSalisbergGuide { --sb-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'/%3E%3C/svg%3E"); }
+:is(#maintab-AdminDashboard, #maintab-AdminParentOrders, #maintab-AdminParentCustomer, #maintab-AdminCatalog,
+  #maintab-AdminHotelReservationSystemManagement, #maintab-AdminPriceRule, #maintab-AdminParentModules,
+  #maintab-AdminParentLocalization, #maintab-AdminParentPreferences, #maintab-AdminTools, #maintab-AdminAdmin,
+  #maintab-AdminSalisbergGuide) > a.title > i::before {
+  content: ""; display: inline-block; width: 19px; height: 19px; vertical-align: -4px;
+  background-color: currentColor;
+  -webkit-mask: var(--sb-ico) center / contain no-repeat; mask: var(--sb-ico) center / contain no-repeat;
+}
 
 @media (min-width: 768px) {
   .bootstrap #nav-sidebar .menu-collapse { display: none; }
@@ -370,6 +435,15 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .page-head .breadcrumb a,
 .bootstrap .page-head ul.page-breadcrumb li a { color: var(--sb-muted); background-color: transparent; }
 .bootstrap .page-head .page-bar { right: 24px; left: auto; }
+/* When the title and its buttons do not fit on one line, page-head.js sets
+   sb-head-stacked and the buttons go on a line of their own under the title. */
+.page-head.sb-head-stacked { height: auto; }
+.page-head.sb-head-stacked .page-bar { position: static; padding: 0 24px 14px var(--sb-head-pad, 24px); }
+.page-head.sb-head-stacked .page-bar .btn-toolbar { float: none; padding: 0; }
+/* the list is held as display:block by a stock !important rule, so the buttons sit side by side as inline blocks */
+.page-head.sb-head-stacked .page-bar .btn-toolbar ul { float: none; width: auto; margin: 0; }
+.page-head.sb-head-stacked .page-bar .btn-toolbar li { display: inline-block; float: none; margin: 0 8px 8px 0; }
+.page-head.sb-head-stacked .toolbarBox .btn-toolbar .toolbar_btn { margin-left: 0; }
 /* action buttons beside the page title: outlined, and the "Add new ..." one filled */
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn {
   margin-left: 8px;
@@ -388,10 +462,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn[id*="-new"]:hover { border-color: var(--sb-accent-hover); background-color: var(--sb-accent-hover); color: var(--sb-accent-text); }
 .bootstrap .page-head .toolbarBox .toolbar_btn.navbar-toggle { border-color: var(--sb-line); }
 /* vendor's module promotions */
-.bootstrap .page-head .toolbarBox a[id$="-modules-list"],
-.bootstrap .page-head .toolbarBox li:has(> a[id$="-modules-list"]),
 .bootstrap .page-head .toolbarBox li:has(> a#desc-module-catalog),
-.bootstrap .alert:has(> .modules-addons-info),
 #modules_list_container { display: none; }
 
 #footer.bootstrap {
@@ -609,6 +680,7 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .popover { border: 1px solid var(--sb-line); border-radius: 12px; background-color: var(--sb-card); box-shadow: var(--sb-shadow); color: var(--sb-ink); }
 .bootstrap .popover-title { border-color: var(--sb-line); border-radius: 12px 12px 0 0; background-color: var(--sb-subtle); color: var(--sb-heading); }
 
+#dashboard .sb-figures-note { margin: 0 0 12px; color: var(--sb-muted); font-size: 13px; }
 /* dashboard: the third column is empty (its vendor panels were removed in
    view.tpl), so the other two share the full width from 1200px up */
 @media (min-width: 1200px) {
@@ -621,20 +693,51 @@ body.page-sidebar #nav-sidebar ul.menu li.maintab::before { display: none; }
 .bootstrap .panel.widget > .panel-heading > span:not(.panel-heading-action) { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .bootstrap .panel.widget > .panel-heading > .panel-heading-action { position: static; flex: 0 0 auto; margin-left: auto; }
 /* figures and labels that were cut off or ran outside their box */
-#dashboard .avail-pie-value { font-size: 18px; }
 #dashboard svg { overflow: visible; }
+/* Performance and Occupancy figures are stat tiles: one neutral card style, figures in the text
+   colour (the Revenue tiles get the same look in modules/dashtrends/views/css/dashtrends.css).
+   Colour is kept for the charts themselves (brand green, gold, blue). */
+#dashboard .stat-box { border: 1px solid var(--sb-line); border-radius: 12px; background-color: var(--sb-card); }
+#dashboard .stat-box .title-wrapper p { color: var(--sb-muted); font-weight: 500; }
+#dashboard .stat-box .value-wrapper span { color: var(--sb-heading); }
 #dashboard .stat-box { padding: 16px; }
-#dashboard .stat-box .value-wrapper span { font-size: 16px; white-space: nowrap; }
-#dashboard .stat-box .title-wrapper p { color: #1f2937; }   /* the tiles are pastel in both themes */
+#dashboard .stat-box .value-wrapper span { font-size: 20px; font-weight: 600; white-space: nowrap; }
+/* Occupancy: tonight as one bar, then the rate for the period (dashoccupancy). The legend
+   carries a swatch, the name and the number, so colour is never the only key. */
+#dashboard .sb-occupancy .sb-occ-tonight, #dashboard .sb-occupancy .sb-occ-rate { padding: 14px 16px; }
+#dashboard .sb-occupancy .sb-occ-rate { border-top: 1px solid var(--sb-line); }
+#dashboard .sb-occ-label { display: block; color: var(--sb-muted); font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+#dashboard .sb-occ-label span { text-transform: none; letter-spacing: 0; font-weight: 500; }
+#dashboard .sb-occ-big { margin: 4px 0 10px; color: var(--sb-muted); }
+#dashboard .sb-occ-big strong { color: var(--sb-heading); font-size: 28px; font-weight: 700; line-height: 1.1; }
+#dashboard .sb-occ-big em { margin-left: 6px; color: var(--sb-heading); font-style: normal; font-weight: 600; }
+#dashboard .sb-occ-bar { display: flex; gap: 2px; height: 14px; overflow: hidden; border-radius: 7px; background: var(--sb-canvas); }
+#dashboard .sb-occ-seg { display: block; min-width: 0; height: 100%; }
+#dashboard .sb-occ-seg-booked { background: var(--sb-occ-booked); }
+#dashboard .sb-occ-seg-free { background: var(--sb-occ-free); }
+#dashboard .sb-occ-seg-blocked { background: var(--sb-occ-blocked); }
+#dashboard .sb-occ-legend { margin: 10px 0 0; padding: 0; list-style: none; }
+#dashboard .sb-occ-legend li { display: flex; align-items: center; gap: 8px; padding: 3px 0; color: var(--sb-ink); }
+#dashboard .sb-occ-legend strong { margin-left: auto; color: var(--sb-heading); font-weight: 600; }
+#dashboard .sb-occ-dot { flex: 0 0 auto; width: 10px; height: 10px; border-radius: 3px; }
+#dashboard .sb-demo-note { margin: 0 0 12px; }
 #dashboard .stats-list > li:has(> #dash_traffic_source) { flex-wrap: wrap; align-items: flex-start; }
 #dashboard .stats-list > li:has(> #dash_traffic_source) > .item-label { flex: 0 0 100%; margin-bottom: 8px; }
 #dashboard #dash_traffic_source,
 #dashboard #dash_traffic_chart2 { flex: 0 0 100%; }
-#content.bootstrap #dashboard #dashproducts nav { font-family: inherit; text-transform: none; }
 
-/* Stats: report tables are wider than the space beside the report menu and
-   ran off the right edge of the page. Each one scrolls inside its own box. */
-body.adminstats #content div:has(> table.table) { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
+/* Tables wider than the space beside the menu (lists, bookings, Stats reports)
+   used to push the whole page sideways. Each one scrolls inside its own box.
+   Below 992px the stock theme turns list tables into stacked cards instead. */
+body.adminstats #content div:has(> table.table),
+#content.bootstrap .table-responsive,
+#content.bootstrap .panel div:has(> table.table) { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
+@media (min-width: 992px) {
+  #content.bootstrap .table-responsive-row, #content.bootstrap .sb-cards { max-width: 100%; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--sb-muted) var(--sb-subtle); }
+}
+
+/* Rooms tab of a room type: the room's own price box (added by salisbergfrontdesk) needs room to read */
+.hotel-room .sb-room-price { min-width: 88px; }
 
 /* ---------- 8. Stock-blue replacements ----------
    The stock theme's #00aff0 family, found by scanning rendered pages. */
@@ -648,8 +751,6 @@ body.adminstats #content div:has(> table.table) { max-width: 100%; overflow-x: a
 .bootstrap .btn-link,
 .bootstrap .chosen-container .chosen-search:before { color: var(--sb-link); }
 .bootstrap .btn-primary > i[class^="icon-"]:before { color: var(--sb-accent-text); }
-.bootstrap .avail-bar-btn, .bootstrap .avail-bar-date { border-color: var(--sb-accent); border-radius: 8px; background-color: var(--sb-card); color: var(--sb-link); }
-.bootstrap .avail-bar-btn.bar-btn-active { background-color: var(--sb-accent); border-color: var(--sb-accent); color: var(--sb-accent-text); }
 
 /* ---------- 9. Dark-theme specifics ----------
    Things the tokens cannot reach: stock rules with hard-coded light colours,
@@ -748,18 +849,227 @@ body#login, #login { background-color: var(--sb-canvas); }
 html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
 
 /* ---------- 11. Narrow windows ----------
-   Below 768px the stock theme switches to an icon rail and a 36px bar; the
-   roomy desktop shapes are undone there so nothing overlaps. */
+   Under 768px the menu is the named full-screen list (admin-theme.js) and the
+   top bar is one row: menu, logo, light/dark, website, account. */
 @media (max-width: 767px) {
-  #header_infos #header_shopversion { width: 96px; height: 36px; background-size: auto 30px; background-position: 8px center; }
-  .bootstrap #nav-sidebar ul.menu { padding: 0; }
-  .bootstrap #nav-sidebar ul.menu > li.maintab { margin-bottom: 0; }
-  .bootstrap #nav-sidebar ul.menu > li.maintab > a.title { height: 38px; line-height: 38px; padding: 0 4px; border-radius: 0; text-align: center; }
-  .bootstrap #nav-sidebar ul.menu > li.maintab > a.title span { padding-left: 8px; }
-  .bootstrap #nav-sidebar ul.menu li.maintab ul.submenu { margin-left: 0; padding-left: 0; border-left: 0; }
-  .bootstrap #nav-sidebar li.searchtab { padding: 8px 4px; }
-  .bootstrap .page-head h2.page-title { font-size: 20px; }
-  .bootstrap .page-head .page-bar { right: 8px; }
+  .bootstrap #header_infos { height: 48px; min-height: 48px; }
+  #header_infos > .navbar-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 48px;
+    margin: 0;
+    padding-left: 48px;
+  }
+  #header_infos #header_shopversion {
+    display: block;
+    flex: 1 1 auto;
+    width: auto;
+    height: 48px;
+    margin: 0;
+    background-size: auto 28px;
+    background-position: 6px center;
+  }
+  #header_infos #header_employee_box {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    float: none;
+    height: 48px;
+    margin: 0 6px 0 0;
+    padding: 0;
+  }
+  #header_infos #header_employee_box > li { display: flex; float: none; align-items: center; height: 48px; }
+  #header_infos #sb-theme-toggle { width: 52px; height: 28px; padding: 0 6px; }
+  #header_infos #sb-theme-toggle::before { width: 22px; height: 20px; }
+  html[data-sb-theme="dark"] #header_infos #sb-theme-toggle::before { transform: translateX(20px); }
+  #header_infos #header_foaccess {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+  }
+  #header_infos #header_foaccess .string-short {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+  #header_infos #header_foaccess::before {
+    content: "\f08e";
+    font-family: FontAwesome;
+    font-size: 16px;
+    color: var(--sb-ink);
+  }
+  #header_infos #employee_infos > a { height: 40px; padding: 0 8px; }
+  #header_infos #employee_infos .string-short,
+  #header_infos #employee_infos .caret { display: none; }
+
+  /* Account menu as a bottom sheet: grab handle, who is signed in, 52px rows, dimmed page */
+  #header_infos #employee_infos.open::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    background: rgba(0, 0, 0, .4);
+  }
+  #header_infos #employee_infos.open > a { background: transparent; }
+  #header_infos #employee_infos #employee_links {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    z-index: 1050;
+    width: auto;
+    min-width: 0;
+    max-height: 80vh;
+    overflow-y: auto;
+    margin: 0;
+    padding: 22px 12px calc(12px + env(safe-area-inset-bottom));
+    border: 0;
+    border-radius: 18px 18px 0 0;
+    background: var(--sb-card);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, .18);
+  }
+  #header_infos #employee_infos #employee_links::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    margin-left: -18px;
+    border-radius: 2px;
+    background: var(--sb-line);
+  }
+  #header_infos #employee_links > li > a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 52px;
+    padding: 0 12px;
+    border-radius: 12px;
+    font-size: 16px;
+    color: var(--sb-ink);
+  }
+  #header_infos #employee_links > li > a > i { width: 20px; font-size: 18px; text-align: center; color: var(--sb-muted); }
+  #header_infos #employee_links > li > a#header_logout { color: var(--sb-danger); }
+  #header_infos #employee_links > li > a#header_logout > i { color: var(--sb-danger); }
+  #header_infos #employee_links > li:last-child { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--sb-line); }
+}
+.sb-me-head { display: none; }
+@media (max-width: 767px) {
+  #header_infos #employee_links > li.sb-me-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 12px 14px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--sb-line);
+  }
+  #header_infos .sb-me-head .sb-avatar { width: 44px; height: 44px; font-size: 16px; flex: none; }
+  .sb-me-head .sb-me-text { display: flex; flex-direction: column; min-width: 0; }
+  .sb-me-head .sb-me-text strong { font-size: 16px; color: var(--sb-heading); }
+  .sb-me-head .sb-me-text small { font-size: 13px; color: var(--sb-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  #nav-mobile { width: 48px; height: 48px; background: transparent; }
+  #nav-mobile .menu-collapse {
+    width: 48px;
+    height: 48px;
+    background: transparent;
+    color: var(--sb-ink);
+    font-size: 18px;
+    line-height: 48px;
+  }
+  #nav-mobile.expanded { top: 48px; width: 100%; height: calc(100% - 48px); background: var(--sb-card); }
+  #nav-mobile.expanded .menu-collapse { top: -48px; background: var(--sb-card); color: var(--sb-ink); }
+  #nav-mobile ul.menu,
+  #nav-mobile ul.menu > li { background: var(--sb-card); }
+  #nav-mobile ul.menu > li > a,
+  #nav-mobile #nav-mobile-submenu a:not(#nav-mobile-submenu-back) {
+    height: 48px;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-bottom: 1px solid var(--sb-line);
+    background: var(--sb-card);
+    color: var(--sb-ink);
+    font-size: 16px;
+    line-height: 48px;
+    text-transform: none;
+  }
+  #nav-mobile ul.menu > li > a > i { width: 44px; color: var(--sb-muted); font-size: 16px; }
+  #nav-mobile ul.menu > li > a:hover,
+  #nav-mobile ul.menu > li.active > a { background: var(--sb-accent-soft); color: var(--sb-link); }
+  #nav-mobile a#nav-mobile-submenu-back {
+    height: 48px;
+    background: var(--sb-subtle);
+    color: var(--sb-ink);
+    font-size: 16px;
+    line-height: 48px;
+  }
+
+  body.ps_back-office .page-head {
+    top: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: auto;
+    min-height: 0;
+    padding: 8px 10px;
+  }
+  body.ps_back-office .page-head h2.page-title {
+    height: auto;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    line-height: 1.2;
+  }
+  .bootstrap .page-head .page-breadcrumb { display: none; }
+  body.ps_back-office .page-head .page-bar { position: static; display: flex; align-items: center; height: auto; margin: 0; }
+  /* The stock responsive "Menu" toolbar button stacks a caret over its label and floats
+     to the edge, which clips the label. Lay it out as a compact caret-and-label pill that
+     sits inside the page-head padding. */
+  .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn.dropdown-toolbar {
+    float: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    margin: 0;
+    padding: 7px 12px !important;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn.dropdown-toolbar i { float: none; margin: 0; }
+  .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn.dropdown-toolbar div { display: inline; }
+  #nav-mobile .searchtab input,
+  #nav-mobile input[type="search"],
+  #nav-mobile input[type="text"] {
+    background: var(--sb-card);
+    color: var(--sb-ink);
+    border-color: var(--sb-line);
+  }
+  #content.bootstrap { margin-left: 0; padding: 108px 12px 32px; }
+  .bootstrap .nav-tabs { display: flex; flex-wrap: nowrap; overflow-x: auto; }
+  .bootstrap .nav-tabs > li { flex: 0 0 auto; float: none; }
+  .bootstrap .nav-tabs > li > a { white-space: nowrap; }
+  /* the summary tiles repeat the Dashboard and push the list down; they stay on a wider screen */
+  body.adminorders #content.bootstrap .panel.kpi-container { display: none; }
+}
+
+/* Stacked list cards (stock, under 992px) follow the same card colour as the rest of the back office. */
+@media (max-width: 991px) {
+  #content.bootstrap .table-responsive-row td,
+  #content.bootstrap .table-responsive-row th {
+    background-color: var(--sb-card);
+    color: var(--sb-ink);
+    border-color: var(--sb-line);
+  }
+  #content.bootstrap .table-responsive-row td:before { color: var(--sb-muted); }
 }
 
 /* ---------- 12. Specificity catch-up ----------
@@ -790,9 +1100,41 @@ html[data-sb-theme="dark"] #login #logo { filter: invert(1) hue-rotate(180deg); 
 #content.bootstrap .table thead > tr.filter > td { background-color: var(--sb-subtle); border-color: var(--sb-line); }
 #content.bootstrap .box-stats .title, #content.bootstrap .box-stats .title span { color: var(--sb-muted); }
 #content.bootstrap .box-stats .value, #content.bootstrap .box-stats .value span { color: var(--sb-heading); }
+#content.bootstrap .panel.kpi-container.sb-booking-kpis {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  box-shadow: none;
+}
+#content.bootstrap .sb-booking-kpis .kpis-wrap {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 0;
+  min-width: 0;
+}
+#content.bootstrap .sb-booking-kpis .kpi-wrap { flex: 1 1 145px; min-width: 125px; }
+#content.bootstrap .sb-booking-kpis .box-stats {
+  min-height: 0;
+  padding: 5px 10px;
+  border: 0;
+  border-right: 1px solid var(--sb-line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+#content.bootstrap .sb-booking-kpis .kpi-icon { display: none; }
+#content.bootstrap .sb-booking-kpis .kpi-content { display: block; padding: 0; }
+#content.bootstrap .sb-booking-kpis .title { font-size: 11px; line-height: 1.3; }
+#content.bootstrap .sb-booking-kpis .value { font-size: 15px; line-height: 1.3; }
+#content.bootstrap .sb-booking-kpis .subtitle-container { margin-top: 1px; font-size: 10px; }
+#content.bootstrap .sb-booking-kpis .actions-wrap { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; }
+#content.bootstrap .sb-booking-kpis .actions-wrap .btn { width: 32px; height: 32px; padding: 0; border-radius: 7px; }
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn span,
 .bootstrap .page-head .toolbarBox .btn-toolbar .toolbar_btn div { color: inherit; font-weight: inherit; }
-#dashboard .avail-pie-label-container p { color: #fff; }
 .bootstrap .hasDatepicker.form-control { background-color: var(--sb-card); color: var(--sb-ink); }
 
 /* dark theme: text the dashboard and calendar widgets colour themselves */
@@ -817,3 +1159,365 @@ html[data-sb-theme="dark"] #content.bootstrap .fc-theme-standard .fc-scrollgrid 
 #content.bootstrap [id^="dgc_"] { color: var(--sb-heading); }
 .bootstrap input.hasDatepicker[readonly],
 .bootstrap input.form-control[readonly] { background-color: var(--sb-subtle); color: var(--sb-ink); }
+
+/* ---------- 13. Room status actions ---------- */
+#content .sb-room-state { margin-top: 6px; }
+#content .sb-room-state .label { display: inline-block; padding: 5px 9px; border-radius: 999px; font-size: 11px; }
+#content .sb-room-status-action { display: block; margin: 6px 0; }
+#content .sb-room-status-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 8px;
+  border: 1px solid var(--sb-line);
+  border-radius: 8px;
+  background: var(--sb-subtle);
+}
+#content .sb-room-status-confirm[hidden] { display: none; }
+#content .sb-room-status-confirm > span { flex-basis: 100%; color: var(--sb-ink); font-size: 12px; }
+#content .sb-room-status-confirm .btn { margin: 0; }
+#content #room_status_info_wrapper td:last-child .btn { margin: 2px; }
+#content .sb-room-status-dropdown { position: relative; display: block; margin: 2px; }
+#content .sb-room-status-dropdown > summary { display: block; max-width: 100%; white-space: normal; list-style: none; cursor: pointer; }
+#content .sb-room-status-dropdown > summary::-webkit-details-marker { display: none; }
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) {
+  overflow: visible;
+}
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table {
+  width: 100%;
+  table-layout: fixed;
+}
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table th,
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table td {
+  overflow-wrap: anywhere;
+}
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table th:nth-child(1),
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table td:nth-child(1) { width: 14%; }
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table th:nth-child(2),
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table td:nth-child(2) { width: 20%; }
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table th:nth-child(3),
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table td:nth-child(3),
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table th:nth-child(4),
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table td:nth-child(4) { width: 15%; }
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table th:nth-child(5),
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table td:nth-child(5) { width: 8%; }
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table th:nth-child(6),
+#content.bootstrap #room_status_info_wrapper:has(.sb-room-status-dropdown[open]) .sb-room-status-table td:nth-child(6) { width: 28%; }
+#content .sb-room-status-dropdown > .sb-room-status-form {
+  position: static;
+  margin-top: 4px;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid var(--sb-line);
+  border-radius: 8px;
+  background: var(--sb-card);
+  color: var(--sb-ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+}
+#content .sb-room-status-options { display: grid; gap: 2px; }
+#content .sb-check-in-time-override { margin-bottom: 8px; padding: 3px 6px 8px; border-bottom: 1px solid var(--sb-line); }
+#content .sb-check-in-time-override label { display: flex; align-items: flex-start; gap: 6px; margin: 0; color: var(--sb-ink); font-weight: normal; white-space: normal; }
+#content .sb-check-in-time-override input[type="checkbox"] { margin: 0; }
+#content .sb-check-in-time { width: 100%; margin-top: 7px; }
+#content .sb-room-status-option {
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--sb-ink);
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+#content .sb-room-status-option:not(:disabled):hover,
+#content .sb-room-status-option:not(:disabled):focus { background: var(--sb-subtle); color: var(--sb-heading); }
+#content .sb-room-status-option:disabled { color: var(--sb-muted); cursor: default; opacity: 1; }
+
+/* ---------- 14. Customer-facing booking printout ---------- */
+.sb-print-header,
+.sb-print-guest,
+.sb-print-payment-summary { display: none; }
+@media print {
+  @page { size: A4; margin: 14mm 12mm; }
+  html, body, body.ps_back-office, #main, #content, #content.bootstrap, .bootstrap {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #1f2937 !important;
+    font: 10pt/1.4 Arial, sans-serif !important;
+  }
+  #header_infos, #nav-sidebar, #nav-topbar, .page-head, #footer,
+  #content .box-stats, #content .kpi-container, #content .kpis-wrap,
+  #order_detail_view .sb-print-history, #order_detail_view .panel-customer,
+  #order_detail_view .sb-print-traveller, #order_detail_view .panel-guest_address, #order_detail_view .order-notes,
+  #order_detail_view .panel-refund-request, #order_detail_view .panel-vouchers,
+  #order_detail_view .hidden-print, #order_detail_view .btn,
+  #order_detail_view button, #order_detail_view .dropdown,
+  #order_detail_view .panel-heading-action, #order_detail_view .actions,
+  #order_detail_view form .form-group, #order_detail_view input,
+  #order_detail_view select, #order_detail_view textarea,
+  #order_detail_view .overbooking-info { display: none !important; }
+  #content { position: static !important; left: auto !important; }
+  #order_detail_view { width: 100% !important; margin: 0 !important; }
+  .sb-print-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12mm;
+    padding: 0 0 7mm;
+    margin: 0 0 7mm;
+    border-bottom: 2px solid #12352c;
+  }
+  .sb-print-header img { display: block; width: 45mm; max-height: 22mm; object-fit: contain; }
+  .sb-print-header > div { display: grid; gap: 1mm; text-align: right; }
+  .sb-print-header strong { color: #12352c; font-size: 18pt; }
+  .sb-print-header span { color: #6b7280; font-size: 9pt; }
+  .sb-print-header b { font-size: 12pt; letter-spacing: .04em; }
+  .sb-print-guest {
+    display: grid !important;
+    grid-template-columns: 2fr 2fr 1fr;
+    gap: 4mm;
+    padding: 4mm;
+    margin: 0 0 5mm;
+    border: 1px solid #d7dde3;
+    border-radius: 2mm;
+    background: #f8faf9;
+  }
+  .sb-print-guest div { display: grid; gap: 1mm; min-width: 0; }
+  .sb-print-guest span { color: #6b7280; font-size: 8pt; text-transform: uppercase; }
+  .sb-print-guest strong { overflow-wrap: anywhere; }
+  #order_detail_view > .row:first-of-type {
+    display: block !important;
+    margin: 0 0 5mm !important;
+  }
+  #order_detail_view [class*="col-"] {
+    float: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  #order_detail_view .panel {
+    margin: 0 0 5mm !important;
+    padding: 4mm !important;
+    border: 1px solid #d7dde3 !important;
+    border-radius: 2mm !important;
+    background: #fff !important;
+    color: #1f2937 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  #order_detail_view .panel-heading {
+    min-height: 0 !important;
+    margin: -4mm -4mm 3mm !important;
+    padding: 2mm 4mm !important;
+    border-bottom: 1px solid #d7dde3 !important;
+    background: #f3f5f4 !important;
+    color: #12352c !important;
+    font-size: 11pt !important;
+    font-weight: 700 !important;
+  }
+  #order_detail_view .sb-print-traveller .row,
+  #order_detail_view .sb-print-traveller #customer-guest-details { display: grid !important; grid-template-columns: 1fr 1fr; }
+  #order_detail_view .sb-print-traveller .list-detail { float: none !important; width: auto !important; margin: 0 0 2mm !important; padding: 0 !important; }
+  #order_detail_view .label-title { display: block; color: #6b7280 !important; font-size: 8pt; text-transform: uppercase; }
+  #order_detail_view a { color: #1f2937 !important; text-decoration: none !important; }
+  #order_detail_view .row,
+  #order_detail_view .col-lg-12,
+  #start_products,
+  #start_products > .col-lg-12 { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; float: none !important; }
+  #room_status_info_wrapper,
+  #start_products .table-responsive,
+  #form_add_payment_panel .table-responsive,
+  #order-details-price { overflow: visible !important; width: 100% !important; }
+  #room_status_info_wrapper th:nth-child(n+5),
+  #room_status_info_wrapper td:nth-child(n+5) { display: none !important; }
+  #customer_cart_details th:nth-child(2),
+  #customer_cart_details td:nth-child(2),
+  #customer_cart_details th:nth-child(6),
+  #customer_cart_details td:nth-child(6),
+  #customer_cart_details th:nth-child(7),
+  #customer_cart_details td:nth-child(7),
+  #customer_cart_details th:nth-child(8),
+  #customer_cart_details td:nth-child(8),
+  #customer_cart_details th:nth-child(n+10),
+  #customer_cart_details td:nth-child(n+10) { display: none !important; }
+  #customer_cart_details { display: table !important; table-layout: fixed !important; }
+  #customer_cart_details thead { display: table-header-group !important; }
+  #customer_cart_details tbody { display: table-row-group !important; }
+  #customer_cart_details tr { display: table-row !important; }
+  #customer_cart_details th,
+  #customer_cart_details td { display: table-cell !important; }
+  #customer_cart_details th:nth-child(1),
+  #customer_cart_details td:nth-child(1) { width: 13% !important; }
+  #customer_cart_details th:nth-child(3),
+  #customer_cart_details td:nth-child(3) { width: 21% !important; }
+  #customer_cart_details th:nth-child(4),
+  #customer_cart_details td:nth-child(4) { width: 28% !important; }
+  #customer_cart_details th:nth-child(5),
+  #customer_cart_details td:nth-child(5) { width: 14% !important; }
+  #customer_cart_details th:nth-child(9),
+  #customer_cart_details td:nth-child(9) { width: 24% !important; }
+  #order_detail_view .table { width: 100% !important; margin: 0 !important; border-collapse: collapse !important; font-size: 8.5pt !important; }
+  #order_detail_view .table th,
+  #order_detail_view .table td { padding: 2mm !important; border: 1px solid #d7dde3 !important; background: #fff !important; color: #1f2937 !important; vertical-align: top !important; }
+  #order_detail_view .table thead th { background: #f3f5f4 !important; color: #12352c !important; font-weight: 700 !important; }
+  #order_detail_view .table th { font-family: Arial, sans-serif !important; font-style: normal !important; letter-spacing: normal !important; text-transform: none !important; }
+  #form_add_payment_panel .table th:nth-child(3),
+  #form_add_payment_panel .table td:nth-child(3),
+  #form_add_payment_panel .table th:nth-child(4),
+  #form_add_payment_panel .table td:nth-child(4),
+  #form_add_payment_panel .table th:nth-child(6),
+  #form_add_payment_panel .table td:nth-child(6),
+  #form_add_payment_panel .table th:nth-child(n+7),
+  #form_add_payment_panel .table td:nth-child(n+7) { display: none !important; }
+  #order_detail_view .panel-total { width: 58% !important; margin-left: auto !important; }
+  #order_detail_view .panel-total .table-responsive { display: none !important; }
+  .sb-print-payment-summary { display: grid !important; gap: 2mm; }
+  .sb-print-payment-summary > div { display: flex; justify-content: space-between; gap: 6mm; padding: 1.5mm 0; border-bottom: 1px solid #e5e7eb; }
+  .sb-print-payment-summary > div:last-child { border-bottom: 0; color: #12352c; font-size: 12pt; font-weight: 700; }
+  #order_detail_view img { max-width: 24mm; max-height: 18mm; }
+  #order_detail_view tr { page-break-inside: avoid; break-inside: avoid; }
+  #order_detail_view a[href]:after { content: none !important; }
+}
+
+/* Administration > Integrations: one card per integration (salisbergnotify) */
+#content .sb-int-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin: 0 0 18px; }
+#content .sb-int-card { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border: 1px solid var(--sb-line); border-radius: 12px; background: var(--sb-card); color: var(--sb-ink); text-decoration: none; }
+#content .sb-int-card:hover, #content .sb-int-card:focus { border-color: var(--sb-accent); text-decoration: none; }
+#content .sb-int-icon { flex: 0 0 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--sb-accent-soft); color: var(--sb-accent); font-size: 16px; }
+#content .sb-int-text { display: flex; flex-direction: column; min-width: 0; }
+#content .sb-int-text strong { color: var(--sb-heading); font-size: 15px; }
+#content .sb-int-text small { color: var(--sb-muted); font-size: 12px; }
+#content .sb-int-status { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--sb-ink); font-size: 13px; }
+#content .sb-int-status i { width: 8px; height: 8px; border-radius: 50%; background: var(--sb-muted); }
+#content .sb-int-status.is-on i { background: var(--sb-success); }
+#content .sb-int-status.is-off i { background: var(--sb-warning); }
+
+/* Paged lists (SIMPLIFY-REVIEW P-13): "1–20 of 155", rows per page, Previous / Next */
+#content .sb-pager { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 14px; }
+#content .sb-pager-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* P-11: the one desk line on the Bookings list. Neutral, like Today at the desk;
+   only the "overdue" note is red. */
+#content .box-stats.sb-desk { border-left: 1px solid var(--sb-line); background: var(--sb-card); }
+#content .box-stats.sb-desk .kpi-icon { color: var(--sb-muted); background: transparent; }
+#content .box-stats.sb-desk .subtitle { color: var(--sb-danger); font-weight: 600; }
+
+/* P-12: Bookings list cells. Status as a quiet chip with a dot; Due red only when owed. */
+#content .sb-state { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border: 1px solid var(--sb-line); border-radius: 999px; background: var(--sb-card); color: var(--sb-ink); font-size: 12px; white-space: nowrap; }
+#content .sb-state i { width: 7px; height: 7px; border-radius: 50%; background: var(--sb-success); }
+#content .sb-state-warn i { background: var(--sb-warning); }
+#content .sb-state-bad i { background: var(--sb-danger); }
+#content .sb-due { color: var(--sb-danger); font-weight: 600; }
+#content .sb-due-none { color: var(--sb-muted); }
+
+/* P-14: lists that opt in (Bookings, Customers, Invoices) are a normal table from
+   768px; on phones each row is one compact card. The whole card opens the record
+   (the stock cells keep their row link); Delete and the select boxes stay off
+   the card, so a stray tap never starts a deletion. Cells are placed by their
+   column class (sb-col-<name>, added by list_content.tpl). */
+@media (min-width: 768px) and (max-width: 991px) {
+  #content.bootstrap .sb-cards { max-width: 100%; overflow-x: auto; }
+}
+@media (max-width: 767px) {
+  #content.bootstrap .sb-cards table,
+  #content.bootstrap .sb-cards tbody { display: block; width: 100%; }
+  #content.bootstrap .sb-cards thead { display: none; }
+  #content.bootstrap .sb-cards tbody tr {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px;
+    margin: 0 0 8px; padding: 12px 14px; border: 1px solid var(--sb-line); border-radius: 12px;
+    background: var(--sb-card); cursor: pointer;
+  }
+  #content.bootstrap .sb-cards tbody td { display: none; padding: 0; border: 0; background: transparent; white-space: normal; }
+  #content.bootstrap .sb-cards tbody td.list-empty { display: block; flex: 1 1 100%; }
+  /* the two cells on the first line: who, and money still owed */
+  #content.bootstrap .sb-cards td:is(.sb-col-customer, .sb-col-guest) { display: block; order: 1; flex: 1 1 55%; min-width: 0; font-weight: 600; color: var(--sb-ink); }
+  #content.bootstrap .sb-cards td:is(.sb-col-amount_due, .sb-col-owed, .sb-col-balance) { display: block; order: 2; text-align: right; }
+  /* smaller lines below */
+  #content.bootstrap .sb-cards td:is(.sb-col-reference, .sb-col-number, .sb-col-booking, .sb-col-phone, .sb-col-email,
+    .sb-col-stay_from, .sb-col-stay_to, .sb-col-stay, .sb-col-total_orders, .sb-col-last_stay, .sb-col-room_numbers) {
+    display: block; order: 3; color: var(--sb-muted); font-size: 12.5px;
+  }
+  #content.bootstrap .sb-cards td:is(.sb-col-reference, .sb-col-number) { flex-basis: 100%; }
+  #content.bootstrap .sb-cards td.sb-col-stay_to::before { content: "\2013\00a0"; }
+  #content.bootstrap .sb-cards td.sb-col-total_orders::before { content: "Bookings: "; }
+  #content.bootstrap .sb-cards td.sb-col-last_stay::before { content: "Last stay: "; }
+  #content.bootstrap .sb-cards td.sb-col-room_numbers::before { content: "Room "; }
+  #content.bootstrap .sb-cards td:is(.sb-col-osname, .sb-col-status) { display: block; order: 4; flex-basis: 100%; margin-top: 6px; }
+  /* Room types, hotels, employees (P-20): the name first, the price on the right */
+  #content.bootstrap .sb-cards td:is(.sb-col-name, .sb-col-hotel_name) { display: block; order: 1; flex: 1 1 55%; min-width: 0; font-weight: 600; color: var(--sb-ink); }
+  #content.bootstrap .sb-cards td:is(.sb-col-firstname, .sb-col-lastname) { display: block; order: 1; font-weight: 600; color: var(--sb-ink); }
+  #content.bootstrap .sb-cards td.sb-col-price_final { display: block; order: 2; margin-left: auto; text-align: right; font-weight: 600; }
+  #content.bootstrap .sb-cards td:is(.sb-col-num_rooms, .sb-col-max_guests, .sb-col-city, .sb-col-profile) { display: block; order: 3; color: var(--sb-muted); font-size: 12.5px; }
+  #content.bootstrap .sb-cards td.sb-col-num_rooms::before { content: "Rooms: "; }
+  #content.bootstrap .sb-cards td.sb-col-max_guests::before { content: "Up to "; }
+  #content.bootstrap .sb-cards td.sb-col-max_guests::after { content: " guests"; }
+  /* optional columns are shown by the list script with an inline style, which only !important beats */
+  #content.bootstrap .sb-cards td.field_optional:is(.sb-col-show_at_front, .sb-col-advance_payment, .sb-col-hotel_name) { display: none !important; }
+  #content.bootstrap .sb-cards td.sb-col-active { display: block; order: 4; flex-basis: 100%; margin-top: 4px; text-align: left !important; }
+  #content.bootstrap .sb-cards td.sb-col-active::before { content: "Active: "; color: var(--sb-muted); font-size: 12.5px; }
+  /* Invoices: keep the PDF button on the card */
+  #content.bootstrap .sb-cards-invoices td.sb-col-pdf { display: block; order: 5; flex-basis: 100%; margin-top: 6px; text-align: left !important; }
+}
+
+/* Modules page: summary line, category chips, compact rows (list.tpl, page.tpl) */
+#content .sb-mod-summary { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; margin: 0 0 14px; color: var(--sb-muted); }
+#content .sb-mod-summary strong { color: var(--sb-ink); font-size: 16px; }
+#content .sb-mod-summary .sb-mod-warn { color: var(--sb-ink); }
+#content .sb-mod-summary .sb-mod-warn::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: var(--sb-warning); }
+#content .sb-mod-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+#content .sb-mod-search { position: relative; max-width: 360px; margin: 0; }
+#content .sb-mod-search i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--sb-muted); }
+#content.bootstrap .sb-mod-search .form-control { padding-left: 32px; }
+#content .sb-mod-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+#content .sb-mod-chips a { padding: 4px 11px; border: 1px solid var(--sb-line); border-radius: 999px; background: var(--sb-card); color: var(--sb-ink); font-size: 13px; text-decoration: none; white-space: nowrap; }
+#content .sb-mod-chips a span { color: var(--sb-muted); margin-left: 3px; }
+#content .sb-mod-chips a:hover { border-color: var(--sb-accent); }
+#content .sb-mod-chips a.active { border-color: var(--sb-accent); background: var(--sb-accent); color: var(--sb-accent-text); }
+#content .sb-mod-chips a.active span { color: inherit; opacity: .8; }
+#content #module-list > tbody > tr > td { vertical-align: middle; padding-top: 8px; padding-bottom: 8px; }
+#content #module-list .module_description { margin: 2px 0 0; color: var(--sb-muted); font-size: 13px; }
+#content #module-list .module_name small { margin: 0 6px; }
+#content #module-list .sb-mod-tile-cell { width: 52px; }
+#content .sb-mod-tile { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px; background: var(--sb-accent-soft); color: var(--sb-accent); font-weight: 700; font-size: 13px; letter-spacing: .02em; }
+#content .sb-mod-tile.sb-own { background: var(--sb-accent); color: var(--sb-accent-text); }
+#content .sb-mod-tile.sb-off { background: var(--sb-canvas); color: var(--sb-muted); }
+#content #module-list tr.sb-mod-group > td { padding: 14px 8px 6px; border-top: 0; color: var(--sb-muted); font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+#content #module-list tr.sb-mod-group small { margin-left: 6px; font-weight: 400; letter-spacing: 0; text-transform: none; }
+#content .sb-mod-unused-toggle { padding: 0; border: 0; background: none; color: var(--sb-ink); font: inherit; letter-spacing: inherit; text-transform: inherit; }
+#content .sb-mod-unused-toggle span { color: var(--sb-muted); margin-left: 3px; }
+
+/* Positions page: each hook is one folded line (list_modules.tpl, modules-position.js) */
+#content .hook_panel .module_list { display: none; padding-bottom: 8px; }
+#content .hook_panel.sb-open .module_list { display: block; }
+#content .sb-hook-toggle { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 0; border: 0; background: none; color: var(--sb-ink); text-align: left; font: inherit; }
+#content .sb-hook-toggle i { width: 10px; color: var(--sb-muted); }
+#content .sb-hook-label { font-weight: 600; }
+#content .sb-hook-count { display: flex; align-items: center; gap: 8px; color: var(--sb-muted); font-size: 13px; white-space: nowrap; }
+#content .sb-hook-count input { margin: 0; }
+#content .module_col_position { width: 110px; }
+#content .module_col_position .btn-group-vertical { vertical-align: middle; margin-left: 4px; }
+#content .module_col_position .btn-xs { padding: 0 5px; line-height: 1.3; }
+#content .sb-drag { color: var(--sb-muted); cursor: move; letter-spacing: -3px; margin-right: 4px; }
+#content .module_list .module_description { font-size: 13px; }
+#content .hook_panel_header .hook_name .highlight { background: var(--sb-accent-soft); color: var(--sb-ink); }
+
+/* Dashboard on a phone (P-23): period buttons in one scrolling row; Performance folds */
+#dashperformance.sb-folded > section { display: none; }
+@media (max-width: 767px) {
+  #content #calendar_form .btn-group { display: flex; flex-wrap: nowrap; overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch; }
+  #content #calendar_form .btn-group > .btn { flex: 0 0 auto; float: none; }
+  #dashperformance.sb-folded > header::after { content: "\25B8"; margin-left: 8px; color: var(--sb-muted); }
+}

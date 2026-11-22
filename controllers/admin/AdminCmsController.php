@@ -133,7 +133,7 @@ class AdminCmsControllerCore extends AdminController
                 ),
                 array(
                     'type' => 'text',
-                    'label' => $this->l('Meta title'),
+                    'label' => $this->l('Page title'),
                     'name' => 'meta_title',
                     'id' => 'name', // for copyMeta2friendlyURL compatibility
                     'lang' => true,
@@ -162,9 +162,8 @@ class AdminCmsControllerCore extends AdminController
                     'type' => 'text',
                     'label' => $this->l('Friendly URL'),
                     'name' => 'link_rewrite',
-                    'required' => true,
                     'lang' => true,
-                    'hint' => $this->l('Only letters and the hyphen (-) character are allowed.')
+                    'hint' => $this->l('Only letters and the hyphen (-) character are allowed.').' '.$this->l('Leave empty to make it from the page title.')
                 ),
                 array(
                     'type' => 'textarea',
@@ -237,6 +236,19 @@ class AdminCmsControllerCore extends AdminController
             )
         );
 
+        // The description search engines show is taken from the page content, and the Friendly URL from the
+        // page title (see postProcess()), so only a SuperAdmin is asked for them. Fields that are not on the
+        // form are not posted, and a saved page keeps its values.
+        if (!$this->context->employee->isSuperAdmin()) {
+            $seoFields = array('meta_description', 'meta_keywords', 'link_rewrite');
+            $this->fields_form['input'] = array_values(array_filter(
+                $this->fields_form['input'],
+                function ($input) use ($seoFields) {
+                    return !isset($input['name']) || !in_array($input['name'], $seoFields);
+                }
+            ));
+        }
+
         if (Shop::isFeatureActive()) {
             $this->fields_form['input'][] = array(
                 'type' => 'shop',
@@ -286,8 +298,35 @@ class AdminCmsControllerCore extends AdminController
         $this->displayListFooter($token);
     }
 
+    /**
+     * Fills in an empty Friendly URL: the one the page already has, or else one made from the page title.
+     * Only a SuperAdmin is shown the field, so for everyone else it is empty on every save. A link that
+     * already exists is never rebuilt from a changed title, so addresses already shared keep working.
+     */
+    protected function fillLinkRewrite()
+    {
+        $saved = ($id = (int)Tools::getValue('id_cms')) ? (new CMS($id))->link_rewrite : array();
+        $defaultTitle = trim((string)Tools::getValue('meta_title_'.(int)Configuration::get('PS_LANG_DEFAULT')));
+        foreach (Language::getLanguages(false) as $language) {
+            $id_lang = (int)$language['id_lang'];
+            if (trim((string)Tools::getValue('link_rewrite_'.$id_lang)) !== '') {
+                continue;
+            }
+            if (!empty($saved[$id_lang])) {
+                $_POST['link_rewrite_'.$id_lang] = $saved[$id_lang];
+            } elseif (($title = trim((string)Tools::getValue('meta_title_'.$id_lang)) ?: $defaultTitle) !== '') {
+                $_POST['link_rewrite_'.$id_lang] = Tools::str2url($title);
+            }
+        }
+    }
+
     public function postProcess()
     {
+        // the page form was posted: Save, Save and stay and Save and preview all need the address filled in
+        if (Tools::getIsset('meta_title_'.(int)Configuration::get('PS_LANG_DEFAULT'))) {
+            $this->fillLinkRewrite();
+        }
+
         if (Tools::isSubmit('viewcms') && ($id_cms = (int)Tools::getValue('id_cms'))) {
             parent::postProcess();
             if (($cms = new CMS($id_cms, $this->context->language->id)) && Validate::isLoadedObject($cms)) {

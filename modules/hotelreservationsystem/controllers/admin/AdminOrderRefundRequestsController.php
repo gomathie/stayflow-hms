@@ -78,7 +78,7 @@ class AdminOrderRefundRequestsController extends ModuleAdminController
                 'class' => 'fixed-width-xs',
             );
             $this->fields_list['id_order'] = array(
-                'title' => $this->l('Order ID'),
+                'title' => $this->l('Booking ID'),
                 'align' => 'center',
                 'class' => 'fixed-width-xs',
                 'callback' => 'setOrderLink',
@@ -127,7 +127,7 @@ class AdminOrderRefundRequestsController extends ModuleAdminController
             );
         } else {
             $this->fields_list['id_order'] = array(
-                'title' => $this->l('Order ID'),
+                'title' => $this->l('Booking ID'),
                 'align' => 'center',
                 'class' => 'fixed-width-xs',
                 'callback' => 'setOrderLink',
@@ -146,7 +146,7 @@ class AdminOrderRefundRequestsController extends ModuleAdminController
                 'havingFilter' => true,
             );
             $this->fields_list['total_order'] = array(
-                'title' => $this->l('Total Order Amount'),
+                'title' => $this->l('Booking total'),
                 'align' => 'center',
                 'callback' => 'setOrderCurrency',
                 'havingFilter' => true,

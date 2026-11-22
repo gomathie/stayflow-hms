@@ -31,10 +31,14 @@
 <head>
 	<meta charset="utf-8">
 
-	<meta name="viewport" content="width=device-width, initial-scale=0.75, maximum-scale=0.75, user-scalable=0">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-title" content="Salisberg Desk">
+	<meta name="theme-color" content="#12352c">
+	<link rel="manifest" href="/pwa/desk-manifest.php?dir={$smarty.const._PS_ADMIN_DIR_|regex_replace:'/.*\\//':''|escape:'url'}" />
 	<link rel="icon" type="image/x-icon" href="{$img_dir}favicon.ico" />
-	<link rel="apple-touch-icon" href="{$img_dir}app_icon.png" />
+	<link rel="apple-touch-icon" href="/pwa/icon-180.png" />
 
 	<meta name="robots" content="NOFOLLOW, NOINDEX">
 	<title>{if $meta_title != ''}{$meta_title} • {/if}{$shop_name}</title>
@@ -58,11 +62,11 @@
 		var youEditFieldFor = '';
 {/if}
 		var autorefresh_notifications = '{$autorefresh_notifications|@addcslashes:'\''}';
-		var new_order_msg = '{l s='A new order has been placed on your shop.' js=1}';
-		var order_number_msg = '{l s='Order number:' js=1} ';
+		var new_order_msg = '{l s='A new booking has been made.' js=1}';
+		var order_number_msg = '{l s='Booking number:' js=1} ';
 		var total_msg = '{l s='Total:' js=1} ';
 		var from_msg = '{l s='From:' js=1} ';
-		var see_order_msg = '{l s='View this order' js=1}';
+		var see_order_msg = '{l s='View this booking' js=1}';
 		var new_customer_msg = '{l s='A new customer registered on your shop.' js=1}';
 		var customer_name_msg = '{l s='Customer name:' js=1} ';
 		var new_msg = '{l s='A new message was posted on your shop.' js=1}';
@@ -146,21 +150,21 @@
 							<div class="dropdown-menu notifs_dropdown">
 								<section id="orders_notif_wrapper" class="notifs_panel">
 									<div class="notifs_panel_header">
-										<h3>{l s='Latest Orders'}</h3>
+										<h3>{l s='Latest Bookings'}</h3>
 									</div>
 									<div id="list_orders_notif" class="list_notif">
 										<span class="no_notifs">
-											{l s='No new orders have been placed on your shop.'}
+											{l s='No new bookings have been made.'}
 										</span>
 									</div>
 									<div class="notifs_panel_footer">
-										<a href="index.php?controller=AdminOrders&amp;token={getAdminToken tab='AdminOrders'}">{l s='Show all orders'}</a>
+										<a href="index.php?controller=AdminOrders&amp;token={getAdminToken tab='AdminOrders'}">{l s='Show all bookings'}</a>
 									</div>
 								</section>
 							</div>
 						</li>
 					{/if}
-					{if {$show_new_customers} == 1}
+					{if {$show_new_customers} == 1 && empty($sb_desk_only)}
 						<li id="customers_notif" class="dropdown" data-type="customer">
 							<a href="javascript:void(0);" class="dropdown-toggle notifs" data-toggle="dropdown">
 								<i class="icon-user"></i>
@@ -212,7 +216,7 @@
 					{/if}
 					{hook h='displayBackOfficeTopNotificaiton'}
 				</ul>
-				{if count($quick_access) >= 0}
+				{if count($quick_access) >= 0 && empty($sb_desk_only)}
 					<ul id="header_quick">
 						<li class="dropdown">
 							<a href="javascript:void(0)" id="quick_select" class="dropdown-toggle" data-toggle="dropdown">{l s='Quick Access'} <i class="icon-caret-down"></i></a>
@@ -321,10 +325,12 @@
 							<i class="caret"></i>
 						</a>
 						<ul id="employee_links" class="dropdown-menu">
+								<li class="sb-me-head" aria-hidden="true"><span class="sb-avatar">{$employee->firstname|truncate:1:''|escape:'html':'UTF-8'}{$employee->lastname|truncate:1:''|escape:'html':'UTF-8'}</span><span class="sb-me-text"><strong>{$employee->firstname|escape:'html':'UTF-8'} {$employee->lastname|escape:'html':'UTF-8'}</strong><small>{$employee->email|escape:'html':'UTF-8'}</small></span></li>
 							<li><a href="{$link->getAdminLink('AdminEmployees')|escape:'html':'UTF-8'}&amp;id_employee={$employee->id|intval}&amp;updateemployee"><i class="icon-wrench"></i> {l s='My preferences'}</a></li>
 							{if $host_mode}
 							<li><a href="https://www.prestashop.com/cloud/" class="_blank"><i class="icon-wrench"></i> {l s='My PrestaShop account'}</a></li>
 							{/if}
+							<li id="sb-install-item" hidden><a href="#" id="sb-install-link"><i class="icon-mobile"></i> {l s='Add to home screen'}</a></li>
 							<li><a id="header_logout" href="{$login_link|escape:'html':'UTF-8'}&amp;logout"><i class="icon-signout"></i> {l s='Sign out'}</a></li>
 						</ul>
 					</li>

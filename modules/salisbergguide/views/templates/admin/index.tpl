@@ -7,7 +7,7 @@
 	<div class="sb-cards">
 		<div class="sb-card">
 			<h3>{l s='Staff Guide' mod='salisbergguide'}</h3>
-			<p>{l s='For front desk and reservations staff: taking bookings, confirming cash and Mobile Money payments, check-in and check-out, guests and refunds.' mod='salisbergguide'}</p>
+			<p>{l s='For front desk and booking staff: taking bookings, confirming cash and Mobile Money payments, check-in and check-out, guests and refunds.' mod='salisbergguide'}</p>
 			<a class="btn btn-primary" href="{$sb_links.AdminSalisbergStaffGuide|escape:'html':'UTF-8'}">{l s='Open the Staff Guide' mod='salisbergguide'}</a>
 		</div>
 		{if $sb_can_read_admin_guide}

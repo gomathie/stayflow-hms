@@ -21,47 +21,35 @@
 *}
 
 <div class="col-md-12 col-lg-12">
-	<section id="dashavailability" class="panel widget allow_push">
+	<section id="dashavailability" class="panel widget allow_push sb-avail">
 		<header class="panel-heading">
 			<i class="icon-bar-chart"></i>
-			{l s="Availability" mod='dashavailability'}
+			{l s='Rooms free' mod='dashavailability'}
 			<span class="panel-heading-action">
-			<a class="list-toolbar-btn" href="javascript:void(0);" title="Refresh" onclick="refreshAvailabilityBarData();" title="{l s="Refresh" mod='dashavailability'}">
+				<a class="list-toolbar-btn" href="javascript:void(0);" onclick="refreshAvailabilityBarData();" title="{l s='Refresh' mod='dashavailability'}">
 					<i class="process-icon-refresh"></i>
 				</a>
 			</span>
 		</header>
-		<div class="row avil-chart-head">
-				<div class="col-xs-5 col-lg-6">
-					<div class="pull-left">
-						<button class="avail-bar-date datepicker" type="button" id="avail_datepicker"
-						onclick="availDatePicker()">
-							<i class="icon-calendar-empty"></i>
-							<span class="hidden-xs bar-date">
-								{l s="From" mod='dashavailability'}
-								<strong>{$dateFromBar|escape:'htmlall':'UTF-8'}</strong>
-							</span>
-							<i class="icon-caret-down"></i>
-						</button>
-						<input type="text" id="bardate" name="datepickerFrom" class="datepicker">
-					</div>
-				</div>
-				<div class="col-xs-2 col-md-2  col-lg-2 pull-left">
-					<button id='avail_bar_day_5' class="avail-bar-btn bar-btn-active" data-days="5">
-						{l s="5 Days" mod='dashavailability'}
-					</button>
-				</div>
-				<div class="col-xs-2 col-md-2  col-lg-2 pull-left">
-					<button id='avail_bar_day_15' class="avail-bar-btn" data-days="15)">
-						{l s="15 Days" mod='dashavailability'}
-					</button>
-				</div>
-				<div class="col-xs-2 col-md-2  col-lg-2 pull-left">
-					<button id='avail_bar_day_30' class="avail-bar-btn" data-days="30)">
-						{l s="30 Days" mod='dashavailability'}
-					</button>
-				</div>
+		<div class="sb-avail-toolbar">
+			<div class="sb-avail-from">
+				<button class="sb-avail-date" type="button" id="avail_datepicker" onclick="availDatePicker()">
+					<i class="icon-calendar-empty"></i>
+					<span>{l s='From' mod='dashavailability'} <strong class="bar-date">{$dateFromLabel|escape:'html':'UTF-8'}</strong></span>
+					<i class="icon-caret-down"></i>
+				</button>
+				<input type="text" id="bardate" name="datepickerFrom" value="{$dateFromBar|escape:'html':'UTF-8'}" aria-hidden="true" tabindex="-1">
+			</div>
+			<div class="sb-avail-range" role="group" aria-label="{l s='Period' mod='dashavailability'}">
+				<button type="button" class="avail-bar-btn bar-btn-active" data-days="7" aria-pressed="true">{l s='7 nights' mod='dashavailability'}</button>
+				<button type="button" class="avail-bar-btn" data-days="14" aria-pressed="false">{l s='14 nights' mod='dashavailability'}</button>
+				<button type="button" class="avail-bar-btn" data-days="30" aria-pressed="false">{l s='30 nights' mod='dashavailability'}</button>
+			</div>
 		</div>
+		<dl class="sb-avail-summary">
+			<div><dt>{l s='Tightest night' mod='dashavailability'}</dt><dd id="sb_avail_low">&nbsp;</dd></div>
+			<div><dt>{l s='On average' mod='dashavailability'}</dt><dd id="sb_avail_avg">&nbsp;</dd></div>
+		</dl>
 		<div class="avil-chart-svg" id="availability_line_chart1">
 			<svg></svg>
 		</div>

@@ -22,15 +22,15 @@ class Salisbergguide extends Module
         'AdminParentOrders' => array(1, 0, 0, 0),
         'AdminParentCustomer' => array(1, 0, 0, 0),
         'AdminCatalog' => array(1, 0, 0, 0),
-        'AdminHotelReservationSystemManagement' => array(1, 0, 0, 0),
         'AdminSalisbergGuide' => array(1, 0, 0, 0),
         // daily work
+        'AdminSalisbergRoomBoard' => array(1, 0, 1, 0),
+        'AdminSalisbergWalkIn' => array(1, 0, 1, 0),
         'AdminHotelRoomsBooking' => array(1, 1, 1, 0),
         'AdminOrders' => array(1, 1, 1, 0),
         'AdminInvoices' => array(1, 0, 0, 0),
         'AdminCustomers' => array(1, 1, 1, 0),
-        'AdminAddresses' => array(1, 1, 1, 0),
-        'AdminCarts' => array(1, 0, 0, 0),
+        'AdminCarts' => array(1, 1, 1, 0),
         'AdminCustomerThreads' => array(1, 1, 1, 0),
         'AdminOrderRefundRequests' => array(1, 0, 1, 0),
         // look, do not change
@@ -70,11 +70,12 @@ class Salisbergguide extends Module
         'AdminHotelFeaturePricesSettings' => array(1, 1, 1, 1),
         'AdminRoomTypeGlobalDemand' => array(1, 1, 1, 1),
         // bookings and money
+        'AdminSalisbergRoomBoard' => array(1, 0, 1, 0),
+        'AdminSalisbergWalkIn' => array(1, 0, 1, 0),
         'AdminHotelRoomsBooking' => array(1, 1, 1, 1),
         'AdminOrders' => array(1, 1, 1, 1),
         'AdminSalisbergReports' => array(1, 0, 0, 0),
         'AdminInvoices' => array(1, 1, 1, 0),
-        'AdminSlip' => array(1, 1, 1, 0),
         'AdminOrderMessage' => array(1, 1, 1, 1),
         'AdminBookingDocument' => array(1, 1, 1, 1),
         'AdminOrderRefundRules' => array(1, 1, 1, 1),
@@ -82,7 +83,7 @@ class Salisbergguide extends Module
         // guests
         'AdminCustomers' => array(1, 1, 1, 1),
         'AdminAddresses' => array(1, 1, 1, 1),
-        'AdminCarts' => array(1, 0, 0, 0),
+        'AdminCarts' => array(1, 1, 1, 0),
         'AdminCustomerThreads' => array(1, 1, 1, 1),
         'AdminContacts' => array(1, 1, 1, 1),
         // the hotel and what the website says about it
@@ -108,25 +109,60 @@ class Salisbergguide extends Module
     );
 
     /** Menu sections a SuperAdmin can show or hide from the Admin Guide page: class name => name */
-    public static $menuToggles = array(
-        'AdminQloappsChannelManagerConnector' => 'Channel Manager',
-        'AdminParentModules' => 'Modules and Services',
-    );
+    public static $menuToggles = array('AdminParentModules' => 'Modules and Services');
 
     /**
-     * Stock menu entries shown under a clearer name: class name => array(stock
-     * name, new name). An entry is renamed only while it still carries the
-     * stock name, so a name changed by hand in the back office is kept.
+     * Stock menu entries shown under a clearer name: class name => array(the
+     * name or list of names it may still carry, new name). An entry is renamed
+     * only while it carries one of those names, so a name changed by hand in
+     * the back office is kept.
      */
     protected $menuLabels = array(
         'AdminParentOrders' => array('Orders', 'Bookings'),
-        'AdminOrders' => array('Orders', 'Bookings'),
+        'AdminOrders' => array(array('Orders', 'Reservations'), 'Bookings'),
+        'AdminOrderMessage' => array('Order messages', 'Booking messages'),
+        'AdminOrderPreferences' => array('Orders', 'Bookings'),
+        'AdminOrderRefundRules' => array('Manage Order Refund Rules', 'Refund rules'),
+        'AdminOrderRefundRequests' => array('Manage Order Refund Requests', 'Refund requests'),
         'AdminHotelReservationSystemManagement' => array('Hotel Reservation System', 'Manage Hotel'),
         'AdminAddHotel' => array('Manage Hotel', 'Hotel Details'),
+        'AdminCustomerThreads' => array('Customer Service', 'Inbox'),
     );
 
-    /** The vendor's own store pages, kept out of the menu: class names */
-    public static $vendorMenus = array('AdminModulesCatalog');
+    /**
+     * Pages kept out of the menu. The controllers stay: a booking is still an
+     * order and a cart, and the installer still creates these tabs.
+     * active = 0 only. A later deploy hides them again.
+     */
+    public static $hiddenMenus = array(
+        'AdminModulesCatalog',
+        'AdminZones',
+        'AdminSlip',
+        // shop screens a single hotel does not open
+        'AdminGroups',
+        'AdminGenders',
+        'AdminCarts',
+        'AdminSpecificPriceRule',
+        'AdminStats',
+        'AdminThemes',
+        'AdminSearchConf',
+        'AdminGeolocation',
+        'AdminStates',
+    );
+
+    /**
+     * Shop features a hotel does not use, taken out of the product: their menu
+     * entries are deleted, with every profile's rights to them. Class names.
+     */
+    public static $removedMenus = array(
+        'AdminWarehouses',
+        'AdminStockManagement',
+        'AdminStockMvt',
+        'AdminStockInstantState',
+        'AdminStockCover',
+        'AdminStockConfiguration',
+        'AdminStock',
+    );
 
     public function __construct()
     {
@@ -165,12 +201,79 @@ class Salisbergguide extends Module
             && $this->installProfile(self::STAFF_PROFILE, self::$staffAccess)
             && $this->installProfile(self::MANAGER_PROFILE, self::$managerAccess)
             && (!$whatsNewIsNew || $this->grantWhatsNew())
+            && $this->grantHotelAccess()
             && $this->renameMenuEntries()
-            && $this->hideVendorMenus()
+            && $this->orderMenus()
+            && $this->deskOnlyStaffMenu()
+            && $this->moveToAdministration()
+            && $this->hideUnusedMenus()
+            && $this->removeMenus()
             && $this->registerHook('header')
             && $this->registerHook('footer')
             && $this->registerHook('actionAdminControllerSetMedia')
             && $this->registerHook('actionAdminLoginControllerSetMedia');
+    }
+
+    /**
+     * QloApps has a second, separate permission layer on top of the normal
+     * Administration > Permissions grid: a per-hotel "Hotel Permissions"
+     * table on the same page (class AdminAccessController, table
+     * htl_access), defaulting to no access for every profile it creates
+     * except SuperAdmin. Without this, Hotel Staff and Hotel Manager can
+     * still search, add to cart and create a booking (none of that checks
+     * htl_access), but are refused when the system tries to show them
+     * anything hotel-scoped afterward: the booking they just made ("You do
+     * not have permission to view this."), and every hotel-scoped dashboard
+     * and stats widget (revenue, occupancy, check-ins/outs), which simply
+     * render empty rather than erroring. Found and fixed 2026-10-12 after a
+     * live report of exactly this. Run on every deploy, not guarded, because
+     * access being off for either role on the hotel this project runs is
+     * never a deliberate choice (there is one hotel, and both roles work
+     * inside it by design) — unlike $staffAccess/$managerAccess, which are
+     * deliberately never reset once an admin has adjusted them by hand.
+     */
+    protected function grantHotelAccess()
+    {
+        $idStaff = (int) $this->getProfileId(self::STAFF_PROFILE);
+        $idManager = (int) $this->getProfileId(self::MANAGER_PROFILE);
+        $hotelIds = array_column(
+            Db::getInstance()->executeS('SELECT `id` FROM `'._DB_PREFIX_.'htl_branch_info` WHERE `active` = 1'),
+            'id'
+        );
+
+        $changed = 0;
+        foreach (array($idStaff, $idManager) as $idProfile) {
+            if (!$idProfile) {
+                continue;
+            }
+            foreach ($hotelIds as $idHotel) {
+                $current = Db::getInstance()->getValue(
+                    'SELECT `access` FROM `'._DB_PREFIX_.'htl_access`
+                    WHERE `id_profile` = '.(int) $idProfile.' AND `id_hotel` = '.(int) $idHotel
+                );
+                if ($current === false) {
+                    Db::getInstance()->insert('htl_access', array(
+                        'id_profile' => (int) $idProfile,
+                        'id_hotel' => (int) $idHotel,
+                        'access' => 1,
+                    ));
+                    ++$changed;
+                } elseif (!$current) {
+                    Db::getInstance()->update(
+                        'htl_access',
+                        array('access' => 1),
+                        'id_profile = '.(int) $idProfile.' AND id_hotel = '.(int) $idHotel
+                    );
+                    ++$changed;
+                }
+            }
+        }
+
+        if ($changed) {
+            PrestaShopLogger::addLog("salisbergguide: granted hotel access to $changed profile/hotel row(s) for Hotel Staff/Hotel Manager", 1);
+        }
+
+        return true;
     }
 
     protected function renameMenuEntries()
@@ -178,10 +281,11 @@ class Salisbergguide extends Module
         foreach ($this->menuLabels as $className => $names) {
             $idTab = (int) Tab::getIdFromClassName($className);
             if ($idTab) {
+                $old = array_map('pSQL', (array) $names[0]);
                 Db::getInstance()->update(
                     'tab_lang',
                     array('name' => pSQL($names[1])),
-                    'id_tab = '.$idTab.' AND name = \''.pSQL($names[0]).'\''
+                    'id_tab = '.$idTab.' AND name IN (\''.implode('\', \'', $old).'\')'
                 );
             }
         }
@@ -189,12 +293,181 @@ class Salisbergguide extends Module
         return true;
     }
 
-    protected function hideVendorMenus()
+    /**
+     * Side menu order: Bookings comes straight after Dashboard, ahead of Rooms &
+     * Services (the installer lists them the other way round). Done once, tracked
+     * by SBGUIDE_MENU_ORDER, so an order set later in Administration > Menus is
+     * not undone by a deploy. Fresh installs get this order from the installer
+     * data (install/data/xml/tab.xml), so for them the step finds nothing to move.
+     */
+    protected function orderMenus()
     {
-        foreach (self::$vendorMenus as $className) {
+        if (Configuration::get('SBGUIDE_MENU_ORDER')) {
+            return true;
+        }
+        $idCatalog = (int) Tab::getIdFromClassName('AdminCatalog');
+        $idOrders = (int) Tab::getIdFromClassName('AdminParentOrders');
+        if ($idCatalog && $idOrders) {
+            $db = Db::getInstance();
+            $catalogAt = (int) $db->getValue('SELECT `position` FROM `'._DB_PREFIX_.'tab` WHERE `id_tab` = '.$idCatalog);
+            $ordersAt = (int) $db->getValue('SELECT `position` FROM `'._DB_PREFIX_.'tab` WHERE `id_tab` = '.$idOrders);
+            if ($ordersAt > $catalogAt) {
+                $db->execute(
+                    'UPDATE `'._DB_PREFIX_.'tab` SET `position` = `position` + 1
+                    WHERE `id_parent` = 0 AND `position` >= '.$catalogAt.' AND `position` < '.$ordersAt
+                );
+                $db->update('tab', array('position' => $catalogAt), 'id_tab = '.$idOrders);
+                PrestaShopLogger::addLog('salisbergguide: Bookings moved ahead of Rooms & Services in the side menu', 1);
+            }
+        }
+
+        return Configuration::updateValue('SBGUIDE_MENU_ORDER', 1);
+    }
+
+    /**
+     * SIMPLIFY-REVIEW P-17: the Hotel Staff menu is the desk only.
+     *  - Refund requests moves from Manage Hotel to the end of Bookings (for
+     *    everyone), so Manage Hotel holds nothing a front desk needs.
+     *  - Hotel Staff lose view on Manage Hotel, Addresses and Booking messages.
+     * Done once (SBGUIDE_STAFF_DESK_MENU), so a right given back by hand in
+     * Administration > Permissions, or a menu moved later, is not undone.
+     */
+    protected function deskOnlyStaffMenu()
+    {
+        if (Configuration::get('SBGUIDE_STAFF_DESK_MENU')) {
+            return true;
+        }
+        $db = Db::getInstance();
+        $idRefunds = (int) Tab::getIdFromClassName('AdminOrderRefundRequests');
+        $idBookings = (int) Tab::getIdFromClassName('AdminParentOrders');
+        $idHotel = (int) Tab::getIdFromClassName('AdminHotelReservationSystemManagement');
+        if ($idRefunds && $idBookings && $idHotel
+            && (int) $db->getValue('SELECT `id_parent` FROM `'._DB_PREFIX_.'tab` WHERE `id_tab` = '.$idRefunds) === $idHotel
+        ) {
+            $last = (int) $db->getValue('SELECT MAX(`position`) FROM `'._DB_PREFIX_.'tab` WHERE `id_parent` = '.$idBookings);
+            $db->update('tab', array('id_parent' => $idBookings, 'position' => $last + 1), 'id_tab = '.$idRefunds);
+            PrestaShopLogger::addLog('salisbergguide: Refund requests moved under Bookings', 1);
+        }
+        $idStaff = (int) $this->getProfileId(self::STAFF_PROFILE);
+        if ($idStaff) {
+            $revoked = array();
+            foreach (array('AdminHotelReservationSystemManagement', 'AdminAddresses', 'AdminOrderMessage') as $className) {
+                $idTab = (int) Tab::getIdFromClassName($className);
+                if ($idTab && $db->update(
+                    'access',
+                    array('view' => 0, 'add' => 0, 'edit' => 0, 'delete' => 0),
+                    'id_profile = '.$idStaff.' AND id_tab = '.$idTab.' AND `view` = 1'
+                ) && $db->Affected_Rows()) {
+                    $revoked[] = $className;
+                }
+            }
+            if ($revoked) {
+                PrestaShopLogger::addLog('salisbergguide: Hotel Staff menu trimmed: '.implode(', ', $revoked), 1);
+            }
+        }
+
+        return Configuration::updateValue('SBGUIDE_STAFF_DESK_MENU', 1);
+    }
+
+    /**
+     * Owner, 2026-11-20: Recycle bin and Statuses leave Bookings, and Positions
+     * leaves Modules and Services; all three go to the end of Administration.
+     * An entry is moved only while it is still in its original section, and
+     * once (SBGUIDE_ADMIN_MOVES), so a menu moved later by hand is kept.
+     * Permissions are per page, not per section, so nobody gains or loses access.
+     */
+    protected function moveToAdministration()
+    {
+        if (Configuration::get('SBGUIDE_ADMIN_MOVES')) {
+            return true;
+        }
+        $db = Db::getInstance();
+        $idAdmin = (int) Tab::getIdFromClassName('AdminAdmin');
+        if (!$idAdmin) {
+            return false;
+        }
+        $moves = array(
+            'AdminSalisbergRecycleBin' => 'AdminParentOrders',
+            'AdminStatuses' => 'AdminParentOrders',
+            'AdminModulesPositions' => 'AdminParentModules',
+        );
+        $moved = array();
+        foreach ($moves as $className => $fromClass) {
+            $idTab = (int) Tab::getIdFromClassName($className);
+            $idFrom = (int) Tab::getIdFromClassName($fromClass);
+            if (!$idTab || !$idFrom
+                || (int) $db->getValue('SELECT `id_parent` FROM `'._DB_PREFIX_.'tab` WHERE `id_tab` = '.$idTab) !== $idFrom
+            ) {
+                continue;
+            }
+            $last = (int) $db->getValue('SELECT MAX(`position`) FROM `'._DB_PREFIX_.'tab` WHERE `id_parent` = '.$idAdmin);
+            $db->update('tab', array('id_parent' => $idAdmin, 'position' => $last + 1), 'id_tab = '.$idTab);
+            $moved[] = $className;
+        }
+        if ($moved) {
+            PrestaShopLogger::addLog('salisbergguide: moved under Administration: '.implode(', ', $moved), 1);
+        }
+
+        return Configuration::updateValue('SBGUIDE_ADMIN_MOVES', 1);
+    }
+
+    /**
+     * SIMPLIFY-REVIEW P-16: whether an employee may see the hotel's income
+     * (sales totals, revenue and performance charts, income reports).
+     * Everyone except the Hotel Staff profile. The one rule; callers in other
+     * modules use it through class_exists('Salisbergguide').
+     */
+    public static function seesIncome($employee = null)
+    {
+        $employee = $employee ?: Context::getContext()->employee;
+        if (!$employee || !$employee->id || $employee->isSuperAdmin()) {
+            return true;
+        }
+        $idStaff = (int) Db::getInstance()->getValue(
+            'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+            WHERE `name` = \''.pSQL(self::STAFF_PROFILE).'\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+        );
+
+        return (int) $employee->id_profile !== $idStaff;
+    }
+
+    /** Hotel Staff (P-17): the top bar shows only what the desk uses */
+    public function isDeskOnly()
+    {
+        $employee = $this->context->employee;
+
+        return $employee && $employee->id && !$employee->isSuperAdmin()
+            && (int) $employee->id_profile === $this->getProfileId(self::STAFF_PROFILE);
+    }
+
+    /** Deletes the menu entries in $removedMenus that still exist. Safe to repeat. */
+    protected function removeMenus()
+    {
+        foreach (self::$removedMenus as $className) {
             $idTab = (int) Tab::getIdFromClassName($className);
             if ($idTab) {
+                $tab = new Tab($idTab);
+                $tab->delete();
+                PrestaShopLogger::addLog('salisbergguide: removed the menu entry '.$className, 1);
+            }
+        }
+
+        return true;
+    }
+
+    protected function hideUnusedMenus()
+    {
+        foreach (self::$hiddenMenus as $className) {
+            $idTab = (int) Tab::getIdFromClassName($className);
+            if (!$idTab) {
+                continue;
+            }
+            $active = (int) Db::getInstance()->getValue(
+                'SELECT `active` FROM `'._DB_PREFIX_.'tab` WHERE `id_tab` = '.$idTab
+            );
+            if ($active) {
                 Db::getInstance()->update('tab', array('active' => 0), 'id_tab = '.$idTab);
+                PrestaShopLogger::addLog('salisbergguide: hid the menu entry '.$className, 1);
             }
         }
 
@@ -219,11 +492,14 @@ class Salisbergguide extends Module
         }
         $controller->addCSS($this->_path.'views/css/password-toggle.css', 'all');
         $controller->addJS($this->_path.'views/js/password-toggle.js');
+        $controller->addCSS($this->_path.'views/css/install-app.css', 'all');
+        $controller->addJS($this->_path.'views/js/install-app.js');
         if (!$backOffice) {
             // tells theme-toggle.js it is on the website (its own saved choice, light by default)
             Media::addJsDef(array('sbThemeScope' => 'site'));
         } else {
             $controller->addJS($this->_path.'views/js/side-menu.js');
+            $controller->addJS($this->_path.'views/js/page-head.js');
         }
         $controller->addJS($this->_path.'views/js/theme-toggle.js');
     }
@@ -260,6 +536,65 @@ class Salisbergguide extends Module
     public function hookActionAdminControllerSetMedia()
     {
         $this->addInterfaceAssets(true);
+        $this->addNewsPopup();
+        $this->context->smarty->assign('sb_desk_only', $this->isDeskOnly());
+    }
+
+    const NEWS_SEEN = 'SBGUIDE_NEWS_SEEN_';
+
+    /** The newest date on the What's New page, read from the template ('' if none) */
+    public function latestNewsKey()
+    {
+        $raw = (string) @file_get_contents($this->local_path.'views/templates/admin/whats_new.tpl');
+
+        return preg_match("/<section>\\s*<h3>\\{l s='([^']+)'/", $raw, $m) ? $m[1] : '';
+    }
+
+    public function markNewsSeen($idEmployee)
+    {
+        Configuration::updateValue(self::NEWS_SEEN.(int) $idEmployee, $this->latestNewsKey());
+    }
+
+    /**
+     * "What's new" pop-up, once per person per update (owner, 2026-11-19): when
+     * the newest date on What's New is not the one this person last saw, the
+     * items of that date for their role are shown with View more and the
+     * guide. The items come from the What's New page itself, so there is one
+     * place to write them.
+     */
+    protected function addNewsPopup()
+    {
+        $employee = $this->context->employee;
+        $controller = $this->context->controller;
+        if (!Validate::isLoadedObject($employee) || !$controller || Tools::getValue('ajax')
+            || Tools::getValue('controller') === 'AdminSalisbergWhatsNew') {
+            return;
+        }
+        $key = $this->latestNewsKey();
+        if ($key === '' || Configuration::get(self::NEWS_SEEN.(int) $employee->id) === $key) {
+            return;
+        }
+        try {
+            $html = $this->renderGuide('whats_new.tpl');
+        } catch (Exception $e) {
+            return;
+        }
+        if (!preg_match('/<section>\s*<h3>(.*?)<\/h3>\s*<ul>(.*?)<\/ul>/s', $html, $m) || !trim(strip_tags($m[2]))) {
+            return;
+        }
+        $canAdmin = $this->canReadAdminGuide();
+        Media::addJsDef(array('sbNews' => array(
+            'date' => trim(strip_tags($m[1])),
+            'items' => $m[2],
+            'more' => $this->employeeCanView('AdminSalisbergWhatsNew') ? $this->context->link->getAdminLink('AdminSalisbergWhatsNew') : '',
+            'guide' => $this->context->link->getAdminLink($canAdmin ? 'AdminSalisbergAdminGuide' : 'AdminSalisbergStaffGuide'),
+            'guideLabel' => $canAdmin ? $this->l('Open the Admin Guide') : $this->l('Open the Staff Guide'),
+        )));
+        $controller->addCSS($this->_path.'views/css/news-popup.css', 'all');
+        $controller->addJS($this->_path.'views/js/news-popup.js');
+        // shown once: it counts as seen as soon as it is shown (no request needed,
+        // so it works for every role whatever pages they may open)
+        $this->markNewsSeen((int) $employee->id);
     }
 
     public function hookActionAdminLoginControllerSetMedia()
@@ -451,14 +786,14 @@ class Salisbergguide extends Module
     public function renderGuide($template)
     {
         $pages = array(
-            'AdminDashboard', 'AdminHotelRoomsBooking', 'AdminOrders', 'AdminInvoices', 'AdminCustomers', 'AdminCarts',
+            'AdminDashboard', 'AdminSalisbergRoomBoard', 'AdminSalisbergWalkIn', 'AdminSalisbergHousekeeping', 'AdminSalisbergCharges', 'AdminHotelRoomsBooking', 'AdminOrders', 'AdminInvoices', 'AdminCustomers', 'AdminCarts',
             'AdminCustomerThreads', 'AdminOrderRefundRequests', 'AdminProducts', 'AdminNormalProducts', 'AdminAddHotel',
             'AdminHotelFeatures', 'AdminHotelFeaturePricesSettings', 'AdminHotelGeneralSettings', 'AdminOrderRefundRules',
             'AdminCartRules', 'AdminModules', 'AdminPayment', 'AdminCurrencies', 'AdminTaxes', 'AdminTaxRulesGroup',
             'AdminPreferences', 'AdminThemes', 'AdminMeta', 'AdminCmsContent', 'AdminMaintenance', 'AdminEmails',
             'AdminBackup', 'AdminInformation', 'AdminEmployees', 'AdminProfiles', 'AdminAccess', 'AdminContacts', 'AdminStats',
             'AdminSalisbergGuide', 'AdminSalisbergStaffGuide', 'AdminSalisbergAdminGuide', 'AdminSalisbergWhatsNew',
-            'AdminSalisbergReports',
+            'AdminSalisbergReports', 'AdminSalisbergIntegrations',
         );
         $links = array();
         foreach ($pages as $page) {

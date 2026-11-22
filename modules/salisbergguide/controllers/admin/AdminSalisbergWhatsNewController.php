@@ -32,6 +32,8 @@ class AdminSalisbergWhatsNewController extends ModuleAdminController
     {
         parent::initContent();
         $this->content .= $this->module->renderGuide('whats_new.tpl');
+        // reading the page counts as having seen the latest update (no pop-up for it later)
+        $this->module->markNewsSeen((int) $this->context->employee->id);
         $this->context->smarty->assign('content', $this->content);
     }
 }

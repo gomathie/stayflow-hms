@@ -209,8 +209,8 @@ class AdminControllerCore extends Controller
     /** @var array Number of results in list per page (used in select field) */
     protected $_pagination = array(20, 50, 100, 300, 1000);
 
-    /** @var int Default number of results in list per page */
-    protected $_default_pagination = 50;
+    /** @var int Default number of results in list per page (20: SIMPLIFY-REVIEW P-13) */
+    protected $_default_pagination = 20;
 
     /** @var string ORDER BY clause determined by field/arrows in list header */
     protected $_orderBy;
@@ -1767,7 +1767,6 @@ class AdminControllerCore extends Controller
         }
 
         $this->initTabModuleList();
-        $this->addPageHeaderToolBarModulesListButton();
 
         $this->context->smarty->assign('help_link', 'http://help.prestashop.com/'.Language::getIsoById($this->context->employee->id_lang).'/doc/'
             .Tools::getValue('controller').'?version='._PS_VERSION_.'&country='.Language::getIsoById($this->context->employee->id_lang));
@@ -2332,24 +2331,6 @@ class AdminControllerCore extends Controller
                 'back_tab_modules_list' => $this->context->link->getAdminLink(Tools::getValue('controller')),
                 'tab_modules_open' => (int)Tools::getValue('tab_modules_open')
             ));
-        }
-    }
-
-
-
-    protected function addPageHeaderToolBarModulesListButton()
-    {
-        $tab_modules_list = Tab::getTabModulesList($this->id);
-
-        $tab_modules_list = $this->filterTabModuleList($tab_modules_list);
-
-        if (!empty($tab_modules_list) && (is_array($tab_modules_list['slider_list']) && count($tab_modules_list['slider_list']))
-            || !Tab::isTabModuleListAvailable()
-        ) {
-            $this->page_header_toolbar_btn['modules-list'] = array(
-                'href' => '#',
-                'desc' => $this->l('Recommendations')
-            );
         }
     }
 

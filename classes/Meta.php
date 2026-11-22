@@ -388,7 +388,7 @@ class MetaCore extends ObjectModel
      */
     public static function getCmsMetas($id_cms, $id_lang, $page_name)
     {
-        $sql = 'SELECT `meta_title`, `meta_description`, `meta_keywords`
+        $sql = 'SELECT `meta_title`, `meta_description`, `meta_keywords`, `content`
 				FROM `'._DB_PREFIX_.'cms_lang`
 				WHERE id_lang = '.(int)$id_lang.'
 					AND id_cms = '.(int)$id_cms.
@@ -396,6 +396,12 @@ class MetaCore extends ObjectModel
                         ' AND id_shop = '.(int)Context::getContext()->shop->id : '');
 
         if ($row = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($sql)) {
+            // no description entered: the start of the page content
+            if (empty($row['meta_description'])) {
+                $text = trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags($row['content']), ENT_QUOTES, 'UTF-8')));
+                $row['meta_description'] = Tools::strlen($text) > 155 ? rtrim(Tools::substr($text, 0, 155), " ,.;:-").'...' : $text;
+            }
+            unset($row['content']);
             $row['meta_title'] = $row['meta_title'].' - '.Configuration::get('PS_SHOP_NAME');
             return Meta::completeMetaTags($row, $row['meta_title']);
         }

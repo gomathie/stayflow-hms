@@ -66,6 +66,7 @@ abstract class HTMLTemplateCore
         $this->smarty->assign(array(
             'available_in_your_account' => $this->available_in_your_account,
             'shop_address' => $shop_address,
+            'shop_name' => Configuration::get('PS_SHOP_NAME', null, null, $id_shop),
             'shop_fax' => Configuration::get('PS_SHOP_FAX', null, null, $id_shop),
             'shop_phone' => Configuration::get('PS_SHOP_PHONE', null, null, $id_shop),
             'shop_email' => Configuration::get('PS_SHOP_EMAIL', null, null, $id_shop),
@@ -101,10 +102,14 @@ abstract class HTMLTemplateCore
 
         $id_shop = (int)$this->shop->id;
 
-        if (Configuration::get('PS_LOGO_INVOICE', null, null, $id_shop) != false) {
-            $logo = Context::getContext()->link->getMediaLink(_PS_IMG_.Configuration::get('PS_LOGO_INVOICE', null, null, $id_shop));
-        } elseif (Configuration::get('PS_LOGO', null, null, $id_shop) != false) {
-            $logo = Context::getContext()->link->getMediaLink(_PS_IMG_.Configuration::get('PS_LOGO', null, null, $id_shop));
+        // The file on disk, not its web address: the server cannot always
+        // reach its own public address (behind a proxy, or locally)
+        foreach (array('PS_LOGO_INVOICE', 'PS_LOGO') as $key) {
+            $file = Configuration::get($key, null, null, $id_shop);
+            if ($file && file_exists(_PS_IMG_DIR_.$file)) {
+                $logo = _PS_IMG_DIR_.$file;
+                break;
+            }
         }
         return $logo;
     }

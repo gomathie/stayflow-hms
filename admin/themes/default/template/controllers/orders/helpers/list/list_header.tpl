@@ -29,7 +29,7 @@
 {if isset($updateOrderStatus_mode) && $updateOrderStatus_mode}
 	<div class="panel">
 		<div class="panel-heading">
-			{l s='Choose an order status'}
+			{l s='Choose a booking status'}
 		</div>
 		<form action="{$REQUEST_URI}" method="post">
 			<div class="radio">
@@ -58,98 +58,12 @@
 				</button>
 				<button type="submit" class="btn btn-default" name="submitUpdateOrderStatus">
 					<i class="icon-check"></i>
-					{l s='Update Order Status'}
+					{l s='Update booking status'}
 				</button>
 			</div>
 		</form>
 	</div>
 {/if}
-{/block}
-{block name="override_form_extra"}
-		<script>
-			$(document).ready(function(){
-				function updateRoomTypeFilter() {
-					let filterInputHotelName = $('#filter_input_hotel_name');
-					let filterInputRoomTypeName = $('#filter_input_room_type_name');
-
-					let idHotel = parseInt($(filterInputHotelName).val() || '0');
-
-					$.ajax({
-						url: currentIndex + '&token=' + token,
-						data: {
-							ajax: true,
-							action: 'GetHotelRoomTypes',
-							id_hotel: idHotel,
-						},
-						type: 'POST',
-						dataType: 'JSON',
-						success: function(response) {
-							if (response.status) {
-								if (response.has_room_types) {
-									$(filterInputRoomTypeName).html(response.html_room_types);
-								} else {
-									$(filterInputRoomTypeName).find('option').not(':first').remove();
-								}
-
-								// destroy current chosen and re-initialize
-								$(filterInputRoomTypeName).chosen('destroy');
-								$(filterInputRoomTypeName).chosen({
-									disable_search_threshold: 5,
-									search_contains: true,
-								});
-							}
-						},
-					});
-				}
-
-				function updateHotelRoomsFilter(useRoomType = true) {
-					let filterInputHotelName = $('#filter_input_hotel_name');
-					let filterInputRoomTypeName = $('#filter_input_room_type_name');
-					let filterInputRoomNumber = $('#filter_input_id_room_information');
-
-					let idHotel = parseInt($(filterInputHotelName).val() || '0');
-					let idProduct = parseInt($(filterInputRoomTypeName).val() || '0');
-
-					$.ajax({
-						url: currentIndex + '&token=' + token,
-						data: {
-							ajax: true,
-							action: 'GetHotelRooms',
-							id_hotel: idHotel,
-							id_product: useRoomType ? idProduct : 0,
-						},
-						type: 'POST',
-						dataType: 'JSON',
-						success: function(response) {
-							if (response.status) {
-								if (response.has_hotel_rooms) {
-									$(filterInputRoomNumber).html(response.html_hotel_rooms);
-								} else {
-									$(filterInputRoomNumber).find('option').not(':first').remove();
-								}
-
-								// destroy current chosen and re-initialize
-								$(filterInputRoomNumber).chosen('destroy');
-								$(filterInputRoomNumber).chosen({
-									disable_search_threshold: 5,
-									search_contains: true,
-								});
-							}
-						},
-					});
-				}
-
-				// manage Hotel and Room type filter inputs
-				$(document).on('change', '#filter_input_hotel_name', function () {
-					updateRoomTypeFilter();
-					updateHotelRoomsFilter(false);
-				});
-
-				$(document).on('change', '#filter_input_room_type_name', function () {
-					updateHotelRoomsFilter();
-				});
-			});
-		</script>
 {/block}
 
 

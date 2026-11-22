@@ -83,34 +83,13 @@
 
 	<tr>
 		<td colspan="6" class="left">
-
 			{$payment_tab}
-
+			{if $legal_free_text}<p class="small">{$legal_free_text|escape:'html':'UTF-8'|nl2br}</p>{/if}
 		</td>
 		<td colspan="1">&nbsp;</td>
-
-		<td colspan="5" rowspan="5" class="right">
-
+		<td colspan="5" class="right">
 			{$total_tab}
-
-		</td>
-	</tr>
-
-	<tr>
-		<td colspan="12" height="10">&nbsp;</td>
-	</tr>
-
-	<tr>
-		<td colspan="7" class="left small">
-
-			<table>
-				<tr>
-					<td>
-						<p>{$legal_free_text|escape:'html':'UTF-8'|nl2br}</p>
-					</td>
-				</tr>
-			</table>
-
+			<p class="muted small right">{l s='Thank you for staying with us.' pdf='true'}</p>
 		</td>
 	</tr>
 

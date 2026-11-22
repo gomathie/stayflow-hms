@@ -1,0 +1,14 @@
+Hi {firstname},
+
+Thank you for staying at {shop_name}. We hope you enjoyed your time with us.
+
+Rooms: {rooms}
+Stay: {check_in} to {check_out} ({nights} nights)
+Booking reference: {order_name}
+Total: {total}
+
+{balance_line}
+
+We would love to welcome you back. To book your next stay, reply to this email or call us.
+
+{shop_name}

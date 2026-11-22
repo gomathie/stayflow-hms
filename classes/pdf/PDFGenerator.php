@@ -81,6 +81,8 @@ class PDFGeneratorCore extends TCPDF
     {
         parent::__construct($orientation, 'mm', 'A4', true, 'UTF-8', $use_cache, false);
         $this->setRTL(Context::getContext()->language->is_rtl);
+        // the library's own promotional line at the foot of the last page
+        $this->tcpdflink = false;
     }
 
     /**

@@ -29,10 +29,11 @@ class AdminSalisbergReportsController extends ModuleAdminController
     {
         $reports = $this->module->getReports();
         $periods = $this->module->getPeriods();
-        $type = (string) Tools::getValue('sb_report', 'bookings');
+        $type = (string) Tools::getValue('sb_report', key($reports));
         $period = (string) Tools::getValue('sb_period', 'today');
+        // a report not offered to this person (P-16) falls back to the first one offered
         if (!isset($reports[$type])) {
-            $type = 'bookings';
+            $type = key($reports);
         }
         if (!isset($periods[$period])) {
             $period = 'today';
@@ -68,7 +69,7 @@ class AdminSalisbergReportsController extends ModuleAdminController
             'sb_token' => Tools::getAdminTokenLite('AdminSalisbergReports'),
             'sb_pdf_link' => $self.'&sb_pdf=1&sb_report='.urlencode($type).'&sb_period=custom&sb_from='.urlencode($from).'&sb_to='.urlencode($to),
             'sb_report' => $this->module->buildReport($type, $from, $to),
-            'sb_css' => $this->module->getPathUri().'views/css/reports.css',
+            'sb_css' => $this->module->getPathUri().'views/css/reports.css?v=2',
         ));
         $this->content .= $this->context->smarty->fetch($this->module->getLocalPath().'views/templates/admin/reports.tpl');
         $this->context->smarty->assign('content', $this->content);

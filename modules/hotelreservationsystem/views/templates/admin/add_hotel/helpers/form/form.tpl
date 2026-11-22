@@ -68,10 +68,11 @@
 						{l s='Information' mod='hotelreservationsystem'}
 					</a>
 				</li>
-				<li>
+				{* kept in the page for everyone so a saved value is posted back unchanged; only a SuperAdmin is shown the tab *}
+				<li{if empty($sb_show_seo)} style="display:none;"{/if}>
 					<a href="#hotel-seo" data-toggle="tab">
 						<i class="icon-link"></i>
-						{l s='Seo' mod='hotelreservationsystem'}
+						{l s='Search engines' mod='hotelreservationsystem'}
 					</a>
 				</li>
 				<li>
@@ -316,8 +317,9 @@
 				</div>
 				<div class="tab-pane" id="hotel-seo">
 					{hook h='displayAdminAddHotelFormSeoTabBefore' id_hotel=$hook_arg_id_hotel}
+					<div class="alert alert-info">{l s='Leave these empty: the website link and the title search engines show are made from the hotel name. Fill one in only to replace what is made automatically. Once set, the Friendly URL does not change when the hotel is renamed.' mod='hotelreservationsystem'}</div>
 					<div class="form-group">
-						<label class="col-sm-3 control-label required" for="link_rewrite" >
+						<label class="col-sm-3 control-label" for="link_rewrite" >
 							{l s='Friendly URL :' mod='hotelreservationsystem'}
 							{include file="../../../_partials/htl-form-fields-flag.tpl"}
 						</label>
@@ -494,7 +496,7 @@
 					{if isset($hotel_info.id) && $hotel_info.id}
 						{if isset($WK_ORDER_REFUND_ALLOWED) && !$WK_ORDER_REFUND_ALLOWED}
 							<div class="alert alert-info">
-								{l s='To enable hotel-wise refunds, activate order refunds in' mod='hotelreservationsystem'} <a href="{$link->getAdminLink('AdminOrderRefundRules')|escape:'html':'UTF-8'}" target="_blank">{l s='Manage Order Refund Rules' mod='hotelreservationsystem'}</a>
+								{l s='To enable refunds for this hotel, activate booking refunds in' mod='hotelreservationsystem'} <a href="{$link->getAdminLink('AdminOrderRefundRules')|escape:'html':'UTF-8'}" target="_blank">{l s='Refund rules' mod='hotelreservationsystem'}</a>
 							</div>
 						{/if}
 						<div class="form-group">

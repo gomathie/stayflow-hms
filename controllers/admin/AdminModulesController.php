@@ -1262,6 +1262,11 @@ class AdminModulesControllerCore extends AdminController
             if (Configuration::get('PS_SHOW_CAT_MODULES_'.(int)$this->id_employee)) {
                 $filter_categories = explode('|', Configuration::get('PS_SHOW_CAT_MODULES_'.(int)$this->id_employee));
             }
+            foreach ($filter_categories as $fc) {
+                if ($fc !== '') {
+                    $category_filtered[$fc] = 1;
+                }
+            }
             if (count($category_filtered) > 0 && !isset($category_filtered[$module->tab])) {
                 return true;
             }
@@ -1317,38 +1322,6 @@ class AdminModulesControllerCore extends AdminController
 
         // Module has not been filtered
         return false;
-    }
-
-    public function renderKpis()
-    {
-        $time = time();
-        $kpis = array();
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-installed-modules';
-        $helper->icon = 'icon-puzzle-piece';
-        $helper->color = 'color1';
-        $helper->title = $this->l('Installed Modules', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=installed_modules';
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-disabled-modules';
-        $helper->icon = 'icon-off';
-        $helper->color = 'color2';
-        $helper->title = $this->l('Disabled Modules', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=disabled_modules';
-        $this->kpis[] = $helper;
-
-        $helper = new HelperKpi();
-        $helper->id = 'box-update-modules';
-        $helper->icon = 'icon-refresh';
-        $helper->color = 'color3';
-        $helper->title = $this->l('Modules to Update', null, null, false);
-        $helper->source = $this->context->link->getAdminLink('AdminStats').'&ajax=1&action=getKpi&kpi=update_modules';
-        $this->kpis[] = $helper;
-
-        return parent::renderKpis();
     }
 
     public function initModal()
@@ -1592,8 +1565,25 @@ class AdminModulesControllerCore extends AdminController
             $this->confirmations[] = $this->l('Everything is up-to-date');
         }
 
+        // Our own modules first, then the rest; modules not installed last, in a folded group.
+        $groups = array('own' => array(), 'main' => array(), 'unused' => array());
+        foreach ($modules as $module) {
+            if (strpos($module->name, 'salisberg') === 0) {
+                $module->sb_group = 'own';
+            } elseif (empty($module->id)) {
+                $module->sb_group = 'unused';
+            } else {
+                $module->sb_group = 'main';
+            }
+            $words = preg_split('/\s+/', trim(preg_replace('/[^\p{L}\p{N}\s]/u', ' ', (string)$module->displayName)));
+            $module->sb_initials = Tools::strtoupper(Tools::substr($words[0], 0, 1).(isset($words[1]) ? Tools::substr($words[1], 0, 1) : Tools::substr($words[0], 1, 1)));
+            $groups[$module->sb_group][] = $module;
+        }
+        $modules = array_merge($groups['own'], $groups['main'], $groups['unused']);
+
         // Init tpl vars for smarty
         $tpl_vars = array(
+            'sb_nb_unused' => count($groups['unused']),
             'token' => $this->token,
             'upgrade_available' => $upgrade_available,
             'module_alerts' => $module_alerts,
@@ -1619,7 +1609,6 @@ class AdminModulesControllerCore extends AdminController
             'list_modules_authors' => $this->modules_authors,
             'add_permission' => $this->tabAccess['add'],
             'tab_modules_preferences' => $tab_modules_preferences,
-            'kpis' => $this->renderKpis(),
             'module_name' => Tools::getValue('module_name'),
             'page_header_toolbar_title' => $this->page_header_toolbar_title,
             'page_header_toolbar_btn' => $this->page_header_toolbar_btn,

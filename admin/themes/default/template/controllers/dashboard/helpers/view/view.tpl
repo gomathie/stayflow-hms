@@ -40,6 +40,10 @@
         {/if}
         <div class="col-lg-12">
             <div class="panel clearfix">
+                <div class="col-lg-12">
+                    {if $PS_DASHBOARD_SIMULATION}<div class="alert alert-warning sb-demo-note"><b>{l s='Demo mode is on.'}</b> {l s='The charts below show sample figures, not your hotel. The desk above is always real.'}</div>{/if}
+                    <p class="sb-figures-note">{l s='The period buttons change the charts only. The desk above is always today.'}</p>
+                </div>
                 <div class="col-lg-6">
                     <div id="calendar">
                         <form action="{$action|escape}" method="post" id="calendar_form" name="calendar_form" class="form-inline">
@@ -88,6 +92,8 @@
                 <div class="col-lg-6">
                     <form action="{$action|escape}" method="post" class="form-inline">
                         <div class="text-right">
+                            {* P-7: Demo mode sits with the charts it changes; developer team only *}
+                            {if !empty($sb_can_demo)}<button type="button" id="sb-demo-toggle" class="btn btn-default" aria-pressed="{if $PS_DASHBOARD_SIMULATION}true{else}false{/if}" title="{l s='Show sample figures in the charts instead of the hotel figures'}"><i class="icon-cog"></i> {if $PS_DASHBOARD_SIMULATION}{l s='Demo figures: on'}{else}{l s='Demo figures: off'}{/if}</button>{/if}
                             <select class="form-control stats-filter-hotel" name="stats_id_hotel">
                                 {foreach from=$hotel_options item=hotel_option}
                                     <option value="{$hotel_option.id_hotel}" {if $hotel_option.id_hotel == $id_hotel}selected{/if}>

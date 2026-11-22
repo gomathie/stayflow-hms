@@ -46,6 +46,11 @@ class Salisbergreports extends Module
     /** @return array report key => name shown to the user */
     public function getReports()
     {
+        // P-16: Hotel Staff get the daily desk sheet only, no money totals
+        if (class_exists('Salisbergguide') && !Salisbergguide::seesIncome()) {
+            return array('arrivals' => $this->l('Arrivals and departures'));
+        }
+
         return array(
             'bookings' => $this->l('Bookings'),
             'arrivals' => $this->l('Arrivals and departures'),
@@ -78,7 +83,7 @@ class Salisbergreports extends Module
     public function ensureSetup()
     {
         if (Tab::getIdFromClassName(self::TAB)) {
-            return true;
+            return $this->grantStaffSheet();
         }
         $tab = new Tab();
         $tab->class_name = self::TAB;
@@ -108,7 +113,34 @@ class Salisbergreports extends Module
             );
         }
 
-        return true;
+        return $this->grantStaffSheet();
+    }
+
+    /**
+     * SIMPLIFY-REVIEW P-16: Hotel Staff open Reports for the daily Arrivals and
+     * departures sheet (getReports() offers them nothing else). The view right
+     * is given once (SBREPORTS_STAFF_SHEET), so taking it away later is kept.
+     */
+    protected function grantStaffSheet()
+    {
+        if (Configuration::get('SBREPORTS_STAFF_SHEET')) {
+            return true;
+        }
+        $idTab = (int) Tab::getIdFromClassName(self::TAB);
+        $idProfile = (int) Db::getInstance()->getValue(
+            'SELECT `id_profile` FROM `'._DB_PREFIX_.'profile_lang`
+            WHERE `name` = \'Hotel Staff\' AND `id_lang` = '.(int) Configuration::get('PS_LANG_DEFAULT')
+        );
+        if ($idTab && $idProfile) {
+            Db::getInstance()->execute(
+                'INSERT INTO `'._DB_PREFIX_.'access` (`id_profile`, `id_tab`, `view`, `add`, `edit`, `delete`)
+                VALUES ('.$idProfile.', '.$idTab.', 1, 0, 0, 0)
+                ON DUPLICATE KEY UPDATE `view` = 1'
+            );
+            PrestaShopLogger::addLog('salisbergreports: Hotel Staff may open Reports (daily sheet only)', 1);
+        }
+
+        return Configuration::updateValue('SBREPORTS_STAFF_SHEET', 1);
     }
 
     public function uninstall()
@@ -171,7 +203,7 @@ class Salisbergreports extends Module
     {
         $reports = $this->getReports();
         if (!isset($reports[$type])) {
-            $type = 'bookings';
+            $type = key($reports);
         }
         $method = 'build'.Tools::ucfirst($type);
         $report = $this->{$method}($from, $to);
@@ -215,6 +247,10 @@ class Salisbergreports extends Module
                 ON osl.`id_order_state` = o.`current_state` AND osl.`id_lang` = '.(int) $this->context->language->id.'
             LEFT JOIN `'._DB_PREFIX_.'htl_booking_detail` b ON b.`id_order` = o.`id_order`
             WHERE o.`date_add` BETWEEN \''.pSQL($from).' 00:00:00\' AND \''.pSQL($to).' 23:59:59\'
+                AND NOT EXISTS (
+                    SELECT 1 FROM `'._DB_PREFIX_.'sb_deleted_booking` archived
+                    WHERE archived.`id_order` = o.`id_order`
+                )
             GROUP BY o.`id_order`
             ORDER BY o.`date_add` ASC'
         );
@@ -288,6 +324,10 @@ class Salisbergreports extends Module
                 LEFT JOIN `'._DB_PREFIX_.'customer` c ON c.`id_customer` = o.`id_customer`
                 WHERE b.`'.bqSQL($column).'` BETWEEN \''.pSQL($from).' 00:00:00\' AND \''.pSQL($to).' 23:59:59\'
                     AND b.`is_cancelled` = 0 AND b.`is_refunded` = 0
+                    AND NOT EXISTS (
+                        SELECT 1 FROM `'._DB_PREFIX_.'sb_deleted_booking` archived
+                        WHERE archived.`id_order` = o.`id_order`
+                    )
                 ORDER BY b.`'.bqSQL($column).'` ASC, b.`room_num` ASC'
             );
             $lines = array();
@@ -349,6 +389,10 @@ class Salisbergreports extends Module
                 SUM(o.`total_paid_tax_incl`) AS `value`, SUM(o.`total_paid_real`) AS `paid`
             FROM `'._DB_PREFIX_.'orders` o
             WHERE o.`date_add` BETWEEN \''.pSQL($from).' 00:00:00\' AND \''.pSQL($to).' 23:59:59\''
+            .' AND NOT EXISTS (
+                SELECT 1 FROM `'._DB_PREFIX_.'sb_deleted_booking` archived
+                WHERE archived.`id_order` = o.`id_order`
+            )'
             .($dead ? ' AND o.`current_state` NOT IN ('.implode(',', $dead).')' : '').'
             GROUP BY DATE(o.`date_add`)
             ORDER BY `day` ASC'

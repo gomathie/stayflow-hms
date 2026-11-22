@@ -30,11 +30,11 @@
     <tab id="Shop_URLs" id_parent="-1" active="1" hide_host_mode="0">
       <class_name>AdminShopUrl</class_name>
     </tab>
-    <tab id="Catalog" id_parent="" active="1" hide_host_mode="0">
-      <class_name>AdminCatalog</class_name>
-    </tab>
     <tab id="Orders" id_parent="" active="1" hide_host_mode="0">
       <class_name>AdminParentOrders</class_name>
+    </tab>
+    <tab id="Catalog" id_parent="" active="1" hide_host_mode="0">
+      <class_name>AdminCatalog</class_name>
     </tab>
     <tab id="Customers" id_parent="" active="1" hide_host_mode="0">
       <class_name>AdminParentCustomer</class_name>
@@ -84,12 +84,6 @@
     <tab id="Features" id_parent="Catalog" active="1" hide_host_mode="0">
       <class_name>AdminFeatures</class_name>
     </tab>
-    <!-- <tab id="Manufacturers" id_parent="Catalog" active="1" hide_host_mode="0">
-      <class_name>AdminManufacturers</class_name>
-    </tab> -->
-    <!-- <tab id="Suppliers" id_parent="Catalog" active="1" hide_host_mode="0">
-      <class_name>AdminSuppliers</class_name>
-    </tab> -->
     <!-- <tab id="Tags" id_parent="Catalog" active="1" hide_host_mode="0">
       <class_name>AdminTags</class_name>
     </tab> -->
@@ -306,9 +300,6 @@
     <tab id="Stock_Coverage" id_parent="Stock" active="1" hide_host_mode="0">
       <class_name>AdminStockCover</class_name>
     </tab>
-   <!--  <tab id="Supply_orders" id_parent="Stock" active="1" hide_host_mode="0">
-      <class_name>AdminSupplyOrders</class_name>
-    </tab> -->
     <tab id="Configuration" id_parent="Stock" active="1" hide_host_mode="0">
       <class_name>AdminStockConfiguration</class_name>
     </tab>

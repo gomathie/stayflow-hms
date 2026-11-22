@@ -61,11 +61,19 @@ class DashPerformance extends Module
 
     public function hookDashboardZoneTwo($params)
     {
+        // P-16: revenue figures are not shown to Hotel Staff
+        if (class_exists('Salisbergguide') && !Salisbergguide::seesIncome()) {
+            return '';
+        }
+
         return $this->display(__FILE__, 'dashboard_zone_two.tpl');
     }
 
     public function hookDashboardData($params)
     {
+        if (class_exists('Salisbergguide') && !Salisbergguide::seesIncome()) {
+            return array();
+        }
         $data = array();
         if (Configuration::get('PS_DASHBOARD_SIMULATION')) {
             $data['dp_average_daily_rate'] = Tools::displayPrice(sprintf('%0.2f', rand(100000, 1000000) / 100));
