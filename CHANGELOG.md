@@ -7,6 +7,12 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
+## 2026-11-22
+
+### Removed
+
+- **An unused cart page that showed errors to search engines.** `module/blockcart/checkroomavailabilityajaxprocess` was a background-only page that no part of the site called. When Google's crawler opened it directly it tried to draw a full page without the parts a page needs, and logged three warnings. The page is removed and its address now returns "not found".
+
 ## 2026-11-20
 
 ### Removed

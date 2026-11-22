@@ -2910,3 +2910,12 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
   - Nothing is stored by us: the browser asks the user, as it does for any form.
 - **Verification (local, Playwright with Chrome, desktop):** the back office fields carry the new attributes; a Hotel Manager sign-in passed that email and password to `navigator.credentials.store` and reached the back office; the role and security tests pass (5 of 5).
 - **Not tested:** the save prompt itself, because the automated browser does not show it (try it by hand in Chrome once it is deployed); Safari and Firefox, which do not support `PasswordCredential` and rely on the `autocomplete` hints and their own heuristics; the checkout sign-in in a browser; the live server.
+
+### 2026-11-22 — Sentry SALISBERG-3, -4, -C: unused cart page removed
+
+- **Report (Sentry, production, Googlebot):** a GET of `/module/blockcart/checkroomavailabilityajaxprocess` logged `Undefined array key "HOOK_HEADER"`, `"show_breadcrump"` and `Attempt to read property "value" on null`. SALISBERG-3 and -4 had been resolved on 2026-11-19 for the newsletter page and were reopened by this different page, which fails in the same way: a front controller meant for background calls only, with no template, so a direct visit falls through to a full page render.
+- **Removed (rule 28):** `modules/blockcart/controllers/front/checkroomavailabilityajaxprocess.php`, and the `rm_avail_process_lnk` JsDef in `modules/blockcart/blockcart.tpl` and the theme copy. **Evidence:** a whole-tree search for `rm_avail_process_lnk` and `checkroomavailability` found only those two template lines and the controller; no script reads the variable, so nothing called the page. The cart's room removal uses other code.
+- **Checked for the same pattern:** front controllers with `content_only = true` are only `blocknewsletter/subscription` (fixed 2026-11-19) and `qlohotelreview/default` (module switched off).
+- **Verification (local, image rebuilt):** the friendly and `index.php?fc=module…` addresses both return 404 with no warning logged; the homepage no longer carries the variable; `docker/smoke-test.sh` 33 of 33.
+- **Not tested:** the live server until the next deploy. Until then Googlebot may reopen the three issues.
+- No guide or What's New entry: nothing a back office user sees changes. CHANGELOG under Removed.
