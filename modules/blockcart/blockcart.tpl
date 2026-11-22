@@ -435,7 +435,6 @@
 		{addJsDefL name=remove_rm_title}{l s='Remove this room from my cart' mod='blockcart' js=1}{/addJsDefL}
 		{addJsDefL name=no_internet_txt}{l s='No internet. Please check your internet connection.' mod='blockcart' js=1}{/addJsDefL}
 
-		{addJsDef rm_avail_process_lnk = $link->getModuleLink('blockcart', 'checkroomavailabilityajaxprocess')}
 		{addJsDef pagename = $current_page}
 		{/strip}
 	{/block}
