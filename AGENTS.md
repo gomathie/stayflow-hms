@@ -2919,3 +2919,12 @@ Owner approval 2026-11-19 (`SIMPLIFY-REVIEW.md`).
 - **Verification (local, image rebuilt):** the friendly and `index.php?fc=module…` addresses both return 404 with no warning logged; the homepage no longer carries the variable; `docker/smoke-test.sh` 33 of 33.
 - **Not tested:** the live server until the next deploy. Until then Googlebot may reopen the three issues.
 - No guide or What's New entry: nothing a back office user sees changes. CHANGELOG under Removed.
+
+### 2026-11-23 — Sentry SALISBERG-D: room page with no room number
+
+- **Report (Sentry, production):** a GET of the website room page with no `id_product` logged `Attempt to read property "show_at_front" on null` at `controllers/front/ProductController.php:122`.
+- **Cause:** `init()` creates `$this->product` only when `id_product` is set, then reads `show_at_front` before the later `Validate::isLoadedObject()` check. An unknown id already ended at "page not found", because an empty Product object has no `show_at_front`.
+- **Fix (inherited file, rule 11):** the check is now `!Validate::isLoadedObject($this->product) || !$this->product->show_at_front`, so a missing product takes the same redirect to "page not found" as an unknown one.
+- **Verification (local, file copied in, Apache reloaded):** `php -l` passes. `?controller=product` and `id_product=999999` both redirect to `/page-not-found` with nothing logged; `id_product=1` still redirects to the room's friendly address. `docker/smoke-test.sh` 33 of 33.
+- **Not tested:** the live server until the next deploy.
+- No guide or What's New entry: nothing a back office user sees changes. CHANGELOG under Fixed.

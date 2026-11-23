@@ -7,6 +7,12 @@ Every change to Salisberg, newest first, in plain words.
 - How and why each change was made, and how it was tested, is in `AGENTS.md`, section 6.
 - `CHANGELOG.txt` is the original vendor's own history up to version 1.7.0 and is not updated here.
 
+## 2026-11-23
+
+### Fixed
+
+- **A room page address with no room in it.** Opening the room page without a room number logged a warning before sending the visitor to "page not found". It now goes straight to "page not found", as an unknown room number already did.
+
 ## 2026-11-22
 
 ### Removed

@@ -118,8 +118,8 @@ class ProductControllerCore extends FrontController
             $this->product = new Product($id_product, true, $this->context->language->id, $this->context->shop->id);
         }
 
-        // redirect if the product is not available for front
-        if (!$this->product->show_at_front) {
+        // redirect if there is no such product (no id_product in the address) or it is not shown on the website
+        if (!Validate::isLoadedObject($this->product) || !$this->product->show_at_front) {
             Tools::redirect($this->context->link->getPageLink('pagenotfound'));
         }
 
